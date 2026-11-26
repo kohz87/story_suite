@@ -27693,7 +27693,7 @@
 				"summary": "Bluewatch's rebuilt town holds its first Thinning since the Fall: {outcome}."
 			},
 			{
-				"id": "late-bluewatch-ruin-resettled",
+				"id": "late-bluewatch-ruin-resettled-company",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -27704,10 +27704,99 @@
 					"bluewatch-village",
 					"bluewatch-reach"
 				],
+				"window": {
+					"after": "start + 1826 days",
+					"within": "120 days"
+				},
+				"waits_for": "near",
+				"effects": {
+					"clear": [
+						"raiders@bluewatch-reach"
+					],
+					"set": [
+						"unrest@bluewatch-village: 10 days"
+					],
+					"powers": {
+						"the-reedmen": 4,
+						"bluewatch-watch": 2
+					},
+					"scores": {
+						"wild-swarm": -2
+					},
+					"facts": [
+						{
+							"id": "bluewatch-ruin-successor-settlement",
+							"text": "A new settlement has grown inside or beside Bluewatch's ruins without a charter any crown recognises."
+						},
+						{
+							"id": "bluewatch-ruin-tenure-question",
+							"text": "The people working Bluewatch's ruins claim the old quay, road and hunting rights, and the old charter names none of them."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "new hunters raise a palisade",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"guild-stretched@bluewatch-reach: 1 season"
+							],
+							"powers": {
+								"bluewatch-watch": 4
+							},
+							"clear": [
+								"wildzone-pushing@bluewatch-reach",
+								"dungeon-unworked@bluewatch-village"
+							]
+						}
+					},
+					{
+						"name": "the Reedmen lease a landing from the company",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"debt-called-in@bluewatch-village: 1 season"
+							],
+							"powers": {
+								"the-reedmen": 6
+							},
+							"clear": [
+								"wildzone-pushing@bluewatch-reach",
+								"dungeon-unworked@bluewatch-village"
+							]
+						}
+					},
+					{
+						"name": "wild sign turns the company's hunters outward",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"wildzone-pushing@bluewatch-reach: 1 season",
+								"dungeon-unworked@bluewatch-village: 1 season"
+							],
+							"scores": {
+								"wild-swarm": 5
+							}
+						}
+					}
+				],
+				"summary": "The free company's claim on Bluewatch's ruins draws new settlers without a charter: {outcome}.",
 				"requires_any": [
-					"fact:bluewatch-ruins-claimed",
-					"fact:bluewatch-wild-den",
-					"fact:bluewatch-salvage-town"
+					"fact:bluewatch-ruins-claimed"
+				]
+			},
+			{
+				"id": "late-bluewatch-ruin-resettled-den",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"bluewatch-village",
+					"bluewatch-reach"
 				],
 				"window": {
 					"after": "start + 1826 days",
@@ -27786,11 +27875,14 @@
 						}
 					}
 				],
-				"summary": "Bluewatch's ruins find a new population without a new charter: {outcome}."
+				"summary": "People move in beside the Wildzone's den in Bluewatch's ruins without a charter: {outcome}.",
+				"requires_any": [
+					"fact:bluewatch-wild-den"
+				]
 			},
 			{
-				"id": "late-bluewatch-succession",
-				"kind": "chain-stage",
+				"id": "late-bluewatch-ruin-resettled-salvage",
+				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
 				"chance": "100% over the window",
@@ -27800,9 +27892,99 @@
 					"bluewatch-village",
 					"bluewatch-reach"
 				],
+				"window": {
+					"after": "start + 1826 days",
+					"within": "120 days"
+				},
+				"waits_for": "near",
+				"effects": {
+					"clear": [
+						"raiders@bluewatch-reach"
+					],
+					"set": [
+						"unrest@bluewatch-village: 10 days"
+					],
+					"powers": {
+						"the-reedmen": 4,
+						"bluewatch-watch": 2
+					},
+					"scores": {
+						"wild-swarm": -2
+					},
+					"facts": [
+						{
+							"id": "bluewatch-ruin-successor-settlement",
+							"text": "A new settlement has grown inside or beside Bluewatch's ruins without a charter any crown recognises."
+						},
+						{
+							"id": "bluewatch-ruin-tenure-question",
+							"text": "The people working Bluewatch's ruins claim the old quay, road and hunting rights, and the old charter names none of them."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "new hunters raise a palisade",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"guild-stretched@bluewatch-reach: 1 season"
+							],
+							"powers": {
+								"bluewatch-watch": 4
+							},
+							"clear": [
+								"wildzone-pushing@bluewatch-reach",
+								"dungeon-unworked@bluewatch-village"
+							]
+						}
+					},
+					{
+						"name": "the Reedmen take over the salvagers' quay",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"debt-called-in@bluewatch-village: 1 season"
+							],
+							"powers": {
+								"the-reedmen": 6
+							},
+							"clear": [
+								"wildzone-pushing@bluewatch-reach",
+								"dungeon-unworked@bluewatch-village"
+							]
+						}
+					},
+					{
+						"name": "salvage digging opens a fresh wild trail",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"wildzone-pushing@bluewatch-reach: 1 season",
+								"dungeon-unworked@bluewatch-village: 1 season"
+							],
+							"scores": {
+								"wild-swarm": 5
+							}
+						}
+					}
+				],
+				"summary": "The salvagers' quay at Bluewatch grows into a settlement without a charter: {outcome}.",
 				"requires_any": [
-					"stage:late-bluewatch-town-thinning",
-					"stage:late-bluewatch-ruin-resettled"
+					"fact:bluewatch-salvage-town"
+				]
+			},
+			{
+				"id": "late-bluewatch-succession-town",
+				"kind": "chain-stage",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"bluewatch-village",
+					"bluewatch-reach"
 				],
 				"window": {
 					"after": "start + 2921 days",
@@ -27837,7 +28019,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the frontier charter is renewed",
+						"name": "the town's frontier rights are renewed",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -27873,10 +28055,101 @@
 						}
 					}
 				],
-				"summary": "Bluewatch's long succession is settled by its own fair court: {outcome}."
+				"summary": "The rebuilt town's long succession is settled by its own fair court: {outcome}.",
+				"requires_any": [
+					"stage:late-bluewatch-town-thinning"
+				]
 			},
 			{
-				"id": "late-teeming-after",
+				"id": "late-bluewatch-succession-ruin",
+				"kind": "chain-stage",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"bluewatch-village",
+					"bluewatch-reach"
+				],
+				"window": {
+					"after": "start + 2921 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"wildzone-pushing@bluewatch-reach",
+						"raiders@bluewatch-reach",
+						"guild-stretched@bluewatch-reach"
+					],
+					"set": [
+						"tolls-raised@bluewatch-reach: until cleared"
+					],
+					"powers": {
+						"bluewatch-guild": 3,
+						"the-reedmen": 2
+					},
+					"scores": {
+						"north-readiness": 2
+					},
+					"facts": [
+						{
+							"id": "bluewatch-succession-government",
+							"text": "The settlement at Bluewatch's ruins has made a permanent government out of its own meeting court."
+						},
+						{
+							"id": "bluewatch-frontier-road-question",
+							"text": "The new government keeps the frontier road, but no neighbouring power has agreed who may close or tax it."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the settlers win a first frontier charter",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"bluewatch-watch": 5
+							},
+							"set": [
+								"plenty@bluewatch-reach: 1 season"
+							]
+						}
+					},
+					{
+						"name": "a free company takes the gate contract",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"bloodbound-captains": 4
+							},
+							"set": [
+								"unrest@bluewatch-village: 10 days"
+							]
+						}
+					},
+					{
+						"name": "the ruin families open a common hall",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"adventurer-guild": 4
+							},
+							"set": [
+								"festival@bluewatch-village: 10 days"
+							]
+						}
+					}
+				],
+				"summary": "The ruin settlement's long succession is settled by its own court: {outcome}.",
+				"requires_any": [
+					"stage:late-bluewatch-ruin-resettled-company",
+					"stage:late-bluewatch-ruin-resettled-den",
+					"stage:late-bluewatch-ruin-resettled-salvage"
+				]
+			},
+			{
+				"id": "late-teeming-after-resettled",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -27888,10 +28161,193 @@
 					"border-kingdoms",
 					"bluewatch-reach"
 				],
+				"window": {
+					"after": "start + 1876 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"wildzone-pushing@deep-northern-apex",
+						"garrisons-away@border-kingdoms-realm"
+					],
+					"set": [
+						"tolls-raised@border-kingdoms: until cleared"
+					],
+					"powers": {
+						"white-horn-clans": 4,
+						"long-watch": 3
+					},
+					"scores": {
+						"wild-swarm": -8,
+						"north-readiness": 5
+					},
+					"facts": [
+						{
+							"id": "teeming-frontier-charter",
+							"text": "The resettled north now has a civil charter: roads, pasture and hunting ground are held by written grants."
+						},
+						{
+							"id": "teeming-brood-present-question",
+							"text": "The charter cannot say whether surviving broods belong to the Wildzone or to the farmers at its edge."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the resettled north feeds its first winter",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"plenty@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"white-horn-clans": 4
+							},
+							"clear": [
+								"wildzone-pushing@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "a surviving brood raids the new farms",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"raiders@border-kingdoms: 30 days",
+								"wildzone-pushing@border-kingdoms: 1 season"
+							],
+							"scores": {
+								"wild-swarm": 5
+							}
+						}
+					},
+					{
+						"name": "the old fields turn back to pasture",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"plenty@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"the-reedmen": 2
+							},
+							"clear": [
+								"wildzone-pushing@border-kingdoms"
+							]
+						}
+					}
+				],
+				"summary": "The resettled north becomes a governed frontier: {outcome}.",
 				"requires_any": [
-					"fact:north-resettled",
-					"fact:frontier-moved-south",
-					"fact:old-frontier-held"
+					"fact:north-resettled"
+				]
+			},
+			{
+				"id": "late-teeming-after-moved",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"deep-northern-apex",
+					"border-kingdoms",
+					"bluewatch-reach"
+				],
+				"window": {
+					"after": "start + 1876 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"wildzone-pushing@deep-northern-apex",
+						"garrisons-away@border-kingdoms-realm"
+					],
+					"set": [
+						"tolls-raised@border-kingdoms: until cleared"
+					],
+					"powers": {
+						"white-horn-clans": 4,
+						"long-watch": 3
+					},
+					"scores": {
+						"wild-swarm": -8,
+						"north-readiness": 5
+					},
+					"facts": [
+						{
+							"id": "teeming-frontier-charter",
+							"text": "The moved frontier now has a civil charter: its new roads, pasture and hunting ground are held by written grants."
+						},
+						{
+							"id": "teeming-brood-present-question",
+							"text": "The charter cannot say who answers for broods on the land given up to the north."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the moved frontier opens a new road",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"long-watch": 4
+							},
+							"scores": {
+								"north-readiness": 3
+							},
+							"clear": [
+								"wildzone-pushing@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "a surviving brood crosses the new line",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"raiders@border-kingdoms: 30 days",
+								"wildzone-pushing@border-kingdoms: 1 season"
+							],
+							"scores": {
+								"wild-swarm": 5
+							}
+						}
+					},
+					{
+						"name": "the southern line feeds its first winter",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"plenty@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"white-horn-clans": 4
+							},
+							"clear": [
+								"wildzone-pushing@border-kingdoms"
+							]
+						}
+					}
+				],
+				"summary": "The frontier that moved south becomes a governed one: {outcome}.",
+				"requires_any": [
+					"fact:frontier-moved-south"
+				]
+			},
+			{
+				"id": "late-teeming-after-held",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"deep-northern-apex",
+					"border-kingdoms",
+					"bluewatch-reach"
 				],
 				"window": {
 					"after": "start + 1876 days",
@@ -27926,14 +28382,14 @@
 				},
 				"outcomes": [
 					{
-						"name": "the resettled north feeds its first winter",
+						"name": "the old frontier turns to pasture",
 						"weight": 40,
 						"effects": {
 							"set": [
 								"plenty@border-kingdoms: 1 season"
 							],
 							"powers": {
-								"white-horn-clans": 4
+								"the-reedmen": 2
 							},
 							"clear": [
 								"wildzone-pushing@border-kingdoms"
@@ -27941,22 +28397,7 @@
 						}
 					},
 					{
-						"name": "the moved frontier opens a new road",
-						"weight": 35,
-						"effects": {
-							"powers": {
-								"long-watch": 4
-							},
-							"scores": {
-								"north-readiness": 3
-							},
-							"clear": [
-								"wildzone-pushing@border-kingdoms"
-							]
-						}
-					},
-					{
-						"name": "a surviving brood crosses the new line",
+						"name": "a surviving brood breaks through the old line",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -27969,14 +28410,14 @@
 						}
 					},
 					{
-						"name": "the old frontier turns to pasture",
+						"name": "the long garrisons open a new patrol road",
 						"weight": 25,
 						"effects": {
-							"set": [
-								"plenty@border-kingdoms: 1 season"
-							],
 							"powers": {
-								"the-reedmen": 2
+								"long-watch": 4
+							},
+							"scores": {
+								"north-readiness": 3
 							},
 							"clear": [
 								"wildzone-pushing@border-kingdoms"
@@ -27984,10 +28425,13 @@
 						}
 					}
 				],
-				"summary": "The Teeming's ending becomes a governed frontier: {outcome}."
+				"summary": "The old frontier that held becomes a governed one: {outcome}.",
+				"requires_any": [
+					"fact:old-frontier-held"
+				]
 			},
 			{
-				"id": "late-auvoth-quarter-first-test",
+				"id": "late-auvoth-quarter-first-test-new-quarter",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -27998,11 +28442,6 @@
 					"auvoth",
 					"auvoth-compact",
 					"auvoth-outer-lamps"
-				],
-				"requires_any": [
-					"fact:auvoth-new-quarter",
-					"fact:compact-council-fell",
-					"fact:auvoth-old-ways"
 				],
 				"window": {
 					"after": "start + 1946 days",
@@ -28072,10 +28511,184 @@
 						}
 					}
 				],
-				"summary": "Auvoth's crowded city holds its first test of the new quarter's law: {outcome}."
+				"summary": "Auvoth's crowded city holds its first test of the new quarter's law: {outcome}.",
+				"requires_any": [
+					"fact:auvoth-new-quarter"
+				]
 			},
 			{
-				"id": "late-north-first-migration",
+				"id": "late-auvoth-quarter-first-test-council-fell",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "major",
+				"where": [
+					"auvoth",
+					"auvoth-compact",
+					"auvoth-outer-lamps"
+				],
+				"window": {
+					"after": "start + 1946 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"clear": [
+						"court-divided@auvoth-compact-realm",
+						"refugees@auvoth-compact"
+					],
+					"set": [
+						"tolls-raised@auvoth-compact: until cleared"
+					],
+					"powers": {
+						"bluewatch-guild": 3,
+						"the-reedmen": 2
+					},
+					"scores": {
+						"wild-swarm": -2
+					},
+					"facts": [
+						{
+							"id": "auvoth-quarter-first-test",
+							"text": "With the Council fallen, Auvoth's crowded wards have held their first common assembly without a riot."
+						},
+						{
+							"id": "auvoth-quarter-law-question",
+							"text": "The assembly has made ward law, but the Sealcrown, the Pale Market and the outer lamps all claim a veto."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the unclaimed quarter governs itself",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"adventurer-guild": 4
+							},
+							"set": [
+								"festival@auvoth: 1 season"
+							]
+						}
+					},
+					{
+						"name": "the fallen Council's creditors call in its debts",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"debt-called-in@auvoth: 1 season"
+							],
+							"powers": {
+								"grey-ledger": 3
+							}
+						}
+					},
+					{
+						"name": "the outer wards demand a seat",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"unrest@auvoth: 10 days"
+							],
+							"powers": {
+								"the-reedmen": 2
+							}
+						}
+					}
+				],
+				"summary": "Auvoth's wards try to rule themselves after the Council's fall: {outcome}.",
+				"requires_any": [
+					"fact:compact-council-fell"
+				]
+			},
+			{
+				"id": "late-auvoth-quarter-first-test-old-ways",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "major",
+				"where": [
+					"auvoth",
+					"auvoth-compact",
+					"auvoth-outer-lamps"
+				],
+				"window": {
+					"after": "start + 1946 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"clear": [
+						"court-divided@auvoth-compact-realm"
+					],
+					"set": [
+						"tolls-raised@auvoth-compact: until cleared"
+					],
+					"powers": {
+						"bluewatch-guild": 3,
+						"the-reedmen": 2
+					},
+					"scores": {
+						"wild-swarm": -2
+					},
+					"facts": [
+						{
+							"id": "auvoth-quarter-first-test",
+							"text": "The quarter left outside Auvoth's old bounds has held its first common assembly without a riot."
+						},
+						{
+							"id": "auvoth-quarter-law-question",
+							"text": "The assembly has made law for the outside quarter, and nobody inside the old bounds agrees it counts."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the outside quarter governs itself",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"adventurer-guild": 4
+							},
+							"set": [
+								"festival@auvoth: 1 season"
+							]
+						}
+					},
+					{
+						"name": "city creditors follow debtors past the walls",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"debt-called-in@auvoth: 1 season"
+							],
+							"powers": {
+								"grey-ledger": 3
+							}
+						}
+					},
+					{
+						"name": "the outside quarter demands a seat within",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"unrest@auvoth: 10 days"
+							],
+							"powers": {
+								"the-reedmen": 2
+							}
+						}
+					}
+				],
+				"summary": "The quarter outside Auvoth's old bounds tests a law of its own: {outcome}.",
+				"requires_any": [
+					"fact:auvoth-old-ways"
+				]
+			},
+			{
+				"id": "late-north-first-migration-pasture",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28087,10 +28700,191 @@
 					"united-chieftainates",
 					"deep-northern-apex"
 				],
+				"window": {
+					"after": "start + 2006 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"wildzone-pushing@deep-northern-apex"
+					],
+					"set": [
+						"tolls-raised@border-kingdoms: until cleared"
+					],
+					"powers": {
+						"white-horn-clans": 3,
+						"frostbound-tribes": 2,
+						"long-watch": 2
+					},
+					"scores": {
+						"north-readiness": 3,
+						"wild-swarm": -3
+					},
+					"facts": [
+						{
+							"id": "north-first-migration-accord",
+							"text": "The White-Horn settlement has carried its first migration across the old border without a general war."
+						},
+						{
+							"id": "north-pasture-border-question",
+							"text": "The migration has made pasture of old battlefields, and the pasture treaty does not say who owns the new grass."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the pasture treaty is renewed",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"plenty@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"white-horn-clans": 5
+							},
+							"clear": [
+								"raiders@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "the clans share the herd roads with the watch",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"long-watch": 5
+							},
+							"scores": {
+								"north-readiness": 4
+							},
+							"clear": [
+								"raiders@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "a border hunt crosses the new pasture",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"raiders@border-kingdoms: 30 days"
+							],
+							"scores": {
+								"wild-swarm": 4
+							}
+						}
+					}
+				],
+				"summary": "The first great migration since the clans took new pasture reaches the border: {outcome}.",
 				"requires_any": [
-					"fact:white-horn-settled",
-					"fact:frostbound-frontier-south",
-					"fact:old-north-routes-restored"
+					"fact:white-horn-settled"
+				]
+			},
+			{
+				"id": "late-north-first-migration-war",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"border-kingdoms",
+					"united-chieftainates",
+					"deep-northern-apex"
+				],
+				"window": {
+					"after": "start + 2006 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"wildzone-pushing@deep-northern-apex"
+					],
+					"set": [
+						"tolls-raised@border-kingdoms: until cleared"
+					],
+					"powers": {
+						"white-horn-clans": 3,
+						"frostbound-tribes": 2,
+						"long-watch": 2
+					},
+					"scores": {
+						"north-readiness": 3,
+						"wild-swarm": -3
+					},
+					"facts": [
+						{
+							"id": "north-first-migration-accord",
+							"text": "The first migration since the Frostbound push has crossed the new war frontier."
+						},
+						{
+							"id": "north-pasture-border-question",
+							"text": "The herds graze old battlefields, and no truce says who owns the grass."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the Frostbound send a hostage court",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"frostbound-tribes": 5
+							},
+							"set": [
+								"festival@thornkeep: 10 days"
+							],
+							"clear": [
+								"raiders@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "the herds are passed through under a short truce",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"long-watch": 5
+							},
+							"scores": {
+								"north-readiness": 4
+							},
+							"clear": [
+								"raiders@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "a border hunt crosses the new pasture",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"raiders@border-kingdoms: 30 days"
+							],
+							"scores": {
+								"wild-swarm": 4
+							}
+						}
+					}
+				],
+				"summary": "The first great migration since the Frostbound push south crosses a contested frontier: {outcome}.",
+				"requires_any": [
+					"fact:frostbound-frontier-south"
+				]
+			},
+			{
+				"id": "late-north-first-migration-routes",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"border-kingdoms",
+					"united-chieftainates",
+					"deep-northern-apex"
 				],
 				"window": {
 					"after": "start + 2006 days",
@@ -28125,44 +28919,29 @@
 				},
 				"outcomes": [
 					{
-						"name": "the pasture treaty is renewed",
+						"name": "the restored routes gain a common watch",
 						"weight": 40,
-						"effects": {
-							"set": [
-								"plenty@border-kingdoms: 1 season"
-							],
-							"powers": {
-								"white-horn-clans": 5
-							},
-							"clear": [
-								"raiders@border-kingdoms"
-							]
-						}
-					},
-					{
-						"name": "the Frostbound send a hostage court",
-						"weight": 35,
-						"effects": {
-							"powers": {
-								"frostbound-tribes": 5
-							},
-							"set": [
-								"festival@thornkeep: 10 days"
-							],
-							"clear": [
-								"raiders@border-kingdoms"
-							]
-						}
-					},
-					{
-						"name": "the old routes reopen under a common watch",
-						"weight": 30,
 						"effects": {
 							"powers": {
 								"long-watch": 5
 							},
 							"scores": {
 								"north-readiness": 4
+							},
+							"clear": [
+								"raiders@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "the herds bring a trading season",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"plenty@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"white-horn-clans": 5
 							},
 							"clear": [
 								"raiders@border-kingdoms"
@@ -28182,10 +28961,13 @@
 						}
 					}
 				],
-				"summary": "The North's first great migration after its long war arrives at the new border: {outcome}."
+				"summary": "The first great migration along the restored northern routes arrives: {outcome}.",
+				"requires_any": [
+					"fact:old-north-routes-restored"
+				]
 			},
 			{
-				"id": "late-ledger-first-reckoning",
+				"id": "late-ledger-first-reckoning-creditors",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28196,11 +28978,6 @@
 					"ledgerford",
 					"ledger-locks",
 					"confederacy-heartland"
-				],
-				"requires_any": [
-					"fact:ledger-order-creditors",
-					"fact:ledger-notes-circulate",
-					"fact:ledger-jubilee-unfinished"
 				],
 				"window": {
 					"after": "start + 2066 days",
@@ -28224,11 +29001,11 @@
 					"facts": [
 						{
 							"id": "ledger-first-reckoning",
-							"text": "The Drowned Ledger's settlement has reached its first full reckoning, with every old note entered in a public register."
+							"text": "The creditors' order has reached its first full reckoning, with every proven note entered in a public register."
 						},
 						{
 							"id": "ledger-new-claims-question",
-							"text": "The register has exposed claims older than the drowned books, and the river courts cannot agree which of them survive."
+							"text": "The register has exposed claims older than the drowned books, and the river courts cannot agree which survive."
 						}
 					]
 				},
@@ -28245,6 +29022,78 @@
 							}
 						}
 					},
+					{
+						"name": "a debtor's march reaches Ledgerford",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"unrest@ledgerford: 10 days",
+								"grain-dear@ledger-locks: 1 season"
+							]
+						}
+					},
+					{
+						"name": "the salvage camps turn on each other",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"raiders@ledger-locks: 30 days"
+							],
+							"powers": {
+								"nightingale": 2
+							}
+						}
+					}
+				],
+				"summary": "The creditors' restored order reaches its first full reckoning: {outcome}.",
+				"requires_any": [
+					"fact:ledger-order-creditors"
+				]
+			},
+			{
+				"id": "late-ledger-first-reckoning-notes",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"ledgerford",
+					"ledger-locks",
+					"confederacy-heartland"
+				],
+				"window": {
+					"after": "start + 2066 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"tolls-raised@ledger-locks",
+						"court-divided@river-confederacy"
+					],
+					"set": [
+						"debt-called-in@ledgerford: until cleared"
+					],
+					"powers": {
+						"grey-ledger": 4,
+						"river-council": 3
+					},
+					"scores": {
+						"ledger-trust": 4
+					},
+					"facts": [
+						{
+							"id": "ledger-first-reckoning",
+							"text": "The River Council's Notes have reached their first full reckoning, with every issue entered in a public register."
+						},
+						{
+							"id": "ledger-new-claims-question",
+							"text": "Old claims from before the Notes have surfaced, and the river courts cannot agree which survive."
+						}
+					]
+				},
+				"outcomes": [
 					{
 						"name": "the Notes are accepted at the locks",
 						"weight": 35,
@@ -28280,10 +29129,97 @@
 						}
 					}
 				],
-				"summary": "The Drowned Ledger's settlement reaches its first full reckoning: {outcome}."
+				"summary": "The river's new coin reaches its first full reckoning: {outcome}.",
+				"requires_any": [
+					"fact:ledger-notes-circulate"
+				]
 			},
 			{
-				"id": "late-bells-second-council",
+				"id": "late-ledger-first-reckoning-jubilee",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"ledgerford",
+					"ledger-locks",
+					"confederacy-heartland"
+				],
+				"window": {
+					"after": "start + 2066 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"tolls-raised@ledger-locks",
+						"court-divided@river-confederacy"
+					],
+					"powers": {
+						"grey-ledger": 4,
+						"river-council": 3
+					},
+					"scores": {
+						"ledger-trust": 4
+					},
+					"facts": [
+						{
+							"id": "ledger-first-reckoning",
+							"text": "The unfinished jubilee has forced its first full hearing of what people remember owing."
+						},
+						{
+							"id": "ledger-new-claims-question",
+							"text": "With the books burned, the river courts cannot agree which debts survive."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "hidden creditors return with copied accounts",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"grey-ledger": 5
+							},
+							"scores": {
+								"ledger-trust": 3
+							},
+							"set": [
+								"debt-called-in@ledgerford: 1 season"
+							]
+						}
+					},
+					{
+						"name": "a debtor's march reaches Ledgerford",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"unrest@ledgerford: 10 days",
+								"grain-dear@ledger-locks: 1 season"
+							]
+						}
+					},
+					{
+						"name": "the salvage camps turn on each other",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"raiders@ledger-locks: 30 days"
+							],
+							"powers": {
+								"nightingale": 2
+							}
+						}
+					}
+				],
+				"summary": "The unfinished jubilee faces its first full reckoning: {outcome}.",
+				"requires_any": [
+					"fact:ledger-jubilee-unfinished"
+				]
+			},
+			{
+				"id": "late-bells-second-council-concord",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28295,14 +29231,100 @@
 					"highmark-empire",
 					"kingdom-of-ashmere"
 				],
+				"window": {
+					"after": "start + 2191 days",
+					"within": "75 days"
+				},
+				"effects": {
+					"set": [
+						"unrest@holy-city-of-aurelion: until cleared"
+					],
+					"powers": {
+						"church": 3,
+						"veil": 3
+					},
+					"scores": {
+						"flame-faith": 4
+					},
+					"facts": [
+						{
+							"id": "second-council-called",
+							"text": "A second council of the Flame has been called to settle what the first settlement left open."
+						},
+						{
+							"id": "second-council-seat-question",
+							"text": "The second council has no agreed seat, no agreed vote and no agreement on whether Odile, the Veil's mender-saint, may speak."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "a second council seats the Veil",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"veil": 8,
+								"church": 4
+							},
+							"scores": {
+								"flame-faith": 4
+							},
+							"clear": [
+								"at-war@holy-dominion-of-aurelion",
+								"festival@holy-city-of-aurelion"
+							]
+						}
+					},
+					{
+						"name": "the Concord renews its shared shrine law",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"church": 5,
+								"veil": 5
+							},
+							"set": [
+								"festival@holy-city-of-aurelion: 30 days"
+							],
+							"clear": [
+								"at-war@holy-dominion-of-aurelion"
+							]
+						}
+					},
+					{
+						"name": "the council ends with the Concord's creed unwritten",
+						"weight": 25,
+						"effects": {
+							"powers": {
+								"church": -5,
+								"veil": 3
+							},
+							"clear": [
+								"festival@holy-city-of-aurelion"
+							]
+						}
+					}
+				],
+				"summary": "The Concord of the Flame calls a second council: {outcome}.",
 				"requires_any": [
-					"fact:concord-of-flame",
-					"fact:two-churches",
-					"fact:saintesses-rivals",
-					"fact:saintesses-shared-rite",
-					"fact:saintess-betrayal",
-					"fact:flame-true-source-unknown",
-					"fact:veil-place-unsettled"
+					"fact:concord-of-flame"
+				],
+				"less_if": {
+					"fact:saintess-betrayal": "×0"
+				}
+			},
+			{
+				"id": "late-bells-second-council-two-churches",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "major",
+				"where": [
+					"aurelion",
+					"highmark-empire",
+					"kingdom-of-ashmere"
 				],
 				"window": {
 					"after": "start + 2191 days",
@@ -28365,23 +29387,6 @@
 						}
 					},
 					{
-						"name": "the council votes to name Odile, the Veil's mender-saint, its arbiter",
-						"weight": 30,
-						"effects": {
-							"powers": {
-								"church": 3,
-								"veil": 6
-							},
-							"scores": {
-								"flame-faith": 5
-							},
-							"clear": [
-								"at-war@holy-dominion-of-aurelion",
-								"festival@holy-city-of-aurelion"
-							]
-						}
-					},
-					{
 						"name": "the council ends without a common creed",
 						"weight": 25,
 						"effects": {
@@ -28398,10 +29403,102 @@
 						}
 					}
 				],
-				"summary": "The faith's long settlement is opened again by a second council: {outcome}."
+				"summary": "The two Churches of the Flame meet in a second council: {outcome}.",
+				"requires_any": [
+					"fact:two-churches"
+				],
+				"less_if": {
+					"fact:saintess-betrayal": "×0"
+				}
 			},
 			{
-				"id": "late-bells-settlement",
+				"id": "late-bells-second-council-betrayal",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "major",
+				"where": [
+					"aurelion",
+					"highmark-empire",
+					"kingdom-of-ashmere"
+				],
+				"window": {
+					"after": "start + 2191 days",
+					"within": "75 days"
+				},
+				"effects": {
+					"set": [
+						"unrest@holy-city-of-aurelion: until cleared"
+					],
+					"powers": {
+						"church": 3,
+						"veil": 3
+					},
+					"scores": {
+						"flame-faith": 4
+					},
+					"facts": [
+						{
+							"id": "second-council-called",
+							"text": "A second council of the Flame has been called to settle what the first settlement left open."
+						},
+						{
+							"id": "second-council-seat-question",
+							"text": "The second council has no agreed seat or vote, and no answer for the Inquest's move against Odile."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the council condemns the Inquest's hand in the faith",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"veil": 8,
+								"church": 4
+							},
+							"scores": {
+								"flame-faith": 4
+							},
+							"clear": [
+								"at-war@holy-dominion-of-aurelion",
+								"festival@holy-city-of-aurelion"
+							]
+						}
+					},
+					{
+						"name": "the council agrees a law for shrine trials",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"church": 5,
+								"veil": 5
+							}
+						}
+					},
+					{
+						"name": "the council ends without a common creed",
+						"weight": 25,
+						"effects": {
+							"powers": {
+								"church": -5,
+								"veil": 3
+							},
+							"clear": [
+								"festival@holy-city-of-aurelion"
+							]
+						}
+					}
+				],
+				"summary": "The tale of a betrayal to the Inquest forces a second council of the Flame: {outcome}.",
+				"requires_any": [
+					"fact:saintess-betrayal"
+				]
+			},
+			{
+				"id": "late-bells-settlement-concord",
 				"kind": "chain-stage",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28413,8 +29510,97 @@
 					"highmark-empire",
 					"kingdom-of-ashmere"
 				],
+				"window": {
+					"after": "start + 3100 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"set": [
+						"unrest@holy-city-of-aurelion: until cleared"
+					],
+					"powers": {
+						"church": 4,
+						"veil": 2
+					},
+					"scores": {
+						"flame-faith": 3
+					},
+					"facts": [
+						{
+							"id": "bells-long-settlement",
+							"text": "The second council has produced a durable settlement of shrines, bells and Veil rites, though not a single creed."
+						},
+						{
+							"id": "veil-law-question",
+							"text": "The settlement leaves each realm to decide whether the Veil is lawful, tolerated or still a heresy."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the Veil is made lawful in one realm",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"veil": 7,
+								"church": 3
+							},
+							"set": [
+								"festival@holy-city-of-aurelion: 1 season"
+							],
+							"clear": [
+								"at-war@holy-dominion-of-aurelion"
+							]
+						}
+					},
+					{
+						"name": "a third council is called",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"church": 3,
+								"veil": -2
+							},
+							"set": [
+								"festival@holy-city-of-aurelion: 10 days"
+							],
+							"clear": [
+								"at-war@holy-dominion-of-aurelion"
+							]
+						}
+					},
+					{
+						"name": "the Concord leaves the Veil to each realm",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"veil": 4
+							}
+						}
+					}
+				],
+				"summary": "The second council's work is carried from the Concord into the realms: {outcome}.",
 				"requires": [
-					"stage:late-bells-second-council"
+					"fact:concord-of-flame"
+				],
+				"requires_any": [
+					"stage:late-bells-second-council-concord",
+					"stage:late-bells-second-council-two-churches",
+					"stage:late-bells-second-council-betrayal"
+				]
+			},
+			{
+				"id": "late-bells-settlement-two-churches",
+				"kind": "chain-stage",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"aurelion",
+					"highmark-empire",
+					"kingdom-of-ashmere"
 				],
 				"window": {
 					"after": "start + 3100 days",
@@ -28489,10 +29675,18 @@
 						}
 					}
 				],
-				"summary": "The second council's settlement is carried into the realms: {outcome}."
+				"summary": "The second council's settlement is carried into the realms: {outcome}.",
+				"requires": [
+					"fact:two-churches"
+				],
+				"requires_any": [
+					"stage:late-bells-second-council-concord",
+					"stage:late-bells-second-council-two-churches",
+					"stage:late-bells-second-council-betrayal"
+				]
 			},
 			{
-				"id": "late-ardelian-election-first-test",
+				"id": "late-ardelian-election-first-test-reopening",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28504,11 +29698,81 @@
 					"osterhal-ninefold-hall",
 					"ardelian-empire"
 				],
+				"window": {
+					"after": "start + 2136 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"set": [
+						"court-divided@ardelian-empire: until cleared"
+					],
+					"powers": {
+						"ardelian-crown": 3,
+						"belisar-houses": 2,
+						"dornhald-holds": 2
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "ardelian-first-mandate-test",
+							"text": "Ardelia's elected mandate has met its first test, and the Electors argue over what the election bound them to."
+						},
+						{
+							"id": "ardelian-mandate-question",
+							"text": "The elected mandate names no successor and no limit on the powers the Electors granted."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the Reopening mandate opens the north road",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"ardelian-crown": 6,
+								"saelmark-riders": 4
+							}
+						}
+					},
+					{
+						"name": "the Reopening levies stall over their cost",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"belisar-houses": 4
+							}
+						}
+					},
+					{
+						"name": "the Electors go home quarrelling over the mandate",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"unrest@osterhal: 30 days",
+								"unrest@varden: 15 days"
+							]
+						}
+					}
+				],
+				"summary": "Ardelia's Reopening mandate meets its first test: {outcome}.",
 				"requires_any": [
-					"fact:ardelia-marches-north",
-					"fact:ardelia-buys-cure",
-					"fact:ardelia-dwarven-emperor",
-					"fact:ardelia-vote-deadlocked"
+					"fact:ardelia-marches-north"
+				]
+			},
+			{
+				"id": "late-ardelian-election-first-test-cure",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"osterhal",
+					"osterhal-ninefold-hall",
+					"ardelian-empire"
 				],
 				"window": {
 					"after": "start + 2136 days",
@@ -28539,16 +29803,6 @@
 				},
 				"outcomes": [
 					{
-						"name": "the Reopening mandate opens the north road",
-						"weight": 40,
-						"effects": {
-							"powers": {
-								"ardelian-crown": 6,
-								"saelmark-riders": 4
-							}
-						}
-					},
-					{
 						"name": "the Cure mandate buys a shrine peace",
 						"weight": 35,
 						"effects": {
@@ -28562,6 +29816,72 @@
 						}
 					},
 					{
+						"name": "the Houses dispute the price of the Cure",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"belisar-houses": 5
+							}
+						}
+					},
+					{
+						"name": "the Electors go home quarrelling over the mandate",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"unrest@osterhal: 30 days",
+								"unrest@varden: 15 days"
+							]
+						}
+					}
+				],
+				"summary": "Ardelia's Cure mandate meets its first test: {outcome}.",
+				"requires_any": [
+					"fact:ardelia-buys-cure"
+				]
+			},
+			{
+				"id": "late-ardelian-election-first-test-dwarven",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"osterhal",
+					"osterhal-ninefold-hall",
+					"ardelian-empire"
+				],
+				"window": {
+					"after": "start + 2136 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"set": [
+						"court-divided@ardelian-empire: until cleared"
+					],
+					"powers": {
+						"ardelian-crown": 3,
+						"belisar-houses": 2,
+						"dornhald-holds": 2
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "ardelian-first-mandate-test",
+							"text": "Ardelia's elected mandate has met its first test and left the Electors arguing over what the election actually bound them to."
+						},
+						{
+							"id": "ardelian-mandate-question",
+							"text": "The new Emperor's mandate names no successor and no limit on the powers the Electors granted."
+						}
+					]
+				},
+				"outcomes": [
+					{
 						"name": "the Dwarven mandate opens a deep charter",
 						"weight": 30,
 						"effects": {
@@ -28572,7 +29892,16 @@
 						}
 					},
 					{
-						"name": "the deadlocked Electors go home armed",
+						"name": "the southern Houses balk at the deep levy",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"belisar-houses": 4
+							}
+						}
+					},
+					{
+						"name": "the Electors go home quarrelling over the mandate",
 						"weight": 25,
 						"effects": {
 							"set": [
@@ -28582,10 +29911,170 @@
 						}
 					}
 				],
-				"summary": "Ardelia's elected mandate meets its first test: {outcome}."
+				"summary": "Ardelia's Dwarven mandate meets its first test: {outcome}.",
+				"requires_any": [
+					"fact:ardelia-dwarven-emperor"
+				]
 			},
 			{
-				"id": "late-ardelian-settlement",
+				"id": "late-ardelian-election-first-test-old-order",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"osterhal",
+					"osterhal-ninefold-hall",
+					"ardelian-empire"
+				],
+				"window": {
+					"after": "start + 2136 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"set": [
+						"court-divided@ardelian-empire: until cleared"
+					],
+					"powers": {
+						"ardelian-crown": 3,
+						"belisar-houses": 2,
+						"dornhald-holds": 2
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "ardelian-first-mandate-test",
+							"text": "Ardelia's elected mandate has met its first test and left the Electors arguing over what the election actually bound them to."
+						},
+						{
+							"id": "ardelian-mandate-question",
+							"text": "The new Emperor's mandate names no successor and no limit on the powers the Electors granted."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the old order confirms the Electors' privileges",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"ardelian-crown": 6,
+								"belisar-houses": 3
+							}
+						}
+					},
+					{
+						"name": "Varden sets a price on its vote",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"varden-see": 4
+							}
+						}
+					},
+					{
+						"name": "the Electors go home quarrelling over the mandate",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"unrest@osterhal: 30 days",
+								"unrest@varden: 15 days"
+							]
+						}
+					}
+				],
+				"summary": "Ardelia's old-order mandate meets its first test: {outcome}.",
+				"requires_any": [
+					"fact:ardelia-old-order-emperor"
+				]
+			},
+			{
+				"id": "late-ardelian-election-first-test-deadlock",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"osterhal",
+					"osterhal-ninefold-hall",
+					"ardelian-empire"
+				],
+				"window": {
+					"after": "start + 2136 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"set": [
+						"court-divided@ardelian-empire: until cleared"
+					],
+					"powers": {
+						"ardelian-crown": 3,
+						"belisar-houses": 2,
+						"dornhald-holds": 2
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "ardelian-first-mandate-test",
+							"text": "The Diet's failed election has met its first test, and the Electors still argue over who may speak for Ardelia."
+						},
+						{
+							"id": "ardelian-mandate-question",
+							"text": "No rule says what a Diet that failed to elect may bind the Empire to."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the deadlocked Electors go home armed",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"unrest@osterhal: 30 days",
+								"unrest@varden: 15 days"
+							]
+						}
+					},
+					{
+						"name": "the Electors agree a stopgap council",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"belisar-houses": 4
+							}
+						}
+					},
+					{
+						"name": "Varden claims the casting voice",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"varden-see": 5
+							}
+						}
+					}
+				],
+				"summary": "The quarrel left by Ardelia's failed election meets its first test: {outcome}.",
+				"requires_any": [
+					"fact:ardelia-vote-deadlocked"
+				],
+				"less_if": {
+					"fact:ardelia-old-order-emperor": "×0",
+					"fact:ardelia-marches-north": "×0",
+					"fact:ardelia-buys-cure": "×0",
+					"fact:ardelia-dwarven-emperor": "×0"
+				}
+			},
+			{
+				"id": "late-ardelian-settlement-hegemony",
 				"kind": "chain-stage",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28597,14 +30086,6 @@
 					"ardelian-empire-and-southmarch",
 					"border-kingdoms",
 					"ashkaran-dominion"
-				],
-				"requires": [
-					"stage:late-ardelian-election-first-test"
-				],
-				"requires_any": [
-					"fact:ardelian-hegemony",
-					"fact:ardelia-ashkaran-peace",
-					"fact:ardelia-two-empires-war"
 				],
 				"window": {
 					"after": "start + 2921 days",
@@ -28630,11 +30111,11 @@
 					"facts": [
 						{
 							"id": "southern-settlement-first-heir",
-							"text": "The southern settlement has reached its first succession: the Emperor's chosen heir, the Electors' candidate and the Ashkaran price are all still in dispute."
+							"text": "The southern hegemony has met its first succession dispute: heirs, Electors and Ashkar each claim a say."
 						},
 						{
 							"id": "southern-pass-question",
-							"text": "The southern passes now have a peace and a border, but no agreement on who may fortify them."
+							"text": "The protectorates hold the southern passes, but no law says who may fortify them."
 						}
 					]
 				},
@@ -28655,12 +30136,9 @@
 						}
 					},
 					{
-						"name": "the peace holds through a border winter",
+						"name": "the client crowns bargain for lighter terms",
 						"weight": 35,
 						"effects": {
-							"set": [
-								"plenty@border-kingdoms: 1 season"
-							],
 							"powers": {
 								"belisar-houses": 4
 							},
@@ -28687,10 +30165,220 @@
 						}
 					}
 				],
-				"summary": "The southern settlement reaches its first succession: {outcome}."
+				"summary": "The southern hegemony faces its first succession dispute: {outcome}.",
+				"requires": [
+					"fact:ardelian-hegemony"
+				],
+				"requires_any": [
+					"stage:late-ardelian-election-first-test-reopening",
+					"stage:late-ardelian-election-first-test-cure",
+					"stage:late-ardelian-election-first-test-dwarven",
+					"stage:late-ardelian-election-first-test-old-order",
+					"stage:late-ardelian-election-first-test-deadlock"
+				]
 			},
 			{
-				"id": "late-highmark-heir-question",
+				"id": "late-ardelian-settlement-peace",
+				"kind": "chain-stage",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "world",
+				"severity": "major",
+				"where": [
+					"ardelian-empire",
+					"ardelian-empire-and-southmarch",
+					"border-kingdoms",
+					"ashkaran-dominion"
+				],
+				"window": {
+					"after": "start + 2921 days",
+					"within": "75 days"
+				},
+				"effects": {
+					"clear": [
+						"at-war@ardelian-empire",
+						"garrisons-away@ardelian-empire",
+						"court-divided@ardelian-empire"
+					],
+					"set": [
+						"tolls-raised@border-kingdoms: until cleared"
+					],
+					"powers": {
+						"ardelian-crown": 6,
+						"belisar-houses": 3,
+						"ashkaran-throne": 2
+					},
+					"scores": {
+						"ledger-trust": 2
+					},
+					"facts": [
+						{
+							"id": "southern-settlement-first-heir",
+							"text": "The Ashkaran peace has met its first succession dispute: heirs, Electors and the Ashkaran price are all argued over."
+						},
+						{
+							"id": "southern-pass-question",
+							"text": "The southern passes have a peace and a border, but no agreement on who may fortify them."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the peace holds through a border winter",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"plenty@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"belisar-houses": 4
+							},
+							"clear": [
+								"at-war@ashkaran-dominion",
+								"garrisons-away@border-kingdoms-realm"
+							]
+						}
+					},
+					{
+						"name": "Ashkar asks a higher price to renew the terms",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"ashkaran-throne": 5
+							}
+						}
+					},
+					{
+						"name": "a new war scare closes the passes",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"at-war@ashkaran-dominion: until cleared",
+								"raiders@border-kingdoms: 30 days"
+							],
+							"powers": {
+								"ashkaran-throne": 5
+							},
+							"clear": [
+								"garrisons-away@border-kingdoms-realm"
+							]
+						}
+					}
+				],
+				"summary": "The Ashkaran peace faces its first succession dispute: {outcome}.",
+				"requires": [
+					"fact:ardelia-ashkaran-peace"
+				],
+				"requires_any": [
+					"stage:late-ardelian-election-first-test-reopening",
+					"stage:late-ardelian-election-first-test-cure",
+					"stage:late-ardelian-election-first-test-dwarven",
+					"stage:late-ardelian-election-first-test-old-order",
+					"stage:late-ardelian-election-first-test-deadlock"
+				]
+			},
+			{
+				"id": "late-ardelian-settlement-war",
+				"kind": "chain-stage",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "world",
+				"severity": "major",
+				"where": [
+					"ardelian-empire",
+					"ardelian-empire-and-southmarch",
+					"border-kingdoms",
+					"ashkaran-dominion"
+				],
+				"window": {
+					"after": "start + 2921 days",
+					"within": "75 days"
+				},
+				"effects": {
+					"clear": [
+						"court-divided@ardelian-empire"
+					],
+					"set": [
+						"tolls-raised@border-kingdoms: until cleared"
+					],
+					"powers": {
+						"ardelian-crown": 6,
+						"belisar-houses": 3,
+						"ashkaran-throne": 2
+					},
+					"scores": {
+						"ledger-trust": 2
+					},
+					"facts": [
+						{
+							"id": "southern-settlement-first-heir",
+							"text": "The war of the two empires has met its first succession dispute: heirs and Electors argue over who may end it."
+						},
+						{
+							"id": "southern-pass-question",
+							"text": "No treaty yet says who will hold or fortify the southern passes."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "both empires agree a winter truce",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"plenty@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"belisar-houses": 4
+							},
+							"clear": [
+								"at-war@ashkaran-dominion",
+								"at-war@ardelian-empire"
+							]
+						}
+					},
+					{
+						"name": "the war closes the southern passes",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"at-war@ashkaran-dominion: until cleared",
+								"raiders@border-kingdoms: 30 days"
+							],
+							"powers": {
+								"ashkaran-throne": 5
+							}
+						}
+					},
+					{
+						"name": "war levies fall on the border crowns",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"garrisons-away@border-kingdoms-realm: until cleared"
+							],
+							"powers": {
+								"ardelian-crown": 5
+							}
+						}
+					}
+				],
+				"summary": "The war of the two empires runs into a succession dispute: {outcome}.",
+				"requires": [
+					"fact:ardelia-two-empires-war"
+				],
+				"requires_any": [
+					"stage:late-ardelian-election-first-test-reopening",
+					"stage:late-ardelian-election-first-test-cure",
+					"stage:late-ardelian-election-first-test-dwarven",
+					"stage:late-ardelian-election-first-test-old-order",
+					"stage:late-ardelian-election-first-test-deadlock"
+				]
+			},
+			{
+				"id": "late-highmark-heir-question-emperor-alive",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28702,6 +30390,172 @@
 					"highmark-capital-crown-keep",
 					"highmark-empire-realm"
 				],
+				"window": {
+					"after": "start + 2556 days",
+					"within": "75 days"
+				},
+				"effects": {
+					"set": [
+						"crown-contested@highmark-empire-realm: until cleared"
+					],
+					"powers": {
+						"ottilde-court": 2,
+						"leopric-war-party": 2,
+						"stahl-marchers": 2
+					},
+					"scores": {
+						"highmark-stability": -4
+					},
+					"facts": [
+						{
+							"id": "highmark-first-heir-question",
+							"text": "The old Emperor's return has forced an heir question that every Highmark court answers differently."
+						},
+						{
+							"id": "highmark-heir-question-open",
+							"text": "The Crown Keep has no law for choosing an heir when several courts claim a voice."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the returned Emperor claims the right to choose",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"court-divided@highmark-empire-realm: until cleared"
+							],
+							"powers": {
+								"stahl-marchers": 4
+							},
+							"clear": [
+								"regency@highmark-empire-realm"
+							]
+						}
+					},
+					{
+						"name": "the courts refuse the returned Emperor's choice",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"court-divided@highmark-empire-realm: until cleared"
+							],
+							"powers": {
+								"leopric-war-party": 4
+							},
+							"clear": [
+								"regency@highmark-empire-realm"
+							]
+						}
+					},
+					{
+						"name": "the returned Emperor wins the courts to his choice",
+						"weight": 25,
+						"effects": {
+							"powers": {
+								"ottilde-court": 5
+							}
+						}
+					}
+				],
+				"summary": "With the old Emperor alive again, Highmark faces an heir question: {outcome}.",
+				"requires_any": [
+					"fact:emperor-found-alive",
+					"fact:emperor-returned-names-heir"
+				]
+			},
+			{
+				"id": "late-highmark-heir-question-concord",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "major",
+				"where": [
+					"highmark-capital",
+					"highmark-capital-crown-keep",
+					"highmark-empire-realm"
+				],
+				"window": {
+					"after": "start + 2556 days",
+					"within": "75 days"
+				},
+				"effects": {
+					"clear": [
+						"at-war@highmark-empire-realm",
+						"garrisons-away@highmark-empire-realm"
+					],
+					"powers": {
+						"ottilde-court": 2,
+						"leopric-war-party": 2,
+						"stahl-marchers": 2
+					},
+					"scores": {
+						"highmark-stability": -4
+					},
+					"facts": [
+						{
+							"id": "highmark-first-heir-question",
+							"text": "Highmark's crown under the Concord of Empires has met its first heir question."
+						},
+						{
+							"id": "highmark-heir-question-open",
+							"text": "The Crown Keep has no law for choosing an heir when several courts claim a voice."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the Diet names an heir in the cradle",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"crown-contested@highmark-empire-realm: until cleared",
+								"regency@highmark-empire-realm: until cleared"
+							],
+							"powers": {
+								"ottilde-court": 5
+							},
+							"clear": [
+								"court-divided@highmark-empire-realm"
+							]
+						}
+					},
+					{
+						"name": "the crowned ruler refuses to name an heir",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"crown-contested@highmark-empire-realm: until cleared",
+								"court-divided@highmark-empire-realm: until cleared"
+							],
+							"powers": {
+								"leopric-war-party": 4
+							},
+							"clear": [
+								"regency@highmark-empire-realm"
+							]
+						}
+					},
+					{
+						"name": "the courts agree on an heir",
+						"weight": 25,
+						"effects": {
+							"clear": [
+								"court-divided@highmark-empire-realm",
+								"crown-contested@highmark-empire-realm"
+							],
+							"scores": {
+								"highmark-stability": 5
+							}
+						}
+					}
+				],
+				"summary": "Highmark's crown under the Concord faces its first heir question: {outcome}.",
+				"requires": [
+					"fact:intr-concord-of-empires"
+				],
 				"requires_any": [
 					"fact:highmark-crowned",
 					"fact:emperor-found-alive",
@@ -28712,6 +30566,24 @@
 					"fact:hm-claimant-raises-host",
 					"fact:hm-war-of-claimants",
 					"regency@highmark-empire-realm"
+				],
+				"less_if": {
+					"fact:emperor-found-alive": "×0",
+					"fact:emperor-returned-names-heir": "×0"
+				}
+			},
+			{
+				"id": "late-highmark-heir-question-client-crown",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "major",
+				"where": [
+					"highmark-capital",
+					"highmark-capital-crown-keep",
+					"highmark-empire-realm"
 				],
 				"window": {
 					"after": "start + 2556 days",
@@ -28736,32 +30608,29 @@
 					"facts": [
 						{
 							"id": "highmark-first-heir-question",
-							"text": "Highmark's new reign has produced its first heir question, and every court that ended the old war has a different answer."
+							"text": "Highmark's client crown has met its first heir question, and the marches answer differently from Ardelia."
 						},
 						{
 							"id": "highmark-heir-question-open",
-							"text": "The Crown Keep has no law for choosing an heir when the ruler, the Diet and the surviving claimant all claim a voice."
+							"text": "The Crown Keep has no law for choosing an heir when several courts claim a voice."
 						}
 					]
 				},
 				"outcomes": [
 					{
-						"name": "the Diet names an heir in the cradle",
+						"name": "Ardelia names an heir in the cradle",
 						"weight": 40,
 						"effects": {
 							"set": [
 								"regency@highmark-empire-realm: until cleared"
 							],
 							"powers": {
-								"ottilde-court": 5
-							},
-							"clear": [
-								"court-divided@highmark-empire-realm"
-							]
+								"ardelian-crown": 5
+							}
 						}
 					},
 					{
-						"name": "the crowned ruler refuses to name an heir",
+						"name": "the client ruler refuses to name an heir",
 						"weight": 35,
 						"effects": {
 							"set": [
@@ -28776,8 +30645,100 @@
 						}
 					},
 					{
-						"name": "a returned Emperor claims the right to choose",
-						"weight": 30,
+						"name": "the marches proclaim a rival heir",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"court-divided@highmark-empire-realm: until cleared"
+							],
+							"powers": {
+								"stahl-marchers": 4
+							},
+							"clear": [
+								"regency@highmark-empire-realm"
+							]
+						}
+					}
+				],
+				"summary": "Highmark's client crown faces its first heir question: {outcome}.",
+				"requires": [
+					"fact:intr-two-crowns-hegemony"
+				],
+				"requires_any": [
+					"fact:highmark-crowned",
+					"fact:emperor-found-alive",
+					"fact:emperor-body-found",
+					"fact:emperor-never-found",
+					"fact:hm-losers-reconciled",
+					"fact:hm-claimant-in-exile",
+					"fact:hm-claimant-raises-host",
+					"fact:hm-war-of-claimants",
+					"regency@highmark-empire-realm"
+				],
+				"less_if": {
+					"fact:emperor-found-alive": "×0",
+					"fact:emperor-returned-names-heir": "×0"
+				}
+			},
+			{
+				"id": "late-highmark-heir-question-thrones-at-war",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "major",
+				"where": [
+					"highmark-capital",
+					"highmark-capital-crown-keep",
+					"highmark-empire-realm"
+				],
+				"window": {
+					"after": "start + 2556 days",
+					"within": "75 days"
+				},
+				"effects": {
+					"set": [
+						"crown-contested@highmark-empire-realm: until cleared"
+					],
+					"powers": {
+						"ottilde-court": 2,
+						"leopric-war-party": 2,
+						"stahl-marchers": 2
+					},
+					"scores": {
+						"highmark-stability": -4
+					},
+					"facts": [
+						{
+							"id": "highmark-first-heir-question",
+							"text": "War over the contested throne has raised the question of whose heir would follow."
+						},
+						{
+							"id": "highmark-heir-question-open",
+							"text": "The Crown Keep has no law for choosing an heir when several courts claim a voice."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the claimants each name an heir",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"court-divided@highmark-empire-realm: until cleared"
+							],
+							"powers": {
+								"leopric-war-party": 4
+							},
+							"clear": [
+								"regency@highmark-empire-realm"
+							]
+						}
+					},
+					{
+						"name": "the marchers back an heir of their own",
+						"weight": 35,
 						"effects": {
 							"set": [
 								"court-divided@highmark-empire-realm: until cleared"
@@ -28791,24 +30752,37 @@
 						}
 					},
 					{
-						"name": "the regency ends and the heir is crowned",
+						"name": "a truce is argued over a child heir",
 						"weight": 25,
 						"effects": {
-							"clear": [
-								"regency@highmark-empire-realm",
-								"court-divided@highmark-empire-realm",
-								"crown-contested@highmark-empire-realm"
-							],
-							"scores": {
-								"highmark-stability": 5
+							"powers": {
+								"ottilde-court": 5
 							}
 						}
 					}
 				],
-				"summary": "Highmark's first reign after the Empty Throne faces its first heir question: {outcome}."
+				"summary": "The war over Highmark's throne turns to the question of an heir: {outcome}.",
+				"requires": [
+					"fact:intr-two-thrones-at-war"
+				],
+				"requires_any": [
+					"fact:highmark-crowned",
+					"fact:emperor-found-alive",
+					"fact:emperor-body-found",
+					"fact:emperor-never-found",
+					"fact:hm-losers-reconciled",
+					"fact:hm-claimant-in-exile",
+					"fact:hm-claimant-raises-host",
+					"fact:hm-war-of-claimants",
+					"regency@highmark-empire-realm"
+				],
+				"less_if": {
+					"fact:emperor-found-alive": "×0",
+					"fact:emperor-returned-names-heir": "×0"
+				}
 			},
 			{
-				"id": "late-cough-after",
+				"id": "late-cough-after-endemic",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28820,10 +30794,169 @@
 					"shackles",
 					"ardelian-empire-and-southmarch"
 				],
+				"window": {
+					"after": "start + 2251 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"set": [
+						"plague@shackles: until cleared"
+					],
+					"powers": {
+						"grey-ledger": 2,
+						"ashkaran-throne": 2
+					},
+					"scores": {
+						"ledger-trust": -2
+					},
+					"facts": [
+						{
+							"id": "cough-after-first-clinic",
+							"text": "The Glass Cough's survivors have opened the first poor-quarter clinic that answers to no crown."
+						},
+						{
+							"id": "cure-custody-question",
+							"text": "The clinic's cure is still held by whoever can pay for it, and no law says who must share it."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the poor quarters build their own physic guild",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"broken-chain": 3
+							},
+							"set": [
+								"plenty@shackles: 1 season"
+							]
+						}
+					},
+					{
+						"name": "the rich buy up the last cure",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"grain-dear@glass-wastes-and-ashkaran-dominion: 1 season"
+							],
+							"powers": {
+								"ashkaran-throne": 4
+							}
+						}
+					},
+					{
+						"name": "a harsh season fills the poor-quarter wards",
+						"weight": 25,
+						"effects": {
+							"scores": {
+								"ledger-trust": -2
+							}
+						}
+					}
+				],
+				"summary": "Living with the Glass Cough becomes a fight over cure and clinic: {outcome}.",
 				"requires_any": [
-					"fact:glass-cough-endemic",
-					"fact:quarantine-roads-standing",
-					"fact:cough-burnings-remembered"
+					"fact:glass-cough-endemic"
+				]
+			},
+			{
+				"id": "late-cough-after-quarantine",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"glass-wastes-and-ashkaran-dominion",
+					"shackles",
+					"ardelian-empire-and-southmarch"
+				],
+				"window": {
+					"after": "start + 2251 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"plague@ardelian-empire-and-southmarch"
+					],
+					"set": [
+						"plague@shackles: until cleared"
+					],
+					"powers": {
+						"grey-ledger": 2,
+						"ashkaran-throne": 2
+					},
+					"scores": {
+						"ledger-trust": -2
+					},
+					"facts": [
+						{
+							"id": "cough-after-first-clinic",
+							"text": "Behind the standing quarantine roads, survivors have opened the first poor-quarter clinic that answers to no crown."
+						},
+						{
+							"id": "cure-custody-question",
+							"text": "The clinic's cure is still held by whoever can pay for it, and no law says who must share it."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the quarantine roads become a market",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"festival@shackles-city: 10 days"
+							],
+							"powers": {
+								"grey-ledger": 3
+							}
+						}
+					},
+					{
+						"name": "the rich buy up the last cure",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"grain-dear@glass-wastes-and-ashkaran-dominion: 1 season"
+							],
+							"powers": {
+								"ashkaran-throne": 4
+							}
+						}
+					},
+					{
+						"name": "a new cough crosses the quarantine posts",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"plague@glass-wastes-and-ashkaran-dominion: until cleared"
+							],
+							"scores": {
+								"ledger-trust": -2
+							}
+						}
+					}
+				],
+				"summary": "Life behind the quarantine roads becomes a fight over cure and clinic: {outcome}.",
+				"requires_any": [
+					"fact:quarantine-roads-standing"
+				]
+			},
+			{
+				"id": "late-cough-after-burnings",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"glass-wastes-and-ashkaran-dominion",
+					"shackles",
+					"ardelian-empire-and-southmarch"
 				],
 				"window": {
 					"after": "start + 2251 days",
@@ -28869,18 +31002,6 @@
 						}
 					},
 					{
-						"name": "the quarantine roads become a market",
-						"weight": 35,
-						"effects": {
-							"set": [
-								"festival@shackles-city: 10 days"
-							],
-							"powers": {
-								"grey-ledger": 3
-							}
-						}
-					},
-					{
 						"name": "the rich buy up the last cure",
 						"weight": 30,
 						"effects": {
@@ -28893,22 +31014,25 @@
 						}
 					},
 					{
-						"name": "a new cough crosses the quarantine posts",
+						"name": "the burned quarters demand an accounting",
 						"weight": 25,
 						"effects": {
 							"set": [
-								"plague@glass-wastes-and-ashkaran-dominion: until cleared"
+								"unrest@shackles-city: 10 days"
 							],
-							"scores": {
-								"ledger-trust": -2
+							"powers": {
+								"broken-chain": 3
 							}
 						}
 					}
 				],
-				"summary": "The Glass Cough's ending becomes a fight over cure and clinic: {outcome}."
+				"summary": "The memory of the burned quarters becomes a fight over cure and clinic: {outcome}.",
+				"requires_any": [
+					"fact:cough-burnings-remembered"
+				]
 			},
 			{
-				"id": "late-sea-tithe-after",
+				"id": "late-sea-tithe-after-accord",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -28919,11 +31043,6 @@
 					"stormmere-isles",
 					"emerald-coast",
 					"atlantis-region"
-				],
-				"requires_any": [
-					"fact:sea-accord-fragile",
-					"fact:sea-war-unsettled",
-					"fact:sea-lanes-unpoliced"
 				],
 				"window": {
 					"after": "start + 2610 days",
@@ -28998,10 +31117,186 @@
 						}
 					}
 				],
-				"summary": "The Sea Tithe's settlement meets its first fleet: {outcome}."
+				"summary": "The narrow sea accord meets its first fleet: {outcome}.",
+				"requires_any": [
+					"fact:sea-accord-fragile"
+				]
 			},
 			{
-				"id": "late-deep-bell-watch",
+				"id": "late-sea-tithe-after-war",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"stormmere-isles",
+					"emerald-coast",
+					"atlantis-region"
+				],
+				"window": {
+					"after": "start + 2610 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"set": [
+						"tolls-raised@stormmere-isles: until cleared"
+					],
+					"powers": {
+						"grey-ledger": 3,
+						"river-council": 2
+					},
+					"scores": {
+						"ledger-trust": 2
+					},
+					"facts": [
+						{
+							"id": "sea-tithe-pilot-school",
+							"text": "In the midst of the unsettled sea war, a pilot school has begun to train crews for any flag that takes its oath."
+						},
+						{
+							"id": "pilot-oath-question",
+							"text": "The pilot oath binds crews to the lanes, but the Covenant and the privateers dispute who may punish a breaker."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the pilot school wins a first truce",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"grey-ledger": 4
+							},
+							"set": [
+								"plenty@stormmere-isles: 1 season"
+							],
+							"clear": [
+								"at-war@tidebound-covenant"
+							]
+						}
+					},
+					{
+						"name": "the merfolk offer to mediate",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"festival@tidesong-town: 10 days"
+							],
+							"scores": {
+								"ledger-trust": 2
+							}
+						}
+					},
+					{
+						"name": "a school ship is taken",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"at-war@tidebound-covenant: until cleared"
+							],
+							"powers": {
+								"nightingale": 3
+							}
+						}
+					}
+				],
+				"summary": "A pilot school tries to work through the unsettled sea war: {outcome}.",
+				"requires_any": [
+					"fact:sea-war-unsettled"
+				]
+			},
+			{
+				"id": "late-sea-tithe-after-open-lanes",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"stormmere-isles",
+					"emerald-coast",
+					"atlantis-region"
+				],
+				"window": {
+					"after": "start + 2610 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"grain-dear@emerald-coast"
+					],
+					"set": [
+						"tolls-raised@stormmere-isles: until cleared"
+					],
+					"powers": {
+						"grey-ledger": 3,
+						"river-council": 2
+					},
+					"scores": {
+						"ledger-trust": 2
+					},
+					"facts": [
+						{
+							"id": "sea-tithe-pilot-school",
+							"text": "On the unpoliced lanes, a pilot school has begun to train crews for every flag that takes its oath."
+						},
+						{
+							"id": "pilot-oath-question",
+							"text": "The pilot oath binds crews to the lanes, but the Covenant and the privateers dispute who may punish a breaker."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "a pilot school opens",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"grey-ledger": 4
+							},
+							"set": [
+								"plenty@stormmere-isles: 1 season"
+							],
+							"clear": [
+								"at-war@tidebound-covenant"
+							]
+						}
+					},
+					{
+						"name": "the merfolk send an envoy",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"festival@tidesong-town: 10 days"
+							],
+							"scores": {
+								"ledger-trust": 2
+							},
+							"clear": [
+								"at-war@tidebound-covenant"
+							]
+						}
+					},
+					{
+						"name": "a school convoy is raided",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"nightingale": 3
+							}
+						}
+					}
+				],
+				"summary": "A pilot school tries to bring order to the unpoliced lanes: {outcome}.",
+				"requires_any": [
+					"fact:sea-lanes-unpoliced"
+				]
+			},
+			{
+				"id": "late-deep-bell-watch-watched",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29013,11 +31308,6 @@
 					"emerald-coast",
 					"marisk",
 					"vargate"
-				],
-				"requires_any": [
-					"fact:throat-watch-fragile",
-					"fact:throat-abandoned",
-					"fact:marisk-ruins-unclaimed"
 				],
 				"window": {
 					"after": "start + 2766 days",
@@ -29041,7 +31331,7 @@
 					"facts": [
 						{
 							"id": "deep-bell-watch-founded",
-							"text": "The Deep Bell's ending has produced a standing watch over the Throat, paid by the coast and crewed by every flag that once hunted the ghost fleet."
+							"text": "The fragile watch over the Throat has been put on a standing footing, paid by the coast."
 						},
 						{
 							"id": "throat-watch-cost-question",
@@ -29094,10 +31384,201 @@
 						}
 					}
 				],
-				"summary": "The Deep Bell's ending becomes a standing watch over the Throat: {outcome}."
+				"summary": "The fragile watch over the Throat is put to the test: {outcome}.",
+				"requires_any": [
+					"fact:throat-watch-fragile"
+				]
 			},
 			{
-				"id": "late-swords-and-crown",
+				"id": "late-deep-bell-watch-abandoned",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "major",
+				"where": [
+					"stormmere-isles",
+					"emerald-coast",
+					"marisk",
+					"vargate"
+				],
+				"window": {
+					"after": "start + 2766 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"clear": [
+						"tolls-raised@emerald-coast"
+					],
+					"set": [
+						"tide-touched@stormmere-isles: until cleared"
+					],
+					"powers": {
+						"grey-ledger": 2,
+						"nightingale": 2
+					},
+					"scores": {
+						"tide-pressure": 3,
+						"ledger-trust": -1
+					},
+					"facts": [
+						{
+							"id": "deep-bell-watch-founded",
+							"text": "Years after the Throat watch was abandoned, the coast has had to raise a new one at its own cost."
+						},
+						{
+							"id": "throat-watch-cost-question",
+							"text": "The Throat watch has no treaty for its cost, its prizes or the ships it may stop."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "a new watch is sworn over the Throat",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"grey-ledger": 4
+							},
+							"scores": {
+								"tide-pressure": -3
+							},
+							"clear": [
+								"refugees@emerald-coast"
+							]
+						}
+					},
+					{
+						"name": "the coast's salvagers build a bell tower",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"festival@marisk: 10 days"
+							],
+							"powers": {
+								"the-reedmen": 3
+							},
+							"clear": [
+								"refugees@emerald-coast"
+							]
+						}
+					},
+					{
+						"name": "a ghost fleet is sighted again",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"refugees@emerald-coast: 1 season",
+								"tide-touched@emerald-coast: 1 season"
+							],
+							"scores": {
+								"tide-pressure": 4
+							}
+						}
+					}
+				],
+				"summary": "The coast returns to the abandoned Throat: {outcome}.",
+				"requires_any": [
+					"fact:throat-abandoned"
+				]
+			},
+			{
+				"id": "late-deep-bell-watch-marisk",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "major",
+				"where": [
+					"stormmere-isles",
+					"emerald-coast",
+					"marisk",
+					"vargate"
+				],
+				"window": {
+					"after": "start + 2766 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"clear": [
+						"tolls-raised@emerald-coast"
+					],
+					"set": [
+						"tide-touched@stormmere-isles: until cleared"
+					],
+					"powers": {
+						"grey-ledger": 2,
+						"nightingale": 2
+					},
+					"scores": {
+						"tide-pressure": 3,
+						"ledger-trust": -1
+					},
+					"facts": [
+						{
+							"id": "deep-bell-watch-founded",
+							"text": "With Marisk still unclaimed, the coast has set a standing watch over the Throat."
+						},
+						{
+							"id": "throat-watch-cost-question",
+							"text": "The Throat watch has no treaty for its cost, its prizes or the ships it may stop."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "a joint watch is sworn over the Throat",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"grey-ledger": 4
+							},
+							"scores": {
+								"tide-pressure": -3
+							},
+							"clear": [
+								"refugees@emerald-coast"
+							]
+						}
+					},
+					{
+						"name": "salvagers raise a bell tower in the ruins",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"festival@marisk: 10 days"
+							],
+							"powers": {
+								"the-reedmen": 3
+							},
+							"clear": [
+								"refugees@emerald-coast"
+							]
+						}
+					},
+					{
+						"name": "a ghost fleet is sighted again",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"refugees@emerald-coast: 1 season",
+								"tide-touched@emerald-coast: 1 season"
+							],
+							"scores": {
+								"tide-pressure": 4
+							}
+						}
+					}
+				],
+				"summary": "A watch over the Throat is raised beside unclaimed Marisk: {outcome}.",
+				"requires_any": [
+					"fact:marisk-ruins-unclaimed"
+				]
+			},
+			{
+				"id": "late-swords-and-crown-realm",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29109,14 +31590,6 @@
 					"border-kingdoms",
 					"valegard-region",
 					"highmark-empire"
-				],
-				"requires_any": [
-					"fact:companies-settled-under-crowns",
-					"fact:companies-scatter-as-raiders",
-					"fact:valegard-bridge-compact",
-					"fact:paid-crown-neighbour-question",
-					"fact:paid-crown-blood-debt-question",
-					"fact:paid-crown-protector-question"
 				],
 				"window": {
 					"after": "start + 2300 days",
@@ -29167,32 +31640,13 @@
 						}
 					},
 					{
-						"name": "the old companies sign crown charters",
+						"name": "the neighbours test the new border",
 						"weight": 35,
-						"effects": {
-							"powers": {
-								"bloodbound-captains": 5,
-								"silver-mark-order": 3
-							},
-							"clear": [
-								"raiders@shornmarch"
-							]
-						}
-					},
-					{
-						"name": "the bridge courts call a mercenary diet",
-						"weight": 30,
 						"effects": {
 							"powers": {
 								"valegard-duke": 4,
 								"wallwright-marshals": 4
-							},
-							"set": [
-								"tolls-raised@valegard-region: until cleared"
-							],
-							"clear": [
-								"raiders@shornmarch"
-							]
+							}
 						}
 					},
 					{
@@ -29208,10 +31662,178 @@
 						}
 					}
 				],
-				"summary": "The sword-companies' long settlement reaches the Paid Crown's first succession: {outcome}."
+				"summary": "The Paid Crown's small realm reaches its first succession: {outcome}.",
+				"requires_any": [
+					"fact:paid-crown-neighbour-question"
+				]
 			},
 			{
-				"id": "late-deep-strike-succession",
+				"id": "late-swords-and-crown-failed",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"shornmarch",
+					"border-kingdoms",
+					"valegard-region",
+					"highmark-empire"
+				],
+				"window": {
+					"after": "start + 2300 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"powers": {
+						"bloodbound-captains": 3,
+						"wallwright-marshals": 2
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "paid-crown-first-succession",
+							"text": "The failed Paid Crown's soldiers have begun passing their unpaid claims to heirs."
+						},
+						{
+							"id": "paid-crown-share-question",
+							"text": "Death-pay and blood debts now pass to heirs, and no successor admits owing them."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the heirs pool their death-pay claims",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"bloodbound-captains": 5
+							}
+						}
+					},
+					{
+						"name": "a neighbouring court buys up the claims",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"valegard-duke": 4
+							},
+							"scores": {
+								"ledger-trust": 2
+							}
+						}
+					},
+					{
+						"name": "unpaid heirs turn raider",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"raiders@shornmarch: 30 days"
+							],
+							"scores": {
+								"ledger-trust": -2
+							}
+						}
+					}
+				],
+				"summary": "The failed Paid Crown's debts pass to a new generation: {outcome}.",
+				"requires_any": [
+					"fact:paid-crown-blood-debt-question"
+				]
+			},
+			{
+				"id": "late-swords-and-crown-protectorate",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"shornmarch",
+					"border-kingdoms",
+					"valegard-region",
+					"highmark-empire"
+				],
+				"window": {
+					"after": "start + 2300 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"garrisons-away@highmark-empire-realm",
+						"raiders@border-kingdoms"
+					],
+					"set": [
+						"tolls-raised@shornmarch: until cleared"
+					],
+					"powers": {
+						"bloodbound-captains": 3,
+						"paid-crown": 3,
+						"wallwright-marshals": 2
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "paid-crown-first-succession",
+							"text": "The Paid Crown's founding generation has reached its first succession, and the soldiers' shares are now an inheritance nobody has written into law."
+						},
+						{
+							"id": "paid-crown-share-question",
+							"text": "The Paid Crown's shares, charters and debts pass to heirs who were never named by the companies that won them."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the Paid Crown's captains elect a steward",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"paid-crown": 6
+							},
+							"set": [
+								"festival@shorn: 10 days"
+							],
+							"clear": [
+								"raiders@shornmarch"
+							]
+						}
+					},
+					{
+						"name": "the protector claims a say in the succession",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"river-council": 4
+							}
+						}
+					},
+					{
+						"name": "a company mutinies over its shares",
+						"weight": 25,
+						"effects": {
+							"set": [
+								"raiders@shornmarch: 30 days"
+							],
+							"scores": {
+								"ledger-trust": -2
+							}
+						}
+					}
+				],
+				"summary": "The Paid Crown protectorate reaches its first succession: {outcome}.",
+				"requires_any": [
+					"fact:paid-crown-protector-question"
+				]
+			},
+			{
+				"id": "late-deep-strike-succession-thane",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29222,11 +31844,6 @@
 					"ironanvil",
 					"deepwalkers",
 					"deepmantle-hold"
-				],
-				"requires_any": [
-					"fact:deep-new-thane",
-					"fact:deep-civil-feud",
-					"fact:deep-charter-open"
 				],
 				"window": {
 					"after": "start + 2410 days",
@@ -29259,7 +31876,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "a new Thane is heard beneath the stone",
+						"name": "the new Thane wins the council's backing",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -29274,19 +31891,16 @@
 						}
 					},
 					{
-						"name": "the Holds fall into a civil feud",
+						"name": "the clans challenge the Thane's mandate",
 						"weight": 35,
 						"effects": {
-							"set": [
-								"at-war@ironanvil-holds: until cleared"
-							],
 							"powers": {
 								"deepwalkers-map-council": 4
 							}
 						}
 					},
 					{
-						"name": "the deep roads open under a charter",
+						"name": "the Thane opens a new deep road",
 						"weight": 30,
 						"effects": {
 							"powers": {
@@ -29301,10 +31915,183 @@
 						}
 					}
 				],
-				"summary": "The Deep Strike's settlement faces its first charter council: {outcome}."
+				"summary": "The new Thane-of-Thanes faces the first charter council: {outcome}.",
+				"requires_any": [
+					"fact:deep-new-thane"
+				]
 			},
 			{
-				"id": "late-unpaid-forts-reckoning",
+				"id": "late-deep-strike-succession-feud",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"ironanvil",
+					"deepwalkers",
+					"deepmantle-hold"
+				],
+				"window": {
+					"after": "start + 2410 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"court-divided@ironanvil-holds"
+					],
+					"set": [
+						"tolls-raised@deepwalkers: until cleared"
+					],
+					"powers": {
+						"council-beneath-stone": 3,
+						"deepwalkers-map-council": 3
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "deep-first-charter-council",
+							"text": "Amid the feud of the Holds, a joint charter council with the Deepwalkers has begun to sit."
+						},
+						{
+							"id": "deep-seal-question",
+							"text": "The council keeps the deep roads, but no one has agreed who bears the seals or the cost of a breach."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the feuding Holds swear a truce",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"council-beneath-stone": 6
+							},
+							"set": [
+								"festival@ironanvil-citadel: 10 days"
+							],
+							"clear": [
+								"at-war@ironanvil-holds"
+							]
+						}
+					},
+					{
+						"name": "the feud swallows the council",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"at-war@ironanvil-holds: until cleared"
+							],
+							"powers": {
+								"deepwalkers-map-council": 4
+							}
+						}
+					},
+					{
+						"name": "the Deepwalkers keep one road open",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"deepwalkers-map-council": 6
+							},
+							"scores": {
+								"ledger-trust": 2
+							}
+						}
+					}
+				],
+				"summary": "A charter council tries to sit through the feud of the Holds: {outcome}.",
+				"requires_any": [
+					"fact:deep-civil-feud"
+				]
+			},
+			{
+				"id": "late-deep-strike-succession-charter",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"ironanvil",
+					"deepwalkers",
+					"deepmantle-hold"
+				],
+				"window": {
+					"after": "start + 2410 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"court-divided@ironanvil-holds"
+					],
+					"set": [
+						"tolls-raised@deepwalkers: until cleared"
+					],
+					"powers": {
+						"council-beneath-stone": 3,
+						"deepwalkers-map-council": 3
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "deep-first-charter-council",
+							"text": "The reopened deep roads have produced a joint charter council of the Holds and the Deepwalkers."
+						},
+						{
+							"id": "deep-seal-question",
+							"text": "No one has agreed who bears the charter's seals or the cost of a breach."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the charter is renewed beneath the stone",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"council-beneath-stone": 6
+							},
+							"set": [
+								"festival@ironanvil-citadel: 10 days"
+							]
+						}
+					},
+					{
+						"name": "a dispute over the seals splits the council",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"deepwalkers-map-council": 4
+							}
+						}
+					},
+					{
+						"name": "the charter opens a further road",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"deepwalkers-map-council": 6
+							},
+							"scores": {
+								"ledger-trust": 2
+							}
+						}
+					}
+				],
+				"summary": "The Deepwalker charter meets its first council: {outcome}.",
+				"requires_any": [
+					"fact:deep-charter-open"
+				]
+			},
+			{
+				"id": "late-unpaid-forts-reckoning-council",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29315,11 +32102,6 @@
 					"shornmarch",
 					"ledger-locks",
 					"kingdom-of-ashmere"
-				],
-				"requires_any": [
-					"fact:shornmarch-forts-unsettled",
-					"fact:ashmere-river-rights-contested",
-					"fact:bastion-abandoned"
 				],
 				"window": {
 					"after": "start + 2840 days",
@@ -29340,11 +32122,11 @@
 					"facts": [
 						{
 							"id": "forts-first-lease",
-							"text": "The Unpaid Forts have been let under a first common lease, with the river, Ashmere and the fort captains all claiming a landlord's right."
+							"text": "The Council's forts have come under a first common lease, with river, Ashmere and captains all claiming a landlord's right."
 						},
 						{
 							"id": "fort-lease-question",
-							"text": "The lease fixes no rent, no garrison and no right of renewal for the fort line."
+							"text": "The lease fixes no rent, no garrison and no right of renewal."
 						}
 					]
 				},
@@ -29366,19 +32148,12 @@
 						}
 					},
 					{
-						"name": "Ashmere garrisons the fort line",
+						"name": "Ashmere buys a share of the lease",
 						"weight": 35,
 						"effects": {
 							"powers": {
 								"ashmere-crown": 5
-							},
-							"set": [
-								"garrisons-away@river-confederacy: 1 season"
-							],
-							"clear": [
-								"wildzone-pushing@shornmarch",
-								"refugees@shornmarch"
-							]
+							}
 						}
 					},
 					{
@@ -29395,10 +32170,184 @@
 						}
 					}
 				],
-				"summary": "The Unpaid Forts reach their first common lease: {outcome}."
+				"summary": "The Council's forts reach their first common lease: {outcome}.",
+				"requires_any": [
+					"fact:shornmarch-forts-unsettled"
+				]
 			},
 			{
-				"id": "late-fairy-wager-after",
+				"id": "late-unpaid-forts-reckoning-ashmere",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"shornmarch",
+					"ledger-locks",
+					"kingdom-of-ashmere"
+				],
+				"window": {
+					"after": "start + 2840 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"grain-dear@shornmarch"
+					],
+					"set": [
+						"tolls-raised@shornmarch: until cleared"
+					],
+					"powers": {
+						"river-council": 3,
+						"ashmere-crown": 2,
+						"wallwright-marshals": 2
+					},
+					"facts": [
+						{
+							"id": "forts-first-lease",
+							"text": "Ashmere's fort line has come under a first common lease, with river, Ashmere and captains all claiming a landlord's right."
+						},
+						{
+							"id": "fort-lease-question",
+							"text": "The lease fixes no rent, no garrison and no right of renewal."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the Council wins a share of the rents",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"river-council": 5
+							},
+							"set": [
+								"plenty@shornmarch: 1 season"
+							],
+							"clear": [
+								"wildzone-pushing@shornmarch",
+								"refugees@shornmarch"
+							]
+						}
+					},
+					{
+						"name": "Ashmere keeps the garrisons and the rents",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"ashmere-crown": 5
+							}
+						}
+					},
+					{
+						"name": "the fort line fails to the Wildzone",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"wildzone-pushing@shornmarch: until cleared",
+								"refugees@shornmarch: 1 season"
+							],
+							"scores": {
+								"wild-swarm": 4
+							}
+						}
+					}
+				],
+				"summary": "Ashmere's fort line reaches its first common lease: {outcome}.",
+				"requires_any": [
+					"fact:ashmere-river-rights-contested"
+				]
+			},
+			{
+				"id": "late-unpaid-forts-reckoning-fallen",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"shornmarch",
+					"ledger-locks",
+					"kingdom-of-ashmere"
+				],
+				"window": {
+					"after": "start + 2840 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"powers": {
+						"river-council": 3,
+						"ashmere-crown": 2,
+						"wallwright-marshals": 2
+					},
+					"facts": [
+						{
+							"id": "forts-first-lease",
+							"text": "A first common lease has been drawn for land along the fallen fort line, with river, Ashmere and old captains all claiming it."
+						},
+						{
+							"id": "fort-lease-question",
+							"text": "The lease fixes no rent, no garrison and no right of renewal."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the Council pays to win back the road",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"river-council": 5
+							},
+							"set": [
+								"plenty@shornmarch: 1 season"
+							],
+							"clear": [
+								"wildzone-pushing@shornmarch",
+								"refugees@shornmarch"
+							]
+						}
+					},
+					{
+						"name": "Ashmere sends riders to reclaim the road",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"ashmere-crown": 5
+							},
+							"set": [
+								"garrisons-away@river-confederacy: 1 season"
+							],
+							"clear": [
+								"wildzone-pushing@shornmarch",
+								"refugees@shornmarch"
+							]
+						}
+					},
+					{
+						"name": "the Wildzone keeps the fallen forts",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"wildzone-pushing@shornmarch: until cleared",
+								"refugees@shornmarch: 1 season"
+							],
+							"scores": {
+								"wild-swarm": 4
+							}
+						}
+					}
+				],
+				"summary": "The fallen fort line is offered on a first common lease: {outcome}.",
+				"requires_any": [
+					"fact:shornmarch-refugees-unsettled"
+				]
+			},
+			{
+				"id": "late-fairy-wager-after-compact",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29410,11 +32359,6 @@
 					"verdantleaf",
 					"aurelion",
 					"highmark-empire"
-				],
-				"requires_any": [
-					"fact:fairy-compact",
-					"fact:fairy-court-withdraws",
-					"fact:fairy-wild-hunt"
 				],
 				"window": {
 					"after": "start + 3126 days",
@@ -29436,7 +32380,7 @@
 					"facts": [
 						{
 							"id": "fairy-wager-settlement",
-							"text": "The Fairy Court's great wagers have been settled by a standing compact for the flower roads."
+							"text": "The new compact with the Fairy Court has been put to its great wagers and written down for the flower roads."
 						},
 						{
 							"id": "fairy-debt-question",
@@ -29492,10 +32436,159 @@
 						}
 					}
 				],
-				"summary": "The Fairy Court's great wagers are settled under a new compact: {outcome}."
+				"summary": "The Fairy compact faces its old wagers: {outcome}.",
+				"requires_any": [
+					"fact:fairy-compact"
+				]
 			},
 			{
-				"id": "late-third-tide-scar",
+				"id": "late-fairy-wager-after-withdrawn",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "major",
+				"where": [
+					"fairy-court",
+					"verdantleaf",
+					"aurelion",
+					"highmark-empire"
+				],
+				"window": {
+					"after": "start + 3126 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"powers": {
+						"fairy-court": 4
+					},
+					"scores": {
+						"flame-faith": 1
+					},
+					"facts": [
+						{
+							"id": "fairy-wager-settlement",
+							"text": "Mortal towns have set their own rules for the roads the withdrawn Fairy Court left behind."
+						},
+						{
+							"id": "fairy-debt-question",
+							"text": "No court can hear the debts, stolen names and wagers the Fairy Court left behind."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "wardens mark the abandoned roads",
+						"weight": 40,
+						"effects": {
+							"scores": {
+								"flame-faith": 2
+							}
+						}
+					},
+					{
+						"name": "a market grows at the silent flowers",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"fairy-court": 2
+							}
+						}
+					},
+					{
+						"name": "the wild closes another old road",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"wildzone-pushing@fairy-court: until cleared"
+							]
+						}
+					}
+				],
+				"summary": "Mortal towns reckon with the roads the Fairy Court left: {outcome}.",
+				"requires_any": [
+					"fact:old-roads-grow-wild"
+				]
+			},
+			{
+				"id": "late-fairy-wager-after-hunt",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "major",
+				"where": [
+					"fairy-court",
+					"verdantleaf",
+					"aurelion",
+					"highmark-empire"
+				],
+				"window": {
+					"after": "start + 3126 days",
+					"within": "60 days"
+				},
+				"effects": {
+					"set": [
+						"tolls-raised@fairy-court: until cleared"
+					],
+					"powers": {
+						"fairy-court": 4
+					},
+					"scores": {
+						"flame-faith": 1
+					},
+					"facts": [
+						{
+							"id": "fairy-wager-settlement",
+							"text": "Mortal towns have bargained for terms on the flower roads in the shadow of the Wild Hunt."
+						},
+						{
+							"id": "fairy-debt-question",
+							"text": "The terms leave marked towns, stolen names and unpaid wagers outside any court."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the Hunt is bought off for a season",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"fairy-court": 5
+							},
+							"clear": [
+								"raiders@fairy-court"
+							]
+						}
+					},
+					{
+						"name": "the marked roads are warded and kept",
+						"weight": 35,
+						"effects": {
+							"scores": {
+								"flame-faith": 2
+							}
+						}
+					},
+					{
+						"name": "the Hunt rides again over an unpaid wager",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"raiders@fairy-court: 30 days"
+							]
+						}
+					}
+				],
+				"summary": "Mortal towns seek terms after the Wild Hunt: {outcome}.",
+				"requires_any": [
+					"fact:fairy-wild-hunt"
+				]
+			},
+			{
+				"id": "late-third-tide-scar-closed",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29506,10 +32599,6 @@
 					"startrace-tower",
 					"startrace-tower-region",
 					"deep-northern-apex"
-				],
-				"requires_any": [
-					"fact:tap-closed",
-					"fact:tap-reopened"
 				],
 				"window": {
 					"after": "start + 2080 days",
@@ -29576,7 +32665,96 @@
 						}
 					}
 				],
-				"summary": "The closed northern tap leaves a scar and a movement to reopen it: {outcome}."
+				"summary": "The closed northern tap leaves a scar and a movement to reopen it: {outcome}.",
+				"requires_any": [
+					"fact:tap-closed"
+				],
+				"less_if": {
+					"fact:tap-reopened": "×0"
+				}
+			},
+			{
+				"id": "late-third-tide-scar-reopened",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "world",
+				"severity": "minor",
+				"where": [
+					"startrace-tower",
+					"startrace-tower-region",
+					"deep-northern-apex"
+				],
+				"window": {
+					"after": "start + 2080 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"set": [
+						"tide-touched@startrace-tower-region: until cleared"
+					],
+					"powers": {
+						"tower-council": 2,
+						"long-watch": 2
+					},
+					"scores": {
+						"tide-pressure": 4,
+						"north-readiness": -3
+					},
+					"facts": [
+						{
+							"id": "northern-tap-scar",
+							"text": "The reopened northern tap shows a leyline scar under Startrace, and the ice above it no longer freezes in season."
+						},
+						{
+							"id": "tap-reopener-cult",
+							"text": "A cult has formed at the reopened tap's scar, preaching that the leyline must never be shut again."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the scar freezes into a leyline marsh",
+						"weight": 40,
+						"effects": {
+							"set": [
+								"wildzone-pushing@startrace-tower-region: 1 season"
+							],
+							"scores": {
+								"wild-swarm": 3
+							}
+						}
+					},
+					{
+						"name": "the tower keeps a watch on the scar",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"tower-council": 5
+							},
+							"scores": {
+								"north-readiness": 3
+							}
+						}
+					},
+					{
+						"name": "pilgrim cults gather at the scar",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"unrest@startrace-tower: 10 days"
+							],
+							"powers": {
+								"tower-council": -3
+							}
+						}
+					}
+				],
+				"summary": "The reopened northern tap shows a scar beneath it: {outcome}.",
+				"requires_any": [
+					"fact:tap-reopened"
+				]
 			},
 			{
 				"id": "late-third-tide-second-stage",
@@ -29639,7 +32817,7 @@
 						}
 					},
 					{
-						"name": "the Tide walks under the moved frontier",
+						"name": "the Tide walks under the northern frontier",
 						"weight": 35,
 						"effects": {
 							"set": [
@@ -29668,7 +32846,7 @@
 				}
 			},
 			{
-				"id": "late-third-tide-breach",
+				"id": "late-third-tide-breach-scar",
 				"kind": "chain-stage",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29680,10 +32858,6 @@
 					"border-kingdoms",
 					"stormmere-isles",
 					"startrace-tower"
-				],
-				"requires_any": [
-					"stage:late-third-tide-scar",
-					"stage:late-third-tide-second-stage"
 				],
 				"window": {
 					"after": "start + 3286 days",
@@ -29754,7 +32928,99 @@
 						}
 					}
 				],
-				"summary": "The hidden Third Tide reaches its open breach: {outcome}."
+				"summary": "The hidden Third Tide reaches its open breach: {outcome}.",
+				"requires_any": [
+					"stage:late-third-tide-scar-closed",
+					"stage:late-third-tide-scar-reopened"
+				]
+			},
+			{
+				"id": "late-third-tide-breach-open-tap",
+				"kind": "chain-stage",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "world",
+				"severity": "major",
+				"where": [
+					"deep-northern-apex",
+					"border-kingdoms",
+					"stormmere-isles",
+					"startrace-tower"
+				],
+				"window": {
+					"after": "start + 3286 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"tide-touched@deep-northern-apex",
+						"tide-touched@startrace-tower-region"
+					],
+					"set": [
+						"wild-breaking@deep-northern-apex: until cleared"
+					],
+					"powers": {
+						"long-watch": -3,
+						"tower-council": -3
+					},
+					"scores": {
+						"tide-pressure": 10,
+						"north-readiness": -10
+					},
+					"facts": [
+						{
+							"id": "third-tide-breach-recorded",
+							"text": "The Third Tide's breach is now recorded in the north's charts, and the old northern tap is named as its first door."
+						},
+						{
+							"id": "third-tide-cause-question",
+							"text": "The scholars can name the tap but not whether the Tide was drawn by it, woken by it, or merely found the door already open."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the north's watch holds a line",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"long-watch": 5
+							},
+							"scores": {
+								"north-readiness": 4
+							}
+						}
+					},
+					{
+						"name": "the Tide opens a second front by sea",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"tide-touched@stormmere-isles: until cleared"
+							],
+							"scores": {
+								"tide-pressure": 5
+							}
+						}
+					},
+					{
+						"name": "the dead rise along the tap's path",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"dead-uncompleted@border-kingdoms: 30 days"
+							],
+							"powers": {
+								"tower-council": -5
+							}
+						}
+					}
+				],
+				"summary": "The hidden Third Tide reaches its open breach: {outcome}.",
+				"requires": [
+					"stage:late-third-tide-second-stage"
+				]
 			},
 			{
 				"id": "late-beacon-first-watch",
@@ -29851,7 +33117,7 @@
 				"summary": "The Border Kingdoms' first joint watch faces its first campaign: {outcome}."
 			},
 			{
-				"id": "late-long-winter-after",
+				"id": "late-long-winter-after-ward",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29862,11 +33128,6 @@
 					"startrace-tower",
 					"border-kingdoms",
 					"deep-northern-apex"
-				],
-				"requires_any": [
-					"fact:winter-ward-signed",
-					"fact:tap-reopened",
-					"fact:north-abandoned"
 				],
 				"window": {
 					"after": "start + 2950 days",
@@ -29926,7 +33187,92 @@
 						}
 					},
 					{
-						"name": "the abandoned north stays abandoned",
+						"name": "the ward's members quarrel over its stores",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"long-watch": -2
+							}
+						}
+					}
+				],
+				"summary": "The Ward of the Tap becomes a new northern ward: {outcome}.",
+				"requires_any": [
+					"fact:winter-ward-signed"
+				]
+			},
+			{
+				"id": "late-long-winter-after-reopened",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"startrace-tower",
+					"border-kingdoms",
+					"deep-northern-apex"
+				],
+				"window": {
+					"after": "start + 2950 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"set": [
+						"tolls-raised@startrace-tower-region: until cleared"
+					],
+					"powers": {
+						"tower-council": 3,
+						"long-watch": 3
+					},
+					"scores": {
+						"north-readiness": 3
+					},
+					"facts": [
+						{
+							"id": "long-winter-new-ward",
+							"text": "The reopened tap has produced a new northern ward with its own roads, stores and watch."
+						},
+						{
+							"id": "north-ward-cost-question",
+							"text": "The ward's gates are open, but its roads, watch and storehouses answer to different crowns."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the tap's survey is renewed",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"tower-council": 5
+							},
+							"set": [
+								"festival@startrace-tower: 10 days"
+							],
+							"clear": [
+								"refugees@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "the northern roads open under toll",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"grain-dear@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"long-watch": 4
+							},
+							"clear": [
+								"refugees@border-kingdoms"
+							]
+						}
+					},
+					{
+						"name": "a hard season stalls the return north",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -29938,10 +33284,89 @@
 						}
 					}
 				],
-				"summary": "The Long Winter's settlement becomes a new northern ward: {outcome}."
+				"summary": "The reopened tap brings a new northern ward: {outcome}.",
+				"requires_any": [
+					"fact:tap-reopened"
+				]
 			},
 			{
-				"id": "late-motes-after",
+				"id": "late-long-winter-after-abandoned",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"startrace-tower",
+					"border-kingdoms",
+					"deep-northern-apex"
+				],
+				"window": {
+					"after": "start + 2950 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"powers": {
+						"tower-council": 3,
+						"long-watch": 3
+					},
+					"scores": {
+						"north-readiness": 3
+					},
+					"facts": [
+						{
+							"id": "long-winter-new-ward",
+							"text": "The Long Watch has made its hold on the passes into a ward over the abandoned north."
+						},
+						{
+							"id": "north-ward-cost-question",
+							"text": "No crown agrees who must feed the watch or shelter those who left."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the abandoned north stays abandoned",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"refugees@border-kingdoms: 1 season"
+							],
+							"powers": {
+								"long-watch": 2
+							}
+						}
+					},
+					{
+						"name": "a few families return under the watch",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"long-watch": 4
+							}
+						}
+					},
+					{
+						"name": "the passes open under toll",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"tolls-raised@startrace-tower-region: 1 season"
+							],
+							"powers": {
+								"long-watch": 2
+							}
+						}
+					}
+				],
+				"summary": "The abandoned north is left in the Long Watch's ward: {outcome}.",
+				"requires_any": [
+					"fact:north-abandoned"
+				]
+			},
+			{
+				"id": "late-motes-after-returned",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -29952,11 +33377,6 @@
 					"oren",
 					"ardelian-empire",
 					"ardelian-empire-and-southmarch"
-				],
-				"requires_any": [
-					"fact:motes-returned",
-					"fact:motes-still-dark",
-					"fact:new-motes-born"
 				],
 				"window": {
 					"after": "start + 2460 days",
@@ -29978,7 +33398,7 @@
 					"facts": [
 						{
 							"id": "motes-first-voice",
-							"text": "The Silent Motes' return or absence has produced a first spirit voice in Oren's common council."
+							"text": "The motes' return has brought a first spirit voice into Oren's common council."
 						},
 						{
 							"id": "spirit-seat-question",
@@ -30003,7 +33423,7 @@
 						}
 					},
 					{
-						"name": "a new covenant is sworn in the dark",
+						"name": "a new covenant is sworn by lamplight",
 						"weight": 35,
 						"effects": {
 							"powers": {
@@ -30032,7 +33452,185 @@
 						}
 					}
 				],
-				"summary": "The Silent Motes' long answer reaches Oren's common council: {outcome}."
+				"summary": "The returned motes find a voice in Oren's council: {outcome}.",
+				"requires_any": [
+					"fact:motes-returned"
+				]
+			},
+			{
+				"id": "late-motes-after-dark",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"oren",
+					"ardelian-empire",
+					"ardelian-empire-and-southmarch"
+				],
+				"window": {
+					"after": "start + 2460 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"set": [
+						"court-divided@ardelian-empire: until cleared"
+					],
+					"powers": {
+						"oren-pact": 3
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "motes-first-voice",
+							"text": "The motes' silence has brought those who speak for the missing spirits into Oren's common council."
+						},
+						{
+							"id": "spirit-seat-question",
+							"text": "The Pact Houses cannot agree who, if anyone, may speak for spirits that did not return."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "Oren keeps a vigil for the dark motes",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"oren-pact": 5
+							}
+						}
+					},
+					{
+						"name": "a new covenant is sworn in the dark",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"oren-pact": 4,
+								"nightingale": 3
+							},
+							"clear": [
+								"festival@oren",
+								"unrest@oren"
+							]
+						}
+					},
+					{
+						"name": "the Pact Houses split over who speaks",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"unrest@oren: 10 days"
+							],
+							"powers": {
+								"oren-pact": -3
+							},
+							"clear": [
+								"festival@oren"
+							]
+						}
+					}
+				],
+				"summary": "The dark motes' absence is argued in Oren's council: {outcome}.",
+				"requires_any": [
+					"fact:motes-still-dark"
+				]
+			},
+			{
+				"id": "late-motes-after-new-born",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"oren",
+					"ardelian-empire",
+					"ardelian-empire-and-southmarch"
+				],
+				"window": {
+					"after": "start + 2460 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"refugees@ardelian-empire-and-southmarch"
+					],
+					"set": [
+						"court-divided@ardelian-empire: until cleared"
+					],
+					"powers": {
+						"oren-pact": 3
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "motes-first-voice",
+							"text": "The newborn motes have won a first spirit voice in Oren's common council."
+						},
+						{
+							"id": "spirit-seat-question",
+							"text": "The Pact Houses cannot agree whether that voice is a citizen, a guest or an omen."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the spirit lamps answer the council",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"oren-pact": 5
+							},
+							"set": [
+								"festival@oren: 1 season"
+							],
+							"clear": [
+								"unrest@oren"
+							]
+						}
+					},
+					{
+						"name": "a covenant is sworn with the newborn motes",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"oren-pact": 4,
+								"nightingale": 3
+							},
+							"clear": [
+								"festival@oren",
+								"unrest@oren"
+							]
+						}
+					},
+					{
+						"name": "the Pact Houses split over the new voice",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"unrest@oren: 10 days"
+							],
+							"powers": {
+								"oren-pact": -3
+							},
+							"clear": [
+								"festival@oren"
+							]
+						}
+					}
+				],
+				"summary": "The newborn motes claim a voice in Oren's council: {outcome}.",
+				"requires_any": [
+					"fact:new-motes-born"
+				]
 			},
 			{
 				"id": "late-elven-after",
@@ -30107,7 +33705,7 @@
 						}
 					},
 					{
-						"name": "a new bargain is struck at Thornheart",
+						"name": "a new bargain is struck over Thornheart's roads",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -30122,7 +33720,7 @@
 				"summary": "The Long Memory's ending reaches the elves' first reckoning: {outcome}."
 			},
 			{
-				"id": "late-chain-after",
+				"id": "late-chain-after-free-quarter",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -30133,11 +33731,6 @@
 					"shackles-city",
 					"shackles",
 					"highmark-empire-realm"
-				],
-				"requires_any": [
-					"fact:free-quarter-holds",
-					"fact:massacre-remembered",
-					"fact:shackles-ledger-unsettled"
 				],
 				"window": {
 					"after": "start + 3000 days",
@@ -30186,7 +33779,179 @@
 						}
 					},
 					{
+						"name": "the collar markets press the free quarter",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"unrest@shackles-city: 10 days"
+							]
+						}
+					},
+					{
+						"name": "the old chains survive in the ledgers",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"debt-called-in@shackles-city: 1 season"
+							],
+							"powers": {
+								"grey-ledger": 4
+							}
+						}
+					}
+				],
+				"summary": "The free quarter of Shackles opens a freeman court: {outcome}.",
+				"requires_any": [
+					"fact:free-quarter-holds"
+				]
+			},
+			{
+				"id": "late-chain-after-massacre",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"shackles-city",
+					"shackles",
+					"highmark-empire-realm"
+				],
+				"window": {
+					"after": "start + 3000 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"slaves-pressed@highmark-empire-realm",
+						"slaves-pressed@free-city-of-shackles"
+					],
+					"set": [
+						"tolls-raised@shackles: until cleared"
+					],
+					"powers": {
+						"broken-chain": 4,
+						"grey-ledger": -2
+					},
+					"scores": {
+						"ledger-trust": 2
+					},
+					"facts": [
+						{
+							"id": "chain-first-freeman-court",
+							"text": "In memory of the massacre, Shackles has opened its first freeman court, staffed by people who were once its goods."
+						},
+						{
+							"id": "collar-law-question",
+							"text": "The freeman court can free a collar in Shackles but cannot say what the freed owe a ship, house or ledger."
+						}
+					]
+				},
+				"outcomes": [
+					{
 						"name": "the massacre is entered in the city's law",
+						"weight": 35,
+						"effects": {
+							"scores": {
+								"ledger-trust": 2
+							},
+							"set": [
+								"unrest@shackles-city: 10 days"
+							],
+							"clear": [
+								"debt-called-in@shackles-city"
+							]
+						}
+					},
+					{
+						"name": "survivors bring claims before the court",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"broken-chain": 6
+							}
+						}
+					},
+					{
+						"name": "the old chains survive in the ledgers",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"debt-called-in@shackles-city: 1 season"
+							],
+							"powers": {
+								"grey-ledger": 4
+							}
+						}
+					}
+				],
+				"summary": "The massacre's memory brings Shackles its first freeman court: {outcome}.",
+				"requires_any": [
+					"fact:massacre-remembered"
+				]
+			},
+			{
+				"id": "late-chain-after-old-chains",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "regional",
+				"severity": "minor",
+				"where": [
+					"shackles-city",
+					"shackles",
+					"highmark-empire-realm"
+				],
+				"window": {
+					"after": "start + 3000 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"slaves-pressed@highmark-empire-realm",
+						"slaves-pressed@free-city-of-shackles"
+					],
+					"set": [
+						"tolls-raised@shackles: until cleared"
+					],
+					"powers": {
+						"broken-chain": 4,
+						"grey-ledger": -2
+					},
+					"scores": {
+						"ledger-trust": 2
+					},
+					"facts": [
+						{
+							"id": "chain-first-freeman-court",
+							"text": "Against the old chains, Shackles' first freeman court has opened, staffed by people who were once its goods."
+						},
+						{
+							"id": "collar-law-question",
+							"text": "The freeman court can free a collar in Shackles but cannot say what the freed owe a ship, house or ledger."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the court frees its first debtors",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"broken-chain": 6
+							},
+							"set": [
+								"festival@shackles-city: 10 days"
+							],
+							"clear": [
+								"debt-called-in@shackles-city"
+							]
+						}
+					},
+					{
+						"name": "the unpaid claims are read in open court",
 						"weight": 35,
 						"effects": {
 							"scores": {
@@ -30213,10 +33978,13 @@
 						}
 					}
 				],
-				"summary": "The Chain and Collar's ending reaches Shackles' first freeman court: {outcome}."
+				"summary": "A first freeman court tests Shackles' old chains: {outcome}.",
+				"requires_any": [
+					"fact:shackles-ledger-unsettled"
+				]
 			},
 			{
-				"id": "late-muster-after",
+				"id": "late-muster-after-seat",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -30227,11 +33995,6 @@
 					"united-chieftainates",
 					"highmark-empire",
 					"battle-cry-city"
-				],
-				"requires_any": [
-					"fact:muster-concord-seat",
-					"fact:muster-highmark-war",
-					"fact:muster-home-dead"
 				],
 				"window": {
 					"after": "start + 2870 days",
@@ -30253,17 +34016,17 @@
 					"facts": [
 						{
 							"id": "muster-first-deed-court",
-							"text": "The Grand Muster's ending has produced a deed court where clan names, war service and pasture rights are judged together."
+							"text": "The clans' Concord seat has produced a deed court for clan names, war service and pasture rights."
 						},
 						{
 							"id": "clan-seat-question",
-							"text": "The deed court has no seat in Highmark's Concord and no agreed way to summon a clan that stays home."
+							"text": "The deed court has no agreed way to summon a clan that stays home."
 						}
 					]
 				},
 				"outcomes": [
 					{
-						"name": "the clans take their seat in the Concord",
+						"name": "the deed court confirms the clans' seat",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -30278,12 +34041,9 @@
 						}
 					},
 					{
-						"name": "the clans return to a war of marches",
+						"name": "the clans quarrel over who fills the seat",
 						"weight": 35,
 						"effects": {
-							"set": [
-								"at-war@highmark-empire-realm: 1 season"
-							],
 							"powers": {
 								"chieftain-council": 3
 							}
@@ -30305,10 +34065,178 @@
 						}
 					}
 				],
-				"summary": "The Grand Muster's ending reaches its first deed court: {outcome}."
+				"summary": "The clans' Concord seat brings a first deed court: {outcome}.",
+				"requires_any": [
+					"fact:muster-concord-seat"
+				]
 			},
 			{
-				"id": "late-two-crowns-after",
+				"id": "late-muster-after-war",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"united-chieftainates",
+					"highmark-empire",
+					"battle-cry-city"
+				],
+				"window": {
+					"after": "start + 2870 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"slaves-pressed@united-chieftainates-realm"
+					],
+					"set": [
+						"tolls-raised@united-chieftainates: until cleared"
+					],
+					"powers": {
+						"chieftain-council": 4
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "muster-first-deed-court",
+							"text": "In the war with the marchers, the clans have opened a deed court for names, war service and pasture rights."
+						},
+						{
+							"id": "clan-seat-question",
+							"text": "The deed court has no agreed way to summon a clan that stays home."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the war of marches pauses for a parley",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"chieftain-council": 6
+							},
+							"set": [
+								"festival@battle-cry-city: 10 days"
+							],
+							"clear": [
+								"at-war@highmark-empire-realm"
+							]
+						}
+					},
+					{
+						"name": "the war of marches grinds on",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"at-war@highmark-empire-realm: 1 season"
+							],
+							"powers": {
+								"chieftain-council": 3
+							}
+						}
+					},
+					{
+						"name": "the deed court calls a common muster",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"white-horn-clans": 4
+							}
+						}
+					}
+				],
+				"summary": "The clans open a deed court after taking up war with the marchers: {outcome}.",
+				"requires_any": [
+					"fact:muster-highmark-war"
+				]
+			},
+			{
+				"id": "late-muster-after-home-dead",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "realm",
+				"severity": "minor",
+				"where": [
+					"united-chieftainates",
+					"highmark-empire",
+					"battle-cry-city"
+				],
+				"window": {
+					"after": "start + 2870 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"clear": [
+						"slaves-pressed@united-chieftainates-realm"
+					],
+					"set": [
+						"tolls-raised@united-chieftainates: until cleared"
+					],
+					"powers": {
+						"chieftain-council": 4
+					},
+					"scores": {
+						"ledger-trust": 1
+					},
+					"facts": [
+						{
+							"id": "muster-first-deed-court",
+							"text": "The clans who came home with their dead have opened a deed court for names, war service and pasture rights."
+						},
+						{
+							"id": "clan-seat-question",
+							"text": "The deed court has no voice outside the clans and no agreed way to summon a clan that stays home."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "the deed court honours the clan dead",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"chieftain-council": 6
+							},
+							"set": [
+								"festival@battle-cry-city: 10 days"
+							]
+						}
+					},
+					{
+						"name": "the clans turn inward over pasture claims",
+						"weight": 35,
+						"effects": {
+							"powers": {
+								"chieftain-council": 3
+							}
+						}
+					},
+					{
+						"name": "the deed court shares out the dead's pasture",
+						"weight": 30,
+						"effects": {
+							"powers": {
+								"white-horn-clans": 4
+							},
+							"set": [
+								"plenty@united-chieftainates: 1 season"
+							]
+						}
+					}
+				],
+				"summary": "The clans' homecoming brings a first deed court: {outcome}.",
+				"requires_any": [
+					"fact:muster-home-dead"
+				]
+			},
+			{
+				"id": "late-two-crowns-after-concord",
 				"kind": "one-off",
 				"ends_when": "instant",
 				"certainty": "likely",
@@ -30319,11 +34247,6 @@
 					"highmark-capital",
 					"osterhal-ninefold-hall",
 					"border-kingdoms"
-				],
-				"requires_any": [
-					"fact:intr-concord-of-empires",
-					"fact:intr-two-crowns-hegemony",
-					"fact:intr-two-thrones-at-war"
 				],
 				"window": {
 					"after": "start + 3380 days",
@@ -30375,6 +34298,86 @@
 						}
 					},
 					{
+						"name": "one court holds back its vote",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"unrest@highmark-capital: 10 days"
+							],
+							"powers": {
+								"ottilde-court": 4
+							}
+						}
+					},
+					{
+						"name": "the Concord breaks into war over the vote",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"at-war@highmark-empire-realm: until cleared",
+								"at-war@ardelian-empire: until cleared",
+								"raiders@border-kingdoms: 30 days"
+							]
+						}
+					}
+				],
+				"summary": "The Concord of Empires reaches its first common succession: {outcome}.",
+				"requires_any": [
+					"fact:intr-concord-of-empires"
+				]
+			},
+			{
+				"id": "late-two-crowns-after-client-crown",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "world",
+				"severity": "minor",
+				"where": [
+					"highmark-capital",
+					"osterhal-ninefold-hall",
+					"border-kingdoms"
+				],
+				"window": {
+					"after": "start + 3380 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"set": [
+						"court-divided@highmark-empire-realm: until cleared"
+					],
+					"powers": {
+						"ardelian-crown": 3,
+						"belisar-houses": 2,
+						"varden-see": 2
+					},
+					"scores": {
+						"highmark-stability": -2
+					},
+					"facts": [
+						{
+							"id": "two-crowns-first-succession",
+							"text": "Highmark's client crown has reached its first succession dispute with Ardelia."
+						},
+						{
+							"id": "concord-succession-question",
+							"text": "No rule says how far Ardelia may go in choosing who follows on Highmark's throne."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "Ardelia confirms its client line",
+						"weight": 40,
+						"effects": {
+							"powers": {
+								"ardelian-crown": 4,
+								"belisar-houses": 3
+							}
+						}
+					},
+					{
 						"name": "Highmark's client crown asserts itself",
 						"weight": 35,
 						"effects": {
@@ -30392,7 +34395,88 @@
 						}
 					},
 					{
-						"name": "both thrones go to war again",
+						"name": "the marches rise against the client line",
+						"weight": 30,
+						"effects": {
+							"set": [
+								"raiders@border-kingdoms: 30 days"
+							],
+							"powers": {
+								"leopric-war-party": 3
+							}
+						}
+					}
+				],
+				"summary": "Highmark's client crown faces a succession dispute: {outcome}.",
+				"requires_any": [
+					"fact:intr-two-crowns-hegemony"
+				]
+			},
+			{
+				"id": "late-two-crowns-after-war",
+				"kind": "one-off",
+				"ends_when": "instant",
+				"certainty": "likely",
+				"chance": "100% over the window",
+				"reach": "world",
+				"severity": "minor",
+				"where": [
+					"highmark-capital",
+					"osterhal-ninefold-hall",
+					"border-kingdoms"
+				],
+				"window": {
+					"after": "start + 3380 days",
+					"within": "90 days"
+				},
+				"effects": {
+					"set": [
+						"court-divided@highmark-empire-realm: until cleared"
+					],
+					"powers": {
+						"ardelian-crown": 3,
+						"belisar-houses": 2,
+						"varden-see": 2
+					},
+					"scores": {
+						"highmark-stability": -2
+					},
+					"facts": [
+						{
+							"id": "two-crowns-first-succession",
+							"text": "The war of the Two Crowns has reached a succession that both courts claim to decide."
+						},
+						{
+							"id": "concord-succession-question",
+							"text": "No rule says who may elect or crown while both thrones are fought over."
+						}
+					]
+				},
+				"outcomes": [
+					{
+						"name": "a truce is called for the elections",
+						"weight": 40,
+						"effects": {
+							"clear": [
+								"at-war@highmark-empire-realm",
+								"at-war@ardelian-empire"
+							],
+							"set": [
+								"festival@osterhal-citizens-market: 10 days"
+							]
+						}
+					},
+					{
+						"name": "each court crowns its own choice",
+						"weight": 35,
+						"effects": {
+							"set": [
+								"unrest@highmark-capital: 10 days"
+							]
+						}
+					},
+					{
+						"name": "the war flares over the succession",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -30403,7 +34487,10 @@
 						}
 					}
 				],
-				"summary": "The Two Crowns' settlement reaches its first common succession: {outcome}."
+				"summary": "The war of the Two Crowns runs into a new succession: {outcome}.",
+				"requires_any": [
+					"fact:intr-two-thrones-at-war"
+				]
 			},
 			{
 				"id": "late-bg-market-season",
