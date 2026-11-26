@@ -5,6 +5,8 @@ What changed in each release, in short. The full record of every change is in [t
 ## Unreleased
 
 - NPC State: the narrator now knows the next secret of someone present so it won't invent another past, and a story that earns it can bring it out, even before its pack condition is met.
+- Choices: long choices show in full instead of being cut with "…" at 160 characters.
+- People: the feelings ring around a portrait is drawn to scale (+38 fills 38% of its quarter).
 - Text RPG: foes left over from a fight that ended a while ago no longer block resting.
 - Text RPG: a reply's card now says when your party rested, and why a rest was refused.
 - Text RPG: a second XP line in one reply that names another group of foes now counts those foes as fallen, without paying XP again.

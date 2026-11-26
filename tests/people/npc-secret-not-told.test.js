@@ -71,3 +71,19 @@ test('the closest person (trust + affection) gets the one REQUIRED not-yet-told 
     assert.deepEqual(required, [`${NOT_TOLD}\n${FORM}\nZed (not yet told, Zed-x): Zed secret X.`], 'Zed (8 + 8) is closer than Mira (11 + 0): his line is required and carries the wording');
     assert.deepEqual(out.optional.filter(line => line.includes('(not yet told, ')), ['Mira (not yet told, Mira-a): Mira secret A.', 'Oren (not yet told, Oren-x): Oren secret X.']);
 });
+
+test('the required not-yet-told line survives a full prompt: a partner with three long opened notes keeps it; the oldest opened note goes first', async () => {
+    const { assemble } = await import('../../core/prompt-parts/assemble.js');
+    const long = (s, n) => (s + ' ' + 'word '.repeat(80)).slice(0, n);
+    const d = fakeDelta(); d.records = {};
+    d.records.npc_mira = { id: 'npc_mira', name: 'Mira', aliases: [], present: true, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 },
+        secrets: [...[0, 1, 2].map(i => ({ text: long(`MiraOPENED${i}`, 230), meter: 'trust', at: 1 })), { packId: 'Mira-next', gate: 'fact:x', text: long('MiraNOTTOLD', 200), from: 'pack' }] };
+    const h = await host({ delta: d, features: ON, answers: { 'chronicle.world.anchors': [] } });
+    h.reply('Nice.', '~ npc Mira | trust: +2');
+    const out = h.def.context.tail(h.view());
+    const reg = { contexts: () => [{ moduleId: 'npc', name: 'NPC State', kinds: [], domains: ['people'], budget: h.def.context.budget, tail: () => out }], statics: () => [], staticParts: () => [], modules: () => [] };
+    const text = assemble({ registry: reg, view: {} }).tailText;
+    assert.ok(text.includes('Mira (not yet told, Mira-next)'), 'the next secret is told');
+    assert.ok(text.includes(NOT_TOLD) && text.includes(FORM), 'with both once-said sentences');
+    assert.ok((text.match(/MiraOPENED\d/g) ?? []).length < 3, 'an opened note gave way instead');
+});

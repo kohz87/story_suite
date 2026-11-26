@@ -153,3 +153,11 @@ test('a two-word name and a hyphenated pack id, as the prompt prints them', asyn
     assert.deepEqual(s.host.head().domains.people.bonds.npcs.npc_temiwa.unlocked, [normalizeSecrets(all.npc_temiwa.secrets)[0].id]);
     same(s, 'replay equals live');
 });
+
+test('an earned reveal still needs a quote: term of its gate said in this exchange (an "and" gate whose other term is unmet)', async () => {
+    const s = await started('meter trust >= 90 and quote:the abbey bell');
+    assert.deepEqual(tailIds(s), ['rite'], 'still the next secret in the tail');
+    await say(s, [reveal('rite')]);
+    assert.deepEqual(opened(s), [], 'the abbey bell was never said: refused');
+    assert.ok(refusals(s).some(text => /not ready to come out yet/.test(text)));
+});

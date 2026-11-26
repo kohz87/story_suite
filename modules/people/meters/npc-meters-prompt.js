@@ -50,7 +50,7 @@ export function createNpcPrompt({
     const READY_PER_NPC = 1;
     const READY_IN_ALL = 2;
     // A pack secret not yet told: each present person's next one whose gate is closed (nextSecret), so the narrator never invents another past.
-    // One a person and three in all (people in key order). Its line, like a (may come out) line, carries the id its `~ reveal` line needs.
+    // One a person and three in all (the closest by trust + affection; the closest one's line is required). Its line, like a (may come out) line, carries the id its `~ reveal` line needs.
     const NOT_TOLD_ONCE = 'Lines marked (not yet told) are a person\'s real past: never contradict them or invent another. Keep it back unless the story truly earns it (a confession, deep trust shown in the scene); then it may come out, once, with its ~ reveal line.';
     const NOT_TOLD_IN_ALL = 3;
     // The form of that line, said once in the tail, before the first line of either kind.
@@ -174,16 +174,16 @@ export function createNpcPrompt({
         if (moved.length) lines.push(`NPC meters now: ${moved.join('; ')}.`);
         hidden.sort((a, b) => a.distance - b.distance || a.order - b.order);
         // The wording rides on the nearest note (the host drops the farthest first, so it stays while any note does).
-        // The not-yet-told lines come before the notes, so the host's budget drops them last among the notes.
         const said = (list, once) => list.map((line, i) => (i ? line : `${once}\n${line}`));
         // The closest person's not-yet-told line is REQUIRED (owner 26 Nov: as an optional line it was the first cut in a busy scene, and the narrator invented a past);
         // the others (up to NOT_TOLD_IN_ALL in all) stay optional, before the notes.
         const told = said(notTold.sort((a, b) => b.close - a.close || a.order - b.order).slice(0, NOT_TOLD_IN_ALL).map(item => item.text), `${NOT_TOLD_ONCE}\n${REVEAL_FORM}`);
+        // Order (the host pops optional lines from the end): an earned (may come out) secret before other people's not-yet-told lines, then the hidden notes (review 26 Nov).
         const optional = [
             ...cues,
+            ...said(ready, notTold.length ? READY_ONCE : `${READY_ONCE}\n${REVEAL_FORM}`),
             ...told.slice(1),
             ...hidden.map((item, i) => (i ? item.short : `${HIDDEN_ONCE}\n${item.short}`)),
-            ...said(ready, notTold.length ? READY_ONCE : `${READY_ONCE}\n${REVEAL_FORM}`),
         ];
         // Notes (npc-notes-kinds.js): at most two lines a person and four in all, after the meters and opened notes (optional).
         if (featureOn(FEATURE_NOTES)) {
@@ -203,7 +203,8 @@ export function createNpcPrompt({
         const felt = featureOn(FEATURE_MOOD_PULL) ? moodPullLines(npcs, here) : { kept: [], rest: [] };
         const cue = featureOn(FEATURE_NOTES) ? [{ text: CHANGES_CUE, keep: true }] : [];
         optional.push(...felt.rest);
-        return { lines: [...lines, ...notes, ...told.slice(0, 1), ...cue, ...felt.kept.map(text => ({ text, keep: true }))], optional };
+        // The required not-yet-told line comes before the opened notes: the host drops unpinned required lines from the end, so older opened notes go first (review 26 Nov).
+        return { lines: [...lines, ...told.slice(0, 1), ...notes, ...cue, ...felt.kept.map(text => ({ text, keep: true }))], optional };
     }
 
     /**

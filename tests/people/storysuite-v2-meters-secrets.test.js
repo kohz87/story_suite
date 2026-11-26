@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
-import { MAX_GENERATED_SECRETS, MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
+import { CONTEXT_BUDGET, MAX_GENERATED_SECRETS, MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines, validateNpcSlice } from '../../modules/people/meters/npc-meters.js';
 import { assemble } from '../../core/prompt.js';
 import { buildInjection, buildProfileRefreshPrompt, buildScannerPrompt } from '../../modules/people/core/core.js';
 import { buildLinesParts } from '../../modules/people/core/core-prompts-lines.js';
@@ -220,7 +220,7 @@ test('secrets: the reader opens or shuts a note by hand; a shut note stays shut 
 });
 
 test('secrets: five layers over a small budget: the nearest to opening are sent, the deep ones wait until the person gets close', async () => {
-    const layers = [10, 25, 40, 60, 80].map((at, i) => ({ title: `Layer ${i + 1}`, meter: 'trust', at, text: `Layer ${i + 1} of her past, about ${at}: ${'x'.repeat(130)}` }));
+    const layers = [10, 25, 40, 60, 80].map((at, i) => ({ title: `Layer ${i + 1}`, meter: 'trust', at, text: `Layer ${i + 1} of her past, about ${at}: ${'x'.repeat(190)}` }));
     const delta = fakeDelta();
     delta.records.npc_mira.secrets = layers;
     delta.records.npc_mira.relationship.trust = 0;
@@ -233,12 +233,12 @@ test('secrets: five layers over a small budget: the nearest to opening are sent,
     const sentFor = () => assemble({ registry: h.registry, view: h.view(), settings: { tailBudget: 1500 } });
     let sent = sentFor();
     const part = () => sent.parts.find(item => item.module === MODULE_ID && item.place === 'tail');
-    // 305 tokens for the module (250 and the kept Changes cue): the opened line and the nearest layers fit, the deepest is dropped first.
+    // CONTEXT_BUDGET tokens for the module (380 since 26 Nov, with the kept Changes cue): the opened line and the nearest layers fit, the deepest is dropped first.
     assert.ok(part().text.includes('Layer 1 of her past'), 'the opened layer is told');
     assert.ok(part().text.includes('Layer 2 of her past'), 'the nearest locked layer is told');
     assert.equal(part().text.includes('Layer 5 of her past'), false, 'the deepest waits');
     assert.ok(part().dropped >= 1, 'the host says it dropped lines');
-    assert.ok(part().tokens <= 305 + 10, `within the module's budget (${part().tokens})`);
+    assert.ok(part().tokens <= CONTEXT_BUDGET + 10, `within the module's budget (${part().tokens})`);
     // Three layers in, the next locked one (60) is close and is sent; the deepest (80) still waits.
     for (let i = 0; i < 3; i += 1) h.reply('Closer.', '~ npc Mira | trust: +15');
     assert.equal(h.npc('Mira').meters.trust, 57);

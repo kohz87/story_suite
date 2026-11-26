@@ -43,7 +43,9 @@ export function secretLine(ctx, line, { identify, rulesFor, run, call = () => ({
         const here = ask('scene.place', '');
         const inputs = { ...call(hooks.gateInputs, {}, who?.name ?? name), anchors: ask('chronicle.world.anchors', []), place: typeof here === 'string' ? here : here?.name ?? '', quote: wanted => fold(text).includes(fold(wanted)) };
         const byId = new Map(defs().map(def => [def.id, def]));
-        const earned = () => earnable && nextSecret(rules, record ?? {}, byId, inputs)?.id === rule.id;
+        // An earned reveal still needs every `quote:` term of the gate said in this exchange (review 26 Nov: an `and` gate's quote was skipped while another term was unmet).
+        const quotesSaid = () => [...String(rule.gate).matchAll(/(?:^|\s)quote:\s*(.+?)(?=\s+(?:and|or)\s+|$)/g)].every(match => inputs.quote(match[1].trim()));
+        const earned = () => earnable && nextSecret(rules, record ?? {}, byId, inputs)?.id === rule.id && quotesSaid();
         if (!gateOpen(rule, record ?? {}, byId, inputs) && !earned()) ctx.fail('REFUSED', `~ reveal ${name}: ${clean(id, 40)} is not ready to come out yet; the note stays closed.`);
     }
     if (Array.isArray(record?.unlocked) && record.unlocked.includes(rule.id)) ctx.fail('REFUSED', `~ reveal ${name}: that note is already open.`);
