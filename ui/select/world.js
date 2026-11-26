@@ -97,7 +97,7 @@ const heardOf = (raw, worldEvents) => list(raw).map(h => ({
 })).filter(h => h.where || h.when);
 
 // director.world news (known-parts/news.js): '' state is an open event thread (ongoing); place and faction ids and the heard stamp come
-// from the answer (an older answer falls back to name matching).
+// from the answer (an older answer falls back to name matching). `stale`: open news with no word for a long while; its state is unchanged.
 function newsOf(world, places, factions, worldEvents) {
   return list(world?.news).filter(n => text(n?.id)).map(n => {
     const place = places.find(p => p.id === n.placeId) ?? places.find(p => key(p.name) === key(n.place));
@@ -106,6 +106,7 @@ function newsOf(world, places, factions, worldEvents) {
     const state = ['looming', 'ongoing', 'resolved'].includes(n.state) ? n.state : n.open === false ? 'resolved' : 'ongoing';
     return {
       id: n.id, title: text(n.name), state, summary: text(n.summary),
+      ...(n.kind ? { kind: text(n.kind) } : {}), ...(n.stale === true ? { stale: true } : {}),
       placeId: place?.id ?? null, factionId: faction?.id ?? null, heard: heardOf(n.heard, worldEvents),
     };
   });

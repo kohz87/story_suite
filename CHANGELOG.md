@@ -9,6 +9,9 @@ What changed in each release, in short. The full record of every change is in [t
 - People: the feelings ring around a portrait is drawn to scale (+38 fills 38% of its quarter).
 - Ersveil rules 1.1.0: Guild probation ends after 3 contracts or a promotion, and Story › Trackers shows contracts and when the next exam is ready. Chats already using the Guild keep the old rules.
 - People: the dossier library puts your party and those around you first, with Around and Party filters, a name search, and ‹ › or arrow keys to go from one person to the next.
+- World: news with no word for 30 story days now shows as old news under Older, and the narrator is no longer told it is under way. New word on it brings it back.
+- World: a faction the story says is wiped out or disbanded is now removed from your Factions, even when the narrator only updates it.
+- World: Edit now has Remove for a faction and Mark ended for a piece of news.
 - Text RPG: foes left over from a fight that ended a while ago no longer block resting.
 - Text RPG: a reply's card now says when your party rested, and why a rest was refused.
 - Text RPG: a second XP line in one reply that names another group of foes now counts those foes as fallen, without paying XP again.

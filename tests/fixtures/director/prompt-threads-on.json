@@ -35,7 +35,7 @@
     },
     {
       "kind": "faction",
-      "grammar": "+ faction Name — who they are, what they want | area | stance: toward {{user}} (~ faction Name to change it; - faction Name when gone). Write + faction when a group with its own aims acts or is named as acting and is not yet known; ~ faction when its stance toward {{user}} changes after what {{user}} did, or its aims or area change; - faction when it is gone or broken up.",
+      "grammar": "+ faction Name — who they are, what they want | area | stance: toward {{user}} (~ faction Name to change it; - faction Name when gone). Write + faction when a group with its own aims acts or is named as acting and is not yet known; ~ faction when its stance toward {{user}} changes after what {{user}} did, or its aims or area change; - faction when it is gone or broken up (wiped out, disbanded), never ~.",
       "heads": [
         "+ faction",
         "~ faction",

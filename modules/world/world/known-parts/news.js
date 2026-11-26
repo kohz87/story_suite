@@ -10,10 +10,22 @@ import { memberFinder, placeIdOf, placeIds } from './links.js';
 import { queryOf, tryQuery } from './query.js';
 import { worldEventsOn } from '../news-switch.js';
 import { WORLD_BY } from '../../chronicle/world-daily/news-entries.js';
+import { isStaleNews } from '../../chronicle/domain-parts/stale.js';
 import { threadsOf, planned } from './shared-threads.js';
 import { isRecord, isInt, text, cut } from './shared-text.js';
 
 const DAY = 1440;
+
+// Whether a dated happening's `on:` day is today or still to come.
+function dateAhead(calendar, when, now) {
+    if (!calendar || !isInt(now) || !text(when)) return false;
+    try {
+        const at = calendar.parse(text(when), { reference: now })?.abs;
+        return Number.isFinite(at) && calendar.dayIndex(Math.round(at)) >= calendar.dayIndex(now);
+    } catch {
+        return false;
+    }
+}
 
 // When and how a world happening's news came to the scene's place: `{ where, when, from }` (from: a courier, travellers, or rumour).
 function arrivalStamp(news, here, calendar) {
@@ -25,7 +37,8 @@ function arrivalStamp(news, here, calendar) {
 
 /**
  * The known news, newest first: the chronicle's events and the Director's event threads, each
- * `{ id, kind: 'world' | 'event', name, summary, state, open, when, ago, place, factions, placeId, factionIds, heard }`.
+ * `{ id, kind: 'world' | 'event', name, summary, state, open, when, ago, place, factions, placeId, factionIds, heard }`, and `stale: true`
+ * on open news with no word for STALE_NEWS_DAYS story days at `now` (stale.js; an event thread with a date still to come is not old).
  * `placeId` and `factionIds` link to the atlas and the chronicle (null / []); `heard`: the stamps `{ where, when, from }` the
  * chat's receipts give (heard.js; [] for an event thread or when there are no receipts).
  */
@@ -55,6 +68,8 @@ export function knownNews(state, tools, { hidden = hiddenNames(state), calendar 
             place: cut(event.place, 80), factions: cut(event.factionsText, 160),
             placeId: placeIdOf(ids, event.place), factionIds: (Array.isArray(event.factions) ? event.factions : []).map(entry => text(entry?.id)).filter(Boolean),
             heard: news ? [...stampsOf(text(event.id)), arrivalStamp(news, here, calendar)].filter(Boolean) : stampsOf(text(event.id)),
+            // An item whose news came late counts from its arrival, as in the world note.
+            ...(isStaleNews(news ? { ...event, arrivesAt: news.arrivesAt } : event, now) ? { stale: true } : {}),
             at: isInt(event.updated) ? event.updated : null, rev: isInt(event.rev) ? event.rev : 0,
         });
     }
@@ -68,6 +83,7 @@ export function knownNews(state, tools, { hidden = hiddenNames(state), calendar 
             state: open ? '' : 'resolved', open, when: calendar ? dateText(calendar, at) : '',
             ago: isInt(now) && isInt(at) && now >= at ? agoText(Math.floor(now / DAY) - Math.floor(at / DAY)) : '',
             place: '', factions: '', placeId: null, factionIds: [], heard: [],
+            ...(open && !dateAhead(calendar, thread.fields?.on, now) && isStaleNews({ state: 'ongoing', updated: at }, now) ? { stale: true } : {}),
             at, rev: isInt(thread.rev) ? thread.rev : 0,
         });
     }
