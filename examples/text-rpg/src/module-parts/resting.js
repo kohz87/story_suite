@@ -5,6 +5,15 @@ import { gearOf } from './gear.js';
 import { poolWith } from './gear-sizes.js';
 import { woundsOf } from './standing.js';
 
+const listed = words => (words.length < 2 ? words.join('') : `${words.slice(0, -1).join(', ')} and ${words.at(-1)}`);
+
+/** Why these foes groups (`[[id, group]]`) stop a rest, and the lines that end them: `{ why, end }`, or null when there are none. */
+export function restBlock(groups) {
+    if (!groups.length) return null;
+    const names = groups.map(([, group]) => group.name);
+    return { why: `the fight with ${listed(names)} is still on`, end: `If those foes are gone, ${listed(names.map(name => `"- foes ${name}"`))} ${names.length > 1 ? 'end' : 'ends'} the fight.` };
+}
+
 /** Rests each member (companions are skipped); `day: true` is a whole day. Returns the ids rested. Pools and Down are sets (`ctx.absolute`). */
 export function restMembers(ctx, members, { day = false } = {}) {
     const known = Number.isInteger(ctx.time?.());

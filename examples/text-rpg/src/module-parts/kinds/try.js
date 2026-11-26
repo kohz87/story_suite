@@ -8,6 +8,7 @@ import { verdict } from '../../rules/roll.js';
 import { stageOf } from '../../words/pools.js';
 import { recordOf } from '../dice-source.js';
 import { foeFor } from '../foe-pick.js';
+import { standing } from '../foes-record.js';
 import { noteRolled } from '../foes-fights.js';
 import { BAND_WORD } from '../band-words.js';
 import { bonusFor } from '../bonus.js';
@@ -48,6 +49,8 @@ export function applyTry(ctx, line) {
     // While foes stand the strongest group (or the one `against:` names) sets the threat, whatever word the narrator wrote (a `threat:` on the line is ignored).
     const { group, missed } = foeFor(slice, labelOf(line, 'against'), record.clock);
     const ruled = group ? group.threat : null;
+    // Only a group `against:` itself named is touched, for `~ rest` (foes-fights.js blockingFoes): the strongest, picked for the roller, would keep any leftover current.
+    const against = group && !missed && labelOf(line, 'against') ? standing(slice, record.clock).find(([, one]) => one === group)?.[0] : null;
     // The threat that starts the difficulty is that, else this reply's earlier one; one named nowhere leaves the narrator's word. For practice the latest earlier reply's counts too.
     const named = ruled ?? record.threat ?? null;
     const drained = stageOf(poolWith(member, 'sp', cap).now, poolWith(member, 'sp', cap).max, 'energy').index >= 3;
@@ -104,6 +107,6 @@ export function applyTry(ctx, line) {
     const tail = `${DIFFICULTIES[index].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${result.quality ? ` (${result.quality})` : ''}${note}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}${costPaid ? '; cost already paid' : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,
-        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, ...(result.quality ? { quality: result.quality } : {}), raised, ...(raised ? { why: reasons } : {}), ...(edge ? { edge: edge.steps, ...(edge.ignored ? { edgeIgnored: true } : { edgeWhy: edge.why }) } : {}), ...(found.unlearned ? { unlearned: true } : {}), paid, ...(stages > 0 ? { hit } : {}), practice, rankUp, ...(costPaid ? { costPaid } : {}) },
+        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, ...(result.quality ? { quality: result.quality } : {}), raised, ...(raised ? { why: reasons } : {}), ...(edge ? { edge: edge.steps, ...(edge.ignored ? { edgeIgnored: true } : { edgeWhy: edge.why }) } : {}), ...(found.unlearned ? { unlearned: true } : {}), paid, ...(stages > 0 ? { hit } : {}), practice, rankUp, ...(costPaid ? { costPaid } : {}), ...(against ? { touched: [against] } : {}) },
     };
 }

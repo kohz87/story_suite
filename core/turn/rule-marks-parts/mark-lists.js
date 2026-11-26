@@ -2,7 +2,7 @@
 
 import { RULE_LINES } from './rule-lines.js';
 
-export const MAX_RULE_MARKS = 32;
+export const MAX_RULE_MARKS = 64;
 const NAME = /^[A-Za-z][A-Za-z0-9]{0,31}$/u;
 
 /** The marks a record keeps: known names only, sorted, no repeats, at most MAX_RULE_MARKS. Anything else in the field is ignored. */

@@ -430,7 +430,9 @@
     "partyRoom",
     "placeFromMap",
     "placeInside",
+    "restCurrent",
     "skillPractice",
+    "xpCountsDown",
     "xpKept",
     "youLook",
     "youRank"
@@ -483,7 +485,9 @@
     "partyRoom",
     "placeFromMap",
     "placeInside",
+    "restCurrent",
     "skillPractice",
+    "xpCountsDown",
     "xpKept",
     "youLook",
     "youRank"

@@ -34,6 +34,6 @@ export const GRAMMAR = Object.freeze({
     fall: '! fall Who — how',
     health: '~ health Who — Unhurt|Scratched|Hurt|Wounded|Badly wounded|Down | why: cause',
     spend: '~ spend Who — skill used (only a skill used without a ? try; a try pays its own cost)',
-    rest: '~ rest Who — short|night|day (Party or a name; short: an hour or more, night: a full night, day: a whole day and a stage of healing; mana and stamina refill; not while foes stand)',
+    rest: '~ rest Who — short|night|day (Party or a name; short: an hour or more, night: a full night, day: a whole day and a stage of healing; mana and stamina refill; not while a fight is still on)',
     train: '~ train Who — Skill | sessions: N (one a day of training the story told)',
 });

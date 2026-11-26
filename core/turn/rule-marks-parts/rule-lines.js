@@ -67,4 +67,10 @@ export const RULE_LINES = Object.freeze({
     // `+ item` and `~ item … qty` are held to the carry limit counted with every member's own room and without that of anyone who left (domains/inventory/story-parts/item.js
     // storyCarry). A reply with no mark is judged by the count from before (`gear.carry { legacy }`). A `- item` line adds nothing.
     carryRoster: line => line?.kind === 'item' && line.op !== '-',
+    // `~ rest` is refused only while a fight is still on (foes this reply touched, or touched within 60 story minutes; with no clock, this reply or the one before), not for any foes
+    // left standing (Text RPG module-parts/kinds/rest.js); a `? try` `against:` a named group is such a touch. A reply with no mark is refused while any group stands, with no receipt.
+    restCurrent: line => line?.kind === 'rest',
+    // A later `+ xp` in a reply that names another standing group counts that group's foes down and pays nothing (Text RPG module-parts/kinds/xp.js).
+    // A reply with no mark refuses every `+ xp` after the first.
+    xpCountsDown: line => line?.kind === 'xp',
 });

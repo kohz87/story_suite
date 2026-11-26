@@ -4,6 +4,9 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG: foes left over from a fight that ended a while ago no longer block resting.
+- Text RPG: a reply's card now says when your party rested, and why a rest was refused.
+- Text RPG: a second XP line in one reply that names another group of foes now counts those foes as fallen, without paying XP again.
 - Bag: the party's load now counts each member's strength (once), what they carry and their bags, with a line for each, and a note when the narrator is told someone is slowed.
 - Bag: someone who left no longer adds to the carry limit; their things still weigh. Put down their bag or Take back their items to get them back.
 - Bag: papers, ledgers, passes, tallies, warrants and other paperwork weigh nothing by default.
