@@ -20,6 +20,7 @@
 			"name": "Ersveil rules"
 		}
 	},
+	"placeIds": true,
 	"content": {
 		"places": [
 			{
@@ -16055,7 +16056,7 @@
 						}
 					]
 				},
-				"summary": "The old journal is read aloud, and Startrace's masters are shown to have feared a third Abyssal Tide."
+				"summary": "Fenwald's lost journal is finally read, and it shows that Startrace's masters feared a third Abyssal Tide."
 			},
 			{
 				"id": "winter-year-of-plenty",
