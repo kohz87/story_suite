@@ -14,7 +14,7 @@ export function derivedFields(row, known = null) {
         identityKind: inferNpcIdentityKind(name, known?.identityKind),
         dossierReason: String(row?.dossierReason ?? known?.dossierReason ?? '').trim() || STUB_REASON,
         ...(Array.isArray(row?.memories) && row.memories.length > IMPORTANT_MEMORY_LIMIT ? { memoryRetention: 'top5' } : {}),
-        // The summary of the bond is written by the Refresh (N8) from several scenes, never by a line: the dossier's own stays.
+        // The summary of the bond is never the fill-in's or a stub's to write (the Refresh, N8, and a `toward:` line do, ./toward.js): the dossier's own stays.
         relationshipSummary: String(known?.relationshipSummary ?? ''),
     };
 }

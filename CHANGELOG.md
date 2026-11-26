@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- NPC State: a person's “Who you are to them” now changes when the story changes what they think of you. Text you edited yourself stays as you wrote it.
 - Text RPG: foes left over from a fight that ended a while ago no longer block resting.
 - Text RPG: a reply's card now says when your party rested, and why a rest was refused.
 - Text RPG: a second XP line in one reply that names another group of foes now counts those foes as fallen, without paying XP again.

@@ -73,4 +73,6 @@ export const RULE_LINES = Object.freeze({
     // A later `+ xp` in a reply that names another standing group counts that group's foes down and pays nothing (Text RPG module-parts/kinds/xp.js).
     // A reply with no mark refuses every `+ xp` after the first.
     xpCountsDown: line => line?.kind === 'xp',
+    // `~ npc Name | toward:` writes who the reader is to them (the dossier's "Who you are to them"). A reply with no mark keeps the label unused, as an unknown one.
+    npcToward: line => line?.kind === 'npc' && Object.keys(line.labels ?? {}).some(label => label.trim().toLowerCase() === 'toward'),
 });
