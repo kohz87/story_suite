@@ -273,7 +273,9 @@ free, and staying at the seat. Staying is the cast's record (`base`, as in "wait
 has for them; or the scene, when it is at the seat and lists them. A holder who has died, or is a party member again, leaves the post by a
 host step, `dm.vacate` (`holding/vacate.js`), on that reply, or before the next reply after the reader's own edit or return. Names are matched
 through NPC State's dossier and the cast's record (`holding/person.js`): an exact name first, else an alias only one person has; a shared
-first name alone matches nobody. The post line and `dm.vacate` record a `posted` witness (travels, dead, posts held),
+first name alone matches nobody. A dossier and a cast record that nothing links are one person when each is the only one left under that name.
+The post check alone is wider: it also refuses when a first name of the line's or the records' names means a party member, unless that member's
+own name is another record. The post line and `dm.vacate` record a `posted` witness (travels, dead, posts held),
 so replay skips a step whose answer differs on that prefix; a post line also witnesses the seat it was read against. The two line forms are not in the static prompt: they are taught in
 the tail once the holding has a seat and a post is held, a companion has left, or the cast has someone at the seat (`holding/post-tail.js`), with the spymaster's warning cue while that post is held. The pack gives
 the bonuses: steward income +10% (rounded up), marshal retainer cap +20%, healer a further +2 loyalty on a paid month, quartermaster takes a tenth

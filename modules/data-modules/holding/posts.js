@@ -12,12 +12,13 @@ export const postsOf = (fields, name) => Object.keys(POSTS).filter(post => field
 
 /** The posts whose holder has died or travels with You again, as `[{ module, posts, dead }]` (`dead`: those of them whose holder died), one entry for each pinned holding that has any. */
 export function lapsedPosts(state) {
+    const pass = {};
     return Object.keys(state?.domains?.dataModules?.active ?? {}).flatMap(module => {
         if (!isHolding(activeDefinition(state, module))) return [];
         const fields = instanceOf(state, module)?.fields;
         const held = Object.keys(POSTS).filter(post => fields?.[post]);
-        const dead = held.filter(post => isDead(state, fields[post]));
-        const posts = held.filter(post => dead.includes(post) || travels(state, fields[post]));
+        const dead = held.filter(post => isDead(state, fields[post], pass));
+        const posts = held.filter(post => dead.includes(post) || travels(state, fields[post], { pass }));
         return posts.length ? [{ module, posts, dead }] : [];
     });
 }

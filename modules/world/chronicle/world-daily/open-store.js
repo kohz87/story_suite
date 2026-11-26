@@ -59,7 +59,7 @@ function inputOf(view) {
     const query = (name, args) => view.query(name, args);
     const tie = tickInputs({ query }, view.state.domains.cast, world.cast);
     const tempo = tempoOf(typeof view.settings === 'function' ? view.settings() : view.settings);
-    return { state, table: chronicle.conditions ?? {}, world, seed, marks, opens: marks.open, minutes, tempo, calendar: askQuery(query, 'director.calendar', {}), met: tie.met, withYou: tie.withYou, positions: tie.positions, partyRegion: partyRegionOf(query, view.state), partyRegion: partyRegionOf(query, view.state), seatRegion: seatRegionOf(query), unheld: unheldFacts(query) };
+    return { state, table: chronicle.conditions ?? {}, world, seed, marks, opens: marks.open, minutes, tempo, calendar: askQuery(query, 'director.calendar', {}), met: tie.met, withYou: tie.withYou, positions: tie.positions, partyRegion: partyRegionOf(query, view.state), seatRegion: seatRegionOf(query), unheld: unheldFacts(query) };
 }
 
 /** Starts the asking for the slots waiting and the ones tomorrow's roll makes (a dry run: nothing is written). Never awaits. Returns the keys of those slots. */

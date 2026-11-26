@@ -37,7 +37,8 @@ export function postProblem(ctx, prefix, fields, { post, person: who }, isReader
     const name = [...String(member?.who ?? row?.name ?? known.name)].slice(0, 40).join('');
     if (isReader(name)) return { why: `${name} is You; a post is for someone who stays behind` };
     if (row?.lifeState === 'deceased' || known?.alive === false) return { why: `${name} is dead` };
-    if (travels(prefix, name)) return { why: `${name} travels with You; only someone who stays at the seat can hold a post` };
+    // (any of the line's and the records' names may mean a party member here, though a rejoin or a death is judged by the stricter match)
+    if (travels(prefix, name, { also: [who, ...namesOf(row), ...namesOf(known)] })) return { why: `${name} travels with You; only someone who stays at the seat can hold a post` };
     if (fields[post]) return { why: fold(fields[post]) === fold(name) ? `${name} already holds that post` : `${fields[post]} holds the ${POSTS[post]} post; free it first (kind: unpost)` };
     const [other] = postsOf(fields, name);
     if (other) return { why: `${name} already holds the ${POSTS[other]} post; one post each` };

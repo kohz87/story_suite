@@ -993,5 +993,6 @@
   "modules/data-modules/holding/vacate.js": "Frees the post of a holder who has died or travels with You again, as a host step.",
   "modules/data-modules/holding/post-tail.js": "Writes what the prompt tail says about the holding's posts and the room it takes.",
   "tests/packs/ersveil-holding-posts.test.js": "Tests the holding's officer posts: refusals, bonuses, the retainer cap, rejoining and replay.",
+  "tests/modules/data-modules/holding-person.test.js": "Tests who a name means for the holding's posts: the post check's wider party match and two unjoined records of one name.",
   "tests/suite/holding-posts.test.js": "Tests the holding's posts on the real suite against the cast's stays record."
 }
