@@ -4,6 +4,8 @@ This is the detailed record of every change, kept as it was written; the short l
 
 ## Unreleased (detail)
 
+- **Arsveil cast (ARS-CAST).** `examples/packs/arsveil/pack.json` has ten `companion` entries with WebP portraits (in `arsveil.zip`), the event `bw-fighter-arrives`, and the fact `saintesses-reconciled` on the shared-rite outcome. The second list of lore people replaces the last twenty Ersveil ones; lore for Cassian Vell, the Sunrise Man, Ilvareth, Sigrun Coldrivet, Hob Ashbarrow and Matthias Orrel; the village Lowbell with a road to Saint Loria's Gate; the Saintess Ilvane entry is gone (the Veil Saintess is in the cast).
+
 - **World cast text limits (ARS-CAST).** A world-pack cast entry (`kind`) may now hold `look` 800, `wears` 600, `voice` 600, `personality` 900 and `start.routine` 300 characters (were 600, 300, 300, 600, 200), within what NPC State keeps. Only the pack check reads the numbers; an older Story Suite refuses such a person.
 
 - **Arsveil world events assembled (ARS-ASM).** The five event slices are merged into `examples/packs/arsveil/pack.json` (281 events), with 23 powers, three scores (flame-faith, ledger-trust, wild-swarm), twelve more templates and a Thinning festival in the start world; `arsveil.zip` rebuilt.

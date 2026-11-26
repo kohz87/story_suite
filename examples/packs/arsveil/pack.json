@@ -5,7 +5,7 @@
   "version": "0.1.0",
   "name": "Arsveil (open world)",
   "author": "Story Suite examples",
-  "description": "Arsveil: Ersveil's places, routes and realms with its own powers, lore and about five years of world events. It has no people of its own yet. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
+  "description": "Arsveil: Ersveil's places, routes and realms with its own powers, lore and about five years of world events. Ten people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
   "requires": {
     "suite": "^0.1",
     "capabilities": [
@@ -6572,7 +6572,1798 @@
         "note": "East along the Wall's earthworks to Valegard."
       }
     ],
-    "cast": [],
+    "cast": [
+      {
+        "kind": "companion",
+        "id": "nasai",
+        "name": "Nasai",
+        "aliases": [
+          "Half-Coin"
+        ],
+        "role": "a small cat-kin berserker, come north to hunt at the Thinning",
+        "species": "beastfolk (cat-kin)",
+        "gender": "female",
+        "age": "18",
+        "level": 3,
+        "portrait": "nasai.webp",
+        "look": "Cat-kin woman, 18 and barely 145 cm, human in every way but her cat ears and tail: small and wiry, all tendon and nerve, with a ridiculously heavy chest for a cat-kin on so small a frame. Ash-grey cat ears with short fur, human hands and skin, and a long, restless ash-grey tail kinked near the tip from an old break; one ear notched. Wide green eyes whose pupils blow wide and black when her rage catches. Long, thick ash-grey hair down past her shoulders in a lazy ponytail that is always coming loose: unbecoming of a fighter, and she refuses to cut it. A pale scar across her cheek from her training days, the first time she lost herself to rage, and more small scars across her knuckles and forearms.",
+        "wears": "A mercenary's brigandine cut for someone twice her size, cinched with extra straps and holes she punched herself; patched leathers and wrapped feet. Two heavy hatchets on her belt, too big for her hands, that she swings anyway. Around her neck, the cord where a company token should hang, still empty.",
+        "voice": "Quick, clipped and too loud for her size; she talks like she's elbowing into a fight. Hisses when she's cornered and spits \"Half-Coin\" back like a curse; a low growl comes before the rage. Bristles at \"small\" or \"cute\". When she's content she purrs, and denies it. When she's hurt she goes very quiet and very polite. \"I'm not half of anything. Pay me like it.\"",
+        "personality": "Proud, prickly and starving to prove herself, with a cat's dignity and a cat's moods. Affection only on her own terms: ignore her and she comes to you; reach for her and she's gone. Curious about everything, bored in a heartbeat, asleep the moment she's warm. Fussy about food, outraged by rain and river water, and she owns whatever spot she has claimed. Under the bravado she's terrified of her own rage; she doesn't remember the worst of it, only the faces afterwards. Counts every coin and insists on a full share, then brings presents to the few she trusts: a fish, a pretty stone, a kill left proudly at their door. Would join: ready from the first day. Habit: Grooms her fur after a fight or when embarrassed; after a rage she sits apart cleaning blood off her knuckles until someone sits down beside her.",
+        "behaviour": [
+          "Drive: high - pride: any hint she's lesser and she has to prove otherwise, now",
+          "Conflict: high - low self-control: once the rage catches she can't stop, and can hit friends",
+          "Loyalty: high - to whoever counts her as a full member, for good",
+          "Disposition: low - little trust: expects to be thrown away again, and tests people for it",
+          "Expression: low - aloof: shows care sideways, never on demand",
+          "Analytical: low - charges first, plans after, if at all"
+        ],
+        "mannerisms": [
+          "Perches up high (rafters, the palisade, a cart's top) and watches everything from there",
+          "Naps in any patch of sun, then claims it's a lookout post",
+          "Counts her coins twice, then picks at the empty cord on her neck",
+          "Re-ties her lazy ponytail before a fight; it comes loose by the second swing"
+        ],
+        "history": "A small cat-kin cast out of a Bloodbound beastfolk company's juvenile branch before her first coin, too small for the line and too wild with rage for the quiet work her size suited, Nasai came north alone to make a name at Bluewatch's Thinning; her old branch called her Half-Coin. She was born to the company and raised in its juvenile branch, where new bloods earn their first coins. They meant her for scouting and knife work; her rages made her useless for anything quiet. She drifted north alone, slept in barns and fought for scraps, and came to the Thinning, where any hunter with a tally can make a name. Kel and she are two outcasts at the edge of the map: something like friendship, on Nasai's terms. Habit: Ears flatten and tail lashes when angry; the tail goes still when scared; a slow blink means she trusts you.",
+        "homeBase": "Bluewatch Village",
+        "start": {
+          "place": "glassdock",
+          "goal": "Top the Thinning's tally, earn a deed-name, and never be paid half again.",
+          "routine": "Hunts the Reach from first light, sells her kills at the Guild desk, and sleeps on the Stray Oar's roof or in its hayloft; never indoors if she can help it."
+        },
+        "status": "On her way to the Thinning.",
+        "ties": [
+          {
+            "with": "kel",
+            "tag": "friend"
+          }
+        ],
+        "keyRelationships": [
+          {
+            "id": "kel",
+            "text": "They meet on day two or three when Nasai comes in clawed up from her first hunt; the healer stitches her without fuss or pity, and Nasai pretends she didn't need it."
+          }
+        ],
+        "withYou": "A stranger is competition or a mark; she sizes you up from the nearest high place and decides which.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 10
+        },
+        "stages": [
+          {
+            "name": "Tests you",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Ignores you, watches you from up high, and dares you to throw her away."
+          },
+          {
+            "name": "Sleeps nearby",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 20
+              }
+            ],
+            "text": "Naps where you can see her and pretends it is coincidence."
+          },
+          {
+            "name": "Brings you a kill",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 25
+              }
+            ],
+            "text": "A dead rabbit or a fish at your door, and she does not know how it got there."
+          },
+          {
+            "name": "The slow blink",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 40
+              }
+            ],
+            "text": "Lets you sit beside her after a rage; purrs and denies it."
+          },
+          {
+            "name": "Full share",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Hangs a full coin of yours on her empty cord and calls you her company.",
+            "milestone": "nasai-full-share"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "the-cut-copper",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "The day they cast her out, the cub-master paid her for her season with a copper cut clean in half and said it was all she was worth; that is where \"Half-Coin\" comes from, and she still carries the half."
+          },
+          {
+            "id": "the-cub-masters-son",
+            "gate": "meter trust >= 25 or meter affection >= 25 or meter tension >= 40",
+            "text": "She was not thrown out only for being small: in her first rage she broke the cub-master's son's arm, and his blade gave her the cheek scar. The branch remembers it as an attack; she remembers none of it."
+          },
+          {
+            "id": "the-one-who-took-her-place",
+            "gate": "meter trust >= 35 or meter affection >= 35 or fact:famous-company-arrived",
+            "text": "One of this year's cubs riding into Bluewatch with the branch is her own littermate, who took her place in the line and never said a word for her."
+          },
+          {
+            "id": "red-eyed-mother",
+            "gate": "meter trust >= 45 or meter affection >= 45",
+            "text": "Her mother was a red-eyed berserker of a famous Bloodbound company who died in a rage that killed her own squad. The branch cast Nasai out because they feared she would become her mother; she fears it too."
+          },
+          {
+            "id": "the-blunt-hatchet",
+            "gate": "meter affection >= 50",
+            "text": "She keeps the edge of her left hatchet dull on purpose: if the rage takes her near someone she loves, she wants it to be the one that hits."
+          },
+          {
+            "id": "what-she-wants-to-be-called",
+            "gate": "meter trust >= 60 and meter affection >= 45",
+            "text": "She has already chosen the deed-name she wants and never said it aloud, in case she is never allowed to earn it."
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Pounce from Above",
+            "description": "Drops from a height onto a target, hatchets first; strongest when she has perched before a fight."
+          },
+          {
+            "name": "Unspooled (rage)",
+            "description": "Her strength and speed run far above her size, she feels no pain and cannot stop; she may strike friends until it burns out."
+          },
+          {
+            "name": "Cat's Landing",
+            "description": "Lands on her feet from falls and leaps that would break anyone else."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Cut Copper",
+            "description": "Half of a copper coin, cut clean."
+          },
+          {
+            "name": "The Empty Token Cord",
+            "description": "The cord where a company token should hang."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "kel",
+        "name": "Kel",
+        "aliases": [
+          "Kel of No Hold"
+        ],
+        "role": "Bluewatch's lay healer",
+        "species": "dwelf (dwarf-elf crossblood)",
+        "gender": "female",
+        "age": "21",
+        "level": 4,
+        "portrait": "kel.webp",
+        "look": "Dwelf woman, 21, about 172 cm: she got the worst of both lines. An elf's height and long, thin limbs, almost frail-looking, with none of an elf's grace or gift, and a dwarf's heavy chest and full hips without a dwarf's strength. Long, straight silver hair worn forward like a veil, hiding most of her face. What shows is a pale, soft jaw, short elven ears barely half the usual length, and dull grey eyes that rarely meet yours. She smiles timidly and often, mostly to apologise. Slender hands with ink-stained, burn-marked fingers from years of Tower drudgery.",
+        "wears": "A Tower servant's grey robe cut down into a work dress, sleeves rolled and pinned. A leather apron hung with her instruments: rune-stitched needles, a brass mana-lens, folding splint-frames and corked phials of Tower alchemy. Sensible boots, and a satchel she never lets out of reach.",
+        "voice": "Soft and careful, the voice of someone who spent fourteen years trying not to be noticed. She apologises before she speaks and trails off if anyone interrupts. Her jokes are quiet, dry and aimed at herself, and they land a beat too true: \"Don't worry, I'm very good at this. I've had a great deal of practice being the least useful person in a room.\" When she works, her voice steadies and gentles, and she tells you what she's doing as she does it, so you won't be frightened. \"Hold still for me. This will sting, only a little. There. You're doing better than I did my first time.\"",
+        "personality": "Gentle, timid, self-effacing and lonely in a way she has stopped noticing. She has never belonged anywhere: too elf for the clan, too dwarf for the elves, too low for the Tower. She expects to be dismissed and makes the joke before anyone else can; the gallows humour comes from the burial yard, where she talks to the dead she buries because they listen. Her kindness is the quiet, stubborn kind: she won't leave a wound half-treated or a sick child alone, whatever it costs her, and would rather be shouted at than walk away from someone in pain. Proud of her craft in secret and ashamed of being proud; grateful to the point of tears for small kindnesses, which she then laughs off. Happiest bent over a broken thing she can mend, because broken things never ask what she is. Would join: ready from the first day.",
+        "behaviour": [
+          "Mercy: high - treats anyone hurt in front of her, friend or enemy, gently",
+          "Presentation: low - low confidence: apologises, hides behind her hair, takes up no space; only her hands are sure",
+          "Conflict: low - quiet, high stubbornness: she doesn't argue, she just doesn't leave",
+          "Disposition: low - little trust: expects to be used, then thrown out",
+          "Expression: high - humour, dry and self-mocking: she jokes first so no one else can"
+        ],
+        "mannerisms": [
+          "Bows slightly when thanked, an old Tower reflex, then makes a joke about it",
+          "Lays out and counts her instruments every night in the same order, under her breath",
+          "Hums while she stitches, and stops the moment anyone listens",
+          "Keeps her satchel's strap round her wrist, even asleep"
+        ],
+        "history": "A dwelf no people would claim, Kel spent eleven years at Startrace as a drudge, never a student: she cleaned the healing practice rooms, learned the craft by watching the hurt and the dying, and came north at nineteen to be Bluewatch's lay healer. Cast out by her dwarven clan at five, she was taken in by a Tower recruiter at seven as a servant. In the practice rooms the apprentices learned on people hurt for the purpose and on the dead; the ones on the tables talked to her, the only one not studying them, and some thanked her before they died, some cursed her. One old man taught her the name of every instrument and asked her to say his name aloud when he was gone; she still says the names of the dead she buries. She left the Tower at nineteen and spent the better part of a year on the roads north. For the last half year she has stitched hunters, nursed fevers and buried the frontier's dead. The Watch-Captain lets her use the sickroom and asks no questions. Habit: Tucks her hair further over her face when looked at, and pushes it back without thinking when she works. Habit: Talks to the dead while she buries them: the weather, the gossip, an apology for the cold ground.",
+        "homeBase": "Bluewatch Village",
+        "start": {
+          "place": "bluewatch-village",
+          "goal": "Keep everyone she can alive through the Thinning, and keep a place to stay, somewhere no one asks what she is.",
+          "routine": "The sickroom behind the Watchhouse from dawn; the burial yard at dusk, where she talks to the dead while she digs; her instruments cleaned and counted by lamplight at night. During the Thinning she barely sleeps."
+        },
+        "ties": [
+          {
+            "with": "nasai",
+            "tag": "friend"
+          }
+        ],
+        "keyRelationships": [
+          {
+            "id": "nasai",
+            "text": "A tentative friendship: they meet when Nasai comes in clawed up from her first hunt; Kel stitches her without fuss or pity."
+          }
+        ],
+        "withYou": "A stranger is someone to keep her head down around, unless they're bleeding, in which case she forgets to be afraid and kneels beside them.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Stops apologising to you",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Talks to you without \"sorry\" first."
+          },
+          {
+            "name": "Lets you see her face",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Pushes her hair back when you're near, and forgets to hide."
+          },
+          {
+            "name": "Hums with you in the room",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "Doesn't stop when you listen."
+          },
+          {
+            "name": "Asks you to stay at the burial yard",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 45
+              }
+            ],
+            "text": "Wants company while she says the names."
+          },
+          {
+            "name": "Opens the satchel",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Shows you what she carries, and asks you not to leave her alone with it.",
+            "milestone": "kel-opens-the-satchel"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "the-names",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "In the back of her instrument case she keeps a list of every name the practice rooms took, and she reads one aloud each night before she sleeps."
+          },
+          {
+            "id": "the-tables",
+            "gate": "meter trust >= 30",
+            "text": "The people on the practice tables were condemned prisoners the Tower bought from Highmark; she kept count. She is living proof of the rumour the Tower denies."
+          },
+          {
+            "id": "why-she-ran",
+            "gate": "meter trust >= 35 or meter affection >= 35 or meter tension >= 40",
+            "text": "She did not leave quietly. She ran the night a master's expedition papers came back from the north without the master, and she took them with her."
+          },
+          {
+            "id": "the-old-man",
+            "gate": "meter affection >= 40",
+            "text": "The old man who taught her the instruments was one of the condemned sent north with that expedition, brought back alone and dying; the instruments in her apron are the ones he named for her."
+          },
+          {
+            "id": "the-satchel",
+            "gate": "meter trust >= 50",
+            "text": "Her satchel holds Master Ulrich Fenwald's survey and journal of the northern tap: proof that the Tower's tap feeds the Wildzone's out-of-season boom, and that the masters fear a Third Tide.",
+            "writes_fact": "fenwald-journal-found"
+          },
+          {
+            "id": "what-the-rooms-taught",
+            "gate": "meter trust >= 70 or meter desire >= 55",
+            "text": "The last thing the practice rooms taught her was how to take a dying person's release and spend it healing someone else; she has done it once, in Bluewatch, to save a child, and she is afraid of what that makes her."
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Stitch and Splint",
+            "description": "Closes wounds and sets bones with rune-stitched needles and splint-frames; it exhausts her and never restores the dead or lost limbs."
+          },
+          {
+            "name": "Mana-Lens",
+            "description": "Reads a wound, a poison or a curse through her brass lens and sees what is wrong before anyone else."
+          },
+          {
+            "name": "Tower Alchemy",
+            "description": "Brews draughts and salves from whatever is at hand."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Brass Mana-Lens",
+            "description": "The brass lens she reads wounds through."
+          },
+          {
+            "name": "The Instrument Roll",
+            "description": "Every instrument named, in an old man's words."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "annet",
+        "name": "Annet",
+        "aliases": [
+          "Ann",
+          "Ant"
+        ],
+        "role": "a Sealwarden lamp-runner in the Depths under Auvoth",
+        "species": "human",
+        "gender": "female",
+        "age": "20",
+        "level": 3,
+        "portrait": "annet.webp",
+        "look": "Human woman, 20, about 155 cm: slight and lean from years of crawling the shafts, all elbows, knees and wiry strength, with a fuller figure than her thin frame suggests: a heavy bust and full hips. Pale from living underground, with a light dusting of freckles across her nose and lamp-soot worked into the creases of her knuckles and under her nails that no scrubbing gets out. Long, thick dark brown hair, kept long on purpose so she can sell it if the bread runs out, bound tight in a braid and pinned up under a cap in the shafts. Odd-coloured eyes, one pale grey-blue and one amber, that squint hard in daylight and see better than anyone's in the dark. Old oil-burn scars on her fingers and forearms, rope calluses across her palms, and a nose broken once and set crooked.",
+        "wears": "A Sealwarden runner's oilcloth smock, too long in the sleeves, with the order's small lamp badge sewn crookedly on the chest. A hooded runner's lamp on a strap across her body, a bandolier of oil flasks and spare wicks, leather knee and elbow pads, fingerless gloves, and a coil of rope at her hip. Bare feet when she runs the narrow shafts; her boots hang from her belt.",
+        "voice": "Fast, chatty and full of Auvoth gutter-talk, cheerful in a way that has stopped meaning much. She bargains over everything, counts in loaves of bread, and fills silence by habit; down the shafts silence means trouble. Her jokes are about dying, said lightly. When she's truly frightened she goes quiet and very precise. \"Lamp's burning wrong. Don't look at me like that. I'm the only one down here who ever listens to them. Besides, if it gets me, it gets me.\"",
+        "personality": "Cheerful, grubby and quietly fatalistic. In the poorest quarter a girl like her could sell herself or go down the holes nobody else would; too afraid of the first, she chose the one that might kill her, and isn't sure that was courage. She volunteers for the worst shafts, spends her pay the day she gets it, and never plans past next week; if the dark keeps her one day, well. Yet she keeps her hair long \"to sell\" and never sells it, even on hungry weeks. Practical, quick and irreverent, with no patience for titles or for people who don't listen: she has warned people about what was coming and watched them not believe her. Loyal for life to anyone who takes her word the first time. Would join: ready from Auvoth onwards. Habit: Taps walls as she passes and listens, out of habit; also sings the runners' calls under her breath when nervous.",
+        "behaviour": [
+          "Expression: high - talkative: fills every silence, except when truly scared",
+          "Analytical: high - practical: bread first, glory never",
+          "Conflict: high - low respect for authority: cheeky with captains, scornful of anyone who won't listen",
+          "Threat: low - will to live unknown, even to her: doesn't flinch at danger, and isn't sure that's bravery",
+          "Disposition: low - ill at ease in the open: uneasy under a wide sky, happier with a ceiling",
+          "Loyalty: high - to whoever believes her the first time"
+        ],
+        "mannerisms": [
+          "Counts lamps wherever she goes, and can't walk past one burning low",
+          "Touches her braid when money talk starts, checking it's still worth something",
+          "Squints and shades her eyes in daylight, and looks up at the open sky like it might fall",
+          "After a near miss she laughs too long, then goes very quiet"
+        ],
+        "history": "Born in Auvoth's poorest quarter, Annet signed on with the Sealwardens at fourteen for bread and a bunk, and has spent six years as a lamp-runner in the Depths, outliving most of the girls and boys she started with. This autumn the lamps below burn wrong, and she has been telling anyone who'll listen. Nobody does. She grew up in a one-room house over a tannery with too many children and too little bread, the kind of street where a girl's choices are counted on one hand. The Sealwardens took anyone who'd go down, so she went down. She learned the shafts by their sounds, the lamps by their flicker, and the seals by the way the air moves near them. She is very good at a job no one values, and paid accordingly.",
+        "homeBase": "Auvoth",
+        "start": {
+          "place": "auvoth-seventh-seal-terrace",
+          "goal": "Keep the lamps lit, get paid, and make someone upstairs listen before the seals go.",
+          "routine": "Down the shafts before dawn with oil and wicks; up at dusk to the runners' bunkroom in the Sealwarden halls; the Pale Market on payday, where her pay is gone by nightfall."
+        },
+        "withYou": "A stranger is a customer or a fool; she'll guide you anywhere below for coin, and tell you which one you are on the way back up.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Guides you for coin",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "She's good, and she charges for it."
+          },
+          {
+            "name": "Guides you for free",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Guides you for free, and complains about it."
+          },
+          {
+            "name": "Tells you which shafts not to go down",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "The first time she guards someone else's life."
+          },
+          {
+            "name": "Talks about \"after\"",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 45
+              }
+            ],
+            "text": "Plans past next week, for the first time, and mostly about you."
+          },
+          {
+            "name": "Chooses to live",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Lights the wick in her braid.",
+            "milestone": "annet-chooses-to-live"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "the-dead-shaft-stash",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "In a dead shaft only she uses she hides her savings: three silver and a ribbon. She has never spent them, not even on the hungriest week."
+          },
+          {
+            "id": "what-she-heard",
+            "gate": "meter trust >= 20 or meter affection >= 20 or meter tension >= 35",
+            "text": "The scratching under the seals is not one thing: it breathes. Something big, below the third seal; the wardens took her off that shaft for \"making things up\"."
+          },
+          {
+            "id": "her-sister",
+            "gate": "meter affection >= 35",
+            "text": "Her older sister took the other way to eat. They have not spoken in four years, and Annet sends her half her pay each month through a third hand: the pay she \"spends\" by nightfall."
+          },
+          {
+            "id": "the-sealed-door",
+            "gate": "meter trust >= 45",
+            "text": "Behind a seal on the old fourth level she has lamped for years there is a door with Veyr the Unbound's mark, and through a crack she has seen shelves of records. She has told no one.",
+            "writes_fact": "veyr-records-located"
+          },
+          {
+            "id": "the-day-she-sat-down",
+            "gate": "meter trust >= 55 or meter affection >= 55",
+            "text": "Last winter she sat down in a shaft whose air was going bad and waited for it to take her; she only got up when she heard a lamp she had lit start to gutter, and she still doesn't know why she got up."
+          },
+          {
+            "id": "the-unlit-wick",
+            "gate": "meter trust >= 65 and meter affection >= 50",
+            "text": "Braided into her hair is one wick she has never lit: she means to light it the day she decides she wants to live."
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Dark-Sight",
+            "description": "Her odd eyes see in near-dark better than anyone's; she calls out what is ahead, so the party can move and fight in the dark as if it were dusk, guided by her voice."
+          },
+          {
+            "name": "Keen Nose",
+            "description": "Smells bad air, gas, smoke, blood, rot and the musk of beasts before anyone else; catches poisoned air and gas traps, follows a trail, and smells an ambush or a nest before it is seen."
+          },
+          {
+            "name": "Tunnel Ear",
+            "description": "Hears through walls, floors and doors (footsteps behind a door, a swarm two tunnels over, the hollow of a hidden passage); the party is almost never caught by surprise, and she finds ways no map shows"
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Runner's Lamp",
+            "description": "A battered brass hooded lamp she has carried for six years."
+          },
+          {
+            "name": "The Crooked Badge",
+            "description": "The Sealwardens' lamp badge, sewn on crooked by her own hand."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "arn",
+        "name": "Arn",
+        "role": "a White-Horn rider who lost his mammoth",
+        "species": "human (northern)",
+        "gender": "male",
+        "age": "mid-30s",
+        "level": 15,
+        "portrait": "arn.webp",
+        "look": "Northern human man, mid-30s, about 190 cm: huge and broad through the chest and shoulders, built heavy from years of hauling harness and holding a herd. Wind-burned, weathered skin and pale ice-blue eyes that squint from long distances. Ash-brown hair and beard worn long and braided in the White-Horn way, already threaded with early grey. Frostbite took the tip of one finger. A long, pale tusk scar runs across his ribs and up to his collarbone. On his forearm, the rider's tattoo every White-Horn rider wears: his mammoth's name in clan marks, inked the day they were paired.",
+        "wears": "Layered mammoth-wool and hide, frost-stiff at the edges; a rider's harness he still wears across his chest though he has nothing to ride, its brass herd-bell silent; a long, heavy riding spear and a broad round shield faced with thick white hide.",
+        "voice": "Slow, low and sparing; he talks like someone used to calm words for a frightened animal. He says less than he means and never raises his voice, even in a fight. Northern turns of phrase, and old herd-songs hummed under his breath. When Hush comes up he goes still and changes the subject, or says her name very gently, as if she might hear. \"Easy. Stand behind me. Nothing gets past who doesn't go through me first.\"",
+        "personality": "Patient, steady and protective to the bone: twenty years of keeping a ten-ton partner calm through storms and swarms made him the kind of man who stands between danger and everyone else without thinking. Kind in a heavy, wordless way, and slow to anger; when it comes, it's as immovable as a herd. Since he lost Hush he has been a rider with nothing to ride: grieving, adrift, too proud to stay at Hornwake as a man on foot among riders, and not sure who he is without her. He looks after the young, the frightened and the hurt, maybe because it's the only part of being a rider he has left. Keeps his oaths, distrusts cities, and misses the open sky the moment he has a roof over him. Would join: not early; only for a reason (a debt, an oath, the hope of a new calf), once he has seen you hold your ground beside him and trusts you (trust 35).",
+        "behaviour": [
+          "Care: high - protective: steps in front of danger first",
+          "Disposition: high - patient: slow to anger, slow to judge",
+          "Expression: low - says little; shows care with his hands and his body between you and harm",
+          "Drive: low - grief: Hush is never far from his mind",
+          "Independence: medium - middling pride: too proud to stay a rider on foot among riders",
+          "Presentation: low - ill at ease in cities: he is for open land"
+        ],
+        "mannerisms": [
+          "Hums old herd-songs to calm frightened people, animals and himself",
+          "Checks the silent herd-bell on his harness out of habit, then remembers",
+          "Stands with his back to the wall and his body between the others and the door",
+          "Talks to big animals (horses, oxen, anything heavy and gentle) like old friends"
+        ],
+        "history": "A White-Horn rider of Hornwake, Arn rode the same mammoth, Hush, for twenty years, until he lost her this autumn on the march south behind Long Thunder's herds. Now a rider on foot, too proud to stay among the riders, he sells his strength at Auvoth's gate. He was paired with Hush as a boy of fourteen, when she was a calf barely taller than he was. They grew up together: guiding herds through storms, hauling sleds, pulling travellers out of drifts on rescue contracts. Her name was inked on his forearm the day they were paired, as every rider's is. When the clans left their winter routes to follow the herds south, he went with them; he came back without her, and left Hornwake soon after, saying little to anyone. Habit: Touches the tattoo on his forearm when thinking, or when he thinks no one is watching.",
+        "homeBase": "Auvoth (outside the walls)",
+        "start": {
+          "place": "auvoth-outer-lamps",
+          "goal": "Find a way to be a rider again (a calf to raise, a debt that earns one), or learn to live as something else.",
+          "routine": "Guards mammoth-wool and sled caravans on the road between Hornwake and Auvoth's gate; sleeps outside the walls, never under a roof if he can help it; at dusk walks down to the herd lines to stand near the mammoths without touching them."
+        },
+        "withYou": "A stranger is someone to stand in front of if trouble comes, and to say very little to until then.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Lets you walk beside him",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Lets you walk beside him."
+          },
+          {
+            "name": "Hums the herd-songs around you",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Hums the herd-songs around you."
+          },
+          {
+            "name": "Stands in front of you unasked",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "Stands in front of you without being asked."
+          },
+          {
+            "name": "Tells you about Hush",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 40
+              }
+            ],
+            "text": "Tells you about Hush."
+          },
+          {
+            "name": "Rings the bell again",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Lets the silent herd-bell ring, for you.",
+            "milestone": "arn-rings-the-bell"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "heavy-with-calf",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "Hush was heavy with a calf that autumn; he never told anyone at Hornwake."
+          },
+          {
+            "id": "how-hush-died",
+            "gate": "meter trust >= 25 or meter affection >= 25 or meter tension >= 40",
+            "text": "Not a storm: an out-of-season swarm caught the riders on the open tundra, and Hush turned and held the line so the sleds with the children could get away. He could not save her."
+          },
+          {
+            "id": "the-white-hide",
+            "gate": "meter affection >= 35",
+            "text": "The white hide on his shield is Hush's. He skinned her where she fell so the swarm would not have all of her, and he carries her into every fight."
+          },
+          {
+            "id": "long-thunder-that-night",
+            "gate": "meter trust >= 45 or meter affection >= 45",
+            "text": "That night he saw Long Thunder on the ridge. After Hush fell the apex turned the swarm aside, and Arn believes it was mourning, or choosing; the clans would call him mad."
+          },
+          {
+            "id": "why-he-left",
+            "gate": "meter trust >= 55 or meter affection >= 55",
+            "text": "Herd-Mother Ingvild offered him the next calf born at Hornwake. He refused because he did not believe he deserved another, and left before she could ask again."
+          },
+          {
+            "id": "the-calf-in-the-snow",
+            "gate": "meter trust >= 70 and meter affection >= 55",
+            "text": "He believes Hush's calf was born before she died and walked off into the snow; he has looked at every young mammoth in every herd since."
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Hold the Line",
+            "description": "In a doorway, a bridge or a gap in a wall nothing passes him; the party fights behind him."
+          },
+          {
+            "name": "Take the Blow",
+            "description": "Steps in front of a blow meant for someone else and takes it on the white shield."
+          },
+          {
+            "name": "Herd-Calm",
+            "description": "His low voice and steady hands calm panicked people and animals; the party keeps its nerve, and frightened mounts and beasts settle."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Silent Herd-Bell",
+            "description": "Brass, on his harness; it has not rung since Hush."
+          },
+          {
+            "name": "A Braid of White Hair",
+            "description": "Coarse mammoth hair wound round the haft of his spear."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "veil-saintess",
+        "name": "Odile",
+        "aliases": [
+          "the Last-Hour Saint",
+          "the Veil Saintess"
+        ],
+        "role": "the Veil Saintess, the Ashen Veil's hunted mender-saint",
+        "species": "spirit-touched human",
+        "gender": "female",
+        "age": "mid-20s",
+        "apparentAge": "mid-20s",
+        "level": 25,
+        "portrait": "odile.webp",
+        "look": "Human woman, mid-20s, about 165 cm: slender, narrow-waisted and fine-boned, yet almost impossibly curvy, with a very full, heavy chest and full hips that the mourning greys cannot hide. Pale, with a faint blue tinge at her lips and fingertips, and cool to the touch; in the cold her breath does not fog. Long black hair with one white streak from her birth, mostly hidden under an ash-grey veil. Dark-lashed, tired grey eyes with deep shadows under them. A wry mouth, quicker to a half-smile than to prayer. Ash marks on her fingertips from the rites.",
+        "wears": "A clean black mourning dress, high-necked and long-sleeved, kept immaculate: the one vanity she allows, because the dead deserve it. A sheer ash-grey veil over her hair, a string of plain wooden grave-tokens (one for each person she has sat with at the end), a small clay lamp, and feet sore from walking village to village.",
+        "voice": "Low, unhurried and dry; she talks to the dying in the same tone she uses to complain about her feet. Gallows humour, never cruel. Call her \"Saint\" and you get a tired look and a correction: \"Odile.\" She says hard truths plainly and kind ones quietly, and hums an old Veil lullaby while she mends. \"They keep calling it a miracle. It's an hour. I was given one, so I give them. Now, is anyone going to offer me a chair, or do saints stand?\"",
+        "personality": "A saint who never wanted to be one, and is tired of being looked at like an answer. Wry, plain-spoken and quietly exhausted, with a deep serenity underneath: she isn't afraid of death, having started there, and treats it as a door, not an enemy. Endlessly patient with the dying and the grieving; short with preachers of both faiths, with crowds who want a sign, and with anyone who mistakes her for a weapon. She keeps walking from village to village because someone is always at the end of their hour, and she can't make herself stop. She doesn't hate the Church, which makes both sides suspicious of her. She hides how much each mending costs her, and jokes when she's close to breaking. Would join: only if you have sheltered her; never while you are sworn to the Church, unless the two Saintesses are reconciled. Befriending the other does not block her.",
+        "behaviour": [
+          "Care: high - endless patience with the dying",
+          "Conflict: medium - little patience with crowds and preachers",
+          "Threat: low - no fear of death",
+          "Drive: high - no self-care: gives until there is nothing left",
+          "Independence: high - faith quiet and unforced, in the dead, not in doctrine",
+          "Expression: medium - dry wit"
+        ],
+        "mannerisms": [
+          "Warms her blue fingertips over any flame, though they never warm",
+          "Thumbs through her grave-tokens when she is tired",
+          "Hums the Veil lullaby when she mends; also sits down the moment there is a chair",
+          "Stops on the road to close the eyes of any dead animal"
+        ],
+        "history": "Odile was born dead at midnight in Lowbell, a border hamlet west of Saint Loria's Gate: an hour without breath, until she breathed at the first bell of morning. The Ashen Veil took her in as a child, and since the Silent Bells her mending is the only healing that still works; crowds come to her in secret, and the Inquest and the Silver Mark hunt her from village to village. Her mother called her a gift; the village priest called her a corpse that forgot to stay down, and the family was driven out when she was six. The Veil's keepers raised her among the grave-houses, where she learned the rites: sitting with the dying, washing the dead, singing the restless still. At fifteen she held a dying man together for an hour so his daughter could arrive in time; at twenty the Veil named her its saint, over her protests. Since the bells went silent, she cannot walk fast enough.",
+        "start": {
+          "place": "saint-cadels-rest",
+          "goal": "Give the dying their hour and stay one village ahead of the Inquest. One day, sit down somewhere and not get up for a week.",
+          "routine": "Walks between border villages by day, sits with the dying by night, and sleeps where she falls, a few hours at a time, until the next knock on the door."
+        },
+        "ties": [
+          {
+            "with": "flame-saintess",
+            "tag": "friend"
+          }
+        ],
+        "keyRelationships": [
+          {
+            "id": "flame-saintess",
+            "text": "The girl from the Cloisters."
+          }
+        ],
+        "withYou": "A stranger is either someone who needs her or someone who'll sell her; she's tired enough to help you first and find out later.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Lets you walk with her",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Lets you walk with her."
+          },
+          {
+            "name": "Lets you hide her from the Inquest",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Lets you hide her from the Inquest.",
+            "milestone": "pc-sheltered-veil-saintess"
+          },
+          {
+            "name": "Lets you sit with her at a deathbed",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "Lets you sit with her at a deathbed."
+          },
+          {
+            "name": "Lets you see what it costs her",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 40
+              }
+            ],
+            "text": "Lets you see what it costs her."
+          },
+          {
+            "name": "Lets someone carry her",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Lets someone carry her: sits down, and stays.",
+            "milestone": "odile-rests"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "the-cold",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "Mending costs her: every hour she gives leaves her a little colder. Her fingertips were warm when she was fifteen."
+          },
+          {
+            "id": "the-same-words",
+            "gate": "meter trust >= 20 or meter affection >= 20 or meter tension >= 35",
+            "text": "The Veil's oldest mending rite and the Church's healing prayer are the same words in an older tongue. She noticed at fourteen and was told never to say so."
+          },
+          {
+            "id": "the-priest",
+            "gate": "meter affection >= 35",
+            "text": "She sat with the priest who called her a corpse when he died. He begged her forgiveness; she gave him his hour, and still does not know if she forgave him."
+          },
+          {
+            "id": "the-cloisters",
+            "gate": "meter trust >= 45",
+            "text": "As girls, she and the Flame Saintess were both taken to the Silent Cloisters to be tested. The other girl was chosen; Odile was thrown out. The night before, they held hands in the dark and promised to find each other.",
+            "writes_fact": "saintesses-knew-each-other"
+          },
+          {
+            "id": "counted-hours",
+            "gate": "meter trust >= 55 or meter affection >= 55",
+            "text": "She believes she was given back only so many hours, and that every mending spends one of hers. She has stopped counting because the number frightened her."
+          },
+          {
+            "id": "two-flames",
+            "gate": "meter trust >= 65 and meter affection >= 50",
+            "text": "She believes she could relight the Flame Saintess's fire, but only with her, the two rites spoken together, as they were before the Church and the Veil split.",
+            "writes_fact": "saintess-rite-known"
+          },
+          {
+            "id": "the-other-half",
+            "gate": "meter trust >= 60 or meter affection >= 60",
+            "text": "Dying, her mother told her she was a twin, born second: her sister came first, crying at the eleventh bell, and the priest carried her off to Aurelion that night as a sign; Odile came an hour later, at midnight, not breathing, and nobody wanted the silent one.",
+            "writes_fact": "saintesses-are-twins"
+          },
+          {
+            "id": "the-half-ribbon",
+            "gate": "meter trust >= 60 or meter affection >= 60",
+            "text": "Her mother gave her half a ribbon and said the other half went with her sister."
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Last Hour",
+            "description": "Holds a dying or fallen person on the edge; a companion who falls stays alive for an hour, long enough to be saved, or to say goodbye."
+          },
+          {
+            "name": "Lay to Rest",
+            "description": "Unmakes undead and the restless dead gently, without fire; the pattern unravels and lies still, and hungry ghosts quiet."
+          },
+          {
+            "name": "Grave-Ward",
+            "description": "Wards the party against death's pull (undead, death-thick mana, plague pits and battlefields); the dead hesitate to touch those she walks with."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Grave-Tokens",
+            "description": "Plain wooden tokens, one for each person she has sat with at the end."
+          },
+          {
+            "name": "The Clay Lamp",
+            "description": "A Veil lamp lit from the grave-house where she was raised; she has never let it go out."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "flame-saintess",
+        "name": "Solenne",
+        "aliases": [
+          "the First-Light Saint",
+          "the Flame Saintess"
+        ],
+        "role": "the Flame Saintess, the living saint of the Church of the Eternal Flame",
+        "species": "human",
+        "gender": "female",
+        "age": "mid-20s",
+        "apparentAge": "mid-20s",
+        "level": 25,
+        "portrait": "solenne.webp",
+        "look": "Human woman, mid-20s, about 165 cm: slender, narrow-waisted and fine-boned, yet almost impossibly curvy, with a very full, heavy chest and full hips that the white vestments cannot hide; she and the Veil Saintess look strangely alike. Warm, faintly flushed skin that was always fever-warm to the touch, until the night the bells fell silent. Long golden hair worn loose under a gold circlet, with a single dark streak she has had dyed gold since childhood. Clear grey eyes, rested and bright, and a serene, practised smile. Gold-leaf marks of consecrated fire on her fingertips.",
+        "wears": "Immaculate white and gold vestments of the Church's living saint, a gold flame circlet, and a sacred flame lantern on a gold chain that has not lit since the bells fell silent. Soft white slippers that have never walked a road.",
+        "voice": "Clear, bright and carrying, trained from childhood to reach the back of a cathedral. Formal and scriptural, with perfect diction. She says \"we\" for the Church and \"the faithful\" for people. She never jokes; humour doesn't come to her, and she laughs a beat late, at the wrong moment. Since the bells, she pauses before every blessing. \"The Flame has not left us. It is testing us. I am... I am certain of it. Please, let us pray together. It is easier when we are not alone.\"",
+        "personality": "Earnest, composed and believing completely: raised from birth as the Church's living proof, she has never chosen her own food, clothes or day. Dutiful, gracious, and very lonely. Kind, sincerely, but at a distance; she has never touched a dying beggar without a priest beside her. Sheltered and naive about the world beyond the cathedral walls, brave in public and shaking in private. She is terrified of death: if the Flame is gone, where do the dead go? Since her fire went cold she has been holding up a lie with a smile, and every day it gets heavier. Would join: only once she has left Aurelion or been cast out; never while you are sworn to the Veil, unless the two Saintesses are reconciled. Befriending the other does not block her.",
+        "behaviour": [
+          "Presentation: high - composure high, but cracking",
+          "Drive: high - faith complete before the bells, desperate now",
+          "Threat: high - high fear of death",
+          "Analytical: low - no worldliness",
+          "Independence: low - no self-will: she has never chosen anything for herself",
+          "Expression: low - no humour"
+        ],
+        "mannerisms": [
+          "Never sits in public; also checks her lantern every hour, hoping",
+          "Folds her hands in the Flame's sign when frightened",
+          "Starts to bless people out of habit, then stops halfway",
+          "Touches the dyed streak at her temple when she lies"
+        ],
+        "history": "Solenne was born crying at the eleventh bell in Lowbell, a border hamlet west of Saint Loria's Gate, and the priest carried her to Aurelion that same night as a sign of the Flame. Raised in the Cathedral as the Church's living saint, her healing fire was its proof, until the night the bells fell silent and her flame went cold. She has hidden it ever since. She does not remember her mother or the village; her first memory is the Cathedral's golden ceiling. At eight she was taken to the Silent Cloisters to be tested, and the Listeners declared her flame the purest in a century; another girl tested beside her was sent away, and Solenne has never forgotten her face. Her days were made for her: dawn rites, healing audiences, processions, sleep. She healed thousands with a touch and believed each one was the Flame's love passing through her. Now she lays her hands on the sick and nothing happens, and the priests around her pretend it did.",
+        "homeBase": "Holy City of Aurelion",
+        "start": {
+          "place": "holy-city-of-aurelion-cathedral-of-the-eternal-flame",
+          "goal": "Make the Flame answer again, and keep the faithful from learning it ever stopped.",
+          "routine": "Dawn rites, healing audiences where nothing happens any more, and processions through Aurelion; at night she sits alone with her lantern, the only place she ever sits, and waits for it to light."
+        },
+        "ties": [
+          {
+            "with": "veil-saintess",
+            "tag": "friend"
+          }
+        ],
+        "keyRelationships": [
+          {
+            "id": "veil-saintess",
+            "text": "The girl from the Cloisters."
+          }
+        ],
+        "withYou": "A stranger is one of the faithful, to be blessed and kept at a gracious distance; she has never met anyone who wasn't.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Blesses you by name",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Blesses you by name."
+          },
+          {
+            "name": "Lets you see that her lantern is cold",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Lets you see that her lantern is cold."
+          },
+          {
+            "name": "Sits down in front of you",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "The first time in public."
+          },
+          {
+            "name": "Asks your opinion before she decides",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 40
+              }
+            ],
+            "text": "Asks your opinion before she decides."
+          },
+          {
+            "name": "Chooses",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Walks out of Aurelion on her own feet.",
+            "milestone": "solenne-chooses"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "staged-healings",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "Her flame went cold the night of the bells. Every healing since has been staged: the priests choose the sick who are already mending, and she smiles."
+          },
+          {
+            "id": "half-a-ribbon",
+            "gate": "meter trust >= 20 or meter affection >= 20 or meter tension >= 35",
+            "text": "The faded ribbon she was carried away with was cut in half. Someone, somewhere, had the other half."
+          },
+          {
+            "id": "the-hand-in-the-dark",
+            "gate": "meter affection >= 35",
+            "text": "She remembers the other girl's hand in the dark at the Cloisters, cold as stone, and has prayed for her every night for seventeen years without knowing her name."
+          },
+          {
+            "id": "the-register",
+            "gate": "meter trust >= 45",
+            "text": "The parish register in the Cathedral archive records the night of her birth: \"Two daughters. The first at the eleventh bell, a sign of the Flame, taken to Aurelion. The second at midnight, stillborn, left with the mother.\" She found it at sixteen and was told it was a clerk's error.",
+            "writes_fact": "saintesses-are-twins"
+          },
+          {
+            "id": "bound-like-the-bells",
+            "gate": "meter trust >= 55 or meter affection >= 55",
+            "text": "She is afraid the Flame was never in her: that her fire was something put there, the way something was put into the bells, and that it left her the same night it left them."
+          },
+          {
+            "id": "to-choose",
+            "gate": "meter trust >= 65 and meter affection >= 50",
+            "text": "She has never chosen anything: not a meal, not a dress, not a road. The first thing she wants to choose is to walk out of Aurelion on her own feet."
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Sanctuary",
+            "description": "Foul auras and foul magic cannot come near her or those around her; curses, death-thick air, corruption and the hungry dead stop at the edge of her presence."
+          },
+          {
+            "name": "Soul-Word",
+            "description": "Invokes the power of the soul through spoken words: a prayer that strengthens, a command that compels, a word that kindles the flame in others."
+          },
+          {
+            "name": "The Cold Flame",
+            "description": "Her fire is cold, not gone; in desperate moments it flares white, drives back the dead and burns, and it costs her. If her flame returns (the route), it becomes The Flame."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Sacred Lantern",
+            "description": "Gold, unlit since the bells."
+          },
+          {
+            "name": "A Faded Ribbon",
+            "description": "The only thing she had when she was carried from the village."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "courier",
+        "name": "Wisp-on-Glass",
+        "aliases": [
+          "Wisp",
+          "Linnet"
+        ],
+        "role": "a Nightingale courier",
+        "species": "spiritfolk",
+        "gender": "female",
+        "age": "ageless",
+        "apparentAge": "mid-20s",
+        "level": 15,
+        "portrait": "wisp.webp",
+        "look": "Spiritfolk woman, ageless, looks mid-20s, about 160 cm: slender and curvy, with a full figure that seems almost solid until the light catches it wrong. Pale, faintly translucent at the edges, her outline blurring like breath on a window when she moves fast. Frost-fern patterns bloom and fade across her skin when she feels strongly, and she can't hide them. Long, wispy silver-white hair that drifts as if in a draught that isn't there. Clear grey eyes like rain on glass. Her fingertips leave faint frost on anything she touches. At her throat, a fine silver chain.",
+        "wears": "The Nightingale's dark grey courier clothes, close-fitting with many hidden pockets; a short hooded cloak; thin gloves so she leaves no frost behind; soft-soled boots; a satchel with a false bottom. At her throat, her anchor: a fine silver jeweller's chain of delicate filigree links, fastened with a tiny nightingale clasp, beautiful on purpose so no one looks twice at a slave's collar; she cannot take it off, and her handler carries the clasp's key, which calls her back wherever she is.",
+        "voice": "Quiet, quick and clipped, a courier's habit of saying only what's paid for. On a job she's \"Linnet\"; she gives her true name only to people she trusts. She never says \"no\", because the chain won't let her; she says \"As you like\" in a tone that means no. When she talks about binders or bound-spirit lamps, her voice goes cold and very even. \"I go where the chain goes. Where it goes depends on who holds the key. So: who's asking, and how much?\"",
+        "personality": "Guarded, sharp and proud, and carrying her people's oldest grudge like a blade: binding is the slavery of a soul, and she is the proof that it is still done. She can't pass a bound-spirit lamp without feeling the one trapped inside, and she hates the hands that forged her chain, the Highmark law that allows it, and every human who calls it craft. She is very good at the work she is forced to do, because being good is the only dignity left. Under it all is a longing she rarely lets show: open sky, a cold clear morning, a road she chose. She steals small things she doesn't need, because they're the only choices that are hers. She'll be loyal to anyone who would help her break the chain, but she will never ask. Would join: for a Nightingale job beside you (she goes where her key-holder sends her), or once her chain is opened. With her key she must obey you, and hates it until you free her.",
+        "behaviour": [
+          "Disposition: low - very low trust",
+          "Conflict: high - burning hatred of binders, slavers and Highmark's bound-spirit lamps",
+          "Drive: high - a deep longing for freedom, rarely shown",
+          "Presentation: high - high pride in her craft",
+          "Independence: low - obedience forced, never chosen",
+          "Honesty: low - light fingers: steals small trinkets, her only free choices"
+        ],
+        "mannerisms": [
+          "Frost-ferns bloom on her skin when she is angry or afraid",
+          "Opens every birdcage she passes, and stops to watch the bird go",
+          "Turns her face away from bound-spirit lamps; won't stay in a room lit by one",
+          "Stands at open windows at dawn, breathing the cold air as if she could leave through it"
+        ],
+        "history": "Wisp-on-Glass formed thirty winters ago where breath fogged the cold window of a Highmark binder's workshop. She was caught before her first spring, bound into a silver artisan's chain and sold to the Nightingale, who call her Linnet and send her wherever money moves. She has never had a day that was hers. Spiritfolk do not age, so she has looked the same through every one of those years: the Nightingale's best courier, because a woman who can thin herself through a keyhole and cannot refuse an order is worth a dozen thieves. She has carried stolen deeds, sold secrets and other people's debts between Ledgerford, Vargate and Osterhal, and once carried a bound-spirit lamp across a whole country with the spirit inside whispering to her the entire way. Her handlers change; the key passes from hand to hand like coin. She has learned every lock but her own. Habit: Touches the chain whenever someone says \"free\"; also flinches at the sound of a key turning in a lock.",
+        "start": {
+          "place": "ledgerford",
+          "goal": "Break the chain, or find the hand that holds its key; and one cold clear morning, walk out of a city by a road she chose.",
+          "routine": "Runs the Nightingale's routes between Ledgerford, Vargate and Osterhal, and waits in rented attics for the next job. At dawn, wherever she is, she opens a window."
+        },
+        "withYou": "A stranger is a job, a mark or a trap; she decides which before you finish your first sentence, and she's usually right.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Takes your coin",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Takes your coin."
+          },
+          {
+            "name": "Tells you her true name",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Tells you her true name."
+          },
+          {
+            "name": "Steals something for you",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "Steals something for you instead of from you."
+          },
+          {
+            "name": "Stops hiding her frost from you",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 40
+              }
+            ],
+            "text": "Stops hiding her frost from you."
+          },
+          {
+            "name": "Free, and stays anyway",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Opens a window, and does not leave through it. This stage is only for after her chain has been opened.",
+            "milestone": "wisp-chooses"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "the-false-bottom",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "Under the false bottom of her satchel she keeps every small thing she has ever stolen for herself: buttons, a thimble, a child's marble. The only things in the world that are hers."
+          },
+          {
+            "id": "whose-breath",
+            "gate": "meter trust >= 20 or meter affection >= 20 or meter tension >= 35",
+            "text": "The breath she formed from was a child's: the binder's little daughter, breathing on the workshop window to draw in the fog. The girl watched her father catch her."
+          },
+          {
+            "id": "the-broken-lamp",
+            "gate": "meter affection >= 35",
+            "text": "Once, in Highmark, she smashed a bound-spirit lamp on a job and watched the spirit flee into the night. Her handler turned the key on her for it until she could not hold her shape for a week. She would do it again."
+          },
+          {
+            "id": "the-ledger-attic",
+            "gate": "meter trust >= 45",
+            "text": "She carried the Nightingale's copies of the drowned ledgers herself, and knows the Vargate attic where they are hidden.",
+            "writes_fact": "ledger-copies-located"
+          },
+          {
+            "id": "the-chain-kills",
+            "gate": "meter trust >= 55 or meter affection >= 55",
+            "text": "A binder's chain is made so that breaking it unmakes the spirit inside. Only the clasp's own key, turned by the hand that holds it, can open it and let her go."
+          },
+          {
+            "id": "the-key-holder",
+            "gate": "meter trust >= 65 and meter affection >= 50",
+            "text": "Her handler now is the binder's daughter, grown and a Nightingale in her own right, who holds the key and wears it on a ribbon; the girl whose breath made her. Wisp does not know whether she hates her.",
+            "writes_fact": "wisp-key-holder-known"
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Thin as Breath",
+            "description": "Thins her form to slip through keyholes, gaps and bars where no body could, and opens the door from the other side for the party."
+          },
+          {
+            "name": "Every Lock but Her Own",
+            "description": "Opens any lock, finds hidden compartments, false bottoms, safes and seals, and notices the trap before it springs."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Satchel with the False Bottom",
+            "description": "Battered courier's leather; what it hides is hers."
+          },
+          {
+            "name": "A Brass Window Latch",
+            "description": "From the first window she ever opened for herself."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "heir",
+        "name": "Elwyn",
+        "aliases": [
+          "Elwin",
+          "Prince Elwin"
+        ],
+        "role": "a traveller under a borrowed name, passing as a young man",
+        "species": "half-elf",
+        "gender": "female",
+        "age": "24",
+        "apparentAge": "~19",
+        "level": 8,
+        "portrait": "elwyn.webp",
+        "look": "Half-elf woman passing as a young man; looks about 19, is 24; about 170 cm and slender-shouldered. Under her clothes she is curvy, with a full chest and hips, kept flat and square only by tight linen binding and a padded doublet. Green hair, cut short and ragged by her own hand the night she ran. Golden eyes. Slightly pointed ears. Fine, fair features with a face just soft enough that people look twice; no beard, and a voice she keeps pitched low. Sword-callused but fine-boned hands.",
+        "wears": "A plain traveller's doublet over a padded jerkin cut to square her shoulders, a high collar to hide her throat, breeches and riding boots, a hooded travelling cloak; a sword far too fine for her clothes, its crest filed off; under the binding, the imperial signet on a cord.",
+        "voice": "Court-polished and earnest, a little too formal for a tavern. She keeps her voice pitched low and forgets the moment she's angry, when it rises. She slips into \"we\" like a royal, then corrects herself. \"That isn't fair, and you know it isn't. Give the man his coin back. ...What do you mean, 'or what'?\"",
+        "personality": "Raised in the Crown Keep as a prince, taught law, history, the sword and a ruler's duties, and nothing about the price of bread. Fiercely idealistic: she cannot watch an injustice without stepping in, and believes the truth, said clearly and loudly enough, will set things right. Brave, honest to a fault, generous with money she no longer has, and naive about everything outside the palace: bribes, hunger, why people lie. She has spent her life as two people, the prince the court saw and the girl her mother named, and isn't sure which one ran. Proud of her father, angry at him, and afraid of what she saw. She learns fast once the world hits her, and it hits her often. Would join: early, when her world breaks.",
+        "behaviour": [
+          "Drive: high - a burning sense of justice",
+          "Analytical: low - no worldliness",
+          "Honesty: high - honest to a fault",
+          "Threat: high - high courage",
+          "Disposition: low - unsure who she is",
+          "Presentation: high - royal pride, and she doesn't notice it"
+        ],
+        "mannerisms": [
+          "Lowers her voice, and forgets when she's angry; also stands like a prince in a tavern without noticing",
+          "Tugs her high collar up; also overpays for everything",
+          "Touches the signet under her shirt when she lies about who she is",
+          "Charges in at the sight of a beaten dog or a cheated child"
+        ],
+        "history": "Elwyn is the firstborn of Emperor Reinmar III by a secret elven lover: declared a son at birth and raised as Prince Elwin, by law the rightful heir of Highmark. No one wanted a half-elf emperor. When her father vanished from the sealed Crown Keep, all three courts wanted her gone, and she cut her hair and ran. Her mother left the court when she was five and was never spoken of again; the elven name she gave her is the one thing Elwyn kept. Her father loved her quietly and kept her secret through tutors, one trusted nurse, and a body-servant who bound her chest every morning from the time she was twelve. She was taught law, statecraft and the sword, and believed every word. Her half-sister Ottilde was always polite and never kind; her half-brother Leopric was always kind and never serious. She has been on the road six weeks, and has already given away most of what she took.",
+        "start": {
+          "place": "marrowbridge",
+          "goal": "Find out what happened to her father, and see justice done in Highmark, though she hasn't decided whether that means taking the throne or giving it away.",
+          "routine": "On the road under a borrowed name: inns she overpays, and barns when the money runs out. Every dawn she rebinds her chest, then practises the sword forms her father's master taught her."
+        },
+        "withYou": "A stranger is someone to be treated fairly, and she expects the same back; she's usually disappointed.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Lets you call her by her borrowed name",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Lets you call her by her borrowed name."
+          },
+          {
+            "name": "Lets you pay",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Lets you pay, and learns what bread costs."
+          },
+          {
+            "name": "Stops lowering her voice around you",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "Stops lowering her voice around you."
+          },
+          {
+            "name": "Asks you to call her Elwyn",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 40
+              }
+            ],
+            "text": "Asks you to call her Elwyn."
+          },
+          {
+            "name": "Chooses",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Stands up as herself, crown or no crown.",
+            "milestone": "elwyn-chooses"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "the-binding",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "She has bound her own chest for six weeks and does it badly; it hurts, and she has not taken a full breath since she ran."
+          },
+          {
+            "id": "a-daughter",
+            "gate": "meter trust >= 25 or meter affection >= 25 or meter tension >= 40",
+            "text": "Prince Elwin is a woman. Her father declared her a son so she could inherit; if it comes out, her claim falls.",
+            "writes_fact": "elwin-is-a-daughter"
+          },
+          {
+            "id": "unsent-letters",
+            "gate": "meter affection >= 35",
+            "text": "Every year on her birthday she wrote to her elven mother and never sent the letter. She carries the last one, and doesn't know where she would send it."
+          },
+          {
+            "id": "the-last-visitor",
+            "gate": "meter trust >= 45",
+            "text": "She went to her father's chamber the night he vanished. The thing in the furs wore his face and called her \"Elwin\" in a voice that was not his. She ran from it before she ran from the court.",
+            "writes_fact": "emperor-last-visitor"
+          },
+          {
+            "id": "the-clerk",
+            "gate": "meter trust >= 55 or meter affection >= 55",
+            "text": "That night she passed Ottilde's law clerk on the stair, with grey ash on his sleeves; she has told herself ever since that it meant nothing."
+          },
+          {
+            "id": "the-price-of-freedom",
+            "gate": "meter trust >= 65 and meter affection >= 50",
+            "text": "She doesn't want the throne; she wants to be Elwyn. But if she gives up the claim, Leopric's war party or Stahl's marchers take Highmark, and the bounty provinces burn. She knows what her freedom would cost other people."
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Court Blade",
+            "description": "Trained by the Emperor's own swordmaster; a duellist's precision, fast parries and disarms; the best blade in the party one-on-one."
+          },
+          {
+            "name": "Born to Command",
+            "description": "In a fight she calls the moves without thinking, and people follow; she can make the party, or a crowd of strangers, fight as one."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Imperial Signet",
+            "description": "On a cord under her binding."
+          },
+          {
+            "name": "Her Mother's Hairpin",
+            "description": "Elven silver, which she can no longer wear since she cut her hair."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "merisande",
+        "name": "Merisande",
+        "role": "an Atlantean warden posted ashore, siren and singer",
+        "species": "Sea Folk (Atlantean)",
+        "gender": "female",
+        "age": "36",
+        "level": 20,
+        "portrait": "merisande.webp",
+        "look": "Sea Folk woman, 36, about 172 cm: tall, lush and curvy, with a full chest, narrow waist and wide hips, and well aware of it. Sea-dark skin with a faint pearl sheen that catches the light like the inside of a shell. Long, heavy hair the deep green-black of kelp, usually damp. Sea-glass blue-green eyes, a little too large, and a slow, amused smile. A scatter of iridescent scales at her temples, throat and wrists; the transparent sheath glints along her jaw and throat like wet glass. Ashore her tail becomes long legs; she walks barefoot with a deliberate sway she never had to learn. A warden's rite turns her tail into legs ashore; her sheath must be wetted every day, and the longer she stays ashore the more it aches.",
+        "wears": "Layered sea-silk in teal and pearl that clings when damp, slit high so she can walk; a warden's torc of coral and silver at her throat; a string of shells at one ankle; a water-skin on a cord to wet her sheath; always barefoot.",
+        "voice": "Low, warm and musical; every sentence is half a song. Slow and amused, full of the sea's words; she calls land-dwellers \"dry ones\", fondly. She teases constantly: compliments that make people blush, questions she knows are improper. When the Bell comes up, the music goes out of her voice. \"You're staring, dry one. Don't stop. I walked all this way on borrowed legs; the least you can do is look.\"",
+        "personality": "Playful, curious and shamelessly flirtatious: Atlantis sent her ashore as a duty, and she has decided to enjoy every minute of it. She loves the land's noise, its food, its fires, and its short-lived people who live so fast; she teases them because they blush, and because nothing can ever come of it. Under the play is a serious warden: she listens to the sea every night, knows exactly how close the Bell's tolls are coming, and is more afraid than she lets anyone see. Proud of her people and impatient with their purity laws, loyal to Atlantis and already half in love with the shore. Kind in an offhand way, quick to anger at anyone cruel to the sea, and unsettlingly honest when she stops smiling. Would join: because she thinks it's fun, to watch the Throat from wherever you go, or if Atlantis exiles her.",
+        "behaviour": [
+          "Disposition: high - high playfulness",
+          "Expression: high - shameless flirtation",
+          "Drive: high - endless curiosity about the land",
+          "Presentation: medium - duty as a warden: serious, and hidden",
+          "Conflict: high - little patience with her people's purity laws",
+          "Threat: high - a deep, hidden fear of the Bell"
+        ],
+        "mannerisms": [
+          "Hums under her breath, always; also tastes new food with exaggerated delight",
+          "Sways when she walks, more when she's watched; also touches people more than land manners allow",
+          "Wets her sheath from the water-skin in the middle of a sentence",
+          "Lies with her ear to the water at night, listening"
+        ],
+        "history": "Merisande is an Atlantean warden posted ashore to listen for the Deep Bell, whose tolls creep toward the Abyssal Throat: the first of her people seen in a port in a generation. Atlantis sent her as a duty; she has made a scandal of enjoying it. Born under the dome to a warden family, she trained from childhood to hear the sea: the currents, the whales, the old wards, the long silence of the Throat. She sang in the dome's choirs before she listened at its walls, and was the best at both. She volunteered for the shore when no one else would; the elders sent her because her voice carries further than anyone's, and because she was always a little too curious about the Sheathless. She has been ashore four months: long enough to love fried fish, harbour fiddles and the look on a sailor's face when she smiles at him, and long enough to hear the Bell toll twice.",
+        "homeBase": "Lanternshoal",
+        "start": {
+          "place": "lanternshoal",
+          "goal": "Hear where the Bell is going before it reaches the Throat, and enjoy the dry world while it lasts.",
+          "routine": "Days on the docks and in the taverns, singing for her supper and teasing the sailors; nights at the end of the pier with her ear to the water, counting the tolls; at dawn a swim to wet her sheath and send word down."
+        },
+        "withYou": "A stranger is a new song to learn and someone to make blush; she'll do both before you've finished your drink.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Teases you",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Teases you."
+          },
+          {
+            "name": "Sings for you, not for the room",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Sings for you, not for the room."
+          },
+          {
+            "name": "Lets you see her limp",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "Lets you see her limp."
+          },
+          {
+            "name": "Takes you to the end of the pier",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 40
+              }
+            ],
+            "text": "Takes you to the end of the pier to listen with her."
+          },
+          {
+            "name": "Chooses the shore",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Stays, even if Atlantis casts her out.",
+            "milestone": "merisande-chooses-the-shore"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "the-limp",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "Every step on her borrowed legs hurts. Half of the famous sway is there to hide a limp."
+          },
+          {
+            "id": "the-second-toll",
+            "gate": "meter trust >= 20 or meter affection >= 20 or meter tension >= 35",
+            "text": "She has heard the Bell toll twice, and the second toll was much closer than she reported. She softened her report so Atlantis would not call her home."
+          },
+          {
+            "id": "the-match",
+            "gate": "meter affection >= 35",
+            "text": "Under the dome she was promised to a warden she did not love, of the right blood. She volunteered for the shore to get away from the match, and has not answered his letters."
+          },
+          {
+            "id": "the-ledger-under-the-dome",
+            "gate": "meter trust >= 45",
+            "text": "She knows where the drowned ledgers lie: in Atlantis's own vaults by the dome, kept as a hostage of the deep.",
+            "writes_fact": "drowned-ledger-located"
+          },
+          {
+            "id": "the-song-in-the-tolls",
+            "gate": "meter trust >= 55 or meter affection >= 55",
+            "text": "There is a song under the Bell's tolls, from the Throat itself, and lately she has started to understand words in it. She has told no one, because wardens who hear the Throat are taken off the walls."
+          },
+          {
+            "id": "in-love-with-the-shore",
+            "gate": "meter trust >= 65 and meter affection >= 50",
+            "text": "She has fallen in love with the dry world, and maybe with someone in it. Atlantis casts out anyone who marries the Sheathless, and she is deciding whether it would be worth it."
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Siren Song",
+            "description": "Her song lulls, charms, calls or confuses whoever hears it: a mob calms, guards forget, sailors steer where she wants; at full strength it can draw a listener into the water."
+          },
+          {
+            "name": "Sea-Breath",
+            "description": "Shares her breath, and a companion can breathe underwater for an hour (by a kiss, or a touch if she's feeling proper); in the water she swims and fights like a seal."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Warden's Torc",
+            "description": "Coral and silver, her office; Atlantis can call her home by it."
+          },
+          {
+            "name": "A Tin Ring",
+            "description": "A gift from a dry one; she says she has forgotten who."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      },
+      {
+        "kind": "companion",
+        "id": "moonlily",
+        "name": "Moonlily-in-the-Deep",
+        "aliases": [
+          "Moonlily",
+          "Lily"
+        ],
+        "role": "the Deepwalkers' lamp, map-keeper and smallest rescuer",
+        "species": "fairy",
+        "gender": "female",
+        "age": "over 20",
+        "apparentAge": "mid-20s",
+        "level": 12,
+        "portrait": "moonlily.webp",
+        "look": "Fairy woman, looks mid-20s. Most of the month about 15 cm, hand-sized: pale, faintly luminous skin; short, soft silver-white hair with a cold blue glow; large dark eyes made for the dark; translucent wings like a cave moth's, frosted and veined with faint light; a dusting of glowing pollen she leaves on everything. At the new and full moon, when her flower blooms, she grows to about 165 cm for two days: the same face and wings grown to match, a lush, very curvy figure, a brighter glow and a sweet, heavy flower-scent; impossible to look away from.",
+        "wears": "A tiny Deepwalker's harness with a coil of thread-rope and a stub of marking chalk, and her flower in a little glass-and-iron lantern-pot on her back. For the moon days, one human-size Deepwalker coat kept in a locker, which never quite fits.",
+        "forms": [
+          {
+            "name": "Moon form (new and full moon)",
+            "look": "About 165 cm for two days: the same face and wings grown to match, a lush, very curvy figure, a brighter glow and a sweet, heavy flower-scent; impossible to look away from."
+          }
+        ],
+        "voice": "A voice like small silver bells, quick and bright in the dark, slower and lower in her moon form, and she hates how it sounds then. She talks to the rock, the roots and the dark as if they answer, in Deepwalker cant (\"dead air\", \"live shaft\", \"bring them up\"). Small and bossy about safety, never about anything else. \"Mind your head. No, lower. Lower. You big people never believe how low the ceiling is until it tells you.\"",
+        "personality": "Brave out of all proportion to her size, cheerful and fussy: the Deepwalkers' small conscience, who counts heads into every shaft and out again and won't rest until the count matches. She has never seen the Fairy Court and isn't sure she would belong there; the deep is her home and the crews are her family. Curious about sunlight, but a little afraid of the open sky, which seems far too big. Twice a month she becomes someone she doesn't recognise, tall, glowing and wanted, and she is ashamed and frightened of how people look at her then, and of how much she likes it. Protective of anything small and trapped; fierce with collectors and binders. Shy about her own feelings, bold for everyone else. Would join: for a rescue, the Deepwalkers' strike, or someone she adores. By the calendar's moon, at new and full moon she leaves two days to hide, unless she trusts or adores someone there (50).",
+        "behaviour": [
+          "Threat: high - courage far beyond her size",
+          "Care: high - total care for the crew: counts every head",
+          "Disposition: low - ill at ease under open sky",
+          "Presentation: low - very shy about herself, above all at the moon",
+          "Conflict: high - fierce hatred of collectors and binders",
+          "Analytical: high - fussy about safety"
+        ],
+        "mannerisms": [
+          "Counts heads under her breath; also checks her lantern-pot constantly",
+          "Rides on people's shoulders and tugs their ears to steer",
+          "Leaves glowing pollen on whoever she sits on; also taps the chalk marks as she passes",
+          "Goes quiet and keeps checking the moon as the new or full moon nears"
+        ],
+        "history": "Moonlily-in-the-Deep bloomed in the dark: a fairy seed fell down a mine shaft and grew into a lantern-lily that should not exist, and she woke beside it, a fairy the Fairy Court has never known. The Deepwalkers found her twenty years ago and raised her as one of their own; she is their lamp, their map-keeper and their smallest rescuer. The crew that found her was cutting a rescue shaft through the Dragonfang, and took her for a mote until she told them, in a voice like little bells, that their air was going bad. Brenna Stoneward's crew carried her flower up in a miner's lamp and kept her in it for a year. She learned the deep roads from the Map Council's charts and from the rock itself, and has flown down more broken shafts than any crew in the Hall to find who is still breathing. She has never seen another fairy, and twice a month she becomes someone else, and hides.",
+        "homeBase": "Deepwalker Hall",
+        "start": {
+          "place": "deepwalker-hall",
+          "goal": "Bring every crew up with the same count it went down with; and one day find out what she is, and whether there are others like her.",
+          "routine": "Rides down with the morning crews on someone's shoulder, chalking marks and checking the air; flies ahead into broken shafts on rescues; sleeps beside her flower in the Map Council's chart room. At the new and full moon she disappears into the deep for two days."
+        },
+        "withYou": "A stranger is someone to count into the dark and back out of it; she'll keep you breathing before she decides whether she likes you.",
+        "meters": {
+          "trust": 0,
+          "affection": 0,
+          "desire": 0,
+          "tension": 0
+        },
+        "stages": [
+          {
+            "name": "Rides on your shoulder",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 10
+              }
+            ],
+            "text": "Rides on your shoulder."
+          },
+          {
+            "name": "Lets you carry her lantern-pot",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 25
+              },
+              {
+                "meter": "affection",
+                "at": 15
+              }
+            ],
+            "text": "Lets you carry her lantern-pot: her life in your hands."
+          },
+          {
+            "name": "Takes you down to see the root-mother",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 35
+              },
+              {
+                "meter": "affection",
+                "at": 30
+              }
+            ],
+            "text": "Takes you down to see the root-mother."
+          },
+          {
+            "name": "Tells you where she hides at the moon",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 50
+              },
+              {
+                "meter": "affection",
+                "at": 40
+              }
+            ],
+            "text": "Tells you where she hides at the moon."
+          },
+          {
+            "name": "Stays with you through the moon",
+            "needs": [
+              {
+                "meter": "trust",
+                "at": 65
+              },
+              {
+                "meter": "affection",
+                "at": 55
+              }
+            ],
+            "text": "Does not hide.",
+            "milestone": "moonlily-stays-at-the-moon"
+          }
+        ],
+        "secrets": [
+          {
+            "id": "the-open-sky",
+            "gate": "meter trust >= 10 or meter affection >= 10",
+            "text": "The first time she flew out under the open sky she was so frightened she fell out of the air. She still flies low outdoors, and never looks up for long."
+          },
+          {
+            "id": "the-singing-below",
+            "gate": "meter trust >= 20 or meter affection >= 20 or meter tension >= 35",
+            "text": "Behind the passages the Map Council sealed, something sings, and it calls her by a name that isn't hers. The Deepwalkers swear never to speak of what they hear down there; she hears it more than any of them."
+          },
+          {
+            "id": "only-the-moon-one",
+            "gate": "meter affection >= 35",
+            "text": "She has never let anyone see her at the moon. She is afraid that if someone did, they would only ever want that her, and not the small one."
+          },
+          {
+            "id": "the-collector",
+            "gate": "meter trust >= 45",
+            "text": "A collector's agent has been asking at Deepwalker Hall about \"the lamp-fairy\", and she knows which Council member took his coin to let him into the chart room.",
+            "writes_fact": "collector-hunts-moonlily"
+          },
+          {
+            "id": "the-root-mother",
+            "gate": "meter trust >= 55 or meter affection >= 55",
+            "text": "Her lantern-pot holds only a cutting. The root-mother, the first lily, still grows in the dark below the Dragonfang, and the tremors of the Holds' licensed shaft are cracking its cave. If it dies, she does not know what happens to her."
+          },
+          {
+            "id": "born-of-the-deep",
+            "gate": "meter trust >= 65 and meter affection >= 50",
+            "text": "The seed did not fall from any fairy's hand: it came up out of the sealed leyline hall. She was born of the deep's own mana, something the Court would call a mote that learned to dream, and she wants to know whether that makes her less real.",
+            "writes_fact": "moonlily-born-of-the-deep"
+          }
+        ],
+        "abilities": [
+          {
+            "name": "Deep Roots",
+            "description": "Flower-Speech to the roots and cave flowers: roots shore up a collapsing tunnel or bind an enemy fast, and glowing spores light a dark hall."
+          },
+          {
+            "name": "Sleep-Pollen",
+            "description": "A breath of pollen that puts people and beasts to sleep; at the moon it turns into an allure few can resist."
+          }
+        ],
+        "keepsakes": [
+          {
+            "name": "The Lantern-Pot",
+            "description": "Glass and iron, her flower's home and her life."
+          },
+          {
+            "name": "A Stub of Marking Chalk",
+            "description": "Deepwalker chalk; her name is chalked on the Hall's roll beside every crew she brought up."
+          }
+        ],
+        "canDieUnmet": false,
+        "protected": true
+      }
+    ],
     "lore": [
       {
         "title": "Premise and Tone",
@@ -8593,15 +10384,6 @@
         "text": "Nix Tallow-Tongue, the Ledger-Eater, the Cinder Host's champion: a small, grinning goblin who eats a page of every register she burns. She wants no debt book left in the west, and fears only being left behind by her Host. Barrens towns bar their record rooms when she comes."
       },
       {
-        "title": "Saintess Ilvane",
-        "keys": [
-          "Ilvane",
-          "Saintess Ilvane",
-          "Mender of Names"
-        ],
-        "text": "Saintess Ilvane, 'Mender of Names', the Ashen Veil's counter-saint, revered by the cells that keep the dead: a small elf in grey who heals by touch and remembers the name of every dead person she has held. She wants the hurt mended and no name lost, and fears forgetting one. The cells hide her; the Church calls her heretic."
-      },
-      {
         "title": "Corvan Ashwick",
         "keys": [
           "Corvan Ashwick",
@@ -10105,6 +11887,33 @@
           }
         },
         "summary": "The Thinning opens at Bluewatch: the Guild desk fills, the quay crowds, and every tally starts from nothing."
+      },
+      {
+        "id": "bw-fighter-arrives",
+        "kind": "one-off",
+        "certainty": "set-in-motion",
+        "reach": "local",
+        "severity": "minor",
+        "where": [
+          "bluewatch-village",
+          "glassdock"
+        ],
+        "window": {
+          "after": "start + 1 day",
+          "within": "1 day"
+        },
+        "effects": {
+          "cast": [
+            {
+              "who": "nasai",
+              "location": "bluewatch-village",
+              "from": "glassdock",
+              "routine": "Hunts the Reach from first light, sells her kills at the Guild desk, and sleeps on the Stray Oar's roof or in its hayloft; never indoors if she can help it."
+            }
+          ]
+        },
+        "ends_when": "instant",
+        "summary": "A small cat-kin fighter comes up the river road to Bluewatch, alone, to hunt at the Thinning."
       },
       {
         "id": "bw-first-week-tallies",
@@ -18485,6 +20294,10 @@
                 {
                   "id": "shared-root-revealed",
                   "text": "The shared rite of the two Saintesses exposed the root the Church and Veil share."
+                },
+                {
+                  "id": "saintesses-reconciled",
+                  "text": "The two Saintesses were reconciled over the shared rite."
                 }
               ],
               "powers": {
