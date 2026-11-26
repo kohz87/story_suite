@@ -6933,6 +6933,18 @@
         "text": "Fairies are tiny sapient people with translucent insect wings and Flower-Speech magic. Each is mystically bound to a personal flower; harming the flower harms the fairy. Their tongue sounds like silver bells. They live in the Fairy Court under the Queen of Flowers, protected but not ruled by Verdantleaf.\nAn adult people with their own law and long memories, never pets or children. Collectors buy them, binders hunt them, and the Fairy Court remembers every one taken."
       },
       {
+        "title": "Mixed Heritage",
+        "keys": [
+          "mixed heritage",
+          "crossblood",
+          "half-elf",
+          "half-orc",
+          "dwelf",
+          "mixed blood"
+        ],
+        "text": "Children of two peoples are born where the peoples of flesh live side by side: humans, elves, dwarves, halflings, beastfolk, orcs and goblins. Spiritfolk and fairies have no children with other peoples, and the Sea Folk forbid marriage with the Sheathless and cast out any Atlantean who breaks the rule. A child of two peoples usually takes one parent's build and carries marks of the other (pointed ears, a dwarf's breadth, a beastfolk tail or eyes, an orc's tusks), with a lifespan somewhere between the two. The soul awakens and grows by the same rules as anyone's.\nTreatment follows the border. In Ardelia, where marriage across peoples is ordinary, the civic registry writes such a child as a citizen of both peoples. Highmark law counts them as whichever parent ranks lower, so a half-orc can carry an orc's bounty in the provinces that still pay one. The Confederacy cares about the contract, not the blood. Dwarven clans carve a child on the ancestor stone only if a clan claims them; elves remember both lines, and both grudges; beastfolk clans judge by deed, as they judge everyone. Slave markets price the rarity.\nWords: \"crossblood\" is the polite Confederacy word; Highmark says half-elf or half-orc; blunter slang (\"dwelf\" for a dwarf-elf child) is common in the Northern Belt and rude to the face."
+      },
+      {
         "title": "Sea Folk (Atlanteans)",
         "keys": [
           "Atlantean",
