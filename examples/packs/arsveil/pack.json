@@ -11034,7 +11034,7 @@
         },
         "effects": {
           "set": [
-            "wildzone-pushing@bluewatch-reach: 1 season"
+            "wildzone-pushing@bluewatch-reach: until cleared"
           ]
         },
         "summary": "Bluewatch's new town chooses what it will become: {outcome}.",
@@ -11366,7 +11366,7 @@
         "id": "teem-great-cull",
         "kind": "chain-stage",
         "ends_when": "instant",
-        "certainty": "likely",
+        "certainty": "set-in-motion",
         "reach": "world",
         "severity": "major",
         "where": [
@@ -11379,8 +11379,8 @@
           "stage:teem-long-watch-cull"
         ],
         "window": {
-          "after": "fired:teem-long-watch-cull + 2 days",
-          "within": "150 days"
+          "after": "start + 249 days",
+          "within": "20 days"
         },
         "effects": {
           "scores": {
@@ -11446,8 +11446,7 @@
               ]
             }
           }
-        ],
-        "chance": "100% over the window"
+        ]
       },
       {
         "id": "teem-vaulkir-litter",
@@ -11527,7 +11526,7 @@
           "stage:teem-tap-feeds-wild"
         ],
         "window": {
-          "after": "fact:vaulkir-litter + 120 days",
+          "after": "fact:vaulkir-litter + 147 days",
           "within": "120 days"
         },
         "waits_for": {
@@ -11699,7 +11698,7 @@
         },
         "effects": {
           "set": [
-            "wildzone-pushing@deep-northern-apex: 1 season"
+            "wildzone-pushing@deep-northern-apex: until cleared"
           ]
         },
         "summary": "The north settles into a new shape after the Teeming: {outcome}.",
@@ -12236,8 +12235,8 @@
           "stage:auv-depths-scratching"
         ],
         "window": {
-          "after": "fired:auv-depths-scratching + 254 days",
-          "within": "60 days"
+          "after": "start + 274 days",
+          "within": "31 days"
         },
         "waits_for": {
           "near": [
@@ -12393,7 +12392,7 @@
           "stage:teem-pale-maw-hunt"
         ],
         "window": {
-          "after": "fired:teem-pale-maw-hunt + 58 days",
+          "after": "fired:teem-pale-maw-hunt + 62 days",
           "within": "90 days"
         },
         "effects": {},
@@ -12485,7 +12484,7 @@
         },
         "effects": {
           "set": [
-            "grain-dear@auvoth-compact: 1 season"
+            "grain-dear@auvoth-compact: until cleared"
           ]
         },
         "summary": "The Crowded City settles into its final shape: {outcome}.",
@@ -12832,8 +12831,8 @@
           "auvoth"
         ],
         "window": {
-          "after": "start + 130 days",
-          "within": "35 days"
+          "after": "start + 152 days",
+          "within": "31 days"
         },
         "waits_for": {
           "near": [
@@ -12958,7 +12957,7 @@
           "fact:ardelia-pasture-bought"
         ],
         "window": {
-          "after": "start + 274 days",
+          "after": "start + 366 days",
           "within": "150 days"
         },
         "effects": {
@@ -13005,7 +13004,7 @@
           "stage:north-herds-off-route"
         ],
         "window": {
-          "after": "fired:north-herds-off-route + 1 year",
+          "after": "fired:north-herds-off-route + 383 days",
           "within": "90 days"
         },
         "waits_for": {
@@ -13430,8 +13429,8 @@
           "harrowfield"
         ],
         "window": {
-          "after": "start + 244 days",
-          "within": "50 days"
+          "after": "start + 249 days",
+          "within": "20 days"
         },
         "effects": {
           "scores": {
@@ -13536,7 +13535,7 @@
           "stage:beacon-bought-piecemeal"
         ],
         "window": {
-          "after": "fired:beacon-bought-piecemeal + 300 days",
+          "after": "fired:beacon-bought-piecemeal + 291 days",
           "within": "120 days"
         },
         "effects": {},
@@ -13910,8 +13909,8 @@
           "auvoth-compact"
         ],
         "window": {
-          "after": "start + 152 days",
-          "within": "30 days"
+          "after": "start + 157 days",
+          "within": "20 days"
         },
         "effects": {
           "powers": {
@@ -13948,8 +13947,8 @@
           "border-kingdoms"
         ],
         "window": {
-          "after": "start + 244 days",
-          "within": "30 days"
+          "after": "start + 249 days",
+          "within": "20 days"
         },
         "effects": {
           "scores": {
@@ -14558,8 +14557,8 @@
           "valecrown"
         ],
         "window": {
-          "after": "fired:hm-regency + 183 days",
-          "within": "60 days"
+          "after": "start + 279 days",
+          "within": "20 days"
         },
         "effects": {
           "set": [
@@ -14597,7 +14596,7 @@
           "stage:hm-pretender-arrives"
         ],
         "window": {
-          "after": "fired:hm-pretender-arrives + 61 days",
+          "after": "fired:hm-pretender-arrives + 87 days",
           "within": "45 days"
         },
         "outcomes": [
@@ -15147,7 +15146,8 @@
             "weight": "power:stahl-marchers",
             "effects": {
               "set": [
-                "court-divided@highmark-empire-realm: until cleared"
+                "court-divided@highmark-empire-realm: until cleared",
+                "garrisons-away@highmark-empire-realm: until cleared"
               ],
               "scores": {
                 "highmark-stability": -3
@@ -15598,8 +15598,8 @@
           "fact:ardelian-election"
         ],
         "window": {
-          "after": "fired:ard-emperor-cough + 90 days",
-          "within": "45 days"
+          "after": "start + 127 days",
+          "within": "20 days"
         },
         "outcomes": [
           {
@@ -15743,8 +15743,8 @@
           "fact:ardelian-election"
         ],
         "window": {
-          "after": "fired:ard-election + 109 days",
-          "within": "90 days"
+          "after": "start + 218 days",
+          "within": "20 days"
         },
         "outcomes": [
           {
@@ -17002,8 +17002,8 @@
           "highmark-capital"
         ],
         "window": {
-          "after": "fired:ard-emperor-cough + 60 days",
-          "within": "45 days"
+          "after": "start + 97 days",
+          "within": "20 days"
         },
         "outcomes": [
           {
@@ -17119,8 +17119,8 @@
         ],
         "waits_for": "near",
         "window": {
-          "after": "fired:hm-regency + 213 days",
-          "within": "75 days"
+          "after": "start + 274 days",
+          "within": "31 days"
         },
         "outcomes": [
           {
@@ -17204,8 +17204,8 @@
         ],
         "waits_for": "near",
         "window": {
-          "after": "fired:ard-election + 109 days",
-          "within": "90 days"
+          "after": "start + 213 days",
+          "within": "31 days"
         },
         "likelier_if": {
           "fact:bells-silent": "×2",
@@ -17313,7 +17313,7 @@
           "fact:iron-archive-opened"
         ],
         "window": {
-          "after": "start + 13 months",
+          "after": "start + 397 days",
           "within": "1 year"
         },
         "outcomes": [
@@ -17418,7 +17418,7 @@
           "osterhal-ninefold-hall"
         ],
         "window": {
-          "after": "start + 18 months",
+          "after": "start + 548 days",
           "within": "1 year"
         },
         "outcomes": [
@@ -17970,7 +17970,7 @@
           "stage:bells-open"
         ],
         "window": {
-          "after": "fired:bells-open + 75 days",
+          "after": "start + 102 days",
           "within": "10 days"
         },
         "outcomes": [
@@ -18129,7 +18129,7 @@
           "stage:bells-schism"
         ],
         "window": {
-          "after": "fired:bells-schism + 118 days",
+          "after": "start + 223 days",
           "within": "10 days"
         },
         "outcomes": [
@@ -18363,7 +18363,7 @@
         ],
         "waits_for": "near",
         "window": {
-          "after": "fired:bells-bell-founder + 38 days",
+          "after": "fired:bells-bell-founder + 35 days",
           "within": "50 days"
         },
         "outcomes": [
@@ -18675,7 +18675,7 @@
           "stage:motes-dark"
         ],
         "window": {
-          "after": "fired:motes-dark + 110 days",
+          "after": "start + 131 days",
           "within": "12 days"
         },
         "effects": {
@@ -19035,7 +19035,8 @@
                 }
               ],
               "set": [
-                "unrest@oren: until cleared"
+                "unrest@oren: until cleared",
+                "court-divided@ardelian-empire: until cleared"
               ],
               "scores": {
                 "wild-swarm": 5
@@ -19121,7 +19122,7 @@
           "fact:out-of-season-broods": "×2"
         },
         "window": {
-          "after": "start + 183 days",
+          "after": "start + 193 days",
           "within": "10 days"
         },
         "effects": {
@@ -20172,7 +20173,7 @@
           "fact:drowned-ledger"
         ],
         "window": {
-          "after": "start + 100 days",
+          "after": "start + 97 days",
           "within": "20 days"
         },
         "outcomes": [
@@ -20389,7 +20390,7 @@
           "fact:ledger-burned": "×0"
         },
         "window": {
-          "after": "start + 427 days",
+          "after": "start + 458 days",
           "within": "1 year"
         },
         "outcomes": [
@@ -20453,7 +20454,7 @@
           "fact:ledger-burned": "×0"
         },
         "window": {
-          "after": "start + 427 days",
+          "after": "start + 458 days",
           "within": "1 year"
         },
         "outcomes": [
@@ -20642,7 +20643,7 @@
                 }
               ],
               "set": [
-                "debt-called-in@ledgerford: 1 season"
+                "debt-called-in@ledgerford: until cleared"
               ],
               "scores": {
                 "ledger-trust": 5
@@ -20694,7 +20695,7 @@
                 }
               ],
               "set": [
-                "grain-dear@ledger-locks: 1 season"
+                "grain-dear@ledger-locks: until cleared"
               ],
               "scores": {
                 "ledger-trust": 3
@@ -20828,7 +20829,7 @@
         ],
         "window": {
           "after": "start + 152 days",
-          "within": "90 days"
+          "within": "31 days"
         },
         "waits_for": "near",
         "likelier_if": {
@@ -21361,7 +21362,7 @@
           "fact:sea-tithe-declared"
         ],
         "window": {
-          "after": "start + 305 days",
+          "after": "start + 310 days",
           "within": "20 days"
         },
         "effects": {
@@ -21557,7 +21558,7 @@
           "stage:tithe-blockade"
         ],
         "window": {
-          "after": "start + 4 years",
+          "after": "start + 1430 days",
           "within": "1 year"
         },
         "outcomes": [
@@ -21826,7 +21827,7 @@
           "fact:bell-tolls-closer"
         ],
         "window": {
-          "after": "start + 336 days",
+          "after": "start + 310 days",
           "within": "20 days"
         },
         "outcomes": [
@@ -21903,7 +21904,7 @@
           "stage:sea-throat-stirs"
         ],
         "window": {
-          "after": "fired:sea-throat-stirs + 180 days",
+          "after": "fired:sea-throat-stirs + 207 days",
           "within": "365 days"
         },
         "outcomes": [
@@ -21974,7 +21975,7 @@
           "stage:sea-throat-stirs"
         ],
         "window": {
-          "after": "start + 1127 days",
+          "after": "start + 1096 days",
           "within": "11 months"
         },
         "outcomes": [
@@ -22220,7 +22221,7 @@
           "score:flame-faith <= 45": "×2"
         },
         "window": {
-          "after": "start + 204 days",
+          "after": "start + 188 days",
           "within": "20 days"
         },
         "outcomes": [
@@ -22646,7 +22647,7 @@
           "fact:cure-carrier": "×2"
         },
         "window": {
-          "after": "start + 336 days",
+          "after": "start + 341 days",
           "within": "20 days"
         },
         "effects": {
@@ -22679,7 +22680,7 @@
           "fact:cure-price-named"
         ],
         "window": {
-          "after": "start + 458 days",
+          "after": "start + 489 days",
           "within": "1 year"
         },
         "outcomes": [
@@ -22842,7 +22843,7 @@
                 }
               ],
               "set": [
-                "plague@ardelian-empire-and-southmarch: 1 season"
+                "plague@ardelian-empire-and-southmarch: until cleared"
               ],
               "scores": {
                 "ledger-trust": -3
@@ -22864,7 +22865,7 @@
                 }
               ],
               "set": [
-                "grain-dear@glass-wastes-and-ashkaran-dominion: 1 season"
+                "grain-dear@glass-wastes-and-ashkaran-dominion: until cleared"
               ],
               "scores": {
                 "north-readiness": 3
@@ -22886,7 +22887,7 @@
                 }
               ],
               "set": [
-                "plague@shackles: 1 season"
+                "plague@shackles: until cleared"
               ],
               "scores": {
                 "ledger-trust": -2
@@ -23044,8 +23045,8 @@
           "stage:muster-vargate-takes-coast"
         ],
         "window": {
-          "after": "date:612-08-01",
-          "within": "75 days"
+          "after": "start + 305 days",
+          "within": "31 days"
         },
         "waits_for": "near",
         "outcomes": [
@@ -23543,8 +23544,8 @@
           "stage:deep-shaft-license"
         ],
         "window": {
-          "after": "fired:deep-shaft-license + 95 days",
-          "within": "90 days"
+          "after": "start + 123 days",
+          "within": "29 days"
         },
         "waits_for": "near",
         "likelier_if": {
@@ -23667,7 +23668,7 @@
           "stage:deep-thane-challenged"
         ],
         "window": {
-          "after": "date:613-03-01",
+          "after": "date:613-03-05",
           "within": "300 days"
         },
         "likelier_if": {
@@ -24142,8 +24143,8 @@
           "ardelian-empire-and-southmarch"
         ],
         "window": {
-          "after": "start + 183 days",
-          "within": "60 days"
+          "after": "start + 188 days",
+          "within": "20 days"
         },
         "likelier_if": {
           "fact:walker-pilgrims": "×2",
@@ -24437,7 +24438,7 @@
           "stage:orders-wallwright-asked"
         ],
         "window": {
-          "after": "date:613-02-07",
+          "after": "date:613-02-01",
           "within": "230 days"
         },
         "outcomes": [
@@ -25574,6 +25575,27 @@
         },
         "ends_when": "instant",
         "summary": "Word travels that the Fairy Court has made its first wager of the season with a mortal town, and the town has not yet learned what it staked."
+      },
+      {
+        "id": "bg-first-frost",
+        "kind": "one-off",
+        "certainty": "set-in-motion",
+        "severity": "minor",
+        "reach": "world",
+        "where": [
+          "confederacy-heartland"
+        ],
+        "window": {
+          "after": "start + 20 days",
+          "within": "20 days"
+        },
+        "effects": {
+          "scores": {
+            "north-readiness": -1
+          }
+        },
+        "ends_when": "instant",
+        "summary": "The first hard frost comes early to the river country, and carters and farmers begin counting what is already in the barns."
       }
     ],
     "templates": [
