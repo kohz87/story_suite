@@ -25,8 +25,7 @@ export function validateDaily(stored) {
     for (const [id, row] of Object.entries(isRecord(slice.events) ? slice.events : {})) {
         if (!isRecord(row) || !['dormant', 'eligible', 'active', 'ended', 'lapsed', 'replaced'].includes(row.state)) errors.push(`chronicle.daily.events["${id}"] has no known state.`);
     }
-    if (slice.placeIds !== undefined && slice.placeIds !== 1) errors.push('chronicle.daily.placeIds must be 1 when present.');
-    for (const key of Object.keys(slice)) if (![...RECORDS, 'seed', 'day', 'start', 'minors', 'slots', 'pending', 'arcs', 'placeIds'].includes(key)) errors.push(`chronicle.daily has an unknown field "${key}".`);
+    for (const key of Object.keys(slice)) if (![...RECORDS, 'seed', 'day', 'start', 'minors', 'slots', 'pending', 'arcs'].includes(key)) errors.push(`chronicle.daily has an unknown field "${key}".`);
     if (JSON.stringify(slice).length > MAX_JSON) errors.push(`chronicle.daily is larger than ${MAX_JSON / 1024} KB.`);
     return errors.slice(0, 8);
 }

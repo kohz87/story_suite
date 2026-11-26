@@ -19,8 +19,8 @@ const text = value => (typeof value === 'string' && value.trim() ? value.trim() 
  */
 export const placeIdsOn = carrier => !carrier || carrier.rules?.includes('packPlaceIds') === true;
 
-/** The packs' map as the daily step reads it, for `carrier` (placeIdsOn), or with `slugs` as given (a day step's own, daily/step.js). */
-export const hostGeo = (query, carrier = null, { slugs = placeIdsOn(carrier) } = {}) => buildGeo(readWorld(query), { slugs });
+/** The packs' map as the daily step reads it, for `carrier` (placeIdsOn). */
+export const hostGeo = (query, carrier = null) => buildGeo(readWorld(query), { slugs: placeIdsOn(carrier) });
 
 // A place or region of the atlas alone (a place the story made): its own name.
 function atlasName(query, scope, ref) {

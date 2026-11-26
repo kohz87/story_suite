@@ -4,8 +4,8 @@
 import { scenePlaceOf } from '../pick-parts/nearness.js';
 import { sceneSpot } from '../world-note-parts/spot.js';
 
-/** `partyRegionOf(query, state, { slugs })` → the region's id as the pack writes it, or ''. `slugs`: whether the step reads pack file ids. */
-export function partyRegionOf(query, state = null, { slugs = true } = {}) {
+/** `partyRegionOf(query, state)` → the region's id as the pack writes it, or ''. */
+export function partyRegionOf(query, state = null) {
     const scene = scenePlaceOf(query, state);
-    return scene ? sceneSpot(query, scene, { slugs }).region : '';
+    return scene ? sceneSpot(query, scene).region : '';
 }

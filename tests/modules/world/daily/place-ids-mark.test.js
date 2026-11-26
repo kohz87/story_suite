@@ -1,11 +1,11 @@
-// A narrator condition naming an installed pack's place by its file id: taken on a reply captured with the rule mark `packPlaceIds`;
-// a reply with no mark refuses it, and still does on a Re-read.
+// A narrator condition naming a place of an opted-in pack (`"placeIds": true`) by its file id: taken on a reply captured with the
+// rule mark `packPlaceIds`; a reply with no mark refuses it, and still does on a Re-read. A pack that did not opt in always refuses it.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { agrees, chronicle, newHost, reply } from './daily-host.helpers.js';
 
 const PACK = JSON.stringify({
-    id: 'world-ids', version: '1.0.0', name: 'World ids', format: 4, kind: 'world', requires: { suite: '^0.1' },
+    id: 'world-ids', version: '1.0.0', name: 'World ids', format: 4, kind: 'world', requires: { suite: '^0.1' }, placeIds: true,
     content: {
         places: [{ id: 'deep-hold', name: 'Deepmantle Hold', region: 'The March', x: 0, y: 0, kind: 'town' }],
         conditions: [{ name: 'unrest', scope: 'place', fades: '10 days', means: 'Crowds in the streets.' }],
@@ -15,8 +15,10 @@ const riot = (conditions, place = 'deep-hold') => reply('The square fills.', [`+
 const keys = host => Object.keys(chronicle(host).conditions ?? {});
 const marksOf = (host, at) => host.ctx.chat[at].extra.storySuite.rules;
 
-async function start() {
-    const host = await newHost(true, {}, undefined, PACK);
+const PLAIN = JSON.stringify({ ...JSON.parse(PACK), placeIds: undefined });
+
+async function start(pack = PACK) {
+    const host = await newHost(true, {}, undefined, pack);
     await host.send('Begin.', reply('Dust.', ['~ time June 3, 1200, 08:00 pm']));
     return host;
 }
@@ -70,3 +72,20 @@ test('lifting by file id: a reply with no mark leaves the condition, also on Re-
         assert.deepEqual(keys(host), []);
     } finally { host.done(); }
 });
+
+for (const [label, text] of [['the line\'s place', riot('+unrest')], ['name@ref', riot('+unrest@deep-hold', 'The square')]]) {
+    test(`a pack with no opt-in refuses a file id from ${label} on a marked reply, also on Re-read`, async () => {
+        const host = await start(PLAIN);
+        try {
+            await host.send('Look.', text);
+            const at = host.ctx.chat.length - 1;
+            assert.ok(marksOf(host, at).includes('packPlaceIds'));
+            assert.deepEqual(keys(host), []);
+            assert.equal((await host.turn.reread(at)).ok, true);
+            assert.deepEqual(keys(host), []);
+            await host.send('Again.', riot('+unrest', 'Deepmantle Hold'));
+            assert.deepEqual(keys(host), ['unrest@Deepmantle Hold'], 'the display name works as before');
+            await agrees(host, label);
+        } finally { host.done(); }
+    });
+}

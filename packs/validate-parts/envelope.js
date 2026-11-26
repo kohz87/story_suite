@@ -1,4 +1,4 @@
-// The job: the format 4 envelope: `kind`, `recommends`, the top-level fields, and which `content` keys each kind may hold (with "belongs in a … pack" pointers).
+// The job: the format 4 envelope: `kind`, `recommends`, `placeIds`, the top-level fields, and which `content` keys each kind may hold (with "belongs in a … pack" pointers).
 
 import { CONTENT_KEYS, MOVED_TOP_FIELDS, PACK_FIELDS_V4, PACK_ID, PACK_KINDS } from '../limits.js';
 import { parseRange } from '../version.js';
@@ -18,7 +18,10 @@ export function checkTopFields4(raw, add) {
     }
 }
 
-/** `kind` ("world" or "game", required) and `recommends` (a world pack's suggested game). Returns { kind, recommends }; `kind` is null when it is not usable. */
+/**
+ * `kind` ("world" or "game", required), `recommends` (a world pack's suggested game) and `placeIds` (a world pack names places by
+ * file id; only `true`, never filled in). Returns { kind, recommends, placeIds }; `kind` is null when it is not usable.
+ */
 export function checkKindFields(raw, add) {
     const kind = PACK_KINDS.includes(raw.kind) ? raw.kind : null;
     if (!kind) add('BAD_KIND', 'kind', `kind must be "world" or "game" (it says ${JSON.stringify(raw.kind) ?? 'nothing'}).`);
@@ -27,7 +30,15 @@ export function checkKindFields(raw, add) {
         if (kind === 'game') add('UNKNOWN_FIELD', 'recommends', '"recommends" belongs in a world pack: a game pack does not suggest anything.');
         else recommends = checkRecommends(raw.recommends, add);
     }
-    return { kind, recommends };
+    const placeIds = raw.placeIds !== undefined && checkPlaceIds(raw.placeIds, kind, add);
+    return { kind, recommends, placeIds };
+}
+
+function checkPlaceIds(value, kind, add) {
+    if (kind === 'game') add('UNKNOWN_FIELD', 'placeIds', '"placeIds" belongs in a world pack: a game pack has no places.');
+    else if (value !== true) add('BAD_FIELD', 'placeIds', 'placeIds must be true (the pack names its places by their ids), or left out.');
+    else return true;
+    return false;
 }
 
 function checkRecommends(value, add) {

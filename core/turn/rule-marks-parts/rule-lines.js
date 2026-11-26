@@ -85,7 +85,7 @@ export const RULE_LINES = Object.freeze({
     // `+ item … | kind: supply` makes a new item of the inventory kind `supply`, with Gear on or off (inventory stacks-parts/def-build.js). A reply with no mark builds the item as it did.
     supplyKind: line => line?.kind === 'item' && line.op === '+',
     // A narrator condition (`world … | conditions:`) may name a place by its pack file id (daily/geo.js, conditions/known-refs.js). Static per
-    // chat: only a reply's first live capture is marked; a Re-read of an older reply still refuses such a ref. The day step is gated per chat
-    // (`chronicle.daily.placeIds`); the mark also tells a Re-read of a first step which way it was made (world-daily/hook.js).
+    // chat: only a reply's first live capture is marked; a Re-read of an older reply still refuses such a ref. The day step takes no mark:
+    // it, like the marked line, reads file ids only for a world pack that opted in (`"placeIds": true`).
     packPlaceIds: () => false,
 });

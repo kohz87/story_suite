@@ -3,7 +3,6 @@
 // writes the results into the chronicle (`daily`, the step's state as a slot written whole, and `conditions`). The changes are recorded in the reply that
 // carries the step, so replay applies them and never rolls again. Its card lists what fired, ended and lapsed, the long-skip note
 // and every warning. The first step of a chat starts at today with the campaign seed minted before the first reply (seed.js; drawn here only when there is none) and keeps it in its state.
-// It also keeps `placeIds: 1`: the chat's steps read places by their pack file ids too. A state without it (a chat first stepped before that) never gets it.
 
 import { revOf } from '../domain-parts/lookup.js';
 import { slotValue, toSlot } from '../../../rpg/slot.js';
@@ -93,12 +92,10 @@ function daily(ctx, payload = {}) {
     const opens = marks.open;
     const query = (name, args) => ctx.query(name, args);
     const world = readWorld(query);
-    // `literalPlaces` (hook.js): a Re-read of a first step made before file ids. A stored state says for itself.
-    const placeIds = state ? state.placeIds === 1 : payload?.literalPlaces !== true;
     // Who is with You, where each pack person is and who has been met, from the cast store, the party and the scene (cast-tie.js).
     const cast = draftCast(ctx);
     const tie = tickInputs(ctx, cast, world.cast);
-    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, tempo: tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings), rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions, opens, settle: settling, calendar: ask(query, 'director.calendar', {}), partyRegion: partyRegionOf(query, null, { slugs: placeIds }), firstPlaceIds: placeIds });
+    const out = runDays({ state, table: chronicle.conditions ?? {}, world, today, seed, tempo: tempoOf(typeof ctx.settings === 'function' ? ctx.settings() : ctx.settings), rev: revOf(ctx), longSkip, marks, met: tie.met, withYou: tie.withYou, positions: tie.positions, opens, settle: settling, calendar: ask(query, 'director.calendar', {}), partyRegion: partyRegionOf(query) });
     if (!out) return kept();
     if (cast) mirrorCast(ctx, cast, out.report, tie.keys, now);
     writeConditions(ctx, chronicle, out.conditions);
@@ -106,7 +103,7 @@ function daily(ctx, payload = {}) {
     markLedger(chronicle, { day: today, take: true, tombKeys: out.report.tomb, reset: true });
     // What fired and ended is news (spec §4): one chronicle entry per occurrence, dated on its own day.
     const calendar = calendarFrom(query);
-    const { skipped } = writeHappenings(ctx, chronicle, out.report.journal, { geo: buildGeo(world, { slugs: placeIds }), rev: revOf(ctx), dateOf: day => dateText(calendar, day * DAY).replace(/,? \d{1,2}:\d{2}.*$/, '') });
+    const { skipped } = writeHappenings(ctx, chronicle, out.report.journal, { geo: buildGeo(world), rev: revOf(ctx), dateOf: day => dateText(calendar, day * DAY).replace(/,? \d{1,2}:\d{2}.*$/, '') });
     if (skipped.length) out.report.warnings.push(`The chronicle is full of events under way: ${skipped.length} happening(s) were not written as news (${skipped.slice(0, 3).join('; ')}).`);
     // A slot (a one-entry list) is written whole: replay puts the step's state back as recorded even when the reply that made it first is gone.
     chronicle.daily = toSlot(out.daily);
@@ -115,7 +112,7 @@ function daily(ctx, payload = {}) {
     // The warnings go to Problems, on this reply (the one sink, spec §9 Warnings), as well as on its card.
     const lost = lostOf(payload, fired);
     const problem = [report.warnings.length ? `World: ${report.warnings.slice(0, 6).join(' ')}` : '', lost.text].filter(Boolean).join(' ') || undefined;
-    return { summary: [dailySummary(report), lost.text].filter(Boolean).join(' '), narrate: false, data: { from: report.from, to: report.to, days: report.days, ...(placeIds ? { placeIds: 1 } : {}), fired, warnings: report.warnings.slice(0, 20), ...(lost.ids.length ? { lost: lost.ids } : {}) }, ...(problem ? { problem } : {}) };
+    return { summary: [dailySummary(report), lost.text].filter(Boolean).join(' '), narrate: false, data: { from: report.from, to: report.to, days: report.days, fired, warnings: report.warnings.slice(0, 20), ...(lost.ids.length ? { lost: lost.ids } : {}) }, ...(problem ? { problem } : {}) };
 }
 
 /** The command, tagged with the feature (Story Block refuses it while the switch is off) and internal (never from a click or the sdk). */

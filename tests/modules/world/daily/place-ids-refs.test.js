@@ -1,21 +1,26 @@
 // File ids past the plain lookup: in `set:` / `cleared:` anchors, in a cast move's `until`, in a person's home, between two places
-// of one display name, and where a file id spells a region, a realm or a route. Each anchor shape is run with the id and with the name.
+// of one display name, and where a file id spells a region, a realm or a route. Each anchor shape is run with the id and with the name,
+// on an opted-in pack (`placeIdPacks`); the last tests pin that without the opt-in the text counts as written.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildGeo, resolveRef } from '../../../../modules/world/daily/geo.js';
 import { occurrences } from '../../../../modules/world/daily/anchors.js';
+import { withMapName } from '../../../../modules/world/daily/anchor-ref.js';
+import { makeWs } from '../../../../modules/world/daily/step.js';
 import { setRefusal } from '../../../../modules/world/chronicle/conditions/refusal.js';
 import { drawWith, runner, world } from './helpers.js';
 
-const place = (slug, name, extra = {}) => ({ name, id: `pack.sample/${slug}`, slug, region: 'Valegard', kind: 'town', ...extra });
+const place = (slug, name, extra = {}) => ({ name, id: `pack.sample/${slug}`, slug, pack: 'sample', region: 'Valegard', kind: 'town', ...extra });
 const PLACES = [place('deep-hold', 'Deepmantle Hold'), place('auvoth', 'Auvoth', { x: 5 }), place('far-town', 'Far Town', { x: 9 })];
 const CONDITIONS = [
     { name: 'evacuated', scope: 'place', fades: 'until cleared', placeStatus: true },
     { name: 'fallen', scope: 'place', fades: 'until cleared', placeStatus: true },
 ];
 const ev = (id, after, extra = {}) => ({ id, kind: 'one-off', certainty: 'set-in-motion', where: ['Far Town'], window: { after, within: '1 day' }, ends_when: 'instant', title: id, summary: id, ...extra });
-const person = (extra = {}) => ({ kind: 'figure', id: 'oren', name: 'Oren', canDieUnmet: true, ...extra });
-const small = extra => world({ places: PLACES, conditions: CONDITIONS, ...extra });
+const person = (extra = {}) => ({ kind: 'figure', id: 'oren', name: 'Oren', pack: 'sample', canDieUnmet: true, ...extra });
+const OPT_IN = { placeIdPacks: ['sample'] };
+const small = extra => world({ places: PLACES, conditions: CONDITIONS, ...OPT_IN, ...extra });
+const geoOf = extra => buildGeo({ ...OPT_IN, ...extra });
 const FORMS = [['file id', 'deep-hold', 'deep-hold'], ['display name', 'Deepmantle Hold', 'Deepmantle Hold'], ['lower-case name', 'deepmantle hold', 'Deepmantle Hold']];
 
 for (const [label, ref] of FORMS) {
@@ -60,20 +65,18 @@ for (const [label, ref] of FORMS) {
     });
 }
 
-// `cleared:fallen@auvoth` failed on letter case alone, with no file id involved.
-test('cleared:fallen@auvoth meets the place named Auvoth, with or without a file id', () => {
-    for (const places of [PLACES, [{ name: 'Auvoth', region: 'Valegard', kind: 'town' }, { name: 'Far Town', region: 'Valegard', kind: 'town', x: 9 }]]) {
-        const events = [
-            ev('fall', 'start', { effects: { set: ['fallen@Auvoth: until cleared'], cast: [{ who: 'oren', location: 'Far Town', until: 'cleared:fallen@auvoth' }] } }),
-            ev('relief', 'fired:fall + 2 days', { effects: { clear: ['fallen@Auvoth'] } }),
-            ev('after', 'cleared:fallen@auvoth'),
-        ];
-        const run = runner(small({ places, cast: [person({ homeBase: 'Deepmantle Hold' })], events })).to(2);
-        assert.equal(run.state.cast.oren.displaced?.until, 'cleared:fallen@Auvoth');
-        run.to(5);
-        assert.ok(run.row('after').fired);
-        assert.equal(run.state.cast.oren.displaced, undefined);
-    }
+// `cleared:fallen@auvoth` failed on letter case alone, with no file id involved: an opted-in pack reads the map's name.
+test('cleared:fallen@auvoth meets the place named Auvoth in an opted-in pack', () => {
+    const events = [
+        ev('fall', 'start', { effects: { set: ['fallen@Auvoth: until cleared'], cast: [{ who: 'oren', location: 'Far Town', until: 'cleared:fallen@auvoth' }] } }),
+        ev('relief', 'fired:fall + 2 days', { effects: { clear: ['fallen@Auvoth'] } }),
+        ev('after', 'cleared:fallen@auvoth'),
+    ];
+    const run = runner(small({ cast: [person({ homeBase: 'Deepmantle Hold' })], events })).to(2);
+    assert.equal(run.state.cast.oren.displaced?.until, 'cleared:fallen@Auvoth');
+    run.to(5);
+    assert.ok(run.row('after').fired);
+    assert.equal(run.state.cast.oren.displaced, undefined);
 });
 
 test('an until naming a ref the map does not know is kept as written', () => {
@@ -98,25 +101,31 @@ for (const [label, ref, name] of FORMS) {
         const template = { template: 'sack', severity: 'minor', where: { kinds: ['town'] }, sets: ['fallen@place: 2 days'], chance: '100% per season', summary: 'x' };
         const run = runner(small({ places: [PLACES[0]], cast, templates: [template] }), { draw: drawWith({ values: { 'template:sack': () => 0 } }) }).to(3);
         assert.deepEqual(run.table, {});
-        const why = setRefusal({ query: (type, args) => (type === 'packs.content' ? { places: PLACES, cast }[args.kind] ?? [] : null), chronicle: {}, geo: buildGeo({ places: PLACES }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator' });
+        const why = setRefusal({ query: (type, args) => (type === 'packs.content' ? { places: PLACES, cast }[args.kind] ?? [] : null), chronicle: {}, geo: geoOf({ places: PLACES }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator' });
         assert.match(why, /Oren lives at Deepmantle Hold and is protected/);
     });
 }
 
-test('with homes: false (an unmarked reply) a protected home is compared only as written', () => {
-    for (const home of ['pack.sample/deep-hold', 'the hold', 'deep-hold']) {
-        const cast = [person({ homeBase: home, protected: true })];
-        const places = [{ ...PLACES[0], aliases: ['the hold'] }];
-        const ask = homes => setRefusal({ query: (type, args) => (type === 'packs.content' ? { places, cast }[args.kind] ?? [] : null), chronicle: {}, geo: buildGeo({ places }, { slugs: homes }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator', homes });
-        assert.equal(ask(false), '', home);
-        assert.match(ask(true), /is protected/, home);
+test('on a map that reads no file ids (no opt-in, or an unmarked reply) a protected home is compared only as written', () => {
+    const places = [{ ...PLACES[0], aliases: ['the hold'] }];
+    const ask = (home, geo) => {
+        const cast = [person({ ...home, protected: true })];
+        return setRefusal({ query: (type, args) => (type === 'packs.content' ? { places, cast }[args.kind] ?? [] : null), chronicle: {}, geo, declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator' });
+    };
+    const literal = [['no opt-in', buildGeo({ places })], ['unmarked reply', buildGeo({ ...OPT_IN, places }, { slugs: false })]];
+    for (const [label, geo] of literal) {
+        for (const home of ['pack.sample/deep-hold', 'the hold', 'deep-hold']) assert.equal(ask({ homeBase: home }, geo), '', `${label}: ${home}`);
+        // Only the first of the home base and the start place counts.
+        assert.equal(ask({ homeBase: 'a cottage', start: { place: 'Deepmantle Hold' } }, geo), '', label);
+        assert.match(ask({ homeBase: 'Deepmantle Hold' }, geo), /is protected/, label);
     }
+    for (const home of ['pack.sample/deep-hold', 'the hold', 'deep-hold']) assert.match(ask({ homeBase: home }, geoOf({ places })), /is protected/, home);
 });
 
 test('a marked reply: a protected person is found by their start place behind a home base in prose, and by their home base', () => {
     for (const homes of [{ homeBase: 'a cottage behind the old mill', start: { place: 'deep-hold' } }, { homeBase: 'deep-hold', start: { place: 'far-town' } }, { homeBase: 'far-town', start: { place: 'deep-hold' } }]) {
         const cast = [person({ ...homes, protected: true })];
-        const why = setRefusal({ query: (type, args) => (type === 'packs.content' ? { places: PLACES, cast }[args.kind] ?? [] : null), chronicle: {}, geo: buildGeo({ places: PLACES }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator' });
+        const why = setRefusal({ query: (type, args) => (type === 'packs.content' ? { places: PLACES, cast }[args.kind] ?? [] : null), chronicle: {}, geo: geoOf({ places: PLACES }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator' });
         assert.match(why, /Oren lives at Deepmantle Hold and is protected/, homes.homeBase);
     }
 });
@@ -158,7 +167,7 @@ const TWINS = {
 for (const [label, key] of [['the region\'s name', 'plague@atlantis'], ['the place\'s name', 'plague@Atlantis']]) {
     test(`set: and cleared: anchors read a key kept under ${label}`, () => {
         for (const kind of ['set', 'cleared']) {
-            const ws = { geo: buildGeo(TWINS), declared: new Map(TWINS.conditions.map(row => [row.name, row])), anchors: { [`${kind}:${key}`]: [5] }, table: {} };
+            const ws = { geo: geoOf(TWINS), declared: new Map(TWINS.conditions.map(row => [row.name, row])), anchors: { [`${kind}:${key}`]: [5] }, table: {} };
             assert.deepEqual(occurrences(ws, { kind, id: 'plague@atlantis' }), [5], kind);
         }
     });
@@ -176,13 +185,13 @@ for (const [label, key] of [['the region\'s name', 'plague@atlantis'], ['the pla
 
 test('set: reads a condition in the table under either name', () => {
     for (const ref of ['atlantis', 'Atlantis']) {
-        const ws = { geo: buildGeo(TWINS), declared: new Map(TWINS.conditions.map(row => [row.name, row])), anchors: {}, table: { [`plague@${ref}`]: { name: 'plague', ref, since: 3 * 1440 } } };
+        const ws = { geo: geoOf(TWINS), declared: new Map(TWINS.conditions.map(row => [row.name, row])), anchors: {}, table: { [`plague@${ref}`]: { name: 'plague', ref, since: 3 * 1440 } } };
         assert.deepEqual(occurrences(ws, { kind: 'set', id: 'plague@atlantis' }), [3], ref);
     }
 });
 
 test('two places of one display name: each file id finds its own', () => {
-    const geo = buildGeo({ places: [place('north-mill', 'Mill', { region: 'North' }), place('south-mill', 'Mill', { region: 'South' })] });
+    const geo = geoOf({ places: [place('north-mill', 'Mill', { region: 'North' }), place('south-mill', 'Mill', { region: 'South' })] });
     for (const [slug, region] of [['north-mill', 'North'], ['south-mill', 'South']]) {
         assert.equal(resolveRef(geo, slug)?.place.region, region, slug);
         assert.equal(resolveRef(geo, `pack.sample/${slug}`)?.place.region, region, slug);
@@ -190,7 +199,7 @@ test('two places of one display name: each file id finds its own', () => {
 });
 
 test('a file id that spells a realm, a region, a region name or a route leaves that meaning alone', () => {
-    const geo = buildGeo({
+    const geo = geoOf({
         realms: [{ id: 'highmark-realm', name: 'Highmark', regions: ['lowfen'] }],
         regions: [{ id: 'lowfen', name: 'Zetaland', aliases: ['the-fen'] }],
         routes: [{ name: 'ford', from: 'A', to: 'B' }],
@@ -203,7 +212,21 @@ test('a file id that spells a realm, a region, a region name or a route leaves t
 });
 
 test('slugs: false leaves the file ids out and keeps names and full ids', () => {
-    const geo = buildGeo({ places: PLACES }, { slugs: false });
+    const geo = buildGeo({ ...OPT_IN, places: PLACES }, { slugs: false });
     assert.equal(resolveRef(geo, 'deep-hold'), null);
     for (const ref of ['Deepmantle Hold', 'pack.sample/deep-hold']) assert.equal(resolveRef(geo, ref)?.name, 'Deepmantle Hold');
+});
+
+test('with no opt-in, homes, anchors and untils are read as written, aliases and letter case included', () => {
+    const places = [place('deep-hold', 'Deepmantle Hold', { aliases: ['The Hold'] })];
+    const read = placeIdPacks => {
+        const state = { seed: 's', day: 1, start: 1, anchors: { 'set:unrest@Deepmantle Hold': [1] } };
+        const { ws } = makeWs({ state, world: { places, placeIdPacks, conditions: [{ name: 'unrest', scope: 'place' }], cast: [person({ homeBase: 'The Hold' })] }, today: 2 });
+        return {
+            home: ws.people.get('oren').home, until: withMapName(ws, 'unrest@deepmantle hold'),
+            days: ['unrest@The Hold', 'unrest@deep-hold'].map(id => occurrences(ws, { kind: 'set', id })),
+        };
+    };
+    assert.deepEqual(read([]), { home: 'The Hold', until: 'unrest@deepmantle hold', days: [[], []] });
+    assert.deepEqual(read(['sample']), { home: 'Deepmantle Hold', until: 'unrest@Deepmantle Hold', days: [[1], [1]] });
 });
