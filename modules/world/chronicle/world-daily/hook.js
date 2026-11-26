@@ -8,6 +8,8 @@
 //   hidden lore: a hidden entry's gate holds after the reply's lines and no reply opened it yet → `chronicle.world.loreOpen` (lore-open.js)
 
 import { isInt } from '../domain-parts/shared-basics.js';
+import { readRecord } from '../../../../core/persist.js';
+import { ruleMarksOf } from '../../../../core/turn/rule-marks.js';
 import { worldEventsOn } from '../conditions/feature.js';
 import { DAILY } from './command.js';
 import { CUE } from './cue-command.js';
@@ -47,7 +49,8 @@ function afterCapture(view, info = {}) {
     // which of them it no longer fires; the later replies keep what they recorded (history is not rewritten), so that is a warning.
     const before = rereadFired(view, info);
     const settle = answered(state, view.state.domains.chronicle?.ledger);
-    if (!state || Math.floor(now / DAY) > state.day || before || settle) commands.push({ type: DAILY, payload: { ...(before ? { before } : {}), ...(settle ? { settle: true } : {}) } });
+    const literal = !state && literalReread(view, info);
+    if (!state || Math.floor(now / DAY) > state.day || before || settle) commands.push({ type: DAILY, payload: { ...(before ? { before } : {}), ...(settle ? { settle: true } : {}), ...(literal ? { literalPlaces: true } : {}) } });
     if (state && pendingCues(state).length) commands.push({ type: CUE, payload: {} });
     if (opened(view)) commands.push({ type: LEARNED, payload: {} });
     if (loreOpenDue(view)) commands.push({ type: LORE_OPEN, payload: {} });
@@ -68,6 +71,19 @@ function opened(view) {
     if (!bonds || !Object.values(bonds).some(record => Array.isArray(record?.unlocked) && record.unlocked.length)) return false;
     const query = typeof view.query === 'function' ? (name, args) => view.query(name, args) : () => null;
     return learnedAnchors(people, readWorld(query).cast, knownAnchors(view.state.domains.chronicle)).length > 0;
+}
+
+/**
+ * A Re-read of the reply that made a chat's first step, when that step did not read pack file ids: it ran before, the reply has no
+ * `packPlaceIds` rule mark (first captured on an older build; the mark stays with the reply, receipt data does not) and its receipt
+ * does not say `placeIds`. That step is made the old way again. A reply with no earlier step makes the chat's first step here.
+ */
+function literalReread(view, info) {
+    if (info?.type !== 'reread' || ruleMarksOf(readRecord(view?.chat?.[info.index])?.rules).includes('packPlaceIds')) return false;
+    let old = [];
+    try { old = Array.isArray(info.previous) ? info.previous : []; } catch { old = []; }
+    const steps = old.filter(receipt => receipt?.type === DAILY);
+    return steps.length > 0 && !steps.some(receipt => receipt.data?.placeIds === 1);
 }
 
 /** In a Re-read with later messages: `{ fired }`, what the reply's old step fired or had lost, when there is any; else null. */

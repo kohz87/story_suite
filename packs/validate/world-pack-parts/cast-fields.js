@@ -6,7 +6,8 @@ import { oneLine } from '../../../core/text.js';
 import { isObject } from '../core.js';
 
 const PLAIN = /[<>{}]/;
-export const plain = (value, max) => typeof value === 'string' && value.trim().length > 0 && [...value].length <= max && !PLAIN.test(value);
+// A cast text's limit counts UTF-16 units (`length`), the unit the prompts and NPC State's dossier cut by.
+export const plain = (value, max) => typeof value === 'string' && value.trim().length > 0 && value.length <= max && !PLAIN.test(value);
 const only = (record, fields, at, say) => { for (const key of Object.keys(record)) if (!fields.includes(key)) say(`${at}.${key}`, `"${key}" is not a field here (expected ${fields.join(', ')}).`, 'UNKNOWN_FIELD'); };
 
 function listOf(value, field, max, say) {

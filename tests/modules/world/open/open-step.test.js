@@ -73,7 +73,7 @@ test('a world with no open template steps exactly as before: no slots, no pendin
     assert.equal(out.daily.slots, undefined);
     assert.equal(out.daily.pending, undefined);
     assert.ok(out.conditions['unrest@Highmark']);
-    assert.deepEqual(Object.keys(out.daily).sort(), ['anchors', 'cast', 'cooldowns', 'day', 'events', 'facts', 'lastMajor', 'masks', 'minors', 'seed', 'standings', 'start']);
+    assert.deepEqual(Object.keys(out.daily).sort(), ['anchors', 'cast', 'cooldowns', 'day', 'events', 'facts', 'lastMajor', 'masks', 'minors', 'placeIds', 'seed', 'standings', 'start']);
 });
 
 test('LAB2-2: a happening placed at a sub-place ("Highmark / Guild Office") names its town in its text; its place stays the sub-place', () => {

@@ -12,7 +12,8 @@ const text = value => (typeof value === 'string' && value.trim() ? value.trim() 
 
 /**
  * The map of a world `{ places, routes, realms, placeKinds }` → lookups used by every other part of the step. `slugs: false` leaves
- * out the lookup by a pack's file ids: a narrator line of a reply captured before that lookup (rule mark `packPlaceIds`).
+ * out the lookup by a pack's file ids (`geo.slugs` says which): a narrator line of a reply captured before that lookup (rule mark
+ * `packPlaceIds`), and every day step of a chat first stepped before it (no `placeIds` in its daily state, step.js).
  */
 export function buildGeo(world = {}, { slugs = true } = {}) {
     const placeKinds = world.placeKinds && typeof world.placeKinds === 'object' ? world.placeKinds : {};
@@ -78,7 +79,7 @@ export function buildGeo(world = {}, { slugs = true } = {}) {
         const parent = slash ? byName.get(low(slash[1])) : null;
         if (parent && parent !== place) place.parent = parent.name;
     }
-    return { places, byName, regions, regionRealm, regionNames, realms, routes };
+    return { places, byName, regions, regionRealm, regionNames, realms, routes, slugs };
 }
 
 /** What a ref names: `{ kind: 'place'|'region'|'realm'|'route', name, place? }`, or null. Place → region → realm, most specific first. */

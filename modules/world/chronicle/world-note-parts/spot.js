@@ -15,12 +15,12 @@ function regionId(geo, region) {
     return same ? geo.regions.get(same) : region;
 }
 
-/** `{ geo, place, region }` for the place name `scene`: the pack place (else the name as given) and its region (id; '' when none is known). `query(name, args)` asks the engine. */
-export function sceneSpot(query, scene) {
+/** `{ geo, place, region }` for the place name `scene`: the pack place (else the name as given) and its region (id; '' when none is known). `query(name, args)` asks the engine; `slugs: false` leaves out pack file ids. */
+export function sceneSpot(query, scene, { slugs = true } = {}) {
     const anchor = ask(query, 'atlas.anchor', { name: scene });
     const known = ask(query, 'atlas.place', { name: anchor?.name || scene });
     const named = typeof known?.name === 'string' && known.name.trim() ? known.name.trim() : scene;
-    const geo = hostGeo((name, args) => ask(query, name, args));
+    const geo = hostGeo((name, args) => ask(query, name, args), null, { slugs });
     // A place the story set in a region it names ("~ place Auvoth Frontier Road | region: Bluewatch Reach") is in that region, whatever pack town its name starts with (LA-1).
     const sceneRegion = ask(query, 'scene.place', {});
     const own = low(sceneRegion?.name) === low(scene) && geo.regions.has(low(regionId(geo, sceneRegion?.region))) ? regionId(geo, sceneRegion.region) : '';

@@ -31,7 +31,7 @@ function oneEntry(record, say, v4) {
         if (!plain(record[field], max)) say(field, `${field} must be plain text of 1 to ${max} characters (no < > { }).`);
         else out[field] = oneLine(record[field]);
     }
-    if (out.look && out.wears && [...out.look].length + [...out.wears].length > LOOK_AND_WEARS) say('look', `look and wears together must be at most ${LOOK_AND_WEARS} characters.`);
+    if (out.look && out.wears && out.look.length + out.wears.length > LOOK_AND_WEARS) say('look', `look and wears together must be at most ${LOOK_AND_WEARS} characters.`);
     if (record.aliases !== undefined) {
         if (!Array.isArray(record.aliases) || record.aliases.length > WORLD_CAST_LIMITS.aliases) say('aliases', `aliases must be a list of at most ${WORLD_CAST_LIMITS.aliases} other names.`);
         else if (record.aliases.some(alias => !plain(alias, 80))) say('aliases', 'every alias must be plain text of 1 to 80 characters.');

@@ -37,7 +37,7 @@ export function rollCandidates(view, { all = false, settings = null } = {}) {
     const tie = tickInputs({ query }, view.state.domains.cast, world.cast);
     let dry = null;
     try {
-        dry = runDays({ state, table: chronicle.conditions ?? {}, world, today: day, seed: state.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : ''), marks, opens: marks.open, tempo: tempoOf(settings), calendar: askQuery(query, 'director.calendar', {}), met: tie.met, withYou: tie.withYou, positions: tie.positions, partyRegion: partyRegionOf(query, view.state) });
+        dry = runDays({ state, table: chronicle.conditions ?? {}, world, today: day, seed: state.seed ?? (isWorldSeed(chronicle.worldSeed) ? chronicle.worldSeed : ''), marks, opens: marks.open, tempo: tempoOf(settings), calendar: askQuery(query, 'director.calendar', {}), met: tie.met, withYou: tie.withYou, positions: tie.positions, partyRegion: partyRegionOf(query, view.state, { slugs: state.placeIds === 1 }) });
     } catch { dry = null; }
     const rows = dry?.daily?.events;
     if (!rows) return null;

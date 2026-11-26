@@ -31,8 +31,9 @@ const list = value => (Array.isArray(value) ? value : []);
 const record = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
 
 function people(world, geo) {
-    // A home written as a place's file id or alias is that place, by name (the step compares homes with place names); any other stays as written.
-    const named = home => { const found = home === null ? null : resolveRef(geo, home); return found?.kind === 'place' ? found.name : home; };
+    // A home written as a place's file id or alias is that place, by name (the step compares homes with place names); any other stays as written,
+    // and so does every home in a chat first stepped before file ids (`geo.slugs` false).
+    const named = home => { const found = home === null || !geo.slugs ? null : resolveRef(geo, home); return found?.kind === 'place' ? found.name : home; };
     const out = new Map();
     for (const person of list(world.cast)) {
         if (typeof person?.id !== 'string') continue;
@@ -67,13 +68,15 @@ function standingsOf(world, saved, names) {
 /**
  * The step's working state (`ws`) for a stored state, a world and a clock day: used by `runDays` and, for the open templates' asking side,
  * to check a Director's answer with the same rules the step applies. Returns `{ ws, defs, tombOf }`.
+ * Pack file ids (`daily.placeIds`): a stored state says for itself (1: read; absent: a chat first stepped before them, never read);
+ * with no state, `firstPlaceIds` says (false: a Re-read of a first step made before them).
  */
-export function makeWs({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, marks = null, withYou = [], positions = null, opens = null, calendar = null, partyRegion = '' }) {
+export function makeWs({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, marks = null, withYou = [], positions = null, opens = null, calendar = null, partyRegion = '', firstPlaceIds = true }) {
     const campaign = typeof state?.seed === 'string' ? state.seed : String(seed ?? '');
     const paced = Number.isFinite(tempo) && tempo >= 0.25 && tempo <= 4;
     const defs = readDefs(world);
     const cal = makeStepCalendar(calendar, world.seasons);
-    const geo = buildGeo(world);
+    const geo = buildGeo(world, { slugs: state ? state.placeIds === 1 : firstPlaceIds });
     const ws = {
         geo, people: people(world, geo), met: new Set(met), tempo: paced ? tempo : 1, rev,
         declared: new Map(list(world.conditions).filter(row => typeof row?.name === 'string').map(row => [row.name, { name: row.name, scope: row.scope, fades: row.fades ?? null, placeStatus: row.placeStatus === true, open: row.open === true }])),
@@ -120,13 +123,13 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
  * nothing sets again that day). `report.tomb` is what was cleared on the last stepped day, for the ledger. `partyRegion` is where the
  * party is now: it holds on `today` only (where it was on a skip's earlier days is not known, so no `in:` / `near:` term holds then).
  */
-export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null, opens = null, settle = false, calendar = null, partyRegion = '' }) {
+export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null, opens = null, settle = false, calendar = null, partyRegion = '', firstPlaceIds = true }) {
     if (!Number.isInteger(today)) return null;
     const prior = Number.isInteger(state?.day) ? state.day : null;
     // `settle`: no new day, only the open slots whose answers are stored since (open templates, open-day.js).
     if (prior !== null && today <= prior && !(settle && list(state?.pending).length)) return null;
     if (prior !== null && today < prior) today = prior;
-    const { ws, defs, tombOf, campaign } = makeWs({ state, table, world, today, seed, tempo, met, rev, draw, marks, withYou, positions, opens, calendar, partyRegion });
+    const { ws, defs, tombOf, campaign } = makeWs({ state, table, world, today, seed, tempo, met, rev, draw, marks, withYou, positions, opens, calendar, partyRegion, firstPlaceIds });
     const partyNow = ws.party;
     const first = prior === null ? today : Math.max(prior + 1, today - MAX_DAYS + 1);
     if (prior !== null && first > prior + 1) ws.warnings.push(`${first - prior - 1} days before the last ${MAX_DAYS} were not simulated.`);
@@ -155,6 +158,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
         standings: ws.standings, facts: ws.facts, masks: ws.masks, minors: ws.minors, cooldowns: ws.cooldowns,
         ...(Object.keys(ws.slots).length ? { slots: ws.slots } : {}), ...(ws.pending.length ? { pending: ws.pending } : {}),
         ...(Object.keys(ws.arcs).length ? { arcs: ws.arcs } : {}),
+        ...(ws.geo.slugs ? { placeIds: 1 } : {}),
     };
     return {
         daily, conditions: ws.table,

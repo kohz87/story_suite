@@ -14,9 +14,11 @@ import { baseOf, inGroup, placeAt, placeOf } from './cast-where.js';
 
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
-// Where they were, as the Journal and the rumour name it: the map's display name (a pack's `start.place` is a place id).
+// Where they were, as the Journal and the rumour name it: the map's display name (a pack's `start.place` is a place id). A chat
+// first stepped before file ids (`geo.slugs` false) keeps the words as stored.
 function shownAt(ws, id) {
     const place = placeOf(ws, id);
+    if (ws.geo.slugs === false) return place;
     const found = resolveRef(ws.geo, place);
     return found?.kind === 'place' ? found.name : place;
 }

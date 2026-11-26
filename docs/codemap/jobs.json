@@ -127,6 +127,7 @@
   "modules/world/chronicle/world-daily/party-region.js": "Reads the region the party is in for the daily step, from the stored scene place as the world note reads it.",
   "tests/modules/world/daily/party-map.helpers.js": "Holds the small map of regions, places and routes that the party-near tests share.",
   "tests/modules/world/daily/party-near.test.js": "Tests the daily step knowing where the party is: neighbouring regions, in: / near: terms, @region odds and waits_for.",
+  "tests/modules/world/daily/place-ids-chat.test.js": "Tests that only a chat first stepped with pack file ids reads them in its day steps, and that an older chat's Re-reads, later steps, rebuild and reload keep the old result",
   "tests/modules/world/daily/place-ids-host.test.js": "Tests that the daily step finds a place an installed pack's events name by the file's own id",
   "tests/modules/world/daily/place-ids-mark.test.js": "Tests that a narrator condition naming a place by its pack file id works on a new reply and stays refused on an unmarked one, also on Re-read",
   "tests/modules/world/daily/place-ids-refs.test.js": "Tests file ids and names in set:/cleared: anchors, move untils and homes, and which meaning wins when a file id repeats a name",
