@@ -13,6 +13,9 @@ What changed in each release, in short. The full record of every change is in [t
 - World: a faction the story says is wiped out or disbanded is now removed from your Factions, even when the narrator only updates it.
 - World: Edit now has Remove for a faction and Mark ended for a piece of news.
 - NPC State: a person's “Who you are to them” now changes when the story changes what they think of you. Text you edited yourself stays as you wrote it.
+- Bag: a horse or cart whose "where" names you or a party member now counts as with you; with gear on it adds to the carry limit.
+- Transport: the narrator is now asked to list each horse, other animal or vehicle on its own, not a herd in one entry.
+- Transport: the party can now keep up to 12 horses, other animals and vehicles (was 6).
 - Text RPG: foes left over from a fight that ended a while ago no longer block resting.
 - Text RPG: a reply's card now says when your party rested, and why a rest was refused.
 - Text RPG: a second XP line in one reply that names another group of foes now counts those foes as fallen, without paying XP again.

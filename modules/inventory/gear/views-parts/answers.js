@@ -33,9 +33,9 @@ export function statBonus(state, owner, condOf) {
  * owner `party` is the shared bag alone, counted as it was before the roster.
  * A broken piece (cond 0) gives no stats. Part 2 adds `statBonus` to the effective stats (held to GEAR.effectiveMax).
  */
-export function gearAnswer(state, args, { condOf, carryOf, penalty, mounts, roster = null, nameOf = null, legacy = false }) {
+export function gearAnswer(state, args, { condOf, carryOf, penalty, mounts, roster = null, nameOf = null, legacy = false, crew = [] }) {
     const owner = typeof args?.owner === 'string' && args.owner ? args.owner : 'party';
-    const picture = carryPicture(state, { carryOf, mounts, roster, nameOf, legacy });
+    const picture = carryPicture(state, { carryOf, mounts, roster, nameOf, legacy, crew });
     const whole = owner === 'party' && !legacy;
     const mine = whole ? picture : owner === 'party' ? picture.shared : picture.people.find(person => person.id === owner) ?? { load: 0, capacity: capacityFor(null) };
     const sources = whole ? [...picture.sources.party, ...picture.people.flatMap(person => picture.sources[person.id])] : picture.sources[owner] ?? [{ name: nameOf?.(owner) ?? owner, carry: capacityFor(null) }];

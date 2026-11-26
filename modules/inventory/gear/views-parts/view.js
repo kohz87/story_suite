@@ -34,7 +34,7 @@ const FILL = Object.freeze({ good: 1, worn: 0.66, torn: 0.33, broken: 0 });
  *   where it is worn and by whom; `gone` the name of an owner who left), bag: [{ stack, name, rarity, bonus, fits }] (the unworn, unbound equipment, `fits` its slot word), wearers: [{ value, label }] (who has a piece on, the main character first), owners: [{ value, label }] (who can wear: the main character first), slots: { [place]: { stack, name, rarity, bonus, cond, word, broken } | null } (what `owner` has on) }.
  * `names(id)` is how an owner is called ("Astra"); `owners` the wearers it offers. `who` (a name) picks the owner by name, `own` the main character's.
  */
-export function gearView(state, args, { condOf, carryOf, penalty, mounts, roster = null, names, owners, kit = () => false, empty = () => false }) {
+export function gearView(state, args, { condOf, carryOf, penalty, mounts, roster = null, names, owners, kit = () => false, empty = () => false, crew = [] }) {
     const inventory = state?.domains?.inventory;
     const defs = isPlainObject(inventory?.defs) ? inventory.defs : {};
     const stacks = Object.values(isPlainObject(inventory?.stacks) ? inventory.stacks : {}).filter(stack => isPlainObject(stack) && isPlainObject(defs[stack.def]))
@@ -88,7 +88,7 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, roster
     // Who wears something, for the Inventory's Worn list: the main character first, then by name (a member who left still counts: their pieces are listed).
     const wearers = [...new Set(stacks.filter(stack => typeof stack.equipped === 'string').map(stack => stack.owner))].map(value => ({ value, label: names(value) || value }))
         .sort((a, b) => (a.value === 'party' ? -1 : b.value === 'party' ? 1 : a.label.localeCompare(b.label, 'en')));
-    const picture = carryPicture(state, { carryOf, mounts, roster, nameOf: names });
+    const picture = carryPicture(state, { carryOf, mounts, roster, nameOf: names, crew });
     const place = state?.domains?.scene?.place?.name ?? '';
     const memberCount = picture.shared.members;
     // The members with room of their own. While any is listed, a shared bag with one member of its own names them too ("Wessel carries 30"): the sheet's name, else the roster's main character's.
@@ -98,7 +98,7 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, roster
     const pcName = roster?.members.find(member => member.id === roster.pc)?.name ?? null;
     const whose = entry => (memberCount > 1 ? entry.name : !theirs.parts.length ? null : readSheet(state).characters.length ? entry.name : pcName);
     // "Carries 25 · Sling Bag +10 · Horse +40 (with the party)": what each member can carry (their strength gives it), then what each item and mount adds.
-    const rideNames = new Set((Array.isArray(mounts) ? mounts : []).filter(row => row && travelsWith(row.where, place)).map(row => row.name));
+    const rideNames = new Set((Array.isArray(mounts) ? mounts : []).filter(row => row && travelsWith(row.where, place, crew)).map(row => row.name));
     const shown = (picture.sources.party ?? []).map((entry, at) => ({ label: entry.name, value: entry.carry, dim: false,
         text: at < memberCount ? (whose(entry) ? `${whose(entry)} ${S.carries} ${entry.carry}` : `Carries ${entry.carry}`)
             : `${entry.name} +${entry.carry}${rideNames.has(entry.name) ? ` ${S.withParty}` : ''}` }));
@@ -107,11 +107,11 @@ export function gearView(state, args, { condOf, carryOf, penalty, mounts, roster
     const breakdown = counted.map(part => part.text).join(' · ');
     const heldBags = stacks.filter(stack => carryOf(defs[stack.def]) && stack.owner === 'party' && (defs[stack.def].kind !== 'equipment' || stack.equipped !== null));
     const mountRowsOf = (Array.isArray(mounts) ? mounts : []).filter(row => row).map(row => ({
-        name: row.name, withParty: travelsWith(row.where, place), riders: ridersOf(row.where),
+        name: row.name, withParty: travelsWith(row.where, place, crew), riders: ridersOf(row.where, crew),
         carry: (Number.isSafeInteger(row.carry) && row.carry > 0 ? row.carry : kindCarry(row.kind)) * (Number.isSafeInteger(row.count) && row.count > 0 ? row.count : 1), where: String(row.where).trim(),
     }));
     // The Mount and Bag slots of the Party paper-doll: what `owner` rides and carries, and every mount and bag the pickers list.
-    const doll = slotCarriers({ owner, stacks, defs, mounts, place, names, carryOf });
+    const doll = slotCarriers({ owner, stacks, defs, mounts, place, names, carryOf, crew });
     const awayRows = mountRowsOf.filter(row => !row.withParty).map(row => ({ ...row, text: `${row.name} +${row.carry} · ${row.where}, not with you` }));
     const away = awayRows.map(row => row.text);
     return {

@@ -57,7 +57,8 @@ export function assetSheet(asset, section, ctx = {}) {
     h('dl', { class: 'kv' },
       kv(transport ? 'Riders' : 'Staying', asset.riders.length ? asset.riders.join(', ') : 'nobody'),
       transport && asset.seats ? kv('Seats', String(asset.seats)) : [],
-      kv(transport ? 'With the party' : 'Where', transport ? `${asset.withParty ? 'With the party' : 'Not with you'} · ${asset.where}` : asset.where),
+      // (`withParty` null: nothing says, as with gear off, so only the row's own words show)
+      kv(transport ? 'With the party' : 'Where', transport && asset.withParty !== null ? `${asset.withParty ? 'With the party' : 'Not with you'} · ${asset.where}` : asset.where),
       rpg && transport && asset.condition ? kv('Condition', asset.condition) : []),
     // (the refusal line above the buttons, so the action row stays the sheet's last: sticky on desktop)
     actions ? note : null, actions,

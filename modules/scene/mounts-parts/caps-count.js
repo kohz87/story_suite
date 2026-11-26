@@ -1,6 +1,6 @@
 // The caps on the number of mount rows and on a row's count, pace and carry.
 
-export const MAX_ROWS = 6;
+export const MAX_ROWS = 12;
 
 export const MAX_COUNT = 8;
 

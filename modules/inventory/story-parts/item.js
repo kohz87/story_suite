@@ -20,7 +20,8 @@ import { marked } from './shared-marked.js';
 // off the line is refused with the module's reason, as F39 has it. No module answering: no limit.
 function storyCarry(ctx, def, qty, owner) {
     // (a reply captured before the roster counted has no mark: a Re-read judges its lines as its first run did)
-    const fits = carryFits(ctx, [{ defId: def.id, qty }], owner, false, !marked(ctx, 'carryRoster'));
+    const old = { ...(marked(ctx, 'carryRoster') ? {} : { legacy: true }), ...(marked(ctx, 'mountRiders') ? {} : { riders: false }) };
+    const fits = carryFits(ctx, [{ defId: def.id, qty }], owner, false, old);
     if (!fits || fits.ok) return false;
     if (!featureOn(ctx, FEATURE.encumbrance)) ctx.fail('REFUSED', fits.message);
     return true;

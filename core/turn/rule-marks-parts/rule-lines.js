@@ -81,4 +81,8 @@ export const RULE_LINES = Object.freeze({
     factionGone: line => line?.kind === 'faction' && line.op === '~',
     // `~ npc Name | toward:` writes who the reader is to them (the dossier's "Who you are to them"). A reply with no mark keeps the label unused, as an unknown one.
     npcToward: line => line?.kind === 'npc' && Object.keys(line.labels ?? {}).some(label => label.trim().toLowerCase() === 'toward'),
+    // `+ item` and `~ item … qty` are held to a carry limit that counts a mount whose `where` names the reader's character or a party member ("Rav, Torka") as with the party
+    // (domains/inventory/gear/carry-parts/mount-travel.js). A reply with no mark reads mounts without those names (`gear.carry { riders: false }`). Same item lines as `carryRoster`.
+    // Also `+ mount`: the party keeps up to 12 mount rows (scene/mounts-parts/apply.js). A reply with no mark still refuses a seventh.
+    mountRiders: line => (line?.kind === 'item' && line.op !== '-') || (line?.kind === 'mount' && line.op === '+'),
 });
