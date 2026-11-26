@@ -10,8 +10,11 @@ export const CLASS_WEIGHT = Object.freeze({ capital: 8, city: 6, town: 4, villag
 const low = text => String(text ?? '').trim().toLowerCase();
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
-/** The map of a world `{ places, routes, realms, placeKinds }` → lookups used by every other part of the step. */
-export function buildGeo(world = {}) {
+/**
+ * The map of a world `{ places, routes, realms, placeKinds }` → lookups used by every other part of the step. `slugs: false` leaves
+ * out the lookup by a pack's file ids: a narrator line of a reply captured before that lookup (rule mark `packPlaceIds`).
+ */
+export function buildGeo(world = {}, { slugs = true } = {}) {
     const placeKinds = world.placeKinds && typeof world.placeKinds === 'object' ? world.placeKinds : {};
     // `content.regions` (spec ruling 42): a region's display name by its id, name or alias. A place's `region` stays as the pack wrote it (an id); only the words shown use the name.
     const regionNames = new Map();
@@ -36,6 +39,7 @@ export function buildGeo(world = {}) {
     }
     const places = [];
     const byName = new Map();
+    const fileIds = [];
     for (const raw of Array.isArray(world.places) ? world.places : []) {
         const name = text(raw?.name);
         if (!name) continue;
@@ -50,20 +54,9 @@ export function buildGeo(world = {}) {
             parent: null, hidden: raw.hidden === true || raw.secret === true,
         };
         places.push(place);
+        if (slugs && text(raw.slug)) fileIds.push([low(raw.slug), place]);
         for (const key of [name, place.id, ...(Array.isArray(raw.aliases) ? raw.aliases : [])]) if (text(key)) byName.set(low(key), place);
         if (region && !regions.has(low(region))) regions.set(low(region), region);
-    }
-    // An installed pack's places carry `pack.<pack>/<slug>` as id and the file's own id as `slug`; a pack's events name that. Names and aliases come first.
-    for (const raw of Array.isArray(world.places) ? world.places : []) {
-        const key = low(raw?.slug);
-        const place = key && !byName.has(key) ? byName.get(low(text(raw.name))) : null;
-        if (place) byName.set(key, place);
-    }
-    places.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-    for (const place of places) {
-        const slash = /^(.+?) \/ (.+)$/.exec(place.name);
-        const parent = slash ? byName.get(low(slash[1])) : null;
-        if (parent && parent !== place) place.parent = parent.name;
     }
     const routes = new Map();
     for (const raw of Array.isArray(world.routes) ? world.routes : []) {
@@ -74,6 +67,16 @@ export function buildGeo(world = {}) {
         const name = text(raw.name) || `${from}-${to}`;
         const route = { name, from, to };
         for (const key of [name, `${from}-${to}`, `${from}–${to}`, text(raw.corridor)]) if (key) routes.set(low(key), route);
+    }
+    // An installed pack's places carry `pack.<pack>/<slug>` as id and the file's own id as `slug`; a pack's events name that. Names and
+    // aliases come first, of places and of everything else: a slug that already means a region, a realm or a route stays that.
+    const taken = key => key === low(WILDS) || byName.has(key) || regions.has(key) || realms.has(key) || regionNames.has(key) || routes.has(key);
+    for (const [key, place] of fileIds) if (!taken(key)) byName.set(key, place);
+    places.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+    for (const place of places) {
+        const slash = /^(.+?) \/ (.+)$/.exec(place.name);
+        const parent = slash ? byName.get(low(slash[1])) : null;
+        if (parent && parent !== place) place.parent = parent.name;
     }
     return { places, byName, regions, regionRealm, regionNames, realms, routes };
 }

@@ -5,7 +5,7 @@
 // the place's region or realm; a route condition (or any other ref) an explicit `name@ref` in the label (seam audit E38).
 
 import { clockOf } from '../text.js';
-import { hostGeo, knownRef } from '../../conditions/known-refs.js';
+import { hostGeo, knownRef, placeIdsOn } from '../../conditions/known-refs.js';
 import { setRefusal } from '../../conditions/refusal.js';
 import { WILDS } from '../../../daily/geo.js';
 
@@ -41,7 +41,7 @@ function askedRef(ctx, geo, scope, { place, region, realm, explicit }) {
  */
 export function conditionTarget(ctx, known, { place, region = '', realm = '', explicit = '' }, clear) {
     if (ctx.cause === 'ui') return { refusal: `"${known.name}": conditions are set by the story, not by a click` };
-    const geo = hostGeo(ask(ctx));
+    const geo = hostGeo(ask(ctx), ctx.carrier);
     const asked = askedRef(ctx, geo, known.scope, { place, region, realm, explicit });
     if (!asked) return { refusal: known.scope === 'route' ? `"${known.name}" is a route condition: write it as ${known.name}@<route>` : `"${known.name}" needs a place on the line` };
     const table = ctx.draft('chronicle')?.conditions ?? {};
@@ -50,6 +50,6 @@ export function conditionTarget(ctx, known, { place, region = '', realm = '', ex
     if (!ref) return { refusal: `"${known.name}": "${asked}" is not a ${known.scope} of this world` };
     if (clear) return { ref };
     // The draft: it holds what this same line set a moment ago (the commands run on the reply's drafts).
-    const refusal = setRefusal({ query: ask(ctx), chronicle: ctx.draft('chronicle') ?? {}, geo, declared: known, ref, now: clockOf(ctx), by: 'narrator' });
+    const refusal = setRefusal({ query: ask(ctx), chronicle: ctx.draft('chronicle') ?? {}, geo, declared: known, ref, now: clockOf(ctx), by: 'narrator', homes: placeIdsOn(ctx.carrier) });
     return refusal ? { refusal: `"${known.name}": ${refusal}` } : { ref };
 }

@@ -6,6 +6,7 @@
 // and `Carried:` lists supplies first (the lamp).
 // FU147b patched it by script again: the reworded supplies sentence (it names `kind: supply`), the lamp and bread on a `Supplies:` line of their own, and the state
 // hashes the new `supplyKind` rule mark moves (with the mark left out, the old hashes still matched).
+// ARS-ENGINE-FIX patched only the state hashes by script, the same way, for the new rule mark `packPlaceIds`.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

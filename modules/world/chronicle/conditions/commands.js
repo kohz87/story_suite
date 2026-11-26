@@ -9,7 +9,7 @@ import { declaredConditions } from './declared.js';
 import { fadeMinutes } from './fade.js';
 import { tempoOf } from '../world-daily/tempo.js';
 import { conditionKey, pointerOf } from './key.js';
-import { hostGeo, knownRef } from './known-refs.js';
+import { hostGeo, knownRef, placeIdsOn } from './known-refs.js';
 import { markLedger } from './ledger.js';
 import { setRefusal } from './refusal.js';
 import { SCOPES } from './limits.js';
@@ -61,7 +61,7 @@ function condition(ctx, payload) {
     if (payload.scope !== undefined && !SCOPES.includes(payload.scope)) return ctx.fail('INVALID', `scope is one of ${SCOPES.join(', ')}.`);
     if (payload.scope !== undefined && payload.scope !== declared.scope) return ctx.fail('REFUSED', `"${name}" is a ${declared.scope} condition, not a ${payload.scope} one.`);
     const query = (type, args) => ctx.query(type, args);
-    const geo = hostGeo(query);
+    const geo = hostGeo(query, ctx.carrier);
     const ref = knownRef(query, declared.scope, cleanName(payload.ref), geo);
     if (!ref) return ctx.fail('REFUSED', `"${cleanName(payload.ref)}" is not a ${declared.scope} of this world (a ${declared.scope} condition takes a ${declared.scope}).`);
     const fades = payload.fades === undefined ? declared.fades : payload.fades;
@@ -70,7 +70,7 @@ function condition(ctx, payload) {
     const now = clockOf(ctx);
     if (now === null) return ctx.fail('NOT_YET', 'The story has no date yet; a condition waits for one.');
     const chronicle = ctx.draft('chronicle');
-    const refusal = setRefusal({ query, chronicle, geo, declared, ref, now, by });
+    const refusal = setRefusal({ query, chronicle, geo, declared, ref, now, by, homes: placeIdsOn(ctx.carrier) });
     if (refusal) return ctx.fail('REFUSED', `${refusal[0].toUpperCase()}${refusal.slice(1)}.`);
     const table = chronicle.conditions ?? {};
     const key = conditionKey(name, ref);
@@ -100,7 +100,8 @@ function clear(ctx, payload) {
     const chronicle = ctx.draft('chronicle');
     const table = chronicle.conditions ?? {};
     // A ref read as the scope; an entry kept under a name the map no longer has is still found by its own name.
-    const ref = knownRef((type, args) => ctx.query(type, args), declared.scope, given) ?? Object.values(table).find(entry => entry.name === name && entry.ref.toLowerCase() === given.toLowerCase())?.ref;
+    const query = (type, args) => ctx.query(type, args);
+    const ref = knownRef(query, declared.scope, given, hostGeo(query, ctx.carrier)) ?? Object.values(table).find(entry => entry.name === name && entry.ref.toLowerCase() === given.toLowerCase())?.ref;
     if (!ref) return ctx.fail('REFUSED', `"${given}" is not a ${declared.scope} of this world (a ${declared.scope} condition is cleared on a ${declared.scope}).`);
     const found = table[conditionKey(name, ref)];
     if (!found) {

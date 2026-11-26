@@ -1,0 +1,140 @@
+// File ids past the plain lookup: in `set:` / `cleared:` anchors, in a cast move's `until`, in a person's home, between two places
+// of one display name, and where a file id spells a region, a realm or a route. Each anchor shape is run with the id and with the name.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { buildGeo, resolveRef } from '../../../../modules/world/daily/geo.js';
+import { setRefusal } from '../../../../modules/world/chronicle/conditions/refusal.js';
+import { drawWith, runner, world } from './helpers.js';
+
+const place = (slug, name, extra = {}) => ({ name, id: `pack.sample/${slug}`, slug, region: 'Valegard', kind: 'town', ...extra });
+const PLACES = [place('deep-hold', 'Deepmantle Hold'), place('auvoth', 'Auvoth', { x: 5 }), place('far-town', 'Far Town', { x: 9 })];
+const CONDITIONS = [
+    { name: 'evacuated', scope: 'place', fades: 'until cleared', placeStatus: true },
+    { name: 'fallen', scope: 'place', fades: 'until cleared', placeStatus: true },
+];
+const ev = (id, after, extra = {}) => ({ id, kind: 'one-off', certainty: 'set-in-motion', where: ['Far Town'], window: { after, within: '1 day' }, ends_when: 'instant', title: id, summary: id, ...extra });
+const person = (extra = {}) => ({ kind: 'figure', id: 'oren', name: 'Oren', canDieUnmet: true, ...extra });
+const small = extra => world({ places: PLACES, conditions: CONDITIONS, ...extra });
+const FORMS = [['file id', 'deep-hold', 'deep-hold'], ['display name', 'Deepmantle Hold', 'Deepmantle Hold'], ['lower-case name', 'deepmantle hold', 'Deepmantle Hold']];
+
+for (const [label, ref] of FORMS) {
+    // Ersveil's shape `cleared:evacuated@bluewatch-village`: a move that lasts until the condition is cleared, and events waiting on both anchors.
+    test(`a ${label}: a move lasts until its condition is cleared, and set: and cleared: anchors open windows`, () => {
+        const events = [
+            ev('flight', 'start', { ends_when: { for: '1 day' }, effects: { set: [`evacuated@${ref}: until cleared`], cast: [{ who: 'oren', location: 'far-town', until: `cleared:evacuated@${ref}` }] } }),
+            ev('after-set', `set:evacuated@${ref}`),
+            ev('return', 'fired:flight + 3 days', { effects: { clear: [`evacuated@${ref}`] } }),
+            ev('after-cleared', `cleared:evacuated@${ref}`),
+        ];
+        const run = runner(small({ cast: [person({ homeBase: 'Auvoth' })], events })).to(3);
+        assert.equal(run.state.cast.oren.displaced?.to, 'Far Town', 'still away two days after the event ended');
+        assert.equal(run.state.cast.oren.displaced.until, 'cleared:evacuated@Deepmantle Hold');
+        assert.ok(run.row('after-set').fired, 'set: is met');
+        assert.equal(run.row('after-cleared').fired, undefined);
+        run.to(6);
+        assert.ok(run.row('after-cleared').fired, 'cleared: is met');
+        assert.equal(run.state.cast.oren.displaced, undefined, 'released once it is cleared');
+    });
+
+    test(`a ${label}: a deferred move keeps the same until and applies while the condition holds`, () => {
+        const events = [ev('flight', 'start', { effects: { set: [`evacuated@${ref}: until cleared`], cast: [{ who: 'oren', location: 'far-town', until: `cleared:evacuated@${ref}` }] } })];
+        const run = runner(small({ cast: [person({ homeBase: 'Auvoth' })], events }));
+        run.withYou = ['oren'];
+        run.to(1);
+        assert.equal(run.state.cast.oren.deferred.until, 'cleared:evacuated@Deepmantle Hold');
+        run.withYou = [];
+        run.to(2);
+        assert.equal(run.state.cast.oren.displaced?.to, 'Far Town');
+    });
+
+    test(`a ${label}: ends_when and pre_empted_by read set: anchors`, () => {
+        const events = [
+            ev('standing', 'start', { ends_when: { any_of: [`set:evacuated@${ref}`] } }),
+            ev('flight', 'start + 2 days', { effects: { set: [`evacuated@${ref}: until cleared`] } }),
+            ev('never', 'start + 5 days', { pre_empted_by: [`set:evacuated@${ref}`] }),
+        ];
+        const run = runner(small({ events })).to(7);
+        assert.equal(run.row('standing').state, 'ended');
+        assert.equal(run.row('never').state, 'replaced');
+    });
+}
+
+// `cleared:fallen@auvoth` failed on letter case alone, with no file id involved.
+test('cleared:fallen@auvoth meets the place named Auvoth, with or without a file id', () => {
+    for (const places of [PLACES, [{ name: 'Auvoth', region: 'Valegard', kind: 'town' }, { name: 'Far Town', region: 'Valegard', kind: 'town', x: 9 }]]) {
+        const events = [
+            ev('fall', 'start', { effects: { set: ['fallen@Auvoth: until cleared'], cast: [{ who: 'oren', location: 'Far Town', until: 'cleared:fallen@auvoth' }] } }),
+            ev('relief', 'fired:fall + 2 days', { effects: { clear: ['fallen@Auvoth'] } }),
+            ev('after', 'cleared:fallen@auvoth'),
+        ];
+        const run = runner(small({ places, cast: [person({ homeBase: 'Deepmantle Hold' })], events })).to(2);
+        assert.equal(run.state.cast.oren.displaced?.until, 'cleared:fallen@Auvoth');
+        run.to(5);
+        assert.ok(run.row('after').fired);
+        assert.equal(run.state.cast.oren.displaced, undefined);
+    }
+});
+
+test('an until naming a ref the map does not know is kept as written', () => {
+    const events = [ev('flight', 'start', { ends_when: { for: '9 days' }, effects: { cast: [{ who: 'oren', location: 'Far Town', until: 'cleared:fallen@no-such-place' }] } })];
+    const run = runner(small({ cast: [person({ homeBase: 'Auvoth' })], events }));
+    run.withYou = ['oren'];
+    run.to(1);
+    assert.equal(run.state.cast.oren.deferred.until, 'cleared:fallen@no-such-place');
+});
+
+for (const [label, ref, name] of FORMS) {
+    for (const [field, home] of [['homeBase', { homeBase: ref }], ['start.place', { start: { place: ref } }]]) {
+        test(`a resident whose ${field} is a ${label} is evacuated, with no cast-store position`, () => {
+            const events = [ev('fall', 'start', { effects: { set: [`fallen@${name}: until cleared`] } })];
+            const run = runner(small({ cast: [person(home)], events })).to(1);
+            assert.equal(run.state.cast.oren?.displaced?.to, 'Auvoth');
+        });
+    }
+
+    test(`a protected resident whose home is a ${label} keeps a template's placeStatus away, and a narrator's`, () => {
+        const cast = [person({ homeBase: ref, protected: true })];
+        const template = { template: 'sack', severity: 'minor', where: { kinds: ['town'] }, sets: ['fallen@place: 2 days'], chance: '100% per season', summary: 'x' };
+        const run = runner(small({ places: [PLACES[0]], cast, templates: [template] }), { draw: drawWith({ values: { 'template:sack': () => 0 } }) }).to(3);
+        assert.deepEqual(run.table, {});
+        const why = setRefusal({ query: (type, args) => (type === 'packs.content' ? { places: PLACES, cast }[args.kind] ?? [] : null), chronicle: {}, geo: buildGeo({ places: PLACES }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator' });
+        assert.match(why, /Oren lives at Deepmantle Hold and is protected/);
+    });
+}
+
+test('with homes: false (an unmarked reply) a protected home is compared only as written', () => {
+    for (const home of ['pack.sample/deep-hold', 'the hold', 'deep-hold']) {
+        const cast = [person({ homeBase: home, protected: true })];
+        const places = [{ ...PLACES[0], aliases: ['the hold'] }];
+        const ask = homes => setRefusal({ query: (type, args) => (type === 'packs.content' ? { places, cast }[args.kind] ?? [] : null), chronicle: {}, geo: buildGeo({ places }, { slugs: homes }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator', homes });
+        assert.equal(ask(false), '', home);
+        assert.match(ask(true), /is protected/, home);
+    }
+});
+
+test('two places of one display name: each file id finds its own', () => {
+    const geo = buildGeo({ places: [place('north-mill', 'Mill', { region: 'North' }), place('south-mill', 'Mill', { region: 'South' })] });
+    for (const [slug, region] of [['north-mill', 'North'], ['south-mill', 'South']]) {
+        assert.equal(resolveRef(geo, slug)?.place.region, region, slug);
+        assert.equal(resolveRef(geo, `pack.sample/${slug}`)?.place.region, region, slug);
+    }
+});
+
+test('a file id that spells a realm, a region, a region name or a route leaves that meaning alone', () => {
+    const geo = buildGeo({
+        realms: [{ id: 'highmark-realm', name: 'Highmark', regions: ['lowfen'] }],
+        regions: [{ id: 'lowfen', name: 'Zetaland', aliases: ['the-fen'] }],
+        routes: [{ name: 'ford', from: 'A', to: 'B' }],
+        places: ['highmark', 'highmark-realm', 'lowfen', 'zetaland', 'the-fen', 'ford', 'a-b', 'the wilds', 'plain'].map(slug => place(slug, `Town of ${slug}`, { region: 'Valegard' })),
+    });
+    for (const [ref, kind] of [['highmark', 'realm'], ['highmark-realm', 'realm'], ['lowfen', 'region'], ['ford', 'route'], ['a-b', 'route'], ['the wilds', 'realm']]) assert.equal(resolveRef(geo, ref)?.kind, kind, ref);
+    // A region's shown name and alias are no ref of their own, and a file id does not take them either.
+    for (const ref of ['zetaland', 'the-fen']) assert.equal(resolveRef(geo, ref), null, ref);
+    assert.equal(resolveRef(geo, 'plain')?.name, 'Town of plain');
+});
+
+test('slugs: false leaves the file ids out and keeps names and full ids', () => {
+    const geo = buildGeo({ places: PLACES }, { slugs: false });
+    assert.equal(resolveRef(geo, 'deep-hold'), null);
+    for (const ref of ['Deepmantle Hold', 'pack.sample/deep-hold']) assert.equal(resolveRef(geo, ref)?.name, 'Deepmantle Hold');
+});

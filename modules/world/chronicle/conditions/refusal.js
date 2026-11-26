@@ -3,7 +3,7 @@
 // by the command itself and, before calling it, by the world line (a refused sub-command fails the whole reply on the host). Pure.
 
 import { slotValue } from '../../../rpg/slot.js';
-import { groupOf } from '../../daily/geo-scope.js';
+import { groupOf, resolveAs } from '../../daily/geo-scope.js';
 import { readWorld } from '../world-daily/read-world.js';
 import { ledgerOf } from './ledger.js';
 import { MAX_CONDITIONS, MAX_PER_REF } from './limits.js';
@@ -12,7 +12,7 @@ const DAY = 1440;
 const low = text => String(text ?? '').trim().toLowerCase();
 
 // The protected, living person whose home (the daily step's record, else the pack's home base or start place) is in `places`.
-function protectedResident(query, chronicle, places) {
+function protectedResident(query, chronicle, geo, places, homes) {
     const rows = slotValue(chronicle.daily)?.cast ?? {};
     const group = new Set(places.map(low));
     for (const person of readWorld(query).cast) {
@@ -20,7 +20,9 @@ function protectedResident(query, chronicle, places) {
         const row = rows[person.id] ?? {};
         if (row.died !== undefined) continue;
         const start = person.start && typeof person.start === 'object' ? person.start.place : person.start;
-        if (group.has(low(row.displaced?.to ?? row.home ?? person.homeBase ?? start))) return person.name ?? person.id;
+        const home = row.displaced?.to ?? row.home ?? person.homeBase ?? start;
+        // `homes`: a home written as a file id or an alias is that place, by name; without it, only the words as written.
+        if (group.has(low((homes ? resolveAs(geo, home, 'place')?.name : null) ?? home))) return person.name ?? person.id;
     }
     return null;
 }
@@ -28,9 +30,10 @@ function protectedResident(query, chronicle, places) {
 /**
  * The sentence `chronicle.condition.set { name, ref }` would refuse with, or '' when it takes it. `declared` is the pack's entry
  * (`{ name, placeStatus }`), `ref` the stored name of the ref, `now` the story minute (null: no date), `by` the setter, `chronicle`
- * the draft (what this reply set a moment ago counts), `geo` the packs' map, `query` the host's.
+ * the draft (what this reply set a moment ago counts), `geo` the packs' map, `query` the host's, `homes` whether a protected
+ * person's home is looked up on the map (false for a reply with no `packPlaceIds` rule mark).
  */
-export function setRefusal({ query, chronicle, geo, declared, ref, now, by }) {
+export function setRefusal({ query, chronicle, geo, declared, ref, now, by, homes = true }) {
     if (now === null) return 'the story has no date yet; a condition waits for one';
     const key = `${declared.name}@${ref}`;
     const { tomb } = ledgerOf(chronicle.ledger);
@@ -41,7 +44,7 @@ export function setRefusal({ query, chronicle, geo, declared, ref, now, by }) {
         if (Object.values(table).filter(entry => entry?.ref === ref).length >= MAX_PER_REF) return `${ref} already carries ${MAX_PER_REF} conditions`;
     }
     if (declared.placeStatus === true && !String(by).startsWith('event:')) {
-        const who = protectedResident(query, chronicle, groupOf(geo, ref).length ? groupOf(geo, ref) : [ref]);
+        const who = protectedResident(query, chronicle, geo, groupOf(geo, ref).length ? groupOf(geo, ref) : [ref], homes);
         if (who) return `${who} lives at ${ref} and is protected; only an authored event may set ${declared.name} there`;
     }
     return '';
