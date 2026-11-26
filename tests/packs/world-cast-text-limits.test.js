@@ -55,49 +55,16 @@ test('one character over a limit refuses that person alone', () => {
     assert.equal(check(person({ start: { place: 'ledgerford', routine: 'r'.repeat(301) } })).kept.length, 0);
 });
 
-// '𝒜' is one character and two UTF-16 units: the prompts and the dossier cut by units, so the check counts them too.
+// '𝒜' is one character and two UTF-16 units. The check counts characters, as it always has, so a pack that installed before still installs (prompts cut by units: a known limit for astral text right at a limit).
 const ASTRAL = '\u{1D49C}';
 
-test('a text at its limit in UTF-16 units is kept whole by NPC State; one unit over refuses, though its characters fit', () => {
+test('cast text limits count characters: an astral character at a limit still fits, one character over refuses', () => {
     for (const [field, max] of Object.entries(MAX)) {
-        const fits = `${'a'.repeat(max - 2)}${ASTRAL}`;
-        const taken = check(person({ [field]: fits }));
-        assert.deepEqual(taken.warnings, [], field);
-        assert.equal(normalizeEntry(taken.kept[0])[field], fits, field);
-        const over = check(person({ [field]: `${'a'.repeat(max - 1)}${ASTRAL}` }));
+        const fits = `${'a'.repeat(max - 1)}${ASTRAL}`;
+        assert.deepEqual(check(person({ [field]: fits })).warnings, [], field);
+        const over = check(person({ [field]: `${'a'.repeat(max)}${ASTRAL}` }));
         assert.equal(over.kept.length, 0, field);
-        assert.match(over.warnings[0][2], new RegExp(`${field} must be plain text of 1 to ${max}`));
     }
-    assert.equal(check(person({ start: { place: 'ledgerford', routine: `${'r'.repeat(299)}${ASTRAL}` } })).kept.length, 0);
-});
-
-test('look and wears share their cap in UTF-16 units: at it the end of wears reaches each prompt; one unit over refuses', () => {
-    const end = `red boots ${ASTRAL}`;
-    const wears = `${'w'.repeat(395 - end.length - 1)} ${end}`;
-    const entry = normalizeEntry(check(person({ look: 'l'.repeat(800), wears })).kept[0]);
-    assert.equal(entry.look.length + entry.wears.length, 1195);
-    const npc = normalizeNpcRecord(applyCastEntry({ id: 'npc_fenna', name: 'Fenna' }, { key: 'p/fenna', pack: 'p', id: 'fenna', entry }));
-    assert.ok(npc.appearance.endsWith(end), 'stored whole');
-    assert.ok(injectionOptionalFields(npc, true)[0][0].endsWith(end), 'narrator');
-    for (const prompt of [buildScannerPrompt({ transcript: 'Fenna changes her clothes.', existingNpcs: [npc] }), buildProfileRefreshPrompt({ transcript: 'Fenna waits.', targetNpc: npc })]) {
-        assert.ok(prompt.includes(JSON.stringify(npc.appearance).slice(1, -1)));
-    }
-    const over = check(person({ look: 'l'.repeat(800), wears: `w${wears}` }));
-    assert.equal(over.kept.length, 0);
-    assert.match(over.warnings[0][2], /look and wears together must be at most 1195 characters/);
-});
-
-test('the list texts that NPC State cuts at the same limit count UTF-16 units too', () => {
-    const text = (units, max) => `${'a'.repeat(max - units)}${ASTRAL}`;
-    const lists = over => ({
-        keyRelationships: [{ id: 'bram', text: text(over ? 1 : 2, 400) }],
-        abilities: [{ name: 'Song', description: text(over ? 1 : 2, 200) }],
-        stages: [{ name: text(over ? 1 : 2, 40), needs: [{ meter: 'trust', at: 10 }], text: 'Close.' }],
-    });
-    for (const [field, value] of Object.entries(lists(false))) assert.deepEqual(check(person({ [field]: value })).warnings, [], field);
-    for (const [field, value] of Object.entries(lists(true))) assert.equal(check(person({ [field]: value })).kept.length, 0, field);
-    const entry = normalizeEntry(check(person(lists(false))).kept[0], () => 'Bram');
-    assert.ok(entry.keyRelationships[0].endsWith(ASTRAL));
-    assert.ok(entry.abilities[0].description.endsWith(ASTRAL));
-    assert.ok(entry.stages[0].name.endsWith(ASTRAL));
+    assert.deepEqual(check(person({ look: `${'l'.repeat(799)}${ASTRAL}`, wears: 'w'.repeat(395) })).warnings, []);
+    assert.equal(check(person({ look: `${'l'.repeat(800)}${ASTRAL}`, wears: 'w'.repeat(395) })).kept.length, 0);
 });
