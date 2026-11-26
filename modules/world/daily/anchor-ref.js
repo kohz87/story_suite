@@ -1,11 +1,29 @@
-// World events, the daily step: the ref inside a "<condition>@<ref>" string (a `set:` or `cleared:` anchor, a cast move's `until`),
-// written as the map names it, so a file id or an alias meets the key the conditions are stored under. Pure.
+// World events, the daily step: the ref inside a "<condition>@<ref>" string (a `set:` or `cleared:` anchor, a cast move's `until`).
+// The conditions are stored under the map's name for the ref: the daily step reads a ref place first, the narrator's set and clear
+// read it as the condition's scope, so one text may name two stored keys. A read takes them all. Pure.
 
 import { resolveRef } from './geo.js';
+import { resolveAs } from './geo-scope.js';
+import { entryActive } from './holds-read.js';
 
-/** "<condition>@<ref>" with the map's name for the ref; with no "@", or a ref the map does not know, as written. */
-export function withMapName(geo, id) {
+// `[place-first name, scope name]` of "<condition>@<ref>" as keys (those the map knows); `[]` with no "@".
+function mapKeys(ws, id) {
     const cut = id.indexOf('@');
-    const found = cut < 0 ? null : resolveRef(geo, id.slice(cut + 1));
-    return found ? `${id.slice(0, cut)}@${found.name}` : id;
+    if (cut < 0) return [];
+    const name = id.slice(0, cut);
+    const ref = id.slice(cut + 1);
+    const found = [resolveRef(ws.geo, ref), resolveAs(ws.geo, ref, ws.declared.get(name)?.scope)];
+    return found.filter(Boolean).map(each => `${name}@${each.name}`);
 }
+
+/** Every key "<condition>@<ref>" may be stored under: the place-first name, the scope name and the text as written. */
+export const refKeys = (ws, id) => [...new Set([...mapKeys(ws, id), id])];
+
+/** "<condition>@<ref>" as it is kept: the map's name where both readings give one name, else as written (refKeys reads it). */
+export function withMapName(ws, id) {
+    const names = new Set(mapKeys(ws, id));
+    return names.size === 1 ? [...names][0] : id;
+}
+
+/** Whether the condition "<condition>@<ref>" is active at `minute` under any of its keys. */
+export const refActive = (ws, id, minute) => refKeys(ws, id).some(key => entryActive(ws.table[key], minute));

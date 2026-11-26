@@ -11,7 +11,7 @@ import { MAX_CONDITIONS, MAX_PER_REF } from './limits.js';
 const DAY = 1440;
 const low = text => String(text ?? '').trim().toLowerCase();
 
-// The protected, living person whose home (the daily step's record, else the pack's home base or start place) is in `places`.
+// The protected, living person whose home (the daily step's record, else the pack's home base and start place) is in `places`.
 function protectedResident(query, chronicle, geo, places, homes) {
     const rows = slotValue(chronicle.daily)?.cast ?? {};
     const group = new Set(places.map(low));
@@ -20,9 +20,11 @@ function protectedResident(query, chronicle, geo, places, homes) {
         const row = rows[person.id] ?? {};
         if (row.died !== undefined) continue;
         const start = person.start && typeof person.start === 'object' ? person.start.place : person.start;
-        const home = row.displaced?.to ?? row.home ?? person.homeBase ?? start;
-        // `homes`: a home written as a file id or an alias is that place, by name; without it, only the words as written.
-        if (group.has(low((homes ? resolveAs(geo, home, 'place')?.name : null) ?? home))) return person.name ?? person.id;
+        const recorded = row.displaced?.to ?? row.home;
+        // `homes`: a home written as a file id or an alias is that place, by name, and the pack's home base and start place both
+        // count (a home base in prose names no place); without it, only the first of the two, as the words are written.
+        const where = recorded != null ? [recorded] : homes ? [person.homeBase, start] : [person.homeBase ?? start];
+        if (where.some(home => group.has(low((homes ? resolveAs(geo, home, 'place')?.name : null) ?? home)))) return person.name ?? person.id;
     }
     return null;
 }
@@ -31,7 +33,7 @@ function protectedResident(query, chronicle, geo, places, homes) {
  * The sentence `chronicle.condition.set { name, ref }` would refuse with, or '' when it takes it. `declared` is the pack's entry
  * (`{ name, placeStatus }`), `ref` the stored name of the ref, `now` the story minute (null: no date), `by` the setter, `chronicle`
  * the draft (what this reply set a moment ago counts), `geo` the packs' map, `query` the host's, `homes` whether a protected
- * person's home is looked up on the map (false for a reply with no `packPlaceIds` rule mark).
+ * person's homes are looked up on the map (false for a reply with no `packPlaceIds` rule mark).
  */
 export function setRefusal({ query, chronicle, geo, declared, ref, now, by, homes = true }) {
     if (now === null) return 'the story has no date yet; a condition waits for one';

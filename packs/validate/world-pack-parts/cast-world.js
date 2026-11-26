@@ -12,6 +12,9 @@ import { checkBirthday } from './cast-birthday.js';
 // look, voice, personality and the start routine take what NPC State keeps and sends of them.
 const TEXTS = { name: 80, role: 120, species: 60, gender: 40, age: 40, apparentAge: 40, look: 800, wears: 600, voice: 600, personality: 900, history: 1200, homeBase: 80, withYou: 320, status: 200, goal: 200 };
 
+// The stored appearance is "<look>; <wears>"; together they stay within the 1200 characters the narrator and NPC State's prompts show.
+const LOOK_AND_WEARS = 1195;
+
 const startMax = key => (key === 'routine' ? 300 : 200);
 
 // Format 4 adds `birthday` and says where a retired format 3 field went; format 3 keeps its own list and wording.
@@ -28,6 +31,7 @@ function oneEntry(record, say, v4) {
         if (!plain(record[field], max)) say(field, `${field} must be plain text of 1 to ${max} characters (no < > { }).`);
         else out[field] = oneLine(record[field]);
     }
+    if (out.look && out.wears && [...out.look].length + [...out.wears].length > LOOK_AND_WEARS) say('look', `look and wears together must be at most ${LOOK_AND_WEARS} characters.`);
     if (record.aliases !== undefined) {
         if (!Array.isArray(record.aliases) || record.aliases.length > WORLD_CAST_LIMITS.aliases) say('aliases', `aliases must be a list of at most ${WORLD_CAST_LIMITS.aliases} other names.`);
         else if (record.aliases.some(alias => !plain(alias, 80))) say('aliases', 'every alias must be plain text of 1 to 80 characters.');

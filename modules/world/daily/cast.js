@@ -9,9 +9,8 @@
 
 import { recordAnchor } from './anchors.js';
 import { resolveRef } from './geo.js';
-import { withMapName } from './anchor-ref.js';
+import { refActive, withMapName } from './anchor-ref.js';
 import { baseOf, inGroup, placeAt, placeOf } from './cast-where.js';
-import { entryActive } from './holds-read.js';
 
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
@@ -64,7 +63,7 @@ function statusUntil(ws, source, to) {
 }
 
 // An authored `until`: "cleared:<condition>@<ref>" is kept with the map's name for the ref, as the condition's own key is.
-const untilOf = (ws, value) => (value.startsWith('cleared:') ? `cleared:${withMapName(ws.geo, value.slice('cleared:'.length))}` : value);
+const untilOf = (ws, value) => (value.startsWith('cleared:') ? `cleared:${withMapName(ws, value.slice('cleared:'.length))}` : value);
 
 function skip(ws, person, source, day, why) {
     ws.log.push({ kind: 'cast-skipped', key: person.id, by: source.id, day, why });
@@ -133,7 +132,7 @@ export function releaseDisplaced(ws, eventId, minute) {
         const shown = ws.cast[id].displaced;
         if (!shown || shown.until === 'permanent') continue;
         const byEvent = eventId !== null && shown.by === eventId && shown.until === 'end';
-        const cleared = shown.until.startsWith('cleared:') && !entryActive(ws.table[shown.until.slice('cleared:'.length)], minute);
+        const cleared = shown.until.startsWith('cleared:') && !refActive(ws, shown.until.slice('cleared:'.length), minute);
         if (!byEvent && !cleared) continue;
         const { displaced, ...rest } = ws.cast[id];
         ws.cast[id] = rest;

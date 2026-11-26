@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildGeo, resolveRef } from '../../../../modules/world/daily/geo.js';
+import { occurrences } from '../../../../modules/world/daily/anchors.js';
 import { setRefusal } from '../../../../modules/world/chronicle/conditions/refusal.js';
 import { drawWith, runner, world } from './helpers.js';
 
@@ -109,6 +110,74 @@ test('with homes: false (an unmarked reply) a protected home is compared only as
         const ask = homes => setRefusal({ query: (type, args) => (type === 'packs.content' ? { places, cast }[args.kind] ?? [] : null), chronicle: {}, geo: buildGeo({ places }, { slugs: homes }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator', homes });
         assert.equal(ask(false), '', home);
         assert.match(ask(true), /is protected/, home);
+    }
+});
+
+test('a marked reply: a protected person is found by their start place behind a home base in prose, and by their home base', () => {
+    for (const homes of [{ homeBase: 'a cottage behind the old mill', start: { place: 'deep-hold' } }, { homeBase: 'deep-hold', start: { place: 'far-town' } }, { homeBase: 'far-town', start: { place: 'deep-hold' } }]) {
+        const cast = [person({ ...homes, protected: true })];
+        const why = setRefusal({ query: (type, args) => (type === 'packs.content' ? { places: PLACES, cast }[args.kind] ?? [] : null), chronicle: {}, geo: buildGeo({ places: PLACES }), declared: CONDITIONS[1], ref: 'Deepmantle Hold', now: 1440, by: 'narrator' });
+        assert.match(why, /Oren lives at Deepmantle Hold and is protected/, homes.homeBase);
+    }
+});
+
+// State stored before untils were kept under the map's name holds the text as the pack wrote it.
+for (const stored of ['cleared:fallen@auvoth', 'cleared:fallen@pack.sample/auvoth']) {
+    const events = [
+        ev('fall', 'start', { ends_when: { for: '1 day' }, effects: { set: ['fallen@Auvoth: until cleared'], cast: [{ who: 'oren', location: 'Far Town', until: 'cleared:fallen@Auvoth' }] } }),
+        ev('relief', 'start + 5 days', { effects: { clear: ['fallen@Auvoth'] } }),
+    ];
+    const old = () => runner(small({ cast: [person({ homeBase: 'Deepmantle Hold' })], events }));
+
+    test(`a stored displaced until "${stored}" holds while the condition does, and releases when it is cleared`, () => {
+        const run = old().to(1);
+        run.state.cast.oren.displaced.until = stored;
+        run.to(4);
+        assert.equal(run.state.cast.oren.displaced?.to, 'Far Town');
+        run.to(7);
+        assert.equal(run.state.cast.oren.displaced, undefined);
+    });
+
+    test(`a stored deferred until "${stored}" still applies when the person parts from You`, () => {
+        const run = old();
+        run.withYou = ['oren'];
+        run.to(1);
+        run.state.cast.oren.deferred.until = stored;
+        run.withYou = [];
+        run.to(2);
+        assert.equal(run.state.cast.oren.displaced?.to, 'Far Town');
+    });
+}
+
+// A place and a region of one name: the narrator keeps a region condition under the region's name, the step reads a ref place first.
+const TWINS = {
+    places: [place('atlantis', 'Atlantis', { region: 'atlantis' }), place('far-town', 'Far Town', { x: 9 })],
+    conditions: [{ name: 'plague', scope: 'region', fades: 'until cleared' }],
+};
+
+for (const [label, key] of [['the region\'s name', 'plague@atlantis'], ['the place\'s name', 'plague@Atlantis']]) {
+    test(`set: and cleared: anchors read a key kept under ${label}`, () => {
+        for (const kind of ['set', 'cleared']) {
+            const ws = { geo: buildGeo(TWINS), declared: new Map(TWINS.conditions.map(row => [row.name, row])), anchors: { [`${kind}:${key}`]: [5] }, table: {} };
+            assert.deepEqual(occurrences(ws, { kind, id: 'plague@atlantis' }), [5], kind);
+        }
+    });
+
+    test(`an until reads a condition kept under ${label}`, () => {
+        const events = [ev('flight', 'start', { ends_when: { for: '1 day' }, effects: { cast: [{ who: 'oren', location: 'Far Town', until: 'cleared:plague@atlantis' }] } })];
+        const run = runner(small({ ...TWINS, cast: [person({ homeBase: 'Atlantis' })], events }));
+        const [name, ref] = key.split('@');
+        run.set(name, ref, 1, 'region').to(4);
+        assert.equal(run.state.cast.oren.displaced?.to, 'Far Town', 'held');
+        run.clear(name, ref).to(5);
+        assert.equal(run.state.cast.oren.displaced, undefined, 'released');
+    });
+}
+
+test('set: reads a condition in the table under either name', () => {
+    for (const ref of ['atlantis', 'Atlantis']) {
+        const ws = { geo: buildGeo(TWINS), declared: new Map(TWINS.conditions.map(row => [row.name, row])), anchors: {}, table: { [`plague@${ref}`]: { name: 'plague', ref, since: 3 * 1440 } } };
+        assert.deepEqual(occurrences(ws, { kind: 'set', id: 'plague@atlantis' }), [3], ref);
     }
 });
 
