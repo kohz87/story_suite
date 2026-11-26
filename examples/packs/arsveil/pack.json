@@ -974,6 +974,15 @@
         ]
       },
       {
+        "id": "lowbell",
+        "name": "Lowbell",
+        "region": "aurelion",
+        "kind": "village",
+        "x": -4.5,
+        "y": 31,
+        "note": "A small border hamlet west of Saint Loria's Gate, toward the Veil country, with one chapel bell."
+      },
+      {
         "id": "dawnspire",
         "name": "Dawnspire",
         "region": "aurelion",
@@ -5027,6 +5036,13 @@
         "note": "code L"
       },
       {
+        "from": "Lowbell",
+        "to": "Saint Loria's Gate",
+        "kind": "local road",
+        "km": 35,
+        "note": "code L"
+      },
+      {
         "from": "Vowmarket",
         "to": "Holy City of Aurelion",
         "kind": "local road",
@@ -8272,22 +8288,22 @@
         "text": "Everyone starts Awakened: Level 1, no school. People are then known by the training they took, each a ladder of three titles an institution confers after years of real work. A title says where someone trained, never their level.\n- Soldier: Man-at-Arms, Iron Guard Sergeant, Iron Guard Knight (Highmark's Iron Guard Academy).\n- Shield: Hall Shieldbearer, Hammerfall Oathshield, Hammerfall Holdfast (the dwarven shield halls).\n- Duellist: House Fencer, House Duellist, Judicial Champion (the Mirage City houses).\n- Pit fighter: Pit Hand, Knifeglass Gladiator, Pit Champion (Shackles).\n- Breath monk: Breath Disciple, Snowbell Monk, Snowbell Breath Master (Kvildal).\n- Hunter: Lodge Tracker, Longstride Hunter, Lodge Huntmaster (the Chieftainates).\n- Assassin: Stalker, Shadow Blade, Executor (Hand of Oblivion).\n- Thief: Infiltrator, Phantom, Grand Redistributor (Nightingale).\n- Mage: Spell Student, Journeyman Spellwright, Startrace Master (spell grammar).\n- Runecarver: Rune Apprentice, Oathvault Runecarver, Rune Master (Ironanvil).\n- Priest: Acolyte, Flame Cleric, Inquest Flamecaller (the Church).\n- Healer: Hospice Novice, Hospice Healer, Grove Healer (temples, hospices, the Grove Schools).\nOther callings exist in the same spirit; name them from the institution that teaches them."
       },
       {
-        "title": "Sir Volkmar",
+        "title": "Sir Hartwig",
         "keys": [
-          "Volkmar",
-          "Sir Volkmar",
-          "the Old Stone"
+          "Hartwig",
+          "Sir Hartwig",
+          "the Old Gate"
         ],
-        "text": "Sir Volkmar, 'the Old Stone', a champion of the Wardens of the Last Wall: a grey giant famous for never giving ground in a shield line. He wants a young knight worth teaching and a place in the line when it matters, and fears the Order growing soft. Wardens swear by him."
+        "text": "Sir Hartwig, 'the Old Gate', champion of the Wardens of the Last Wall (human): a grey giant who has never given ground in a shield line and wants one young knight worth teaching.\nAppearance: human man, about 60, huge and broad, grey stubble beard, close-cropped iron-grey hair, a face like weathered stone with a flattened nose; battered plate armour with a tower shield scarred by teeth and claws, a faded warden's surcoat; immovable, patient, kind eyes."
       },
       {
-        "title": "Council Speaker Aaltje Brouwer",
+        "title": "Council Speaker Wiebke Haarsma",
         "keys": [
-          "Aaltje Brouwer",
-          "Aaltje",
+          "Wiebke Haarsma",
+          "Wiebke",
           "Council Speaker"
         ],
-        "text": "Aaltje Brouwer, Council Speaker of the River Confederacy this term: a banker's daughter from Ledgerford, neat and soft-voiced, ink on her cuffs. She wants the rivers open and Highmark's debt honored, and fears a default. Merchants trust her arithmetic; the frontier doubts she has seen mud."
+        "text": "Council Speaker Wiebke Haarsma of the River Confederacy (halfling): a Ledgerford banker's daughter, neat and soft-voiced, ink on her cuffs; trusted for her arithmetic.\nAppearance: halfling woman, about 45, small and neat, round face, brown hair pinned in a tidy bun, small spectacles; a dark Confederacy council gown with a chain of office, ink stains on her cuffs; soft-voiced and precise, a ledger under one arm."
       },
       {
         "title": "Duke Joost Harlaken",
@@ -8308,12 +8324,12 @@
         "text": "Benedikt IV, 'Lamplighter', High Pontiff of the Church of the Eternal Flame and sovereign of the Dominion: a soft-spoken, iron-willed old man in ash-grey vestments who lights every candle himself. He wants the Church whole and every flame tended, and fears a Flame that stops answering. The faithful adore him."
       },
       {
-        "title": "Conclave Elder Clementia",
+        "title": "Conclave Elder Domitilla",
         "keys": [
-          "Clementia",
-          "Conclave Elder Clementia"
+          "Domitilla",
+          "Conclave Elder Domitilla"
         ],
-        "text": "Conclave Elder Clementia, leading voice of the Restorationists in the Conclave of Embers: a spare, silver-haired woman who speaks softly. She holds that the Reopening courts another Abyssal Tide and fears being dismissed as gloomy. The pious respect her; the Expansionists wait her out."
+        "text": "Conclave Elder Domitilla, Restorationist elder of the Conclave of Embers (human): a spare, silver-haired woman who warned that the Reopening courts another Tide, and is no longer dismissed as gloomy.\nAppearance: human woman, about 70, spare and upright, silver hair under a plain grey hood, deep-lined thoughtful face, pale blue eyes; ash-grey Church robes with a simple ember pendant; quiet, grave, unafraid."
       },
       {
         "title": "Grand Commander Prisca Valens",
@@ -8361,13 +8377,13 @@
         "text": "Thane-of-Thanes Brakka Slagmantle speaks for the Ironanvil Holds at the Council Beneath Stone: a broad dwarf with a forge-scarred face and a voice like a grindstone. She wants grain, timber and salt for the Holds and new veins to pay for them, and fears a hold leaving. Every crown courts her steel."
       },
       {
-        "title": "Elder Bodvar Runecutter",
+        "title": "Elder Grimma Inkstone",
         "keys": [
-          "Bodvar Runecutter",
-          "Bodvar",
-          "Elder Bodvar"
+          "Grimma Inkstone",
+          "Grimma",
+          "Elder Grimma"
         ],
-        "text": "Elder Bodvar Runecutter, a stooped Ironanvil elder with rune-scarred fingers who teaches young runecarvers. He wants the old craft passed on, and fears it dying with its teachers. Secret (only a few elders share it): he can read the Iron Archive's script, and no crown is told."
+        "text": "Elder Grimma Inkstone, Ironanvil runecarver elder (dwarf): a stooped dwarf with rune-scarred fingers who teaches young runecarvers, and knows a script no one else living reads. Secret (only a few elders share it): she can read the Iron Archive's script, and no crown is told.\nAppearance: dwarf woman, about 200 (old for a dwarf), stooped, white braids with rune-carved iron rings, heavy brows over sharp black eyes, rune-scarred fingers; a leather work apron over dark wool, chisels and a magnifying glass at her belt; a teacher's stern patience."
       },
       {
         "title": "Sea-Lord Maarten Vosskeel",
@@ -8379,12 +8395,12 @@
         "text": "Sea-Lord Maarten Vosskeel speaks for the Tidal Council at Abysswatch: a weathered admiral whose voice is ruined from a lifetime of shouting at storms, so the room hushes to hear him. He wants the convoys running and their losses paid for, and fears sailing without Atlantean pilots. Captains call him fair."
       },
       {
-        "title": "The Sea God Witch Marenthe",
+        "title": "The Sea God Witch Ilunae",
         "keys": [
-          "Marenthe",
-          "Witch Marenthe"
+          "Ilunae",
+          "Witch Ilunae"
         ],
-        "text": "The Sea God Witch Marenthe, Atlantis's highest spiritual authority: a pale, still woman who weighs every word. Her foresight is fallible, and Atlanteans know it. She wants the wards kept and the deep's counsel kept. Secret (no one else knows): she has dreamed of the north going white."
+        "text": "The Sea God Witch Ilunae, Atlantis's highest spiritual authority (Sea Folk): a pale, still Atlantean who weighs every word; her foresight is known to be fallible. Secret (no one else knows): she has dreamed of the north going white.\nAppearance: Sea Folk woman, ageless, tall and pale with faintly blue-white skin, the transparent breathing sheath glinting over her face and throat like wet glass, long dark hair drifting as if underwater; layered sea-silk robes of deep teal and pearl, a coral crown; utterly still, unreadable."
       },
       {
         "title": "Tide-Archon Seluvar",
@@ -8404,28 +8420,29 @@
         "text": "Emperor Hartmut of Rhunwald, Ardelia's elected emperor, nearing the end of his fixed 18-year term, which ends in July 612: a heavy, patient man who is unwell and rests a hand on the table before he rises. He wants the electors' law honored and a clean handover, and fears leaving the empire quarrelling. The electors respect him."
       },
       {
-        "title": "Arch-Chancellor Gerlinde",
+        "title": "Arch-Chancellor Mechtild",
         "keys": [
-          "Gerlinde",
-          "Arch-Chancellor Gerlinde"
+          "Mechtild",
+          "Arch-Chancellor Mechtild"
         ],
-        "text": "Arch-Chancellor Gerlinde, chosen by the electors for life, keeps Ardelia's laws and seals: a spare, grey woman who reads every document twice. She wants the Constitution obeyed to the letter, and fears any bloc bending it. The electors respect her; citizens barely know her face."
+        "text": "Arch-Chancellor Mechtild, keeper of Ardelia's laws and seals (human): a spare, grey woman who reads every document twice and will not let any bloc bend the election.\nAppearance: human woman, about 65, thin and grey, hair in a tight knot, sharp nose, reading spectacles on a chain; black Ardelian chancery robes with the great seal on a ribbon; severe, scrupulous, a stack of documents."
       },
       {
-        "title": "Saelwyn, Voice of the Elder Root",
+        "title": "Thaliss, Voice of the Elder Root",
         "keys": [
-          "Saelwyn",
+          "Thaliss",
           "Voice of the Elder Root"
         ],
-        "text": "Saelwyn, Voice of the Elder Root, interprets the Verdantleaf Elder Root: an elf in moss-grey robes who pauses long before answering, as if listening. She wants the old treaties kept and the forest's boundary closed, and fears the Reopening reaching it. Outsiders find her courteous and immovable."
+        "text": "Thaliss, Voice of the Elder Root of Verdantleaf (elf): an elf in moss-grey robes who pauses long before answering, as if listening to the forest.\nAppearance: elf woman, ageless, tall and slender, long moss-green-tinted brown hair woven with living leaves, large calm green-gold eyes, long pointed ears; moss-grey robes that look half-grown, bare feet; she seems to be listening to something no one else hears."
       },
       {
-        "title": "Foxglove-at-Noon",
+        "title": "Meadowsweet-at-Dusk",
         "keys": [
-          "Foxglove-at-Noon",
+          "Meadowsweet-at-Dusk",
+          "Meadowsweet",
           "Queen of Flowers"
         ],
-        "text": "Foxglove-at-Noon, Queen of Flowers, rules the Fairy Court from the high canopy: a small fairy with foxglove-purple wings, seen only in full daylight. She wants her court hidden and her people safe from collectors and binders. The elves protect her; most of the world takes her for a tale."
+        "text": "Meadowsweet-at-Dusk, Queen of Flowers of the Fairy Court (fairy): a small queen with cream-white wings, seen only in the last light of day.\nAppearance: fairy woman, tiny (hand-sized), delicate, cream-white translucent insect wings, pale hair like dandelion fluff, a crown of meadowsweet blossoms, glowing faintly in dusk light; a gown of petals; regal, ancient eyes in a small face."
       },
       {
         "title": "High Chieftain Nuhai Wolf-Mother",
@@ -8437,13 +8454,13 @@
         "text": "High Chieftain Nuhai Wolf-Mother speaks for the Chieftain Council at Battle Cry City: a grey-muzzled wolf-kin elder with a calm voice that carries across a crowded hall. She wants clan honor kept and slavers off clan land, and fears a danger that finds the clans divided. Clans call her their mother; few raise their voices to her."
       },
       {
-        "title": "The Glass Regent Daryush-ul-Mirrorwell",
+        "title": "The Glass Regent Kamran-ul-Sandglass",
         "keys": [
-          "Daryush-ul-Mirrorwell",
-          "Daryush",
+          "Kamran-ul-Sandglass",
+          "Kamran",
           "Glass Regent"
         ],
-        "text": "The Glass Regent Daryush-ul-Mirrorwell rules Ashkaran from Ashkar as the Glass Crown's steward: a lean man in mirrored glass-steel thread who receives petitioners before the Regent's Mirror. He wants slaves for the pits and the Crown content. Merchants court him; slaves know him as rumor."
+        "text": "The Glass Regent Kamran-ul-Sandglass of Ashkaran (human): a lean man in mirrored thread who hears petitions before the Regent's Mirror and feeds the Glass Crown its slaves.\nAppearance: human man, about 50, lean and dark-skinned, neatly trimmed black beard, kohl-lined eyes; robes sewn with mirrored glass-steel thread that throws light, a glass circlet; seated before a great black mirror; cold, courteous, dangerous."
       },
       {
         "title": "Frost King Bjarnulf Grey-Mantle",
@@ -8481,39 +8498,39 @@
         "text": "Seal-Captain Morna Flintgate, dwarf captain of the Order of the Sealwardens: square and lamp-blackened, she checks every ward twice, even those she has just watched another warden check. She wants every warden home from a shift and the seals unbroken, and fears a breach in the Depths. Recruits fear her; adventurers owe her."
       },
       {
-        "title": "Sunniva Halvard",
+        "title": "Liesel Brandt",
         "keys": [
-          "Sunniva Halvard",
-          "Sunniva",
-          "Lantern of Auvoth"
+          "Liesel Brandt",
+          "Liesel",
+          "Lamp of the Depths"
         ],
-        "text": "Sunniva Halvard, 'the Lantern of Auvoth', a living S-rank Spellwright: a slight woman who keeps a small steady light about her even in daylight, and whose barrier-work is said to hold a Depths gate alone. She wants her juniors alive and fears being needed everywhere. Auvoth sends for her first."
+        "text": "Liesel Brandt, 'the Lamp of the Depths', S-rank spellwright of Auvoth (human): a slight woman with a steady light about her; her barrier-work can hold a Depths gate alone.\nAppearance: human woman, about 35, slight, short ash-blonde hair, tired gentle eyes, a small steady ball of light hovering at her shoulder; a Guild spellwright's long coat with an S-rank plate, warded gloves; calm under pressure, protective."
       },
       {
-        "title": "Kaidu Thrice-Returned",
+        "title": "Oshu Twice-Buried",
         "keys": [
-          "Kaidu Thrice-Returned",
-          "Kaidu",
-          "Thrice-Returned"
+          "Oshu Twice-Buried",
+          "Oshu",
+          "Twice-Buried"
         ],
-        "text": "Kaidu Thrice-Returned, a living S-rank beastfolk Hunter who came back from three 'certain death' contracts: lean and quiet, a cord of three knots at his wrist. He scouts the northern wildzone for the Guild and trusts his eyes over any map. Juniors tell his stories; he never corrects them."
+        "text": "Oshu Twice-Buried, S-rank hunter and the Guild's northern scout (beastfolk): lean and quiet, two knots on a wrist cord for the two graves he climbed out of; trusts his eyes over any map.\nAppearance: beastfolk man (wolf-kin), about 40, lean and weathered, grey-brown fur on ears and tail, scarred muzzle-like jaw, quiet amber eyes; worn ranger leathers, a long bow, a wrist cord with two knots; silent, watchful, at home in the snow."
       },
       {
-        "title": "Pell Underhay",
+        "title": "Tibb Fallowmere",
         "keys": [
-          "Pell Underhay",
-          "Pell",
-          "Smallest Legend"
+          "Tibb Fallowmere",
+          "Tibb",
+          "Little Rumour"
         ],
-        "text": "Pell Underhay, 'the Smallest Legend', a living S-rank halfling infiltrator: cheerful, round-faced, with quick hands and a habit of being somewhere else. He wants a fat purse and no one's leash, and fears owing too many people. He is said to owe the Nightingale and take work from rival crowns."
+        "text": "Tibb Fallowmere, 'the Little Rumour', S-rank infiltrator (halfling): cheerful and round-faced, always somewhere else; owes the Nightingale one favour too many.\nAppearance: halfling man, about 35, round cheerful face, curly chestnut hair, quick bright eyes and an easy grin; dark close-fitting infiltrator's clothes with many pockets, lockpicks on a ring; always mid-step, never quite where you look."
       },
       {
-        "title": "The Ninth Brazier",
+        "title": "The Grey Hearth",
         "keys": [
-          "Ninth Brazier",
-          "the Ninth Brazier"
+          "Grey Hearth",
+          "the Grey Hearth"
         ],
-        "text": "The Ninth Brazier, an A-rank party of four working the northern wildzone out of Bluewatch and Auvoth. Their banner is a brazier on a black field. They want S-rank contracts and a name that outlives the job board, and fear a job above their letter. Bluewatch likes them; rivals watch their picks."
+        "text": "The Grey Hearth, an A-rank party out of Bluewatch and Auvoth (mixed): four veterans working the northern wildzone under a grey hearth banner; want S-rank contracts and a name that outlives the job board.\nAppearance: a weathered party of four veterans under a grey hearth banner: a human shield-bearer, a dwarf crossbow-woman, an elf ranger and a halfling medic; mismatched worn gear, frost on their cloaks, an A-rank Guild plate; tired, competent, proud."
       },
       {
         "title": "First Marshal Gisbert Lohr",
@@ -8525,37 +8542,37 @@
         "text": "First Marshal Gisbert Lohr, elected head of the Wallwright League: a tall, mortar-scarred builder who wears a leather apron over his mail and taps a wall with his knuckles before he trusts it. He wants the League's walls held and charter fees paid, and fears building a wall of conquest. Every crown wants his engineers."
       },
       {
-        "title": "The Sparrow",
+        "title": "The Wren",
         "keys": [
-          "the Sparrow",
-          "Sparrow of Shackles"
+          "the Wren",
+          "Wren of the Nightingale"
         ],
-        "text": "The Sparrow is the Nightingale's public face and voice, out of Shackles' Mute Sparrow Ward: a soft-spoken, cheerful figure in a plain grey hood. The title passes on; the current Sparrow's real name is unknown. The Sparrow trades war secrets to every side and never robs the dead."
+        "text": "The Wren, the Nightingale's public face (a title that passes on; people unknown): a soft-spoken, cheerful figure in a plain grey hood, out of a Shackles ward; trades war secrets to every side.\nAppearance: a figure of unknown age and sex in a plain grey hood that shadows the face, only a smiling mouth visible, slight build, ink-stained gloves; a small brass wren pin on the hood; cheerful, soft-spoken, impossible to describe afterwards."
       },
       {
-        "title": "Ottavia Vane",
+        "title": "Isolde Marr",
         "keys": [
-          "Ottavia Vane",
-          "Ottavia",
-          "Phantom of Vargate"
+          "Isolde Marr",
+          "Isolde",
+          "Mask of Vargate"
         ],
-        "text": "Ottavia Vane, 'the Phantom of Vargate', the Nightingale's champion and the best Phantom alive: slim, forgettable, dressed as whatever the room expects. She has stolen from three crowns and returned one theft to make a point. She wants a theft worth a legend and fears boredom."
+        "text": "Isolde Marr, 'the Mask of Vargate', the Nightingale's champion (human): slim and forgettable, dressed as whatever the room expects; has stolen from three crowns and returned one theft to make a point.\nAppearance: human woman, about 30, slim and forgettable on purpose, mousy brown hair that changes with the disguise; shown in a servant's dress with a hidden blade, or a noble's silks with a half-mask; a faint knowing smile."
       },
       {
-        "title": "The Key-Widow",
+        "title": "The Lock-Mother",
         "keys": [
-          "Key-Widow",
-          "the Key-Widow"
+          "Lock-Mother",
+          "the Lock-Mother"
         ],
-        "text": "The Key-Widow is a Broken Chain legend, said to wear on a black ribbon the key of every collar she has opened. No one agrees whether she is real, one woman, or only a title. Slaves whisper her name; slave-factors deny she exists, and the Chain's cells neither confirm nor deny it."
+        "text": "The Lock-Mother, a Broken Chain legend (a title; people unknown): said to wear on a black ribbon the key of every collar she has opened; real, one woman, or only a name?\nAppearance: a legendary woman, face never clear, tall in a black travelling cloak, a black ribbon at her throat heavy with dozens of iron collar keys; drawn as a shadow at a doorway with keys glinting; hope to slaves, a ghost story to slavers."
       },
       {
-        "title": "Neshai Chainbreaker",
+        "title": "Kesha Bare-Hands",
         "keys": [
-          "Neshai Chainbreaker",
-          "Neshai"
+          "Kesha Bare-Hands",
+          "Kesha"
         ],
-        "text": "Neshai Chainbreaker, the Broken Chain's champion: a beastfolk fighter, once a pit slave, who breaks rune-collars with her bare hands. Old collar-scars ring her neck. She wants every collar broken and fears recapture. Slaves tell her story in the dark; Shackles and Vargate pay for her head."
+        "text": "Kesha Bare-Hands, the Broken Chain's champion (beastfolk): a former pit slave who breaks rune-collars with her bare hands; collar scars ring her neck.\nAppearance: beastfolk woman (lion-kin), about 30, powerfully built, tawny fur on arms and ears, a thick ring of old collar scars around her neck, short-cropped mane; bare scarred forearms, simple fighting wraps, a broken rune-collar hanging from her belt; fierce and proud."
       },
       {
         "title": "Warmother Ruskha",
@@ -8585,29 +8602,30 @@
         "text": "Saintess Ilvane, 'Mender of Names', the Ashen Veil's counter-saint, revered by the cells that keep the dead: a small elf in grey who heals by touch and remembers the name of every dead person she has held. She wants the hurt mended and no name lost, and fears forgetting one. The cells hide her; the Church calls her heretic."
       },
       {
-        "title": "Saltbone Ide",
+        "title": "Corvan Ashwick",
         "keys": [
-          "Saltbone Ide",
-          "Saltbone"
+          "Corvan Ashwick",
+          "Corvan",
+          "the Undertaker"
         ],
-        "text": "Saltbone Ide, notorious Ashen Veil cell leader and the Veil's champion in the field: a lean, salt-rimed man who smells of brine and old smoke. He wants stolen remains and a Veil ward in every port, and fears the Silver Mark. The Church names him heretic; the Inquest wants him."
+        "text": "Corvan Ashwick, 'the Undertaker', the Ashen Veil's field champion (human): lean and smoke-dark, smelling of brine and old pyres; wants a Veil ward in every port and fears the Silver Mark.\nAppearance: human man, about 45, lean and smoke-dark, salt-rimed black coat and gloves, long black hair tied back, hollow cheeks, pale grey eyes; a bone-handled spade and a lantern with green flame; smells of brine and pyres; soft-spoken and unsettling."
       },
       {
-        "title": "The Quiet Hour",
+        "title": "The Last Lamp",
         "keys": [
-          "the Quiet Hour",
-          "Quiet Hour"
+          "the Last Lamp",
+          "Last Lamp"
         ],
-        "text": "'The Quiet Hour' is the Hand of Oblivion's most famous Executor. No description agrees: a man, a woman, a child's voice on a stair. The Hand never says whether it is one Executor or several. Targets are said to notice the room go quiet first; great houses double their guards at the name."
+        "text": "The Last Lamp, the Hand of Oblivion's famous Executor (a title; people unknown): no description agrees; targets say the lamps go out one by one before it comes.\nAppearance: no agreed face: drawn as a dark doorway where the lamps go out one by one, a gloved hand pinching a wick, a hooded silhouette of uncertain size; menace without a face."
       },
       {
-        "title": "Teodor 'Nine Collars' Vask",
+        "title": "Brannoc 'Ten-Times' Durr",
         "keys": [
-          "Nine Collars",
-          "Teodor Vask",
-          "Teodor Nine Collars"
+          "Brannoc Durr",
+          "Brannoc",
+          "Ten-Times"
         ],
-        "text": "Teodor 'Nine Collars' Vask, Shackles' pit champion of the Ironhammer Brotherhood, has won and lost his freedom nine times: a massive, scarred man with nine iron rings at his belt. He wants a tenth freedom that holds, and fights for whoever buys him. The pit crowds adore him."
+        "text": "Brannoc 'Ten-Times' Durr, Shackles' pit champion (orc): a massive, scarred orc who has won and lost his freedom ten times and fights for whoever buys him.\nAppearance: orc man, about 35, massive and heavily scarred, green-grey skin, broken tusk, shaved head with pit tattoos, ten iron rings on his belt; pit-fighter harness and a huge maul; tired eyes, a fighter for whoever pays."
       },
       {
         "title": "Captain Hale of the Forty-Second Debt",
@@ -8625,6 +8643,60 @@
           "Red Tally"
         ],
         "text": "Captain Dagan of the Red Tally, Bloodbound captain: a broad, patient orc who keeps every dead soldier's share in a ledger strapped to his chest. He wants every share paid to the dead soldier's kin and every contract honored, and fears a debt to the dead left standing. His soldiers trust his count; paymasters dread it."
+      },
+      {
+        "title": "Archprelate Cassian Vell",
+        "keys": [
+          "Cassian Vell",
+          "Cassian",
+          "Archprelate"
+        ],
+        "text": "Archprelate Cassian Vell of Aurelion (human): Head of the Church of the Eternal Flame in practice. A soft-voiced politician more than a believer: he named the Silent Bells 'a test', fears schism more than heresy, and will sacrifice a saint to keep the Church whole.\nAppearance: human man, about 70, tall and gaunt, clean-shaven, thin white hair, heavy-lidded dark eyes, long fingers heavy with rings; crimson-and-gold vestments, a tall flame mitre, a heavy gold flame on a chain; calm, soft-spoken, calculating."
+      },
+      {
+        "title": "The Sunrise Man (the Pretender)",
+        "keys": [
+          "Sunrise Man",
+          "the Sunrise Man",
+          "the Pretender"
+        ],
+        "text": "The Sunrise Man, the Pretender, in Valecrown in Highmark (human; whether an otherworlder is the open question): Says he is the Dawn-King returned from the other world; the streets call him the Sunrise Man, and no one has learned the name he was born with. He speaks a few words no one in Arsveil knows and carries a sun-sigil burned into his palm. Prophet, fraud or otherworlder: Highmark will tear itself apart deciding.\nAppearance: human man, about 30, tall and handsome, sun-browned, long red-gold hair, bright earnest eyes, a sun-sigil burn on one palm; a plain white coat with an old crown-brooch pinned at the throat; charismatic, open-armed."
+      },
+      {
+        "title": "Ilvareth, called 'the Beak'",
+        "keys": [
+          "Ilvareth",
+          "the Beak"
+        ],
+        "text": "Ilvareth, called 'the Beak', a plague doctor on the Glass Road and in the Ashkaran border towns (elf): An elf physician cast out of the Grove Schools for teaching living craft to humans. He walks the Glass Road treating the Glass Cough with what he can carry, and knows the elves hold the cure and what they will ask for it.\nAppearance: elf man, ageless (looks about 40), tall and gaunt, long ash-blond hair tied back, long pointed ears, tired green eyes; a long-beaked leather plague mask pushed up on his head, a waxed black coat, glass dust on his boots, a satchel of herbs and glass vials."
+      },
+      {
+        "title": "Envoy Sigrun Coldrivet",
+        "keys": [
+          "Sigrun Coldrivet",
+          "Sigrun",
+          "Envoy Sigrun"
+        ],
+        "text": "Envoy Sigrun Coldrivet, an Ardelian elector's agent at Osterhal and the Lesser Estates, from High Hold Dornhald (dwarf): Dornhald's envoy at Osterhal and its best spy: she counts votes like coins and knows which elector owes the Grey Ledger. She would rather buy a vote than steal one, but she knows the price of both.\nAppearance: dwarf woman, about 120, short and solid, auburn braids pinned under a velvet cap, sharp green eyes; a neat Ardelian courtier's doublet over a fine mail shirt, signet rings, a small notebook and silver pencil."
+      },
+      {
+        "title": "Hob Ashbarrow",
+        "keys": [
+          "Hob Ashbarrow",
+          "Ashbarrow",
+          "quartermaster of Rimebridge"
+        ],
+        "text": "Hob Ashbarrow, quartermaster of Rimebridge in Shornmarch (halfling): When the forts' pay sank with the Drowned Ledger, he sold the bastion's winter grain to the swarm-fleeing towns. To the soldiers a traitor, to the towns a saint; one day hanged or hired (a quartermaster for Your Holding).\nAppearance: halfling man, about 50, plump gone thin, balding with grey side-curls, worried kind eyes, ink-stained fingers; a quartermaster's coat now too big for him, a ring of storehouse keys, tally sticks in a belt pouch."
+      },
+      {
+        "title": "Matthias Orrel",
+        "keys": [
+          "Matthias Orrel",
+          "Matthias",
+          "Orrel",
+          "Old Tongue"
+        ],
+        "text": "Matthias Orrel, 'Old Tongue', a master bell-founder (half-orc, 54), walks the Dominion's roads among the Ash Penitents: for forty years master of the Church's founders' yard below the Cathedral of the Flame, wanted by the Inquest since the bells fell silent.\nAppearance: a big half-orc founder with filed tusks and an ash-smeared scalp, deaf in one ear. His tusks, filed flat at twelve, are growing back ragged; grey-green skin mottled with furnace burns, an iron-grey beard singed at the edges, deep-set amber eyes, enormous burn-scarred hands; a penitent's sackcloth over a founder's scorched leather apron, a small bronze hand-bell at his hip, barefoot.\nVoice: deep and gravelly, slow to start and then impossible to stop once the talk turns to metal; he speaks of bells as people, turns his good ear to you and says 'Again' when he missed it.\nManner: a weary, stubborn master, proud of his craft to the point of rudeness; endlessly patient at the forge and not at all with fools, preachers or inquisitors; gentle with the young. His faith is shaken: he no longer knows if he believes in the Flame, but he believes in the metal."
       },
       {
         "title": "Startrace's Northern Tap",
@@ -14583,7 +14655,7 @@
           ]
         },
         "ends_when": "instant",
-        "summary": "A man in a Dawn-King's cloak enters Valecrown, and the crowds follow him through the market squares.",
+        "summary": "A man the streets call the Sunrise Man enters Valecrown in a Dawn-King's cloak, and the crowds follow him through the market squares.",
         "requires": [
           "stage:hm-regency"
         ]
@@ -17807,12 +17879,12 @@
           "facts": [
             {
               "id": "saintess-flame-cold",
-              "text": "The Flame Saintess's healing fire went cold on the night the bells fell silent."
+              "text": "The healing fire of Solenne, the Flame Saintess, went cold on the night the bells fell silent."
             }
           ]
         },
         "ends_when": "instant",
-        "summary": "The Flame Saintess's healing fire goes cold on the night the bells fall silent, and she hides her hands from the court.",
+        "summary": "The healing fire of Solenne, the Flame Saintess, goes cold on the night the bells fall silent, and she hides her hands from the court.",
         "severity": "minor"
       },
       {
@@ -18290,7 +18362,7 @@
                 },
                 {
                   "id": "bell-founder-true",
-                  "text": "The Bell-Founder was acknowledged as a true servant of the Flame."
+                  "text": "Matthias Orrel, the Bell-Founder, was acknowledged as a true servant of the Flame."
                 }
               ],
               "powers": {
@@ -18315,7 +18387,7 @@
                 },
                 {
                   "id": "veil-bell-founder",
-                  "text": "The Veil claimed the Bell-Founder as its own."
+                  "text": "The Veil claimed Matthias Orrel, the Bell-Founder, as its own."
                 }
               ],
               "powers": {
@@ -18357,7 +18429,7 @@
           }
         ],
         "ends_when": "instant",
-        "summary": "The Bell-Founder recasts a bell before the divided Church: {outcome}.",
+        "summary": "Matthias Orrel, the Bell-Founder, recasts a bell before the divided Church: {outcome}.",
         "severity": "major"
       },
       {
