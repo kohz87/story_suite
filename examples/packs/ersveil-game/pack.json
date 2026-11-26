@@ -2,7 +2,7 @@
   "id": "ersveil-game",
   "format": 4,
   "kind": "game",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Ersveil rules",
   "author": "Story Suite examples",
   "description": "Calendar, coins, guild ranks, names and trackers for Ersveil",
@@ -1968,6 +1968,37 @@
             "min": 0,
             "max": 99,
             "default": 0
+          },
+          "contracts": {
+            "type": "int",
+            "min": 0,
+            "max": 999,
+            "default": 0,
+            "label": "Contracts"
+          },
+          "contracts-at-rank": {
+            "type": "int",
+            "min": 0,
+            "max": 999,
+            "default": 0,
+            "label": "Since last promotion"
+          },
+          "exam": {
+            "type": "int",
+            "min": 0,
+            "max": 6,
+            "default": 0,
+            "edit": false,
+            "names": {
+              "0": "not ready",
+              "1": "ready for the E examination",
+              "2": "ready for the D examination",
+              "3": "ready for the C examination",
+              "4": "ready for the B examination",
+              "5": "ready for the A examination",
+              "6": "ready for the S examination"
+            },
+            "label": "Examination"
           }
         },
         "kinds": {
@@ -2023,6 +2054,20 @@
                   "idle-years"
                 ],
                 "value": 0
+              },
+              {
+                "op": "set",
+                "path": [
+                  "contracts"
+                ],
+                "value": 0
+              },
+              {
+                "op": "set",
+                "path": [
+                  "contracts-at-rank"
+                ],
+                "value": 0
               }
             ]
           },
@@ -2071,6 +2116,22 @@
                   "idle-years"
                 ],
                 "value": 0
+              },
+              {
+                "op": "add",
+                "path": [
+                  "contracts"
+                ],
+                "value": 1,
+                "bounds": "clamp"
+              },
+              {
+                "op": "add",
+                "path": [
+                  "contracts-at-rank"
+                ],
+                "value": 1,
+                "bounds": "clamp"
               }
             ]
           },
@@ -2111,6 +2172,13 @@
                   "arg",
                   "letter"
                 ]
+              },
+              {
+                "op": "set",
+                "path": [
+                  "contracts-at-rank"
+                ],
+                "value": 0
               }
             ]
           },
@@ -2400,14 +2468,40 @@
               [
                 "or",
                 [
-                  "eq",
+                  "and",
                   [
-                    "get",
+                    "and",
                     [
-                      "member-years"
+                      "eq",
+                      [
+                        "get",
+                        [
+                          "member-years"
+                        ]
+                      ],
+                      0
+                    ],
+                    [
+                      "eq",
+                      [
+                        "get",
+                        [
+                          "letter"
+                        ]
+                      ],
+                      "F"
                     ]
                   ],
-                  0
+                  [
+                    "lt",
+                    [
+                      "get",
+                      [
+                        "contracts"
+                      ]
+                    ],
+                    3
+                  ]
                 ],
                 [
                   "ge",
@@ -2461,16 +2555,6 @@
               [
                 "and",
                 [
-                  "ge",
-                  [
-                    "get",
-                    [
-                      "member-years"
-                    ]
-                  ],
-                  1
-                ],
-                [
                   "eq",
                   [
                     "get",
@@ -2479,6 +2563,42 @@
                     ]
                   ],
                   0
+                ],
+                [
+                  "or",
+                  [
+                    "or",
+                    [
+                      "ge",
+                      [
+                        "get",
+                        [
+                          "member-years"
+                        ]
+                      ],
+                      1
+                    ],
+                    [
+                      "ne",
+                      [
+                        "get",
+                        [
+                          "letter"
+                        ]
+                      ],
+                      "F"
+                    ]
+                  ],
+                  [
+                    "ge",
+                    [
+                      "get",
+                      [
+                        "contracts"
+                      ]
+                    ],
+                    3
+                  ]
                 ]
               ]
             ],
@@ -2489,6 +2609,229 @@
                   "standing"
                 ],
                 "value": "good"
+              }
+            ]
+          },
+          {
+            "id": "exam-none",
+            "when": true,
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "exam"
+                ],
+                "value": 0
+              }
+            ]
+          },
+          {
+            "id": "exam-e",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "F"
+              ],
+              [
+                "ge",
+                [
+                  "get",
+                  [
+                    "contracts-at-rank"
+                  ]
+                ],
+                5
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "exam"
+                ],
+                "value": 1
+              }
+            ]
+          },
+          {
+            "id": "exam-d",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "E"
+              ],
+              [
+                "ge",
+                [
+                  "get",
+                  [
+                    "contracts-at-rank"
+                  ]
+                ],
+                12
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "exam"
+                ],
+                "value": 2
+              }
+            ]
+          },
+          {
+            "id": "exam-c",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "D"
+              ],
+              [
+                "ge",
+                [
+                  "get",
+                  [
+                    "contracts-at-rank"
+                  ]
+                ],
+                25
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "exam"
+                ],
+                "value": 3
+              }
+            ]
+          },
+          {
+            "id": "exam-b",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "C"
+              ],
+              [
+                "ge",
+                [
+                  "get",
+                  [
+                    "contracts-at-rank"
+                  ]
+                ],
+                45
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "exam"
+                ],
+                "value": 4
+              }
+            ]
+          },
+          {
+            "id": "exam-a",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "B"
+              ],
+              [
+                "ge",
+                [
+                  "get",
+                  [
+                    "contracts-at-rank"
+                  ]
+                ],
+                70
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "exam"
+                ],
+                "value": 5
+              }
+            ]
+          },
+          {
+            "id": "exam-s",
+            "when": [
+              "and",
+              [
+                "eq",
+                [
+                  "get",
+                  [
+                    "letter"
+                  ]
+                ],
+                "A"
+              ],
+              [
+                "ge",
+                [
+                  "get",
+                  [
+                    "contracts-at-rank"
+                  ]
+                ],
+                100
+              ]
+            ],
+            "then": [
+              {
+                "op": "set",
+                "path": [
+                  "exam"
+                ],
+                "value": 6
               }
             ]
           }
@@ -2523,14 +2866,20 @@
                   "fields": [
                     "letter",
                     "standing",
-                    "dues"
+                    "dues",
+                    "contracts",
+                    "contracts-at-rank",
+                    "exam"
                   ],
                   "tiles": true,
                   "title": "Adventurer Guild",
                   "labels": {
                     "letter": "Rank",
                     "standing": "Standing",
-                    "dues": "Dues"
+                    "dues": "Dues",
+                    "contracts": "Contracts",
+                    "contracts-at-rank": "Since last promotion",
+                    "exam": "Examination"
                   },
                   "units": {
                     "dues": "c / year"
