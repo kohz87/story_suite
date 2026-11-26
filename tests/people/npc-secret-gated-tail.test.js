@@ -6,7 +6,7 @@ import { normalizeEntry } from '../../modules/people/dossier/cast-dossier-parts/
 import { closedSecrets } from '../../modules/world/chronicle/world-daily/arc-brief.js';
 import { learnedAnchors } from '../../modules/world/chronicle/world-daily/learned.js';
 
-// A pack's spec secret in NPC State's prompt tail (world-events switch): closed = nothing; gate open = "(may come out)"; learned = the known line.
+// A pack's spec secret in NPC State's prompt tail (world-events switch): closed = "(not yet told, id)"; gate open = "(may come out, id)"; learned = the known line.
 const ON = { 'story-director.world-events': true };
 const TEXT = 'The prior forged the last rite.';
 const OLD = 'She is the lost heir of House Venn.';
@@ -18,17 +18,20 @@ const delta = () => {
 const lines = h => { const out = h.def.context.tail(h.view()); return [...out.lines.filter(line => typeof line === 'string'), ...out.optional]; };
 const has = (h, text) => lines(h).some(line => line.includes(text));
 
-test('switch on: a closed gate sends nothing; the gate open sends "(may come out)" once; an old-shape note keeps "(hidden)"', async () => {
+test('switch on: a closed gate sends "(not yet told)"; the gate open sends "(may come out)" once; an old-shape note keeps "(hidden)"', async () => {
     const answers = { 'chronicle.world.anchors': [] };
     const h = await host({ delta: delta(), features: ON, answers });
     h.reply('Nice.', '~ npc Mira | trust: +1');
-    assert.equal(has(h, TEXT), false, 'closed: the text is nowhere in the tail');
+    const closed = lines(h).filter(line => line.includes(TEXT));
+    assert.equal(closed.length, 1);
+    assert.ok(closed[0].endsWith(`\nMira (not yet told, rite): ${TEXT}`), 'closed: the next one, not yet told');
+    assert.equal(h.def.hooks.redactSent(closed[0]).includes(TEXT), false, 'What\'s sent hides it');
     assert.equal(has(h, OLD), true, 'an old-shape note is as before');
     assert.ok(lines(h).some(line => line.includes(`Mira (hidden): ${OLD}`)));
     answers['chronicle.world.anchors'] = ['fact:vault-opened'];
     const ready = lines(h).filter(line => line.includes(TEXT));
     assert.equal(ready.length, 1);
-    assert.equal(ready[0], `Lines marked (may come out) are secrets the story has now earned: you may let one come out in this reply, once, only if it fits the scene; never force it.\nMira (may come out): ${TEXT}`);
+    assert.equal(ready[0], `Lines marked (may come out) are secrets the story has now earned: you may let one come out in this reply, once, only if it fits the scene; never force it.\nA secret that comes out is written: ~ reveal Name | opened: <id> | quote: "short exact quote from this reply".\nMira (may come out, rite): ${TEXT}`);
     assert.equal(h.def.hooks.redactSent(ready[0]).includes(TEXT), false, 'What\'s sent hides it');
 });
 

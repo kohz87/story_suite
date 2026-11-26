@@ -140,7 +140,7 @@ export function createQueriesPart(session, deps) {
         secretRules: (name, labels = []) => {
             const npc = dossierOf(name) ?? labels.map(dossierOf).find(Boolean);
             const gatedOn = worldSecretsOn();
-            return normalizeSecrets(npc?.secrets).filter(note => gatedOn || !note.gate).map(({ id, meter, at, when, title, gate }) => ({ id, ...(meter ? { meter, at } : {}), ...(when ? { when } : {}), ...(gate ? { gate } : {}), ...(title ? { title } : {}) }));
+            return normalizeSecrets(npc?.secrets).filter(note => gatedOn || !note.gate).map(({ id, meter, at, when, title, gate, packId }) => ({ id, ...(meter ? { meter, at } : {}), ...(when ? { when } : {}), ...(gate ? { gate, packId } : {}), ...(title ? { title } : {}) }));
         },
         secretTexts: (name, ids = []) => {
             const npc = dossierOf(name);

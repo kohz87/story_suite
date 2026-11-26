@@ -38,3 +38,14 @@ export function gateOpen(rule, record, byId, inputs = {}) {
         quote: inputs.quote ?? (() => true),   // a quote term is open until the reveal line (its quote is checked there)
     });
 }
+
+/**
+ * The next secret a person has not told: their first gated rule, in pack order, that is still locked (not in `unlocked`, nor shut by hand in `held`,
+ * which a story line cannot open) and whose gate is closed; null for none. The prompt tail ("not yet told") and `~ reveal` both ask here, so they
+ * cannot differ: a quote term is read as open, as the tail reads it (no quote exists before the reply).
+ */
+export function nextSecret(rules, record, byId, inputs = {}) {
+    const done = new Set([record?.unlocked, record?.held].flatMap(list => (Array.isArray(list) ? list : [])));
+    const asTail = { ...inputs, quote: undefined };
+    return (Array.isArray(rules) ? rules : []).find(rule => typeof rule?.gate === 'string' && !rule.when && !done.has(rule.id) && !gateOpen(rule, record, byId, asTail)) ?? null;
+}

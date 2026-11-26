@@ -7,7 +7,7 @@ import { readEvent } from './npc-meters-pacing.js';
 import { moodWord, normalizeMood, storedMoodWord } from './npc-mood.js';
 import { linesMeterText } from './npc-meters-prompt-parts/lines-text.js';
 import { notesTail } from '../notes/npc-notes-kinds.js';
-import { gateOpen } from './npc-meters-secrets-parts/revealable.js';
+import { gateOpen, nextSecret } from './npc-meters-secrets-parts/revealable.js';
 
 export function createNpcPrompt({
     call, hooks, storedSettings, tierCaps, tierAllowance, featureOn, defsFrom, setupFor, rungsFor, rulesFor,
@@ -49,6 +49,12 @@ export function createNpcPrompt({
     // (people in key order), so open gates never crowd out the other people's notes and the narrator is not offered a pile of reveals.
     const READY_PER_NPC = 1;
     const READY_IN_ALL = 2;
+    // A pack secret not yet told: each present person's next one whose gate is closed (nextSecret), so the narrator never invents another past.
+    // One a person and three in all (people in key order). Its line, like a (may come out) line, carries the id its `~ reveal` line needs.
+    const NOT_TOLD_ONCE = 'Lines marked (not yet told) are a person\'s real past: never contradict them or invent another. Keep it back unless the story truly earns it (a confession, deep trust shown in the scene); then it may come out, once, with its ~ reveal line.';
+    const NOT_TOLD_IN_ALL = 3;
+    // The form of that line, said once in the tail, before the first line of either kind.
+    const REVEAL_FORM = 'A secret that comes out is written: ~ reveal Name | opened: <id> | quote: "short exact quote from this reply".';
     // One short cue, with the notes feature on (whoever is in the scene): the block is written, just before <Blocks>, even when <Blocks> is empty.
     // Sent as a kept line ({ text, keep: true }): the host's tail budget (the run used 550 tokens) drops this module's optional lines first,
     // and its section is last, so as an optional line the cue never reached a prompt. The host counts kept lines in tail order against one
@@ -56,7 +62,7 @@ export function createNpcPrompt({
     // Story Block's own cues are never displaced, this section comes after them. The cue comes first, what the cap leaves goes to Pull and Mood; a kept
     // line that no longer fits is an ordinary line (the first of this section's lines dropped). Needs Story Block 2.31.1+ (older hosts drop object lines).
     const CHANGES_CUE = 'Whenever anything changed, write it in the <Changes> block at the very end of the reply; a lie, secret, taste, tie or turning point gets its own line.';
-    const HIDDEN_LINE = new RegExp(`^(.+?)(?:, ${HIDDEN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}| \\(hidden\\)| \\(may come out\\)): .*$`, 'gm');
+    const HIDDEN_LINE = new RegExp(`^(.+?)(?:, ${HIDDEN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}| \\(hidden\\)| \\(may come out(?:, .+?)?\\)| \\(not yet told, .+?\\)): .*$`, 'gm');
 
     // Mood and pull for present people (feature mood-pull): "Mood: Mira alarmed, cornered; Tomas wary." and
     // "Pull: Mira wants closure (the stolen letter, 3 days)". At most PULL_PEOPLE people each; sent as kept lines (see tail()). A mood of all zeros says nothing.
@@ -101,6 +107,7 @@ export function createNpcPrompt({
      * Present NPCs' meters when they moved lately (band words where a meter has them), and their notes: an
      * opened one as known to the player (a line), a locked one as hidden (optional lines, nearest to opening
      * first, so the host's budget drops the farthest first).
+     * A pack's gated secrets: the next closed one as not yet told, an open one as may come out.
      */
     function tail(view) {
         const state = view?.state;
@@ -115,6 +122,7 @@ export function createNpcPrompt({
         const hidden = [];
         const ready = [];
         const cues = [];
+        const notTold = [];
         let order = 0;
         for (const key of Object.keys(npcs).sort()) {
             if (!here.has(key)) continue;
@@ -150,19 +158,33 @@ export function createNpcPrompt({
                     if (known < TAIL_SECRETS_PER_NPC) { notes.push(`${record.name}, ${KNOWN}: ${text}`); known += 1; }
                 } else if (rule.gate) {
                     if (readyHere < READY_PER_NPC && ready.length < READY_IN_ALL && gateOpen(rule, record, byId, gateIn)) {
-                        ready.push(`${record.name} (may come out): ${text}`);
+                        ready.push(`${record.name} (may come out, ${rule.packId ?? rule.id}): ${text}`);
                         readyHere += 1;
                     }
                 } else {
                     hidden.push({ distance: openingDistance(rule, record, byId), order: order += 1, short: `${record.name} (hidden): ${text}` });
                 }
             }
+            const next = nextSecret(rules, record, byId, gateIn);
+            // Closeness (trust + affection) orders them: the person most likely to confide comes first and gets the required line.
+            const close = ['trust', 'affection'].reduce((sum, id) => sum + (byId.has(id) ? Number(meterValue(record, byId.get(id))) || 0 : 0), 0);
+            if (next && textOf.get(next.id)) notTold.push({ close, order: notTold.length, text: `${record.name} (not yet told, ${next.packId ?? next.id}): ${textOf.get(next.id)}` });
         }
         const lines = [];
         if (moved.length) lines.push(`NPC meters now: ${moved.join('; ')}.`);
         hidden.sort((a, b) => a.distance - b.distance || a.order - b.order);
         // The wording rides on the nearest note (the host drops the farthest first, so it stays while any note does).
-        const optional = [...cues, ...hidden.map((item, i) => (i ? item.short : `${HIDDEN_ONCE}\n${item.short}`)), ...ready.map((line, i) => (i ? line : `${READY_ONCE}\n${line}`))];
+        // The not-yet-told lines come before the notes, so the host's budget drops them last among the notes.
+        const said = (list, once) => list.map((line, i) => (i ? line : `${once}\n${line}`));
+        // The closest person's not-yet-told line is REQUIRED (owner 26 Nov: as an optional line it was the first cut in a busy scene, and the narrator invented a past);
+        // the others (up to NOT_TOLD_IN_ALL in all) stay optional, before the notes.
+        const told = said(notTold.sort((a, b) => b.close - a.close || a.order - b.order).slice(0, NOT_TOLD_IN_ALL).map(item => item.text), `${NOT_TOLD_ONCE}\n${REVEAL_FORM}`);
+        const optional = [
+            ...cues,
+            ...told.slice(1),
+            ...hidden.map((item, i) => (i ? item.short : `${HIDDEN_ONCE}\n${item.short}`)),
+            ...said(ready, notTold.length ? READY_ONCE : `${READY_ONCE}\n${REVEAL_FORM}`),
+        ];
         // Notes (npc-notes-kinds.js): at most two lines a person and four in all, after the meters and opened notes (optional).
         if (featureOn(FEATURE_NOTES)) {
             const noted = notesTail(npcs, { present: Object.keys(npcs).sort().filter(key => here.has(key)) });
@@ -181,11 +203,11 @@ export function createNpcPrompt({
         const felt = featureOn(FEATURE_MOOD_PULL) ? moodPullLines(npcs, here) : { kept: [], rest: [] };
         const cue = featureOn(FEATURE_NOTES) ? [{ text: CHANGES_CUE, keep: true }] : [];
         optional.push(...felt.rest);
-        return { lines: [...lines, ...notes, ...cue, ...felt.kept.map(text => ({ text, keep: true }))], optional };
+        return { lines: [...lines, ...notes, ...told.slice(0, 1), ...cue, ...felt.kept.map(text => ({ text, keep: true }))], optional };
     }
 
     /**
-     * The same text as a reader sees it in "What's sent each reply": a locked note's line becomes
+     * The same text as a reader sees it in "What's sent each reply": a locked note's line (hidden, may come out, not yet told) becomes
      * "Mira: 1 hidden note", never its text. Everything else is as sent. (Offered to Story Block as the
      * module's `hooks.redactSent`, for the view that draws and copies the sent text; SillyTavern's own prompt view still shows all.)
      */

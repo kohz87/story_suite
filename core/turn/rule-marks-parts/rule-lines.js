@@ -73,4 +73,7 @@ export const RULE_LINES = Object.freeze({
     // A later `+ xp` in a reply that names another standing group counts that group's foes down and pays nothing (Text RPG module-parts/kinds/xp.js).
     // A reply with no mark refuses every `+ xp` after the first.
     xpCountsDown: line => line?.kind === 'xp',
+    // `~ reveal Name | opened: <id>` may open a person's next pack secret not yet told though its gate is closed, and `<id>` may be the pack's own id
+    // (NPC State meters/npc-lines-parts/secret.js). A reply with no mark opens a gated secret only while its gate is open, by its sec_ id.
+    revealNext: line => line?.kind === 'reveal',
 });

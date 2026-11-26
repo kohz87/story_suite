@@ -28,7 +28,7 @@ import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
  *   allowance()       → the reader's events per story day { ordinary, meaningful, major, extreme } (null: no limit; relationship-pacing.js)
  *   startTime(index)  → story-clock minutes before that reply (null when unavailable)
  *   startDate(index)  → that story day as the dossier writes it ("Goldwane 13"; '' when unavailable)
- *   secretRules(name) → that dossier's notes as [{ id, meter?, at?, when?, title? }] (never their text)
+ *   secretRules(name) → that dossier's notes as [{ id, meter?, at?, when?, gate?, packId?, title? }] (never their text)
  *   secretTexts(name, ids) → [{ id, text }] for those notes (the tail and screens only)
  *   setup(name, labels) → that dossier's meter setup { track, limits } (the editor's)
  *   presets()         → the preset catalog (presetCatalog: built-ins and packs')
