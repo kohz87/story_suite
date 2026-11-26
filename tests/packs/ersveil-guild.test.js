@@ -71,8 +71,33 @@ test('the story is told the examination is ready at each letter\'s bar and not o
         assert.ok(told(host).includes(`contracts-at-rank ${bar}; exam ${EXAM(next)}`), told(host));
     }
     await promote(host, 'S');
-    assert.deepEqual(pick(host, 'exam', 'standing'), [0, 'good']);
+    assert.deepEqual(pick(host, 'exam', 'standing'), [7, 'good']);
+    assert.match(told(host), /exam no further examination/);
+    await put(host, 'contracts-at-rank', 500);
+    await work(host, 'S work');
+    assert.equal(guild(host).exam, 7, 'S has no next examination, however many contracts');
     rebuilt(host);
+});
+
+test('a promotion naming the current letter is refused: the count and the exam stay; a new letter applies', async t => {
+    const host = await member(t);
+    await put(host, 'contracts-at-rank', 4);
+    await work(host, 'fifth');
+    const before = pick(host, 'letter', 'standing', 'contracts-at-rank', 'exam');
+    assert.deepEqual(before, ['F', 'probation', 5, 1]);
+    await promote(host, 'F');
+    assert.deepEqual(pick(host, 'letter', 'standing', 'contracts-at-rank', 'exam'), before);
+    assert.ok(host.turn.problems().some(problem => problem.message.includes('Register first; a promotion names a new letter')), JSON.stringify(host.turn.problems()));
+    rebuilt(host);
+    await promote(host, 'E');
+    assert.deepEqual(pick(host, 'letter', 'standing', 'contracts-at-rank', 'exam'), ['E', 'good', 0, 0]);
+    rebuilt(host);
+});
+
+test('a promotion before registering is refused', async t => {
+    const host = await member(t, { register: false });
+    await promote(host, 'E');
+    assert.deepEqual(pick(host, 'letter', 'standing'), ['F', 'unregistered']);
 });
 
 test('the whole tail line fits its room at its longest, and the reader cannot edit the examination field', async t => {

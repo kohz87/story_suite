@@ -11,6 +11,6 @@ export const PERSON_FIELDS = new Set([
     'memories', 'memoryFacts', 'memoryStamps', 'meterSetup', 'minor', 'mood', 'name', 'overallAppearance', 'personality',
     'personalityDevelopment', 'portrait', 'portraitPromptNegative', 'portraitPromptPositive', 'portraitPromptReplace', 'portraitSeed',
     'present', 'profileEvidence', 'relationship', 'relationshipEventHistory', 'relationshipMilestones', 'relationshipProgress',
-    'relationshipSummary', 'role', 'secrets', 'seenCount', 'species', 'speech', 'speechDevelopment', 'status', 'tieSeen',
+    'relationshipSummary', 'relationshipSummarySource', 'role', 'secrets', 'seenCount', 'species', 'speech', 'speechDevelopment', 'status', 'tieSeen',
     'unclassifiedAppearance', 'updatedAt', 'worldActive',
 ]);

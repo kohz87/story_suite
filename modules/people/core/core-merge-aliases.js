@@ -15,6 +15,7 @@ import { portraitHasImage } from '../portrait/portrait-file.js';
 import { PORTRAIT_NPC_PROMPT_LIMIT } from '../portrait/core-portrait.js';
 import { remapSocialGraphNpcId } from '../social/social.js';
 import { identityConflict, partialNamePair } from './core-merge-names.js';
+import { takeSummarySource } from './relationship-summary-source.js';
 
 function explicitAliasLink(a, b) {
     if (!a || !b || a.id === b.id) return false;
@@ -130,6 +131,8 @@ function mergeAliasLinkedNpcPair(a, b) {
         const bv = cleanText(b?.[field], field === 'appearance' ? 1800 : 1200);
         merged[field] = bv.length > av.length ? bv : av;
     }
+    // (the mark goes with the record whose summary was kept)
+    takeSummarySource(merged, [lockedSourceFor('relationshipSummary'), a, b].find(record => record && cleanText(record.relationshipSummary, 1200) === merged.relationshipSummary));
     // Custom fields: both records' values, the newer record's winning (a lock keeps its source's).
     const lockedCustomSource = lockedSourceFor('customFields');
     const customFields = lockedCustomSource
