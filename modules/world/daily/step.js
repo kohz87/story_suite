@@ -31,8 +31,9 @@ const list = value => (Array.isArray(value) ? value : []);
 const record = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
 
 function people(world, geo) {
-    // A home written as a place's file id or alias is that place, by name (the step compares homes with place names); any other stays as written.
-    const named = home => { const found = home === null ? null : resolveRef(geo, home); return found?.kind === 'place' ? found.name : home; };
+    // A home written as the file id or alias of a place whose pack opted into file ids (geo.js) is that place, by name (the step
+    // compares homes with place names); any other stays as written.
+    const named = home => { const found = home === null ? null : resolveRef(geo, home); return found?.kind === 'place' && found.place.fileIds ? found.name : home; };
     const out = new Map();
     for (const person of list(world.cast)) {
         if (typeof person?.id !== 'string') continue;

@@ -54,3 +54,17 @@ test('one character over a limit refuses that person alone', () => {
     }
     assert.equal(check(person({ start: { place: 'ledgerford', routine: 'r'.repeat(301) } })).kept.length, 0);
 });
+
+// '𝒜' is one character and two UTF-16 units. The check counts characters, as it always has, so a pack that installed before still installs (prompts cut by units: a known limit for astral text right at a limit).
+const ASTRAL = '\u{1D49C}';
+
+test('cast text limits count characters: an astral character at a limit still fits, one character over refuses', () => {
+    for (const [field, max] of Object.entries(MAX)) {
+        const fits = `${'a'.repeat(max - 1)}${ASTRAL}`;
+        assert.deepEqual(check(person({ [field]: fits })).warnings, [], field);
+        const over = check(person({ [field]: `${'a'.repeat(max)}${ASTRAL}` }));
+        assert.equal(over.kept.length, 0, field);
+    }
+    assert.deepEqual(check(person({ look: `${'l'.repeat(799)}${ASTRAL}`, wears: 'w'.repeat(395) })).warnings, []);
+    assert.equal(check(person({ look: `${'l'.repeat(800)}${ASTRAL}`, wears: 'w'.repeat(395) })).kept.length, 0);
+});

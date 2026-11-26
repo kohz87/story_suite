@@ -9,7 +9,7 @@ import { declaredConditions } from './declared.js';
 import { fadeMinutes } from './fade.js';
 import { tempoOf } from '../world-daily/tempo.js';
 import { conditionKey, pointerOf } from './key.js';
-import { hostGeo, knownRef, placeIdsOn } from './known-refs.js';
+import { hostGeo, knownRef } from './known-refs.js';
 import { markLedger } from './ledger.js';
 import { setRefusal } from './refusal.js';
 import { SCOPES } from './limits.js';
@@ -70,7 +70,7 @@ function condition(ctx, payload) {
     const now = clockOf(ctx);
     if (now === null) return ctx.fail('NOT_YET', 'The story has no date yet; a condition waits for one.');
     const chronicle = ctx.draft('chronicle');
-    const refusal = setRefusal({ query, chronicle, geo, declared, ref, now, by, homes: placeIdsOn(ctx.carrier) });
+    const refusal = setRefusal({ query, chronicle, geo, declared, ref, now, by });
     if (refusal) return ctx.fail('REFUSED', `${refusal[0].toUpperCase()}${refusal.slice(1)}.`);
     const table = chronicle.conditions ?? {};
     const key = conditionKey(name, ref);

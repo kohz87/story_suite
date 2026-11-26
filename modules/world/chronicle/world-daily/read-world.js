@@ -22,7 +22,7 @@ export function overrideWorld(fn) {
     return () => { override = null; };
 }
 
-/** `readWorld(query)` → `{ places, routes, realms, placeKinds, routeKinds, conditions, events, templates, powers, scores, cast, lore, regions, startWorld?, seasons }`. The packs a chat reads are its selected world (and game): `packs.content` answers from those. */
+/** `readWorld(query)` → `{ places, routes, realms, placeKinds, routeKinds, conditions, events, templates, powers, scores, cast, lore, regions, startWorld?, seasons, placeIdPacks }`. The packs a chat reads are its selected world (and game): `packs.content` answers from those. */
 export function readWorld(query) {
     const events = [...rows(query, 'worldEvents'), ...rows(query, 'events').filter(specShaped)];
     const world = {
@@ -31,6 +31,8 @@ export function readWorld(query) {
         conditions: rows(query, 'conditions'), events, templates: rows(query, 'templates'),
         powers: rows(query, 'powers'), scores: rows(query, 'scores'), cast: rows(query, 'cast'), lore: rows(query, 'lore'),
         regions: rows(query, 'regions'), seasons: seasonsOf(query),
+        // The ids of the packs that name places by file id (`"placeIds": true`): only their places are found by one (daily/geo.js).
+        placeIdPacks: rows(query, 'placeIds'),
     };
     // The packs' `start.world` (v0.14.10), applied by the step when a chat's first step runs.
     const begin = ask(query, 'packs.start', {});

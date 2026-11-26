@@ -29,7 +29,7 @@ export function normalize(raw, { add, warn, suiteVersion, capabilities, limits, 
     if (raw.description !== undefined && typeof raw.description !== 'string') add('BAD_FIELD', 'description', 'description must be text.');
 
     const requires = checkRequires(raw.requires, { add, suiteVersion, capabilities });
-    const { kind, recommends } = checkKindFields(raw, add);
+    const { kind, recommends, placeIds } = checkKindFields(raw, add);
     // Currency, economy, calendar, weather and start are `content` keys of a game pack.
     const money = kind === 'game' && isObject(raw.content) ? raw.content : {};
     const addMoney = (code, path, message) => add(code, `content.${path}`, message);
@@ -119,6 +119,7 @@ export function normalize(raw, { add, warn, suiteVersion, capabilities, limits, 
         calendar,
         // Kept only when given, so older packs normalize as they always did.
         ...(recommends ? { recommends } : {}),
+        ...(placeIds ? { placeIds: true } : {}),
         ...(gameSections?.pacing ? { pacing: gameSections.pacing } : {}),
         ...(weather ? { weather } : {}),
         content,

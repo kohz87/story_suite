@@ -14,11 +14,12 @@ import { baseOf, inGroup, placeAt, placeOf } from './cast-where.js';
 
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
-// Where they were, as the Journal and the rumour name it: the map's display name (a pack's `start.place` is a place id).
+// Where they were, as the Journal and the rumour name it: for a place of a pack that opted into file ids, the map's display name
+// (its `start.place` is a place id); else the words as stored.
 function shownAt(ws, id) {
     const place = placeOf(ws, id);
     const found = resolveRef(ws.geo, place);
-    return found?.kind === 'place' ? found.name : place;
+    return found?.kind === 'place' && found.place.fileIds ? found.name : place;
 }
 
 /** The trace of a death or a move: the anchor, a Journal line and a rumour where they were. */

@@ -8,7 +8,7 @@ What changed in each release, in short. The full record of every change is in [t
 - Arsveil: ten people of its own, with portraits, can join your party if the story gets there; its lore has new named figures and the hamlet of Lowbell.
 - World: people written in a world pack can now have longer looks, clothes, voice, personality and daily routine.
 - Arsveil: the example world now has about five years of world events, from the Fall of Bluewatch to two empty imperial thrones, with news and scenes that wait for your party.
-- World: events in installed world packs that name places by file id now work: conditions, where events happen, who moves, and some events that never ran (this also affects Ersveil).
+- World: a world pack can now say it names places by file id, so its events using those ids work. Packs that don't say so run as before, and Ersveil is unchanged.
 - World: a world pack can now hold up to 400 world events (it was 200).
 - World: a world pack can now hold a scene until your party is in or near its region, and make events near you likelier. Packs that don't ask for this run as before.
 - Story: the narrator now lets things breathe, with calm replies after trouble is settled, a nudge to wrap up long chains of events, and Quiet scene now also holds back new threads.
