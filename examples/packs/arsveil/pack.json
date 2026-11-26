@@ -5,7 +5,7 @@
 	"version": "0.1.0",
 	"name": "Arsveil (open world)",
 	"author": "Story Suite examples",
-	"description": "Arsveil: Ersveil's places, routes and realms with its own powers, lore and about ten years of world events. Ten people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
+	"description": "Arsveil: an open world with its own powers, lore and about ten years of world events. Ten people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
 	"requires": {
 		"suite": "^0.1",
 		"capabilities": [
@@ -6106,6 +6106,13 @@
 				"note": "code L"
 			},
 			{
+				"from": "Saint Cadel's Rest",
+				"to": "Lowbell",
+				"kind": "local road",
+				"km": 45,
+				"note": "code L"
+			},
+			{
 				"from": "Deepwalker Hall",
 				"to": "Molegate",
 				"kind": "tunnel",
@@ -6609,7 +6616,7 @@
 				"look": "Cat-kin woman, 18 and barely 145 cm, human in every way but her cat ears and tail: small and wiry, all tendon and nerve, with a ridiculously heavy chest for a cat-kin on so small a frame. Ash-grey cat ears with short fur, human hands and skin, and a long, restless ash-grey tail kinked near the tip from an old break; one ear notched. Wide green eyes whose pupils blow wide and black when her rage catches. Long, thick ash-grey hair down past her shoulders in a lazy ponytail that is always coming loose: unbecoming of a fighter, and she refuses to cut it. A pale scar across her cheek from her training days, the first time she lost herself to rage, and more small scars across her knuckles and forearms.",
 				"wears": "A mercenary's brigandine cut for someone twice her size, cinched with extra straps and holes she punched herself; patched leathers and wrapped feet. Two heavy hatchets on her belt, too big for her hands, that she swings anyway. Around her neck, the cord where a company token should hang, still empty.",
 				"voice": "Quick, clipped and too loud for her size; she talks like she's elbowing into a fight. Hisses when she's cornered and spits \"Half-Coin\" back like a curse; a low growl comes before the rage. Bristles at \"small\" or \"cute\". When she's content she purrs, and denies it. When she's hurt she goes very quiet and very polite. \"I'm not half of anything. Pay me like it.\"",
-				"personality": "Proud, prickly and starving to prove herself, with a cat's dignity and a cat's moods. Affection only on her own terms: ignore her and she comes to you; reach for her and she's gone. Curious about everything, bored in a heartbeat, asleep the moment she's warm. Fussy about food, outraged by rain and river water, and she owns whatever spot she has claimed. Under the bravado she's terrified of her own rage; she doesn't remember the worst of it, only the faces afterwards. Counts every coin and insists on a full share, then brings presents to the few she trusts: a fish, a pretty stone, a kill left proudly at their door. Would join: ready from the first day. Habit: Grooms her fur after a fight or when embarrassed; after a rage she sits apart cleaning blood off her knuckles until someone sits down beside her.",
+				"personality": "A grown woman of 18, proud, prickly and starving to prove herself, with a cat's dignity and a cat's moods. Affection only on her own terms: ignore her and she comes to you; reach for her and she's gone. Curious about everything, bored in a heartbeat, asleep the moment she's warm. Fussy about food, outraged by rain and river water, and she owns whatever spot she has claimed. Under the bravado she's terrified of her own rage; she doesn't remember the worst of it, only the faces afterwards. Counts every coin and insists on a full share, then brings presents to the few she trusts: a fish, a pretty stone, a kill left proudly at their door. Would join: ready from the first day. Habit: Grooms her fur after a fight or when embarrassed; after a rage she sits apart cleaning blood off her knuckles until someone sits down beside her.",
 				"behaviour": [
 					"Drive: high - pride: any hint she's lesser and she has to prove otherwise, now",
 					"Conflict: high - low self-control: once the rage catches she can't stop, and can hit friends",
@@ -6631,7 +6638,7 @@
 					"goal": "Top the Thinning's tally, earn a deed-name, and never be paid half again.",
 					"routine": "Hunts the Reach from first light, sells her kills at the Guild desk, and sleeps on the Stray Oar's roof or in its hayloft; never indoors if she can help it."
 				},
-				"status": "On her way to the Thinning.",
+				"status": "Come north alone for the Thinning.",
 				"ties": [
 					{
 						"with": "kel",
@@ -6641,7 +6648,7 @@
 				"keyRelationships": [
 					{
 						"id": "kel",
-						"text": "They meet on day two or three when Nasai comes in clawed up from her first hunt; the healer stitches her without fuss or pity, and Nasai pretends she didn't need it."
+						"text": "Kel stitched or will stitch her clawed wounds without fuss or pity; Nasai pretends she didn't need it."
 					}
 				],
 				"withYou": "A stranger is competition or a mark; she sizes you up from the nearest high place and decides which.",
@@ -6805,7 +6812,7 @@
 					"Hums while she stitches, and stops the moment anyone listens",
 					"Keeps her satchel's strap round her wrist, even asleep"
 				],
-				"history": "A dwelf no people would claim, Kel spent eleven years at Startrace as a drudge, never a student: she cleaned the healing practice rooms, learned the craft by watching the hurt and the dying, and came north at nineteen to be Bluewatch's lay healer. Cast out by her dwarven clan at five, she was taken in by a Tower recruiter at seven as a servant. In the practice rooms the apprentices learned on people hurt for the purpose and on the dead; the ones on the tables talked to her, the only one not studying them, and some thanked her before they died, some cursed her. One old man taught her the name of every instrument and asked her to say his name aloud when he was gone; she still says the names of the dead she buries. She left the Tower at nineteen and spent the better part of a year on the roads north. For the last half year she has stitched hunters, nursed fevers and buried the frontier's dead. The Watch-Captain lets her use the sickroom and asks no questions. Habit: Tucks her hair further over her face when looked at, and pushes it back without thinking when she works. Habit: Talks to the dead while she buries them: the weather, the gossip, an apology for the cold ground.",
+				"history": "A dwelf no people would claim, Kel spent twelve years at Startrace as a drudge, never a student: she cleaned the healing practice rooms, learned the craft by watching the hurt and the dying, and came north at nineteen to be Bluewatch's lay healer. Cast out by her dwarven clan at five, she was taken in by a Tower recruiter at seven as a servant. In the practice rooms the apprentices learned on people hurt for the purpose and on the dead; the ones on the tables talked to her, the only one not studying them, and some thanked her before they died, some cursed her. One old man taught her the name of every instrument and asked her to say his name aloud when he was gone; she still says the names of the dead she buries. She left the Tower at nineteen and spent the better part of a year on the roads north. For the last half year she has stitched hunters, nursed fevers and buried the frontier's dead. The Watch-Captain lets her use the sickroom and asks no questions. Habit: Tucks her hair further over her face when looked at, and pushes it back without thinking when she works. Habit: Talks to the dead while she buries them: the weather, the gossip, an apology for the cold ground.",
 				"homeBase": "Bluewatch Village",
 				"start": {
 					"place": "bluewatch-village",
@@ -6821,7 +6828,7 @@
 				"keyRelationships": [
 					{
 						"id": "nasai",
-						"text": "A tentative friendship: they meet when Nasai comes in clawed up from her first hunt; Kel stitches her without fuss or pity."
+						"text": "A tentative friendship: Kel stitched or will stitch Nasai's clawed wounds without fuss or pity."
 					}
 				],
 				"withYou": "A stranger is someone to keep her head down around, unless they're bleeding, in which case she forgets to be afraid and kneels beside them.",
@@ -6925,7 +6932,7 @@
 						"id": "the-satchel",
 						"gate": "meter trust >= 50",
 						"text": "Her satchel holds Master Ulrich Fenwald's survey and journal of the northern tap: proof that the Tower's tap feeds the Wildzone's out-of-season boom, and that the masters fear a Third Tide.",
-						"writes_fact": "fenwald-journal-found"
+						"writes_fact": "kel-journal-shown"
 					},
 					{
 						"id": "what-the-rooms-taught",
@@ -7084,7 +7091,7 @@
 					{
 						"id": "what-she-heard",
 						"gate": "meter trust >= 20 or meter affection >= 20 or meter tension >= 35",
-						"text": "The scratching under the seals is not one thing: it breathes. Something big, below the third seal; the wardens took her off that shaft for \"making things up\"."
+						"text": "The scratching under the seals is not one thing: it breathes. Something big, below the sixth seal; the wardens took her off that shaft for \"making things up\"."
 					},
 					{
 						"id": "her-sister",
@@ -7094,7 +7101,7 @@
 					{
 						"id": "the-sealed-door",
 						"gate": "meter trust >= 45",
-						"text": "Behind a seal on the old fourth level she has lamped for years there is a door with Veyr the Unbound's mark, and through a crack she has seen shelves of records. She has told no one.",
+						"text": "Behind an upper seal, on what the runners call the old fourth level, which she has lamped for years, there is a door with Veyr the Unbound's mark, and through a crack she has seen shelves of records. She has told no one.",
 						"writes_fact": "veyr-records-located"
 					},
 					{
@@ -7872,7 +7879,8 @@
 				"name": "Elwyn",
 				"aliases": [
 					"Elwin",
-					"Prince Elwin"
+					"Prince Elwin",
+					"Wyn"
 				],
 				"role": "a traveller under a borrowed name, passing as a young man",
 				"species": "half-elf",
@@ -8066,7 +8074,7 @@
 					"Wets her sheath from the water-skin in the middle of a sentence",
 					"Lies with her ear to the water at night, listening"
 				],
-				"history": "Merisande is an Atlantean warden posted ashore to listen for the Deep Bell, whose tolls creep toward the Abyssal Throat: the first of her people seen in a port in a generation. Atlantis sent her as a duty; she has made a scandal of enjoying it. Born under the dome to a warden family, she trained from childhood to hear the sea: the currents, the whales, the old wards, the long silence of the Throat. She sang in the dome's choirs before she listened at its walls, and was the best at both. She volunteered for the shore when no one else would; the elders sent her because her voice carries further than anyone's, and because she was always a little too curious about the Sheathless. She has been ashore four months: long enough to love fried fish, harbour fiddles and the look on a sailor's face when she smiles at him, and long enough to hear the Bell toll twice.",
+				"history": "Merisande is an Atlantean warden posted ashore to listen for the Deep Bell, whose tolls creep toward the Abyssal Throat: the first warden posted to a port in a generation. Atlantis sent her as a duty; she has made a scandal of enjoying it. Born under the dome to a warden family, she trained from childhood to hear the sea: the currents, the whales, the old wards, the long silence of the Throat. She sang in the dome's choirs before she listened at its walls, and was the best at both. She volunteered for the shore when no one else would; the elders sent her because her voice carries further than anyone's, and because she was always a little too curious about the Sheathless. She has been ashore four months: long enough to love fried fish, harbour fiddles and the look on a sailor's face when she smiles at him, and long enough to hear the Bell toll twice.",
 				"homeBase": "Lanternshoal",
 				"start": {
 					"place": "lanternshoal",
@@ -8189,7 +8197,7 @@
 					},
 					{
 						"name": "Sea-Breath",
-						"description": "Shares her breath, and a companion can breathe underwater for an hour (by a kiss, or a touch if she's feeling proper); in the water she swims and fights like a seal."
+						"description": "By a kiss or a touch, a companion breathes underwater for an hour; in water she swims and fights like a seal. Atlantis forbids it; every time she does it she risks being struck from the rolls."
 					}
 				],
 				"keepsakes": [
@@ -8244,7 +8252,7 @@
 					"Leaves glowing pollen on whoever she sits on; also taps the chalk marks as she passes",
 					"Goes quiet and keeps checking the moon as the new or full moon nears"
 				],
-				"history": "Moonlily-in-the-Deep bloomed in the dark: a fairy seed fell down a mine shaft and grew into a lantern-lily that should not exist, and she woke beside it, a fairy the Fairy Court has never known. The Deepwalkers found her twenty years ago and raised her as one of their own; she is their lamp, their map-keeper and their smallest rescuer. The crew that found her was cutting a rescue shaft through the Dragonfang, and took her for a mote until she told them, in a voice like little bells, that their air was going bad. Brenna Stoneward's crew carried her flower up in a miner's lamp and kept her in it for a year. She learned the deep roads from the Map Council's charts and from the rock itself, and has flown down more broken shafts than any crew in the Hall to find who is still breathing. She has never seen another fairy, and twice a month she becomes someone else, and hides.",
+				"history": "Moonlily-in-the-Deep bloomed in the dark: a fairy seed fell down a mine shaft and grew into a lantern-lily that should not exist, and she woke beside it, a fairy the Fairy Court has never known. The Deepwalkers found her twenty years ago and took her in as one of their own; she is their lamp, their map-keeper and their smallest rescuer. The crew that found her was cutting a rescue shaft through the Dragonfang, and took her for a mote until she told them, in a voice like little bells, that their air was going bad. Brenna Stoneward's crew carried her flower up in a miner's lamp and kept her in it for a year. She learned the deep roads from the Map Council's charts and from the rock itself, and has flown down more broken shafts than any crew in the Hall to find who is still breathing. She has never seen another fairy, and twice a month she becomes someone else, and hides.",
 				"homeBase": "Deepwalker Hall",
 				"start": {
 					"place": "deepwalker-hall",
@@ -10229,7 +10237,7 @@
 					"Brakka",
 					"Thane-of-Thanes"
 				],
-				"text": "Thane-of-Thanes Brakka Slagmantle speaks for the Ironanvil Holds at the Council Beneath Stone: a broad dwarf with a forge-scarred face and a voice like a grindstone. She wants grain, timber and salt for the Holds and new veins to pay for them, and fears a hold leaving. Every crown courts her steel.\nAppearance: dwarf woman, about 180, very broad and powerful, a forge-scarred face, iron-grey braided hair and beard-braids at her jaw bound with rune rings, deep-set black eyes; a heavy rune-plated mantle over smith's leathers, a chain of thane-seals; a voice like a grindstone."
+				"text": "Thane-of-Thanes Brakka Slagmantle speaks for the Ironanvil Holds at the Council Beneath Stone: a broad dwarf with a forge-scarred face and a voice like a grindstone. She wants grain, timber and salt for the Holds and new veins to pay for them, and fears a hold leaving. Every crown courts her steel.\nAppearance: dwarf woman, about 180 years old, very broad and powerful, a forge-scarred face, iron-grey braided hair and beard-braids at her jaw bound with rune rings, deep-set black eyes; a heavy rune-plated mantle over smith's leathers, a chain of thane-seals; a voice like a grindstone."
 			},
 			{
 				"title": "Elder Grimma Inkstone",
@@ -10272,7 +10280,7 @@
 					"Emperor Hartmut",
 					"Ardelian emperor"
 				],
-				"text": "Emperor Hartmut of Rhunwald, Ardelia's elected emperor, nearing the end of his fixed 18-year term, which ends in July 612: a heavy, patient man who is unwell and rests a hand on the table before he rises. He wants the electors' law honored and a clean handover, and fears leaving the empire quarrelling. The electors respect him.\nAppearance: human man, about 65, heavy and patient, thinning grey hair, a broad tired face with a full grey beard, kind heavy-lidded eyes, a sickly pallor and faint glassy sheen at the lips (the Glass Cough); dark green and gold imperial robes, an elector's chain of nine links."
+				"text": "Emperor Hartmut of Rhunwald, Ardelia's elected emperor, nearing the end of his fixed 18-year term, which ends in July 612: a heavy, patient man who is unwell and rests a hand on the table before he rises. He wants the electors' law honored and a clean handover, and fears leaving the empire quarrelling. The electors respect him.\nAppearance: human man, about 65, heavy and patient, thinning grey hair, a broad tired face with a full grey beard, kind heavy-lidded eyes, a sickly pallor (and, once his Glass Cough is known, a faint glassy sheen at the lips); dark green and gold imperial robes, an elector's chain of nine links."
 			},
 			{
 				"title": "Arch-Chancellor Mechtild",
@@ -10497,7 +10505,7 @@
 					"Cassian",
 					"Archprelate"
 				],
-				"text": "Archprelate Cassian Vell of Aurelion (human): Right hand of High Pontiff Benedikt IV, the revered head of the Church of the Eternal Flame; he runs the Church day to day. A soft-voiced politician more than a believer: he named the Silent Bells 'a test', fears schism more than heresy, and will sacrifice a saint to keep the Church whole.\nAppearance: human man, about 70, tall and gaunt, clean-shaven, thin white hair, heavy-lidded dark eyes, long fingers heavy with rings; crimson-and-gold vestments, a tall flame mitre, a heavy gold flame on a chain; calm, soft-spoken, calculating."
+				"text": "Archprelate Cassian Vell of Aurelion (human): Right hand of High Pontiff Benedikt IV, the revered head of the Church of the Eternal Flame; he runs the Church day to day. A soft-voiced politician more than a believer: when the bells fall silent he calls it 'a test'; he fears schism more than heresy, and will sacrifice a saint to keep the Church whole.\nAppearance: human man, about 70, tall and gaunt, clean-shaven, thin white hair, heavy-lidded dark eyes, long fingers heavy with rings; crimson-and-gold vestments, a tall flame mitre, a heavy gold flame on a chain; calm, soft-spoken, calculating."
 			},
 			{
 				"title": "The Sunrise Man (the Pretender)",
@@ -10506,7 +10514,7 @@
 					"the Sunrise Man",
 					"the Pretender"
 				],
-				"text": "The Sunrise Man, the Pretender, in Valecrown in Highmark (human; whether an otherworlder is the open question): Says he is the Dawn-King returned from the other world; the streets call him the Sunrise Man, and no one has learned the name he was born with. He speaks a few words no one in Arsveil knows and carries a sun-sigil burned into his palm. Prophet, fraud or otherworlder: Highmark will tear itself apart deciding.\nAppearance: human man, about 30, tall and handsome, sun-browned, long red-gold hair, bright earnest eyes, a sun-sigil burn on one palm; a plain white coat with an old crown-brooch pinned at the throat; charismatic, open-armed."
+				"text": "The Sunrise Man, the Pretender, in Valecrown in Highmark (human; whether an otherworlder is the open question): Once he has entered Valecrown, he says he is the Dawn-King returned from the other world; the streets call him the Sunrise Man, and no one has learned the name he was born with. He speaks a few words no one in Arsveil knows and carries a sun-sigil burned into his palm. Prophet, fraud or otherworlder: Highmark will tear itself apart deciding.\nAppearance: human man, about 30, tall and handsome, sun-browned, long red-gold hair, bright earnest eyes, a sun-sigil burn on one palm; a plain white coat with an old crown-brooch pinned at the throat; charismatic, open-armed."
 			},
 			{
 				"title": "Ilvareth, called 'the Beak'",
@@ -10532,7 +10540,7 @@
 					"Ashbarrow",
 					"quartermaster of Rimebridge"
 				],
-				"text": "Hob Ashbarrow, quartermaster of Rimebridge in Shornmarch (halfling): When the forts' pay sank with the Drowned Ledger, he sold the bastion's winter grain to the swarm-fleeing towns. To the soldiers a traitor, to the towns a saint; one day hanged or hired (a quartermaster for Your Holding).\nAppearance: halfling man, about 50, plump gone thin, balding with grey side-curls, worried kind eyes, ink-stained fingers; a quartermaster's coat now too big for him, a ring of storehouse keys, tally sticks in a belt pouch."
+				"text": "Hob Ashbarrow, quartermaster of Rimebridge in Shornmarch (halfling): Once the forts' pay sinks with the Drowned Ledger, he sells the bastion's winter grain to the swarm-fleeing towns, a traitor to the soldiers and a saint to the towns; one day he may be hanged, or hired as a quartermaster.\nAppearance: halfling man, about 50, plump gone thin, balding with grey side-curls, worried kind eyes, ink-stained fingers; a quartermaster's coat now too big for him, a ring of storehouse keys, tally sticks in a belt pouch."
 			},
 			{
 				"title": "Matthias Orrel",
@@ -10540,9 +10548,10 @@
 					"Matthias Orrel",
 					"Matthias",
 					"Orrel",
-					"Old Tongue"
+					"Old Tongue",
+					"Bell-Founder"
 				],
-				"text": "Matthias Orrel, 'Old Tongue', a master bell-founder (half-orc, 54), walks the Dominion's roads among the Ash Penitents: for forty years master of the Church's founders' yard below the Cathedral of the Flame, wanted by the Inquest since the bells fell silent.\nAppearance: a big half-orc founder with filed tusks and an ash-smeared scalp, deaf in one ear. His tusks, filed flat at twelve, are growing back ragged; grey-green skin mottled with furnace burns, an iron-grey beard singed at the edges, deep-set amber eyes, enormous burn-scarred hands; a penitent's sackcloth over a founder's scorched leather apron, a small bronze hand-bell at his hip, barefoot.\nVoice: deep and gravelly, slow to start and then impossible to stop once the talk turns to metal; he speaks of bells as people, turns his good ear to you and says 'Again' when he missed it.\nManner: a weary, stubborn master, proud of his craft to the point of rudeness; endlessly patient at the forge and not at all with fools, preachers or inquisitors; gentle with the young. His faith is shaken: he no longer knows if he believes in the Flame, but he believes in the metal."
+				"text": "Matthias Orrel, 'Old Tongue', is a master bell-founder (half-orc, 54) with forty years as master of the Church's founders' yard below the Cathedral of the Flame. Once the bells fall silent, the Inquest wants him and he walks the Dominion's roads among the Ash Penitents.\nAppearance: a big half-orc founder with filed tusks and an ash-smeared scalp, deaf in one ear. His tusks, filed flat at twelve, are growing back ragged; grey-green skin mottled with furnace burns, an iron-grey beard singed at the edges, deep-set amber eyes, enormous burn-scarred hands; once among the Penitents, a penitent's sackcloth over a founder's scorched leather apron, a small bronze hand-bell at his hip, barefoot.\nVoice: deep and gravelly, slow to start and then impossible to stop once the talk turns to metal; he speaks of bells as people, turns his good ear to you and says 'Again' when he missed it.\nManner: a weary, stubborn master, proud of his craft to the point of rudeness; endlessly patient at the forge and not at all with fools, preachers or inquisitors; gentle with the young. Once the bells fall silent his faith is shaken: he no longer knows if he believes in the Flame, but he believes in the metal."
 			},
 			{
 				"title": "Startrace's Northern Tap",
@@ -10555,7 +10564,7 @@
 				"text": "Startrace keeps leyline-tapping records it denies having: how the First Abyssal Tide began, the tapping and the warnings before it. They never name the primordial; the records do not know it.\nIn CY 610 Master Ulrich Fenwald led a Startrace expedition up the Hollow Aurora route with forty condemned prisoners bought from Highmark, to feed a leyline tap with their deaths; they tapped the leyline under the Pale Orbit's light. The tap is still open and growing. The few masters who know of it fear it is the first stage of a Third Abyssal Tide: a Wildzone that breeds out of season and great apexes that wake are how a Tide begins, though no one has yet dared to call it one. Fenwald has not written since; whether he lives is unknown. Closing the tap is the one known way to stop it at its source; no one knows how, and Veyr's sealing records in Auvoth are the best hope. The Archmaster will deny the expedition until proof is laid before the Compact Council.",
 				"hidden": true,
 				"id": "northern-tap",
-				"gate": "fact:fenwald-journal-found or fact:tap-feeds-the-wild"
+				"gate": "fact:fenwald-journal-found or fact:kel-journal-shown or fact:tap-feeds-the-wild"
 			},
 			{
 				"title": "The Emperor's Chamber",
@@ -10577,10 +10586,10 @@
 					"physicians"
 				],
 				"logic": "and any",
-				"text": "Emperor Reinmar died last winter. What sits in the furs is a pattern held together by Veil necromancy, wearing his face: it can sit, nod and sign, and says almost nothing. Ottilde ordered it to buy time until the Diet would ratify her. Up close it is wrong: no warmth, no breath on cold mornings, a smell the incense covers; a Listener would hear a death frequency, not a living soul. When it fails or is completed, the Emperor's death is announced as if new.",
+				"text": "Until the Keep can hide it no longer, what sits in the furs is not Emperor Reinmar. It is a pattern held together by Veil necromancy, wearing his face: it can sit, nod and sign, and says almost nothing. Ottilde ordered it to buy time until the Diet would ratify her, and it passes for a living Emperor. Up close it is wrong: no warmth, no breath on cold mornings, a smell the incense covers; a Listener would hear a death frequency, not a living soul. It says nothing of what became of the real man: he may be alive or dead, held, hidden or lost. Only later events settle that.",
 				"hidden": true,
 				"id": "emperors-chamber",
-				"gate": "place:highmark-capital-crown-keep or fact:forgery-exposed"
+				"gate": "place:highmark-capital-crown-keep or fact:emperor-last-visitor"
 			},
 			{
 				"title": "Atlantean Customs",
@@ -12329,7 +12338,7 @@
 						}
 					},
 					{
-						"name": "the Guild healer finds a rite",
+						"name": "word is that Bluewatch's lay healer has found a rite, with the Guild desk's help",
 						"weight": "power:bluewatch-guild",
 						"effects": {
 							"powers": {
@@ -14648,11 +14657,11 @@
 					"facts": [
 						{
 							"id": "herds-off-route",
-							"text": "Long Thunder has moved the great mammoth herds off their winter route and south toward the Reach."
+							"text": "Word has reached the south: since early autumn Long Thunder has been driving the great herds off their winter route toward the Reach, with the White-Horn riders following."
 						}
 					]
 				},
-				"summary": "Long Thunder moves the great herds off their winter route and south toward the Reach, and the White-Horn riders follow."
+				"summary": "Word reaches the south: since early autumn Long Thunder has been driving the great herds off their winter route toward the Reach, with the White-Horn riders following."
 			},
 			{
 				"id": "north-hornwake-camp",
@@ -16005,7 +16014,10 @@
 						}
 					]
 				},
-				"summary": "A dust-eaten expedition journal surfaces in Startrace's Ring of Knowledge, and its last pages describe the northern tap."
+				"summary": "A dust-eaten expedition journal surfaces in Startrace's Ring of Knowledge, and its last pages describe the northern tap.",
+				"pre_empted_by": [
+					"learned:kel/the-satchel"
+				]
 			},
 			{
 				"id": "winter-tap-lore",
@@ -16019,11 +16031,13 @@
 					"startrace-tower-region"
 				],
 				"requires": [
-					"fact:tap-feeds-the-wild",
-					"fact:fenwald-journal-found"
+					"fact:tap-feeds-the-wild"
+				],
+				"requires_any": [
+					"fact:fenwald-journal-found",
+					"fact:kel-journal-shown"
 				],
 				"window": {
-					"after": "fact:fenwald-journal-found",
 					"within": "120 days"
 				},
 				"effects": {
@@ -16362,7 +16376,7 @@
 					}
 				},
 				"ends_when": "instant",
-				"summary": "The Emperor vanishes from a sealed chamber in the Crown Keep, and Highmark's three courts begin to circle the empty throne."
+				"summary": "The Crown Keep can no longer hide it: the Emperor vanished from a sealed chamber weeks ago, and Highmark's three courts begin to circle the empty throne."
 			},
 			{
 				"id": "hm-regency",
@@ -19757,7 +19771,7 @@
 					]
 				},
 				"ends_when": "instant",
-				"summary": "The healing fire of Solenne, the Flame Saintess, goes cold on the night the bells fall silent, and she hides her hands from the court.",
+				"summary": "The healing fire of Solenne, the Flame Saintess, goes cold on the night the bells fall silent, and word is that she hides her hands from the court.",
 				"severity": "minor"
 			},
 			{
@@ -19784,7 +19798,7 @@
 							"facts": [
 								{
 									"id": "saintess-hides-cold",
-									"text": "The Flame Saintess hid her cold fire and let the Church call the silence a test."
+									"text": "Word is that the Flame Saintess hid her cold fire and let the Church call the silence a test."
 								}
 							],
 							"powers": {
@@ -19802,7 +19816,7 @@
 							"facts": [
 								{
 									"id": "saintess-fakes-miracle",
-									"text": "The Flame Saintess faked a healing before pilgrims, and the miracle was exposed."
+									"text": "Word is that the Flame Saintess faked a healing before pilgrims, and that the miracle was exposed."
 								}
 							],
 							"scores": {
@@ -19820,7 +19834,7 @@
 							"facts": [
 								{
 									"id": "saintess-confesses",
-									"text": "The Flame Saintess confessed before the High Pontiff that her fire had gone cold."
+									"text": "Word is that the Flame Saintess confessed before the High Pontiff that her fire had gone cold."
 								}
 							],
 							"powers": {
@@ -19861,7 +19875,7 @@
 					"facts": [
 						{
 							"id": "veil-saintess-heals",
-							"text": "The Veil's mender-saint healed where the Church's cold fire could not."
+							"text": "Word spread that Odile, the Veil's mender-saint, healed where the Church's cold fire could not."
 						}
 					],
 					"powers": {
@@ -19875,7 +19889,7 @@
 					]
 				},
 				"ends_when": "instant",
-				"summary": "The Veil's mender-saint heals a burned child where the Church's cold fire cannot, and a secret crowd gathers.",
+				"summary": "Word spreads that Odile, the Veil's mender-saint, healed a burned child where the Church's cold fire could not, and a secret crowd gathered.",
 				"severity": "minor"
 			},
 			{
@@ -19899,7 +19913,7 @@
 					"facts": [
 						{
 							"id": "veil-saintess-hunted",
-							"text": "The Inquest and the Silver Mark hunted the Veil's mender-saint."
+							"text": "The Inquest and the Silver Mark opened a hunt for Odile, the Veil's mender-saint."
 						}
 					],
 					"set": [
@@ -19911,7 +19925,7 @@
 					}
 				},
 				"ends_when": "instant",
-				"summary": "The Inquest and the Silver Mark hunt the Veil's mender-saint, and her crowds learn to come by night.",
+				"summary": "The Inquest and the Silver Mark set out to hunt Odile, the Veil's mender-saint, and those who seek her healing learn to meet by night.",
 				"severity": "minor"
 			},
 			{
@@ -20219,7 +20233,7 @@
 					"facts": [
 						{
 							"id": "saintess-at-trial",
-							"text": "The Flame Saintess stood at the Bell-Founder's trial as the face of the Flame."
+							"text": "The Church put the Flame Saintess's name forward at the Bell-Founder's trial as the face of the Flame."
 						}
 					]
 				},
@@ -20331,7 +20345,7 @@
 							"facts": [
 								{
 									"id": "saintesses-rivals",
-									"text": "The Flame Saintess and the Veil's mender-saint met as rivals."
+									"text": "The Flame Saintess and Odile, the Veil's mender-saint, are spoken of as rivals."
 								}
 							],
 							"powers": {
@@ -20353,15 +20367,15 @@
 							"facts": [
 								{
 									"id": "saintesses-shared-rite",
-									"text": "The two Saintesses shared a rite that healed with both flame and veil."
+									"text": "Word spread of a rite shared by the Flame Saintess and Odile, the Veil's mender-saint, that healed with both flame and veil."
 								},
 								{
 									"id": "shared-root-revealed",
-									"text": "The shared rite of the two Saintesses exposed the root the Church and Veil share."
+									"text": "The tale of a shared rite of the two Saintesses exposed the root the Church and Veil share."
 								},
 								{
 									"id": "saintesses-reconciled",
-									"text": "The two Saintesses were reconciled over the shared rite."
+									"text": "The two Saintesses are said to be reconciled over the shared rite."
 								}
 							],
 							"powers": {
@@ -20377,17 +20391,17 @@
 						}
 					},
 					{
-						"name": "one betrays the other to the Inquest",
+						"name": "one is said to betray the other to the Inquest",
 						"weight": 80,
 						"effects": {
 							"facts": [
 								{
 									"id": "saintess-betrayal",
-									"text": "One Saintess betrayed the other to the Inquest."
+									"text": "Word is that one Saintess betrayed the other to the Inquest."
 								},
 								{
 									"id": "veil-saintess-taken",
-									"text": "The Inquest took the Veil's mender-saint."
+									"text": "The Inquest moved to seize Odile, the Veil's mender-saint."
 								}
 							],
 							"powers": {
@@ -20405,7 +20419,7 @@
 					}
 				],
 				"ends_when": "instant",
-				"summary": "The Flame Saintess and the Veil's mender-saint meet at the Silent Cloisters: {outcome}.",
+				"summary": "Word goes round of a meeting at the Silent Cloisters between the Flame Saintess and Odile, the Veil's mender-saint: {outcome}.",
 				"severity": "major"
 			},
 			{
@@ -28312,7 +28326,7 @@
 						},
 						{
 							"id": "second-council-seat-question",
-							"text": "The second council has no agreed seat, no agreed vote and no agreement on whether the Veil's Saintess may speak."
+							"text": "The second council has no agreed seat, no agreed vote and no agreement on whether Odile, the Veil's mender-saint, may speak."
 						}
 					]
 				},
@@ -28351,7 +28365,7 @@
 						}
 					},
 					{
-						"name": "the Saintess is named arbiter",
+						"name": "the council votes to name Odile, the Veil's mender-saint, its arbiter",
 						"weight": 30,
 						"effects": {
 							"powers": {
