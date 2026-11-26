@@ -354,6 +354,19 @@
         "note": "Adventurer Guild branch desk where new arrivals register and read the job board."
       },
       {
+        "id": "kingfisher-post",
+        "name": "Kingfisher Post",
+        "region": "bluewatch-reach",
+        "kind": "outpost",
+        "x": 63.9,
+        "y": 108.6,
+        "tags": [
+          "river",
+          "frontier"
+        ],
+        "note": "Small waystation on the Bluewatch Branch about 20 km south of Bluewatch: a landing stage, a bunkroom and a fire for barge crews and travellers."
+      },
+      {
         "id": "mirage-city",
         "name": "Mirage City",
         "region": "confederacy-heartland",
@@ -4233,6 +4246,13 @@
         "note": "code F; couriers: mounted 50-70, relay 120-150 km/day"
       },
       {
+        "from": "Kingfisher Post",
+        "to": "Bluewatch Village",
+        "kind": "local road",
+        "km": 20,
+        "note": "code L"
+      },
+      {
         "from": "Highmark Capital",
         "to": "Thousand Sails",
         "kind": "road",
@@ -6607,7 +6627,7 @@
         "history": "A small cat-kin cast out of a Bloodbound beastfolk company's juvenile branch before her first coin, too small for the line and too wild with rage for the quiet work her size suited, Nasai came north alone to make a name at Bluewatch's Thinning; her old branch called her Half-Coin. She was born to the company and raised in its juvenile branch, where new bloods earn their first coins. They meant her for scouting and knife work; her rages made her useless for anything quiet. She drifted north alone, slept in barns and fought for scraps, and came to the Thinning, where any hunter with a tally can make a name. Kel and she are two outcasts at the edge of the map: something like friendship, on Nasai's terms. Habit: Ears flatten and tail lashes when angry; the tail goes still when scared; a slow blink means she trusts you.",
         "homeBase": "Bluewatch Village",
         "start": {
-          "place": "glassdock",
+          "place": "kingfisher-post",
           "goal": "Top the Thinning's tally, earn a deed-name, and never be paid half again.",
           "routine": "Hunts the Reach from first light, sells her kills at the Guild desk, and sleeps on the Stray Oar's roof or in its hayloft; never indoors if she can help it."
         },
@@ -11940,7 +11960,7 @@
         "severity": "minor",
         "where": [
           "bluewatch-village",
-          "glassdock"
+          "kingfisher-post"
         ],
         "window": {
           "after": "start + 1 day",
@@ -11951,7 +11971,7 @@
             {
               "who": "nasai",
               "location": "bluewatch-village",
-              "from": "glassdock",
+              "from": "kingfisher-post",
               "routine": "Hunts the Reach from first light, sells her kills at the Guild desk, and sleeps on the Stray Oar's roof or in its hayloft; never indoors if she can help it."
             }
           ]

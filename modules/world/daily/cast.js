@@ -14,6 +14,13 @@ import { entryActive } from './holds-read.js';
 
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
+// Where they were, as the Journal and the rumour name it: the map's display name (a pack's `start.place` is a place id).
+function shownAt(ws, id) {
+    const place = placeOf(ws, id);
+    const found = resolveRef(ws.geo, place);
+    return found?.kind === 'place' ? found.name : place;
+}
+
 /** The trace of a death or a move: the anchor, a Journal line and a rumour where they were. */
 export function trace(ws, id, kind, line, from, day, by) {
     recordAnchor(ws.anchors, `${kind}:${id}`, day);
@@ -24,7 +31,7 @@ export function trace(ws, id, kind, line, from, day, by) {
 /** Displace `id` to `to` for `by` (the record, the trace, the move for the host). `move`: { until, routine?, title }. */
 export function displace(ws, person, to, move, day, by) {
     const row = { ...(ws.cast[person.id] ?? {}) };
-    const from = placeOf(ws, person.id);
+    const from = shownAt(ws, person.id);
     row.displaced = { to, by, until: move.until, since: day, ...(move.routine ? { routine: move.routine } : {}) };
     if (move.until === 'permanent') row.home = to;
     delete row.deferred;
@@ -81,7 +88,7 @@ function die(ws, person, entry, source, day) {
         return survives(ws, person, source, 'who cannot die before you meet them; skipped');
     }
     if (from && from !== 'anywhere' && !inGroup(ws, placeOf(ws, person.id), from)) return skip(ws, person, source, day, `not in ${from}`);
-    const where = placeOf(ws, person.id);
+    const where = shownAt(ws, person.id);
     ws.cast[person.id] = { ...row, died: day };
     ws.deaths.push({ id: person.id, by: source.id, day });
     trace(ws, person.id, 'died', `${person.name} died (${source.title}).`, where, day, source.id);
