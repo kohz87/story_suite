@@ -44,7 +44,8 @@ export function fireEvent(ws, def, day, bind, realms) {
     // With no summary to say, the authored title is the text (never the id); with neither, the outcome's words alone, or no line.
     const base = saidOf(ws, def, bind, outcome?.name);
     const more = outcome?.summary ? fillSummary(outcome.summary, townBind(ws.geo, bind), outcome.name) : '';
-    const summary = [more && base && !/[.!?…]$/.test(base) ? `${base}.` : base, more].filter(Boolean).join(' ');
+    // A base that already ends in a sentence or clause mark (a colon, say) takes the outcome after a space.
+    const summary = [more && base && !/[.!?…:;,—–]$/.test(base) ? `${base}.` : base, more].filter(Boolean).join(' ');
     const source = { kind: 'event', id: def.id, title: def.title, held: true, summary, evenInParty: def.evenInParty === true, survived: [] };
     const { on_end: _end, ...main } = def.effects ?? {};
     // Named moves of both blocks apply before the event's evacuations (ruling 39: someone a named move placed is exempt).

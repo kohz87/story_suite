@@ -158,3 +158,17 @@ test('an event with a title and no summary writes its title: the fired line, the
     writeHappenings({}, chronicle, run.journal(), { geo, rev: 2 });
     assert.deepEqual([news().state, news().summary], ['resolved', 'Ended: The Ash Watch']);
 });
+
+test('a lapse gated on a lapse that has not happened is of an unopened branch', () => {
+    const run = runner(world({ events: [
+        ev('later', { certainty: 'likely', summary: 'Later.', window: { after: 'start + 20 days', within: '1 day' } }),
+        ev('aftermath', { summary: 'The hidden aftermath.', requires: ['lapsed:later'] }),
+    ] })).to(3);
+    assert.equal(run.log('lapsed', 'aftermath')[0].unopened, true);
+    assert.doesNotMatch(`${run.warnings.join(' ')} ${cardsOf(run)}`, /hidden aftermath/);
+});
+
+test('an outcome after a summary that ends in a colon is joined with a space', () => {
+    const run = runner(world({ events: [ev('council', { summary: 'The council has spoken:', outcomes: [{ name: 'ferry', weight: 1, summary: 'The ferryman wins.' }] })] })).to(1);
+    assert.equal(run.journal().find(entry => entry.fired).text, 'The council has spoken: The ferryman wins.');
+});
