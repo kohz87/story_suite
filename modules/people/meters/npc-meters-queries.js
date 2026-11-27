@@ -37,7 +37,7 @@ export function createNpcQueries({
         return (Array.isArray(people?.order) ? people.order : []).map(id => people.npcs?.[id]).filter(person => isObject(person) && isTerminalNpcDeath(person)).flatMap(person => {
             const record = npcs[owners.entryKey(npcs, person)];
             if (!record?.unlocked?.length) return [];
-            const notes = notesView(record, defs, { name: person.id, labels: [person.id] });
+            const notes = notesView(record, defs, { name: person.id, labels: [person.id], gone: true });
             if (!notes.opened.length) return [];
             return [{ key: person.id, name: person.name, locked: notes.locked.map(({ id, meter, at, event, opens, text }) => ({ id, ...(meter ? { meter, at } : {}), event, opens, text })), opened: notes.opened.map(({ id, title, text }) => ({ id, title, text })) }];
         });
@@ -128,8 +128,9 @@ export function createNpcQueries({
                 opened.push({ id: rule.id, title, rule: how, text: `Opened · ${how}` });
                 continue;
             }
-            const opens = meter && event ? `Opens at ${meter} or with the story` : meter ? `Opens at ${meter}` : gated ? 'Opens when the story earns it' : 'Opens with the story';
-            locked.push({ id: rule.id, ...(meter ? { meter: rule.meter, at: rule.at } : {}), event, opens, text: `Hidden note · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}` });
+            if (asked.gone && meter && !event) continue;   // (no meter opens a note of the dead: nothing to promise)
+            const opens = meter && event && !asked.gone ? `Opens at ${meter} or with the story` : meter && !asked.gone ? `Opens at ${meter}` : gated ? 'Opens when the story earns it' : 'Opens with the story';
+            locked.push({ id: rule.id, ...(meter && !asked.gone ? { meter: rule.meter, at: rule.at } : {}), event, opens, text: `Hidden note · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}` });
         }
         return { locked, opened };
     }

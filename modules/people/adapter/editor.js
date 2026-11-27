@@ -50,7 +50,7 @@ export function createEditorPart(session, deps) {
      * values (the slice's). Every value is escaped.
      */
     // The notes' rules of a dossier the caller holds are asked for by its id.
-    const heldBy = npc => (typeof npc?.id === 'string' && npc.id ? { name: npc.id, labels: [npc.id] } : undefined);
+    const heldBy = npc => (typeof npc?.id === 'string' && npc.id ? { name: npc.id, labels: [npc.id], ...(isTerminalNpcDeath(npc) ? { gone: true } : {}) } : undefined);
     function editorHtml(npc) {
         if (!session.hosted || !npc) return '';
         const settings = part.meterSettings();

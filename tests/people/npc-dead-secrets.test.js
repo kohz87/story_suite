@@ -32,10 +32,10 @@ test('"~ reveal" opens a dead person\'s own story note, and only that one; their
     assert.equal(h.runQuery('people.secretOwners')['the ledger'], undefined);
     // The reader's dossier, as the view builds it (ui/select) and as NPC State's own panel does.
     const shown = dossierMap((name, args) => { try { return h.runQuery(name, args); } catch { return null; } }).npc_ana.secrets;
-    assert.deepEqual([shown.opened, shown.total], [1, 2]);
-    assert.deepEqual(shown.items.map(item => [item.open, item.title]), [[true, 'The oar'], [false, null]]);
+    assert.deepEqual([shown.opened, shown.total], [1, 1], 'the meter note can no longer open, so it is not promised');
+    assert.deepEqual(shown.items.map(item => [item.open, item.title]), [[true, 'The oar']]);
     const panel = h.adapter.dossierMeters([h.delta.records.npc_ana]).npc_ana.secrets;
-    assert.deepEqual(panel.map(item => [item.state, item.title ?? null]), [['open', 'The oar'], ['hidden', null]]);
+    assert.deepEqual(panel.map(item => [item.state, item.title ?? null]), [['open', 'The oar']]);
 });
 
 test('a dead person with nothing opened shows on their dossier as before: no notes', async () => {
