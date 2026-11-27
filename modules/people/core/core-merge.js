@@ -53,8 +53,8 @@ export function applyScenePresence(npcs, scene) {
 }
 
 export function mergeScanResult(state, rawScanResult, options = {}) {
-    // (a replay of a reply read before the journal existed keeps the old reading)
-    const settled = options.historicalRead ? { scanResult: rawScanResult, skipped: [] } : settleScanRows(state?.npcs, rawScanResult, options.scenePresent?.present);
+    // (a replay of a reply read before the journal existed, or of an entry from before the namesake rule, keeps the old reading)
+    const settled = options.historicalRead || options.keepNamesakeRows ? { scanResult: rawScanResult, skipped: [] } : settleScanRows(state?.npcs, rawScanResult, options.scenePresent?.present);
     const scanResult = settled.scanResult;
     const maxNpcs = Math.max(1, Math.min(100, Number(options.maxNpcs) || 40));
     const excludeNames = new Set((options.excludeNames || []).map(normalizeName).filter(Boolean));

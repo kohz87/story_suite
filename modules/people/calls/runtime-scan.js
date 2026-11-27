@@ -172,8 +172,9 @@ export function createScanPart(rt, deps) {
             // later reply counts as a second sighting (a manual or full-window scan reads many replies).
             const singleReply = !manual && !fullWindowScan && Number.isInteger(messageId);
             // (namesakes: settled here, while the records still carry who was present; the merge's base below clears it. The journal keeps the settled
-            // rows, so a replay, which cannot ask an earlier reply's scene, reads them as live did)
-            const named = replayScope() && !journaled ? { scanResult: parsed, skipped: [] } : settleScanRows(state.npcs, parsed, scanScenePresent(messageId) ?? []);
+            // rows, so a replay, which never asks the scene, reads them as live did. A replay of an entry without the `namesakes` mark keeps its rows as they are.)
+            const keepNamesakeRows = Boolean(replayScope() && !journaled?.namesakes);
+            const named = keepNamesakeRows ? { scanResult: parsed, skipped: [] } : settleScanRows(state.npcs, parsed, replayScope() ? [] : scanScenePresent(messageId) ?? []);
             const resolvedParsed = resolveInterimIdentityPromotions(singleReply ? tagScanEvidence(named.scanResult, skippedWindow?.readThrough ?? messageId) : named.scanResult, state.npcs, state.candidates);
             if (capture || (fallback && hostedOnePass())) capCaptureAdmissions(resolvedParsed, state.npcs);
             profileUpdateCount = Array.isArray(resolvedParsed.profileUpdates) ? resolvedParsed.profileUpdates.length : (Array.isArray(resolvedParsed.profile_updates) ? resolvedParsed.profile_updates.length : 0);
@@ -272,6 +273,7 @@ export function createScanPart(rt, deps) {
                 // (people/away/away-hold.js); the reader's own "Scan now" is deliberate and writes them.
                 ...(manual ? {} : awayScanOptions(mergeBaseState)),
                 historicalRead: Boolean(replayScope() && !journaled), // (ONEPASSCAPR2-1) only a reply read before the journal existed keeps the old reading
+                keepNamesakeRows,
                 memoryFacts: factOpt,
             });
             merged.report.skipped.push(...named.skipped);
@@ -380,7 +382,7 @@ export function createScanPart(rt, deps) {
                 scanCount: Number(state.scanCount || 0) + 1,
             };
             if (capture && !replayScope()) recordAcceptedCapture(nextState, ctx.chat || [], targetMessageId, { ...capture, parsed: named.scanResult });
-            else if (!replayScope() && !manual) { const mark = recordReadMark(nextState, ctx.chat || [], targetMessageId); if (fallback && hostedOnePass() && mark) mark.fallbackParsed = structuredClone(named.scanResult); }
+            else if (!replayScope() && !manual) { const mark = recordReadMark(nextState, ctx.chat || [], targetMessageId); if (fallback && hostedOnePass() && mark) Object.assign(mark, { namesakes: 1, fallbackParsed: structuredClone(named.scanResult) }); }
             const catchUpChats = replayScope()?.catchUp ?? rt.catchUpChats;
             if (skippedWindow && !skippedWindow.latest) catchUpChats.add(scanChatKey); else catchUpChats.delete(scanChatKey);
             if (!manual) queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed, targetMessageId, currentTranscript });

@@ -28,6 +28,7 @@ export function currentExchangeRelationshipRelevant(npc, transcript, raw = null,
 
 export function rawScanMatchesExisting(raw, npc) {
     if (!raw || !npc) return false;
+    if (raw.settledId) return String(raw.settledId) === String(npc.id);   // (tied to one namesake: that id alone)
     if (raw.id && String(raw.id) === String(npc.id)) return true;
     if (raw.name && npcMatchesLabel(npc, raw.name)) return true;
     return Array.isArray(raw.aliases) && raw.aliases.some(alias => npcMatchesLabel(npc, alias));

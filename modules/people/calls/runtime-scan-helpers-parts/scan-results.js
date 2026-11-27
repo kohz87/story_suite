@@ -28,7 +28,8 @@ export function relationshipChanges(prior, after, baseline, messageId, onePassRo
 
 // A one-pass row's evidence for each axis it moved (non-zero delta, non-empty words): { trust: 'words' }, or null.
 function onePassEvidence(rows, npc) {
-    const row = (Array.isArray(rows) ? rows : []).find(item => item && ((item.id && item.id === npc.id) || (item.name && npcMatchesLabel(npc, item.name))));
+    // (a row tied to one namesake, `settledId`, is that id's alone)
+    const row = (Array.isArray(rows) ? rows : []).find(item => item && (item.settledId ? item.settledId === npc.id : (item.id && item.id === npc.id) || (item.name && npcMatchesLabel(npc, item.name))));
     const delta = row?.relationshipDelta ?? row?.relationship_delta;
     const words = row?.relationshipEvidence ?? row?.relationship_evidence;
     if (!delta || typeof delta !== 'object' || !words || typeof words !== 'object') return null;

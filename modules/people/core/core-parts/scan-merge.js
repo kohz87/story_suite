@@ -29,7 +29,7 @@ function mergeScanResultInPass(state, scanResult, rawOptions = {}) {
 
 function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
     // Rows about namesakes are tied to one person (or dropped) before anything here matches them by name.
-    const settled = rawOptions.historicalRead ? { scanResult: rawScanResult, skipped: [] } : settleScanRows(state?.npcs, rawScanResult, rawOptions.scenePresent?.present);
+    const settled = rawOptions.historicalRead || rawOptions.keepNamesakeRows ? { scanResult: rawScanResult, skipped: [] } : settleScanRows(state?.npcs, rawScanResult, rawOptions.scenePresent?.present);
     const scanResult = settled.scanResult;
     // Story day of the scanned message (its dated World State), unless the caller already resolved
     // it (carrying the last dated message forward). Undated chats leave it null and use turns.

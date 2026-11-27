@@ -471,6 +471,7 @@
   "modules/people/meters/npc-meters-prompt-parts/shown-names.js": "Names namesakes by nickname in NPC State's tail, and says the line about a shared name there when nothing else sent does.",
   "tests/people/npc-namesakes-lines.test.js": "Tests on the real adapter of story lines that write a name two people share, and that namesakes without nicknames behave as before.",
   "tests/people/npc-namesakes-prompt.test.js": "Tests of what the narrator is sent about namesakes, and that nothing differs without them.",
+  "tests/people/npc-namesakes-tied.test.js": "Tests that a row tied to one namesake reaches no other, and that older journal entries are neither marked nor settled.",
   "tests/people/npc-namesakes-create.test.js": "Tests of the nickname a new namesake gets in the write that makes them, and that swipes, deletes and reloads keep it.",
   "tests/people/npc-dead-secrets.test.js": "Tests that a dead person's own hidden notes open by a story line or event and never by a meter.",
   "tests/people/npc-alias-sends.test.js": "Tests on the real adapter that NPC State's sends about a held dossier go out under its id, the public paths after a rename or merge, and namesakes' offered pack secret.",
