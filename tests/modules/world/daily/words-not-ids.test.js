@@ -139,3 +139,22 @@ test('{place} names the town of a sub-place, in the firing, the end and the outc
     assert.deepEqual(Object.keys(ws.events.market.places), [sub]);
     assert.equal(bind.place, sub);
 });
+
+test('an event with a title and no summary writes its title: the fired line, the card, the news entry and its end', () => {
+    const run = runner(world({ events: [
+        ev('ash-watch', { title: 'The Ash Watch', ends_when: { for: '2 days' } }),
+        ev('ash-vote', { title: 'The Ash Vote', outcomes: [{ name: 'win', weight: 1, summary: 'The guild wins.' }] }),
+    ] })).to(1);
+    const fired = run.journal().filter(entry => entry.fired);
+    assert.deepEqual(fired.map(entry => [entry.by, entry.text]).sort(), [['ash-vote', 'The Ash Vote. The guild wins.'], ['ash-watch', 'The Ash Watch']]);
+    assert.match(cardsOf(run), /The Ash Watch/);
+    const chronicle = { events: {} };
+    const geo = buildGeo(world());
+    writeHappenings({}, chronicle, run.journal(), { geo, rev: 1 });
+    const news = () => Object.values(chronicle.events).find(entry => entry.by === 'event:world.ash-watch');
+    assert.equal(news().summary, 'The Ash Watch');
+    run.to(4);
+    assert.ok(run.journal().some(entry => entry.ended && entry.text === 'Ended: The Ash Watch'));
+    writeHappenings({}, chronicle, run.journal(), { geo, rev: 2 });
+    assert.deepEqual([news().state, news().summary], ['resolved', 'Ended: The Ash Watch']);
+});

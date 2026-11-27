@@ -27,6 +27,9 @@ export function pickOutcome(ws, def, day) {
     return list[list.length - 1];
 }
 
+/** What a firing or an end says of the event: its filled summary, else its authored title, else ''. */
+const saidOf = (ws, def, bind, outcome) => eventWords(ws.geo, def, bind, outcome).text || titleOf(def.title, def.id);
+
 /** The line with "(<name> survived)" when a death in the outcome was skipped (ruling 49), so the Journal and the cast never disagree. */
 const survivedText = (text, names) => (!names.length ? text : text ? `${text} (${names.join(' and ')} survived)` : `${names.join(' and ')} survived.`);
 
@@ -38,10 +41,10 @@ export function fireEvent(ws, def, day, bind, realms) {
     if (outcome) row.outcome = outcome.name; else delete row.outcome;
     if (bind?.place) { row.bind = bind; row.places = { ...(row.places ?? {}), [bind.place]: day }; } else delete row.bind;
     recordAnchor(ws.anchors, `fired:${def.id}`, day);
-    // With no authored summary the base is '' (never the id): the outcome's words alone, or no line.
-    const base = eventWords(ws.geo, def, bind, outcome?.name).text;
+    // With no summary to say, the authored title is the text (never the id); with neither, the outcome's words alone, or no line.
+    const base = saidOf(ws, def, bind, outcome?.name);
     const more = outcome?.summary ? fillSummary(outcome.summary, townBind(ws.geo, bind), outcome.name) : '';
-    const summary = [base, more].filter(Boolean).join(' ');
+    const summary = [more && base && !/[.!?…]$/.test(base) ? `${base}.` : base, more].filter(Boolean).join(' ');
     const source = { kind: 'event', id: def.id, title: def.title, held: true, summary, evenInParty: def.evenInParty === true, survived: [] };
     const { on_end: _end, ...main } = def.effects ?? {};
     // Named moves of both blocks apply before the event's evacuations (ruling 39: someone a named move placed is exempt).
@@ -61,7 +64,7 @@ export function endEvent(ws, def, day) {
     const bind = row.bind ?? {};
     const outcome = (def.outcomes ?? []).find(each => each.name === row.outcome);
     recordAnchor(ws.anchors, `ended:${def.id}`, day);
-    const said = eventWords(ws.geo, def, row.bind ?? null, outcome?.name).text;
+    const said = saidOf(ws, def, row.bind ?? null, outcome?.name);
     const source = { kind: 'event', id: def.id, title: def.title, held: false, summary: said, evenInParty: def.evenInParty === true, survived: [] };
     const evac = [];
     applyEffects(ws, def.effects?.on_end, source, day, bind, evac);
