@@ -40,6 +40,14 @@ test('a milestone and a taste line written by the alias go to that Guard too', a
     assert.match(h.bonds().npc_g2.tastes, /strong tea/);
 });
 
+test('"~ reveal Old Tom" opens that Guard\'s note', async () => {
+    const h = await cast(person('npc_g1', 'Guard'), person('npc_g2', 'Guard', ['Old Tom'], { secrets: [note('Tom')] }));
+    h.line('~ npc Guard | trust: +1');
+    const [result] = h.reply('He admits it: a spare oar lies under the bench.', `~ reveal Old Tom | opened: ${ID} | quote: "a spare oar lies under the bench"`).results;
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.deepEqual([h.bonds().npc_g1.unlocked, h.bonds().npc_g2.unlocked], [[], [ID]]);
+});
+
 test('a renamed person who keeps the old name as an alias is still moved by it, in their own entry', async () => {
     const h = await cast(person('npc_ana', 'Ana'));
     h.line('~ npc Ana | trust: +5');
@@ -86,7 +94,7 @@ test('a renamed person\'s old-name entry never takes the setup of someone who ha
 });
 
 for (const order of ['the dead one stored first', 'the living one stored first']) {
-    test(`a dead and a living "Ana", ${order}: the line is the living one's, and the dead one's entry keeps her own limits`, async () => {
+    test(`a dead and a living "Ana", ${order}: the line and the limits are the living one's`, async () => {
         const dead = person('npc_a1', 'Ana', [], ceiling(40));
         const living = person('npc_a2', 'Ana', [], ceiling(12));
         const [first, second] = order.startsWith('the dead') ? [dead, living] : [living, dead];

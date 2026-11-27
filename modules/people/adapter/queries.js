@@ -64,8 +64,10 @@ export function createQueriesPart(session, deps) {
     };
     // The same by name, else by the first of `labels` that finds one; for a dossier's own name (namesakes), only a dossier with that same own name.
     const holderOf = (name, labels) => {
+        const found = dossierOf(name);
+        if (found) return found;
         const owners = ownersOf(npcList());
-        return dossierOf(name) ?? labels.map(dossierOf).find(owners.named(name).length ? npc => npc && owners.sameName(npc.name, name) : Boolean);
+        return labels.map(dossierOf).find(owners.named(name).length ? npc => npc && owners.sameName(npc.name, name) : Boolean);
     };
     const storedSettings = () => {
         try { return session.sdkRef?.settings?.(MODULE_ID) ?? {}; } catch { return {}; }

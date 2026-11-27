@@ -30,6 +30,7 @@ import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
  *   startDate(index)  → that story day as the dossier writes it ("Goldwane 13"; '' when unavailable)
  *   secretRules(name) → that dossier's notes as [{ id, meter?, at?, when?, gate?, packId?, title? }] (never their text)
  *   secretTexts(name, ids) → [{ id, text }] for those notes (the tail and screens only)
+ *                       (`name` here, in secretRules, setup and gateInputs: the id of the entry's owner when a stored dossier owns it; owners.asking)
  *   setup(name, labels) → that dossier's meter setup { track, limits } (the editor's)
  *   presets()         → the preset catalog (presetCatalog: built-ins and packs')
  *   feature(id)       → true / false for a feature the host knows; anything else: its default

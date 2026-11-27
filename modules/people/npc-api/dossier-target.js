@@ -37,10 +37,11 @@ export function resolveDossierTarget(npcs, value) {
  * that is some dossier's own (a dead or archived one's too) never answers with a different person who has it as an alias.
  */
 export function ownerTargets(npcs) {
-    const owners = ownersOf(Array.isArray(npcs) ? npcs.filter(Boolean) : []);
+    let owners = null;   // (made once for the list, and only when a name or alias found someone)
     return value => {
         const id = resolveDossierTarget(npcs, value);
         if (!id || id === plainText(value)) return id;
+        owners ??= ownersOf(Array.isArray(npcs) ? npcs.filter(Boolean) : []);
         const named = owners.named(value);
         return named.length && !named.some(npc => npc.id === id) ? '' : id;
     };
