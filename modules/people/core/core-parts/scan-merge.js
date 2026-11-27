@@ -50,6 +50,14 @@ function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
     if (settled.skipped.length) result.report.skipped.push(...settled.skipped);
     // From here a row tied to a record the merge folded away is read as the kept record's.
     const rows = followFoldedTies(scanResult, result.report.deduplicated);
+    // The kept record's Personality/Speech plan and ledger are worked out again from its own record before the scan, now that a folded
+    // record's tied rows can reach it: only those whose name that record already answered to.
+    const plans = new Map(profilePrepared.plans);
+    if (rows !== scanResult) {
+        const answers = (row, keptId) => Boolean(row.name) && (state?.npcs || []).some(npc => String(npc?.id) === keptId && mechanics.npcMatchesLabel(npc, row.name));
+        const again = prepareProfileDevelopmentState(state, followFoldedTies(scanResult, result.report.deduplicated, answers), options).plans;
+        for (const { keptId } of result.report.deduplicated) if (again.has(String(keptId))) plans.set(String(keptId), again.get(String(keptId)));
+    }
     const ordinary = Array.isArray(rows?.npcs) ? rows.npcs : [];
     const keptUpdates = Array.isArray(rows?.profileUpdates) ? rows.profileUpdates
         : (Array.isArray(rows?.profile_updates) ? rows.profile_updates : []);
@@ -96,7 +104,7 @@ function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
             // it first so adding observability does not change legacy development-row ordering.
             recordAppearanceDiagnostic(result.report, beforeDiagnosticNpc, npc, appearanceUpdate, continuityOptions, diagnosticNpcRegistry);
         }
-        npc = finalizeProfileDevelopment(npc, profilePrepared.plans.get(String(npc.id || '')), continuityOptions, result.report);
+        npc = finalizeProfileDevelopment(npc, plans.get(String(npc.id || '')), continuityOptions, result.report);
         const durableUpdate = durableUpdateForNpc(rows, npc);
         if (beforeDiagnosticNpc) {
             recordSecondaryProfileDiagnostics(result.report, beforeDiagnosticNpc, npc, durableUpdate, continuityOptions, diagnosticNpcRegistry);

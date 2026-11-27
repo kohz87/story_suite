@@ -101,3 +101,58 @@ test('social reconcile: a summary edge takes its detail from the row tied to its
         else assert.doesNotMatch(detail, /trusts her/);
     }
 });
+
+// What the merge before the namesake rule gave the kept Mira of the rename shape: the row reached that record by its name.
+const CLAIMS = ['is always gruff and curt', 'speaks in short clipped sentences'];
+const GRUFF = 'Gruff and curt, short clipped sentences.';
+const PROOF = 'Mira is always gruff and curt.';
+const durable = (state, developmentScale) => ({
+    personality: GRUFF, personalityState: state, personalityReason: PROOF, speech: GRUFF, speechState: state, speechReason: PROOF,
+    developmentScale, developmentReason: PROOF, evidence: { personality: CLAIMS, speech: CLAIMS },
+});
+const seen = claim => ({ concept: claim, firstTurn: 6, lastTurn: 6, observationCount: 1, sourceMessageIds: [9], turns: [6], evidenceSamples: [claim], latestEvidence: claim });
+const pending = (baselineKey, baseline) => ({ version: 2, epoch: 0, [baselineKey]: baseline, baselineTurn: null, baselineSourceMessageId: null, concepts: CLAIMS.map(seen) });
+const miras = (older = {}) => [record('npc_g1', 'Mira', { createdAt: 2 }), record('npc_g2', 'Mira', { createdAt: 1, ...older })];
+const mergeMiras = (npcs, scan, options) => mergeScanResult({ npcs, turn: 5 }, structuredClone(scan),
+    { turn: 6, sourceMessageId: 9, developmentContext: `${PROOF} Mira speaks in short clipped sentences.`, ...options });
+
+test('a tied profile update gives the kept record its Personality and Speech development', () => {
+    for (const [state, scale] of [['establish', 'explicit'], ['evolve', 'explicit'], ['refine', 'gradual'], ['establish', '']]) {
+        const scan = { npcs: [{ ...RENAME, sameIndividual: true }], profileUpdates: [{ id: 'npc_g1', name: 'Mira', ...durable(state, scale) }] };
+        // (an explicit evolve applies the Personality at once, so its ledger starts over)
+        const personality = state === 'evolve'
+            ? { version: 2, epoch: 1, baselinePersonality: GRUFF, baselineTurn: 6, baselineSourceMessageId: 9, concepts: [] }
+            : pending('baselinePersonality', GRUFF);
+        for (const options of MODES) {
+            const { state: after } = mergeMiras(miras(), scan, options);
+            const label = `${state} ${scale} ${JSON.stringify(options)}`;
+            assert.deepEqual(after.npcs.map(npc => npc.id), ['npc_g2'], label);
+            assert.deepEqual(after.npcs[0].personalityDevelopment, personality, label);
+            assert.deepEqual(after.npcs[0].speechDevelopment, pending('baselineSpeech', ''), label);
+        }
+    }
+});
+
+test('a tied row\'s development reaches no namesake that outlives the fold', () => {
+    const { npcs } = CASES['an older record the folded one has as an alias'];
+    const scan = { profileUpdates: [{ id: 'npc_g1', name: 'Guard', ...durable('refine', 'gradual') }] };
+    for (const options of MODES) {
+        const result = mergeMiras(npcs(), scan, options);
+        assert.ok(result.report.deduplicated.some(item => item.removedId === 'npc_g1' && item.keptId === 'npc_x'));
+        const other = result.state.npcs.find(npc => npc.id === 'npc_g2');
+        assert.deepEqual([other.personalityDevelopment, other.speechDevelopment], [undefined, undefined], JSON.stringify(options));
+    }
+});
+
+test('the kept record\'s development is its own: its earlier ledger goes on, and a row its name never answered to adds nothing', () => {
+    const update = { id: 'npc_g1', name: 'Mira', ...durable('refine', 'gradual') };
+    for (const options of MODES) {
+        const older = { speechDevelopment: { version: 2, epoch: 3, baselineSpeech: '', concepts: [{ ...seen('talks at great length'), sourceMessageIds: [2], turns: [2] }] } };
+        const kept = mergeMiras(miras(older), { npcs: [{ ...RENAME, sameIndividual: true }], profileUpdates: [update] }, options).state.npcs[0];
+        assert.equal(kept.speechDevelopment.epoch, 3);
+        assert.deepEqual(kept.speechDevelopment.concepts.map(concept => concept.concept), ['talks at great length', ...CLAIMS]);
+        // the data on the renaming row itself ("Mira Vell"): no stored Mira answered to that name before the scan
+        const renamed = mergeMiras(miras(), { npcs: [{ ...RENAME, sameIndividual: true, ...durable('refine', 'gradual') }] }, options).state.npcs[0];
+        assert.deepEqual([renamed.personalityDevelopment, renamed.speechDevelopment], [undefined, undefined]);
+    }
+});

@@ -73,8 +73,9 @@ export function settleScanRows(npcs, scanResult, scene = [], idsOnly = false) {
 /**
  * `scanResult` as read after the merge folded records (`folded`: report.deduplicated): a row tied to a removed id is tied to the kept one, chains
  * followed. The same object when no tie moves; rows are copied, never changed (a journal keeps them as they were: a replay folds them again).
+ * `reaches(row, keptId)`, when given, can leave a row tied where it was.
  */
-export function followFoldedTies(scanResult, folded) {
+export function followFoldedTies(scanResult, folded, reaches = () => true) {
     const into = new Map((folded || []).map(item => [String(item.removedId), String(item.keptId)]));
     let out = scanResult;
     for (const key of ROW_LISTS) {
@@ -83,7 +84,7 @@ export function followFoldedTies(scanResult, folded) {
         out = { ...out, [key]: rows.map(row => {
             let id = row?.settledId;
             while (into.has(id)) id = into.get(id);
-            return id === row?.settledId ? row : { ...row, settledId: id };
+            return id === row?.settledId || !reaches(row, id) ? row : { ...row, settledId: id };
         }) };
     }
     return out;
