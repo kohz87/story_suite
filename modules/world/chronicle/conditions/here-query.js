@@ -9,8 +9,6 @@ import { isInt } from '../domain-parts/shared-basics.js';
 import { WORLD_EVENTS_FEATURE } from './feature.js';
 import { reasonReader } from './reason.js';
 
-const plain = text => String(text ?? '').replace(/\s+/g, ' ').trim().replace(/[.!?…]+$/, '');
-
 const clean = text => String(text ?? '').replace(/,? \d{1,2}:\d{2}.*$/, '');
 
 /**
