@@ -18,7 +18,11 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
         // The key is the person's npc_ id: the dossier's own when Delta has one (an entry already under it first, then one found by name, as before), else an
         // entry found by name, else a new id made as Delta makes dossier ids (so the dossier Delta makes later for that name has the same id).
         const id = typeof dossier?.id === 'string' && PEOPLE_ID.test(dossier.id) ? dossier.id : null;
-        const key = (id && Object.hasOwn(npcs, id) ? id : null) ?? findNpcKey(npcs, labels) ?? id ?? makeNpcId(name, Object.keys(npcs));
+        // An entry found by name or alias is not this person's when its key is another dossier's own id (an alias that is someone else's name).
+        const theirs = other => other !== id && PEOPLE_ID.test(other) && resolve(other)?.id === other;
+        let found = id && !Object.hasOwn(npcs, id) ? findNpcKey(npcs, labels) : null;
+        if (found && theirs(found)) found = findNpcKey(npcs, labels, new Set(Object.keys(npcs).filter(theirs)));
+        const key = (id && Object.hasOwn(npcs, id) ? id : null) ?? (id ? found : findNpcKey(npcs, labels)) ?? id ?? makeNpcId(name, Object.keys(npcs));
         if (!key || !PEOPLE_ID.test(key)) return null;
         return { key, name, labels, seed: isObject(dossier?.relationship) ? dossier.relationship : null };
     }

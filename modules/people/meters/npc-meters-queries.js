@@ -22,9 +22,10 @@ export function createNpcQueries({
     const castPeople = (state, npcs, defs) => {
         const people = state?.domains?.people;
         if (!isObject(people?.npcs) || !Array.isArray(people.order)) return [];
+        const ids = Object.keys(people.npcs);
         return people.order.map(id => people.npcs[id]).filter(person => isObject(person) && !isTerminalNpcDeath(person) && typeof person.name === 'string' && person.name).map(person => {
             const labels = [person.id, person.name, ...(Array.isArray(person.aliases) ? person.aliases : [])].filter(label => typeof label === 'string');
-            const key = findNpcKey(npcs, labels);
+            const key = findNpcKey(npcs, labels, new Set(ids.filter(id => id !== person.id)));
             const seed = isObject(person.relationship) ? person.relationship : {};
             const record = key ? npcs[key] : { name: person.name, meters: Object.fromEntries(defs.map(def => [def.id, intOr(seed[def.id], null) === null ? def.start : clamp(intOr(seed[def.id], 0), def.min, def.max)])), stages: {}, unlocked: [] };
             return { id: person.id, key: key ?? person.id, name: person.name, record };
