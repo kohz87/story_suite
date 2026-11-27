@@ -4,6 +4,7 @@
 // A part of the adapter closure: createEditorPart(session, deps) gets the adapter's shared state (session) and the adapter's options,
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. No SillyTavern import.
 
+import { secretWatchEvent } from '../core/core-prompts-capture-parts/secret-watch.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import {
     FEATURE_STAGES, limitsFromLines, limitsToLines, meterValue, MAX_SECRETS, normalizeSecrets, secretsFromLines, secretsToLines, wordKey,
@@ -312,7 +313,7 @@ export function createEditorPart(session, deps) {
             // A pack secret whose gate is open (world-events switch) may come out: the same watch, so the model can write its `~ reveal` line.
             // Only the one the tail offers ("(may come out)": the first open one a person, two in all), so the watch never lists the others (final review M2).
             const offered = open?.get(npc.id);
-            if (offered && events.length < EVENT_WATCH_EACH) events.push({ note: offered, event: `the secret "${offered.text.slice(0, 60)}" comes out` });
+            if (offered && events.length < EVENT_WATCH_EACH) events.push({ note: offered, event: secretWatchEvent(offered.text) });
             if (!events.length) continue;
             people += 1;
             for (const { note, event } of events) out.push({ key: `s${out.length + 1}`, id: npc.id, name: npc.name, note: note.id, event });

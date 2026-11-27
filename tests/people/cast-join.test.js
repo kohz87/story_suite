@@ -231,3 +231,20 @@ test('replay == live: a dossier made inside a reply keeps the words through a re
     await s.host.st.swipeTo(at, 0);
     assert.equal(JSON.stringify(people()), live, 'swipe back');
 });
+
+test('words that quote the instruction itself are hidden whole, in What\'s sent and in the diagnostics preview', () => {
+    const KEEP = '(keep this to yourself; let it come about through the story, never say it outright)';
+    const tricky = `someone says ${KEEP} and then You find the drowned bell`;
+    assert.equal(check(tricky).kept[0].join, tricky, 'the pack check keeps it');
+    const npc = { ...present(), castFrom: { ...present().castFrom, join: tricky } };
+    const sent = `${inject(npc)}\n- Orrin: y`;
+    assert.ok(sent.includes('drowned bell'));
+    const shown = hideJoinLines(sent);
+    assert.ok(!/drowned bell|would join|keep this to yourself/.test(shown), shown);
+    assert.match(shown, /background: Runs the night ferry\.[\s\S]*\n- Orrin: y$/);
+    const preview = createInjectionPart({ lastInjection: { text: sent } }, { getChatKey: () => 'no-chat' }).injectionPreview();
+    assert.ok(!preview.text.includes('drowned bell'), preview.text);
+    // cut short by a budget after the quoted words, the rest of the line goes too
+    const line = `- Fenna: x; ${JOIN_LINE(tricky)}`;
+    assert.equal(hideJoinLines(`${line.slice(0, line.indexOf('drowned') + 12)}…\n- Orrin: y`), '- Fenna: x\n- Orrin: y');
+});
