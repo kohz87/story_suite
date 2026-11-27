@@ -1015,5 +1015,8 @@
   "modules/world/daily/never-opened.js": "World events, the daily step: tells whether a lapsed event's branch never opened (a lasting requirement never happened), so the step card leaves it out.",
   "modules/world/chronicle/conditions/reason.js": "Gives the reason the World tab shows for a condition, putting the happening's or pack's summary, or nothing, where an event or template id was stored.",
   "tests/modules/world/daily/step-card-names.test.js": "Tests that the step card names lapsed and replaced events by their words and leaves out branches that never opened.",
-  "tests/modules/world/chronicle/condition-reason.test.js": "Tests that a condition's reason on the World tab is never the id of the event or template that set it."
+  "tests/modules/world/chronicle/condition-reason.test.js": "Tests that a condition's reason on the World tab is never the id of the event or template that set it.",
+  "packs/screens/inspect-parts/hidden-words.js": "Replaces the join words and every unopened hidden note in one reply's Inspector view with \"(hidden)\".",
+  "tests/core/inspect-hidden.test.js": "Tests that the Inspector shows no join words and no unopened hidden note, and still shows an opened one.",
+  "tests/modules/arc/cite-bar-cut.test.js": "Tests that a world event name with \"|\" is printed with \"/\" and citable, and that a shortened form two names share matches neither."
 }

@@ -7,12 +7,25 @@ import { applyPlainWorldLine } from './apply-line.js';
 import { applyConditions, claimReply, readConditions } from './conditions.js';
 import { worldEventsOn } from './switch.js';
 import { markForJudge } from './judge-mark.js';
+import { buildGeo } from '../../../daily/geo.js';
+import { refLabel } from '../../../daily/region-label.js';
+import { readWorld } from '../../world-daily/read-world.js';
 import { refusedHold, rekeyPending } from './judge-pending.js';
 
 const placeOf = (labels, names) => {
     const value = labelOf(labels, names);
     return value === undefined || CLEAR.test(asText(value).trim()) ? '' : cleanName(value);
 };
+
+// The receipt's summary says each condition in words ("+gate-closed (Northgate)" → "gate closed (Northgate)", a lifted one "… ended");
+// `data.conditions` keeps them as stored (the Director's check reads those).
+function inWords(ctx, done) {
+    const geo = buildGeo(readWorld((type, args) => ctx.query(type, args)));
+    return done.map(item => {
+        const [, sign, name, ref] = /^([+-])(.+?) \((.*)\)$/.exec(item) ?? [];
+        return sign ? `${name.replace(/[-_]+/g, ' ')}${sign === '-' ? ' ended' : ''} (${refLabel(geo, ref)})` : item;
+    });
+}
 
 /** `apply(ctx, line)` for `world` lines. */
 export function applyWorldLine(ctx, line) {
@@ -39,7 +52,7 @@ export function applyWorldLine(ctx, line) {
     const why = asText(line?.text).trim().slice(0, 160) || name;
     const { done, notes } = applyConditions(ctx, items, { place, region: placeOf(labels, ['region']), realm: placeOf(labels, ['realm']), why });
     const marked = fresh ? markForJudge(ctx, ctx.draft('chronicle'), fresh, done) : false;
-    const text = [done.length ? `Conditions: ${done.join(', ')}.` : '', notes.length ? `Not used: ${notes.join('; ')}.` : ''].filter(Boolean).join(' ');
+    const text = [done.length ? `Conditions: ${inWords(ctx, done).join(', ')}.` : '', notes.length ? `Not used: ${notes.join('; ')}.` : ''].filter(Boolean).join(' ');
     const out = text ? { ...result, summary: `${result.summary} ${text}`, data: { ...result.data, ...(done.length ? { conditions: done } : {}) } } : result;
     return marked ? waiting(out) : out;
 }
