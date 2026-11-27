@@ -36,8 +36,13 @@ function fire(ws, arc, step, day) {
     const def = ws.templates.get(arc.template);
     const bind = { place: arc.place, region: arc.region || null, realm: arc.realm };
     const checked = def ? checkOpen(ws, def, bind, step, day) : { errors: ['the template is gone'] };
-    if (checked.errors.length) ws.warnings.push(`The arc of "${arc.template}" at ${arc.place}: step "${step.name}" no longer holds (${checked.errors[0]}); it was skipped.`);
-    else {
+    if (checked.errors.length) {
+        // The check's reason quotes the pack's ids: Problems keeps it, the card goes without it.
+        const said = `A happening at ${arc.place}: step "${step.name}" no longer holds`;
+        const text = `${said} (${checked.errors[0]}); it was skipped.`;
+        ws.warnings.push(text);
+        (ws.card ??= {})[text] = `${said}; it was skipped.`;
+    } else {
         applyEffects(ws, checked.block, { kind: 'template', id: arc.template, title: checked.name, held: false, open: true }, day, bind);
         ws.journal.push({ day, text: checked.summary, title: checked.name, by: `template:${arc.template}`, place: arc.place, reach: def.reach });
         if (!step.major) ws.minors.push({ region: arc.region || arc.place, day });
@@ -58,7 +63,7 @@ export function arcsDay(ws, day) {
         if (day < open) continue;
         if (left > 0 && ws.draw(day, `arc:${arc.template}:${arc.started}:${arc.place}#${arc.next}`) >= 1 / left) continue;
         if (left <= 0) {
-            ws.warnings.push(`The arc of "${arc.template}" at ${arc.place}: step "${step.name}" did not come in its window; it was skipped.`);
+            ws.warnings.push(`A happening at ${arc.place}: step "${step.name}" did not come in its window; it was skipped.`);
             arc.from = day;
             arc.next += 1;
             if (step.ending || arc.next >= arc.steps.length) finish(ws, arc, day);

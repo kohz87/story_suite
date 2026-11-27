@@ -34,7 +34,9 @@ export function settleCues(daily, { dead = new Set(), rev = 0, names = new Map()
         next.cast[id] = { ...rest, died: next.day };
         recordAnchor(next.anchors, `died:${id}`, next.day);
         applied.push({ id, how: written ? 'written' : 'fallback' });
-        journal.push({ day: next.day, text: written ? `${name} died (${dying.text.replace(/^.*? dies here: /, '')}).` : `${name} died: the story did not show it within ${CUE_REPLIES} replies, so the world applied it.`, by: dying.by });
+        // A cue with no words for the cause is only "<name> dies here.": nothing to add in brackets.
+        const cause = / dies here: /.test(dying.text) ? ` (${dying.text.replace(/^.*? dies here: /, '')})` : '';
+        journal.push({ day: next.day, text: written ? `${name} died${cause}.` : `${name} died: the story did not show it within ${CUE_REPLIES} replies, so the world applied it.`, by: dying.by });
     }
     const late = applied.filter(item => item.how === 'fallback').map(item => names.get(item.id) ?? item.id);
     return { daily: next, applied, journal, problem: late.length ? `World: ${late.join(', ')} died off-screen; the narrator did not write the death within ${CUE_REPLIES} replies.` : '' };

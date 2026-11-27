@@ -54,7 +54,7 @@ test('test 13 and 33: off-screen death — an unmet canDieUnmet person dies (die
     assert.deepEqual(run.state.anchors['died:old-miller'], [1]);
     assert.ok(run.journal().some(entry => entry.rumour && entry.place === 'Oakhollow' && /Old Miller died/.test(entry.text)));
     assert.equal(run.state.cast.reeve, undefined, 'canDieUnmet false: untouched');
-    assert.ok(run.warnings.some(text => /reeve.*cannot die before you meet them/.test(text)));
+    assert.ok(run.warnings.some(text => /would kill The Reeve, who cannot die before you meet them/.test(text)));
     const templated = runner(world({ cast, templates: [{ template: 'plague-cart', severity: 'minor', where: { kinds: ['town'] }, sets: ['unrest@place: 1 day'], cast: [{ who: 'old-miller', died: true }], chance: '100% per season', summary: 'x' }] })).to(3);
     assert.deepEqual(templated.state.cast, {}, 'a template never kills or moves named cast');
     const met = runner(w, { met: ['reeve'] }).set('fallen', 'Highmark Capital', 1, 'place').to(1);
@@ -141,6 +141,6 @@ test('test 13 (E6): a person who does not say canDieUnmet counts as false — an
     const w = world({ cast: [{ kind: 'figure', id: 'smith', name: 'The Smith', homeBase: 'Town' }], events: [ev('fever', { effects: { cast: [{ who: 'smith', died: true }] } })] });
     const run = runner(w).to(1);
     assert.equal(run.state.cast.smith, undefined, 'untouched');
-    assert.ok(run.warnings.some(text => /smith.*cannot die before you meet them/.test(text)));
+    assert.ok(run.warnings.some(text => /would kill The Smith, who cannot die before you meet them/.test(text)));
     assert.equal(runner(w, { met: ['smith'] }).to(1).state.cast.smith.died, 1, 'met: the event may kill them');
 });

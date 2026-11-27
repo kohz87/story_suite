@@ -14,7 +14,8 @@ export function eventWorld({ brief = null, query = null, threads = [] } = {}) {
     const causes = [
         ...list(brief.threads).map(thread => thread?.key),
         ...list(brief.toCome),
-        ...list(brief.conditions).flatMap(line => { const key = text(line).split(':')[0]; return [key, key.split('@')[0]]; }),
+        // A condition line is "<name> at <place>: means": cited by "<name> at <place>" or by its name.
+        ...list(brief.conditions).flatMap(line => { const key = text(line).split(':')[0]; const at = key.indexOf(' at '); return [key, at < 0 ? key : key.slice(0, at)]; }),
         ...list(ask('chronicle.events', {})).filter(entry => entry?.judge !== 'refused' && entry?.judge !== 'pending').map(entry => entry?.name),
         ...list(threads).map(thread => thread?.key),
     ].map(text).filter(Boolean);

@@ -6,6 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { applyPlainWorldLine } from '../../../../modules/world/chronicle/capture/world-parts/apply-line.js';
+import { said } from '../../../../modules/world/chronicle/capture/world-parts/condition-check.js';
 import { WORLD_EVENTS } from '../../../../modules/world/chronicle/capture/world-parts/switch.js';
 import { part } from '../../../../modules/world/chronicle/index.js';
 import { apply } from '../../../../core/ops.js';
@@ -60,7 +61,7 @@ test('what the command would refuse is a note on the card and is never called (a
     const refused = line(base(), '+ world Gate Siege — shut | place: Farland | conditions: +gate-closed', options);
     assert.equal(refused.ok, true);
     assert.ok(eventNamed(refused.state, 'Gate Siege'));
-    assert.match(refused.result.summary, /Not used: "gate-closed": "Farland" is not a place of this world\./);
+    assert.match(refused.result.summary, /Not used: gate closed: "Farland" is not a place of this world\./);
     assert.equal(calls.length, 0);
     const undated = line(makeState(), '+ world Gate Siege — shut | place: Northgate | conditions: +gate-closed', options);
     assert.equal(undated.ok, true);
@@ -114,4 +115,15 @@ test('off: a world line is byte-identical to the plain line; the conditions labe
     assert.equal(direct.ok, true);
     assert.equal(typeof applyPlainWorldLine, 'function');
     assert.ok(apply);
+});
+
+test('a refusal does not lead with the condition\'s slug: the sentence says it in words, or needs no name', () => {
+    const { options } = stub();
+    const far = line(base(), '+ world Gate Siege — shut | place: Farland | conditions: +gate-closed', options);
+    assert.match(far.result.summary, /Not used: gate closed: "Farland" is not a place of this world\./);
+    assert.doesNotMatch(far.result.summary, /gate-closed/);
+    const bare = line(base(), '+ world Gate Siege — shut | conditions: +Gate-Closed', options);
+    assert.match(bare.result.summary, /Not used: gate closed needs a place on the line/);
+    assert.equal(said('the gates', 'gate-closed', 'shut today'), '"the gates": shut today', 'other words are quoted');
+    assert.equal(said('rain', 'rain', 'Rainmoor already carries 8 conditions'), 'rain: Rainmoor already carries 8 conditions', 'named only as whole words');
 });

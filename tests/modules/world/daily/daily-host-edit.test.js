@@ -28,12 +28,12 @@ test('E21: a shrunk edited Re-read that drops the feast warns on that reply; the
     await host.st.editMessage(crossing, reply('Dawn.', ['! time +1h']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);
     assert.equal(lostOn(host, crossing).length, 1, 'Problems: the feast no longer fired on this reply');
-    assert.match(dailyReceipts(host).find(entry => entry.index === crossing).receipt.summary, /feast no longer fired/, 'and its card');
+    assert.match(dailyReceipts(host).find(entry => entry.index === crossing).receipt.summary, /"feast" no longer fired/, 'and its card');
     assert.equal(JSON.stringify(dailyOf(host)), later, 'the later reply keeps what it recorded');
     await agrees(host, 'shrunk Re-read');
     await host.st.editMessage(crossing, reply('Dawn, still.', ['! time +2h']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);
-    assert.match(dailyReceipts(host).find(entry => entry.index === crossing).receipt.summary, /feast no longer fired/, 'a second Re-read still warns');
+    assert.match(dailyReceipts(host).find(entry => entry.index === crossing).receipt.summary, /"feast" no longer fired/, 'a second Re-read still warns');
     await agrees(host, 'second shrunk Re-read');
     await host.st.editMessage(crossing, reply('Dawn.', ['! time +1d']));
     assert.equal((await host.sdk.reread(crossing)).ok, true);
@@ -58,5 +58,17 @@ test('E21: a grown edited Re-read that still fires the feast, a prose-only edit,
     assert.equal((await host.sdk.reread(last)).ok, true);
     assert.deepEqual(host.turn.problems().filter(item => /no longer fired/.test(item.message)), [], 'nothing after the last reply to warn about');
     await agrees(host, 'no warnings');
+    host.done();
+});
+
+test('E21: an event with no words is "a world event" on the card; the receipt keeps its id', async () => {
+    const host = await newHost(true, { ...SPEC, events: [at('feast', 'start + 1 day', { summary: undefined }), at('riot', 'fired:feast + 2 days', { requires: ['fired:feast'] })] });
+    const crossing = await play(host);
+    await host.st.editMessage(crossing, reply('Dawn.', ['! time +1h']));
+    assert.equal((await host.sdk.reread(crossing)).ok, true);
+    const receipt = dailyReceipts(host).find(entry => entry.index === crossing).receipt;
+    assert.match(receipt.summary, /after this edit a world event no longer fired/);
+    assert.deepEqual(receipt.data.lost, ['feast']);
+    await agrees(host, 'no words');
     host.done();
 });

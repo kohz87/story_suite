@@ -11,7 +11,7 @@ import { recordAnchor } from './anchors.js';
 import { resolveRef } from './geo.js';
 import { refActive, withMapName } from './anchor-ref.js';
 import { baseOf, inGroup, placeAt, placeOf } from './cast-where.js';
-import { titleOf } from './event-title.js';
+import { labelOf, titleOf } from './event-title.js';
 
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
@@ -74,7 +74,10 @@ function skip(ws, person, source, day, why) {
 
 // A death that is not applied: the outcome's line says so ("(<name> survived)", ruling 49) and the Problems note says why (the caller's warning).
 function survives(ws, person, source, why) {
-    ws.warnings.push(`${source.kind === 'event' ? 'The event' : 'The template'} "${source.id}" would kill ${person.id}, ${why}; ${person.name} survived.`);
+    const said = labelOf({ id: source.id, title: source.title, summary: source.summary });
+    const kind = source.kind === 'event' ? 'event' : 'happening';
+    const named = said ? `The ${kind} "${said}"` : source.kind === 'event' ? 'An event' : 'A happening';
+    ws.warnings.push(`${named} would kill ${person.name}, ${why}; ${person.name} survived.`);
     if (Array.isArray(source.survived) && !source.survived.includes(person.name)) source.survived.push(person.name);
 }
 
@@ -86,7 +89,8 @@ function die(ws, person, entry, source, day) {
     if (ws.withYou.has(person.id)) {
         if (source.evenInParty !== true) return survives(ws, person, source, 'who is with You; refused (no even_in_party)');
         if (from && from !== 'anywhere' && !inGroup(ws, placeOf(ws, person.id), from)) return skip(ws, person, source, day, `not in ${from}`);
-        ws.cast[person.id] = { ...row, dying: { by: source.id, text: `${person.name} dies here: ${source.summary || source.title}`, day, rev: ws.rev, replies: 0 } };
+        const said = source.summary || titleOf(source.title, source.id);
+        ws.cast[person.id] = { ...row, dying: { by: source.id, text: said ? `${person.name} dies here: ${said}` : `${person.name} dies here.`, day, rev: ws.rev, replies: 0 } };
         ws.log.push({ kind: 'dying', key: person.id, by: source.id, day });
         return;
     }
@@ -103,10 +107,12 @@ function die(ws, person, entry, source, day) {
 
 /** Apply an authored event's `effects.cast` entries (source = { kind, id, title, summary?, evenInParty? }). */
 export function applyCast(ws, entries, source, day) {
-    if (source.kind !== 'event' && source.open !== true) { ws.warnings.push(`The template "${source.id}" names people; templates never touch named cast.`); return; }
+    // The two notes about the pack's own entries quote its ids: Problems only.
+    const unread = text => { ws.warnings.push(text); (ws.card ??= {})[text] = ''; };
+    if (source.kind !== 'event' && source.open !== true) { unread(`The template "${source.id}" names people; templates never touch named cast.`); return; }
     for (const entry of entries) {
         const person = ws.people.get(entry?.who);
-        if (!person) { ws.warnings.push(`The event "${source.id}" names "${entry?.who}", who is not in this world's cast.`); continue; }
+        if (!person) { unread(`The event "${source.id}" names "${entry?.who}", who is not in this world's cast.`); continue; }
         if (ws.cast[person.id]?.died !== undefined || ws.cast[person.id]?.dying) continue;
         if (entry.died === true) { die(ws, person, entry, source, day); continue; }
         const location = text(entry.location);

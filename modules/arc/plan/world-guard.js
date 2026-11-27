@@ -9,7 +9,7 @@ const squash = text => ` ${String(text ?? '').toLowerCase().replace(/[^\p{L}\p{N
 const idLike = name => /[-_\d]/.test(name);
 
 /** The adopted note for a refused item. */
-export const refusalNote = (kind, title) => `Refused: this ${kind} decides how the world event "${title}" ends; the world resolves it by itself. Plan a reaction instead.`;
+export const refusalNote = (kind, title) => `Refused: this ${kind} decides how ${title ? `the world event "${title}"` : 'an Active world event'} ends; the world resolves it by itself. Plan a reaction instead.`;
 
 function decides(item, events) {
     const text = [item.key, item.desc, ...Object.values(item.parts ?? {})].join(' ');

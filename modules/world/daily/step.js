@@ -84,6 +84,8 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
         cooldowns: { ...record(state?.cooldowns) }, startDay: Number.isInteger(state?.start) ? state.start : today,
         draw: draw ?? ((day, key) => seededDraw(campaign, day, key)), warnings: [...defs.warnings, ...(paced ? [] : [`Tempo ${tempo} is outside 0.25-4; tempo 1 is used.`])], log: [], journal: [], tomb: new Set(), day: today,
         cal, withYou: new Set(list(withYou)), pos: structuredClone(record(positions)), moves: [], released: [], deaths: [],
+        // What the step's card says for a warning, by its text ('' leaves it to Problems): pack-author notes, which quote the pack's ids.
+        card: Object.fromEntries(defs.warnings.map(text => [text, ''])),
     };
     // Pack format 4 (§4.2): events whose date or season this calendar lacks are Lapsed at load, and templates with one are left out.
     defs.templates = lapseUnpaired(ws, defs, today, !state);
@@ -116,7 +118,7 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
 
 /**
  * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip?, marks?, withYou?, positions?, partyRegion?, seatRegion?, unheld? })` → null when there is nothing to step (today was stepped),
- * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings, tomb, moves, released, deaths } }`. `withYou`: the cast ids
+ * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings, card, tomb, moves, released, deaths } }`. `withYou`: the cast ids
  * with You at the tick (party or scene); `positions`: { [cast id]: { at, base } } from the cast store (cast-where.js). `report.moves`,
  * `released` and `deaths` are what the host mirrors into the cast store. `state` is chronicle.daily (or null),
  * `table` chronicle.conditions, `seed` the campaign seed (kept in the state from the first step), `draw` a test's own draw. `marks` is
@@ -163,7 +165,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     return {
         daily, conditions: ws.table,
         report: {
-            from: first, to: today, days, note: days > longSkip ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)], tomb: [...ws.tomb].sort(),
+            from: first, to: today, days, note: days > longSkip ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)], card: ws.card, tomb: [...ws.tomb].sort(),
             moves: ws.moves, released: ws.released, deaths: ws.deaths,
         },
     };

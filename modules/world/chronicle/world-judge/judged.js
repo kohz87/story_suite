@@ -12,6 +12,9 @@ import { yearOf } from '../conditions/director-calls.js';
 import { calendarFrom } from '../queries.js';
 import { WORLD_EVENTS_FEATURE, worldEventsOn } from '../conditions/feature.js';
 import { judgedErrors, storeJudged } from './calls.js';
+import { readWorld } from '../world-daily/read-world.js';
+import { fadedWords } from '../world-daily/summary.js';
+import { buildGeo } from '../../daily/geo.js';
 
 export const JUDGED = 'chronicle.world.judged';
 const VERDICTS = new Set(['accept', 'reshape', 'refuse', 'fell']);
@@ -49,6 +52,12 @@ function liftConditions(ctx, event) {
     return lifted;
 }
 
+// The lifted conditions as a reader sees them ("grain dear on The March"), from their keys.
+function liftedWords(ctx, keys) {
+    const geo = buildGeo(readWorld((name, args) => ctx.query?.(name, args)));
+    return keys.map(key => fadedWords(key.slice(0, key.indexOf('@')), key.slice(key.indexOf('@') + 1), geo)).join(', ');
+}
+
 function store(ctx, payload = {}) {
     if (ctx.cause !== 'system' || ctx.caller) return ctx.fail('REFUSED', 'The Director\'s verdicts on world lines are stored by code before a reply.');
     if (!worldEventsOn(ctx)) return ctx.fail('REFUSED', 'World events are off.');
@@ -75,7 +84,7 @@ function store(ctx, payload = {}) {
             Object.assign(event, { state: 'resolved', updated: now ?? event.updated, rev, judge: { ...base, state: 'refused', why } });
             const lifted = liftConditions(ctx, event);
             data.refused.push(id);
-            said.push(`World: the Director refused "${event.name}" (${why}); it was only a rumour.${lifted.length ? ` Lifted: ${lifted.join(', ')}.` : ''}`);
+            said.push(`World: the Director refused "${event.name}" (${why}); it was only a rumour.${lifted.length ? ` Lifted: ${liftedWords(ctx, lifted)}.` : ''}`);
             continue;
         }
         const fixed = row.verdict === 'reshape' ? reshapeOf(ctx, event, row.line) : null;
@@ -92,8 +101,8 @@ function store(ctx, payload = {}) {
     }
     const query = typeof ctx.query === 'function' ? (name, args) => ctx.query(name, args) : null;
     if (calls > 0 || Object.keys(marks).length) storeJudged(chronicle, { calls, year: yearOf(calendarFrom(query), now), marks });
-    const vetoed = Object.entries(marks).filter(([, row]) => typeof row.veto === 'string').map(([key]) => key.split('|')[0]);
-    if (vetoed.length) said.push(`World: the Director held back ${vetoed.join(', ')} for tomorrow.`);
+    // No name: the event has not happened, and telling which one it was would give it away.
+    if (Object.values(marks).some(row => typeof row.veto === 'string')) said.push('World: the Director held something back for tomorrow.');
     return { summary: said.join(' '), narrate: false, data: { ...data, calls, ...(Object.keys(marks).length ? { marks: Object.keys(marks).sort() } : {}) } };
 }
 

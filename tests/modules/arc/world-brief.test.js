@@ -54,11 +54,11 @@ test('test 54 (the brief): an Active event as a world-event thread, Still to com
         assert.deepEqual(brief, {
             threads: [{ kind: 'world-event', key: 'The levy', now: 'The lord calls a levy.', then: 'outcome decided by the world' }],
             toCome: ['The crowning'],
-            conditions: ['unrest@Highmark: Crowds in the streets.'],
+            conditions: ['unrest at Highmark: Crowds in the streets.'],
             guard: [{ id: 'levy', title: 'The levy', outcomes: [] }],
         }, 'unrest at Farcliff is in another realm: not in the brief');
         assert.equal((await arc.plan()).ok, true);
-        assert.match(model.calls[0].system, /World events:\n- The levy — The lord calls a levy\. → outcome decided by the world\nStill to come:\n- The crowning\nConditions in this realm:\n- unrest@Highmark: Crowds in the streets\./);
+        assert.match(model.calls[0].system, /World events:\n- The levy — The lord calls a levy\. → outcome decided by the world\nStill to come:\n- The crowning\nConditions in this realm:\n- unrest at Highmark: Crowds in the streets\./);
         await host.send('Wait.', said('Days pass.', ['! time +4d']));
         assert.deepEqual(host.sdk.query('chronicle.world.brief', {}).threads, [], 'the event ended: its mirrored thread is gone');
         await arc.plan();

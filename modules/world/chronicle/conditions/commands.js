@@ -14,6 +14,10 @@ import { markLedger } from './ledger.js';
 import { setRefusal } from './refusal.js';
 import { SCOPES } from './limits.js';
 import { WORLD_EVENTS_FEATURE } from './feature.js';
+import { readWorld } from '../world-daily/read-world.js';
+import { fadedWords } from '../world-daily/summary.js';
+import { buildGeo } from '../../daily/geo.js';
+import { refLabel } from '../../daily/region-label.js';
 
 const BY = /^(?:narrator|director|code)$/;
 const DAY = 1440;
@@ -43,6 +47,11 @@ function declaredOf(ctx, name) {
     if (!declared) ctx.fail('REFUSED', `"${name}" is not one of this world's conditions.`);
     return declared;
 }
+
+// The cards name a condition and where it holds in words; `data.key` keeps them as stored.
+const wordsGeo = ctx => buildGeo(readWorld((type, args) => ctx.query(type, args)));
+const plainName = name => name.replace(/[-_]+/g, ' ');
+const said = (ctx, name, ref) => fadedWords(name, ref, wordsGeo(ctx));
 
 /**
  * `chronicle.condition.set { name, scope?, ref, fades?, why, by }`: the condition is active on `ref`. `fades` is how long it lasts
@@ -81,7 +90,7 @@ function condition(ctx, payload) {
     chronicle.conditions = table;
     chronicle.conditions[key] = { name, scope: declared.scope, ref, since: old?.since ?? now, ...lifetime(old, minutes, now), why, by, rev: revOf(ctx) };
     if (!old) markLedger(chronicle, { day: Math.floor(now / DAY), anchors: [`set:${name}`, `set:${key}`] });
-    return { summary: `${old ? 'Still' : 'Now'}: ${name} on ${ref}${why ? ` (${why})` : ''}.`, narrate: false, data: { key, created: !old } };
+    return { summary: `${old ? 'Still' : 'Now'}: ${said(ctx, name, ref)}${why ? ` (${why})` : ''}.`, narrate: false, data: { key, created: !old } };
 }
 
 /**
@@ -108,7 +117,7 @@ function clear(ctx, payload) {
         // Not active: nothing to end, but the day's tomb still holds (spec §2: a clear at a ref is not undone by a set there the same day), as the daily step's clear does.
         const at = clockOf(ctx);
         if (at !== null) markLedger(chronicle, { day: Math.floor(at / DAY), tombKeys: [conditionKey(name, ref)] });
-        return { summary: `${name} is not active on ${ref || 'that place'}.`, narrate: false, data: { key: null } };
+        return { summary: `${plainName(name)} is not active on ${refLabel(wordsGeo(ctx), ref)}.`, narrate: false, data: { key: null } };
     }
     const key = conditionKey(found.name, found.ref);
     // An older reply's condition may be gone when this replays after a delete: the removal is marked ctx.ifThere (SPEC §2.2).
@@ -116,7 +125,7 @@ function clear(ctx, payload) {
     delete chronicle.conditions[key];
     const now = clockOf(ctx);
     if (now !== null) markLedger(chronicle, { day: Math.floor(now / DAY), anchors: [`cleared:${name}`, `cleared:${key}`], tombKeys: [key] });
-    return { summary: `Ended: ${name} on ${found.ref}.`, narrate: false, data: { key } };
+    return { summary: `Ended: ${said(ctx, found.name, found.ref)}.`, narrate: false, data: { key } };
 }
 
 /** The commands, each tagged with the feature (Story Block refuses it while it is off). */

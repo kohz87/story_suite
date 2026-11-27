@@ -1003,7 +1003,17 @@
   "tests/packs/ersveil-holding-posts.test.js": "Tests the holding's officer posts: refusals, bonuses, the retainer cap, rejoining and replay.",
   "tests/modules/data-modules/holding-person.test.js": "Tests who a name means for the holding's posts: the post check's wider party match and two unjoined records of one name.",
   "tests/suite/holding-posts.test.js": "Tests the holding's posts on the real suite against the cast's stays record.",
-  "modules/world/daily/event-title.js": "World events, the daily step: an event's title as the Journal shows it, or none when the event has no authored title (never its id).",
+  "modules/world/daily/event-title.js": "World events, the daily step: the words for an event or template (its title, else its summary, never its id) and the filling of a summary's placeholders, an empty one cut with its preposition or clause.",
   "modules/people/core/core-injection-parts-parts/join-line.js": "Words the narrator's line on when a pack person would join the party, and leaves it out of the sent text the reader sees.",
-  "tests/people/cast-join.test.js": "Tests the hidden join field of a world cast entry: the pack check, the dossier, the narrator's line for non-members only, and the reader's views without it."
+  "tests/people/cast-join.test.js": "Tests the hidden join field of a world cast entry: the pack check, the dossier, the narrator's line for non-members only, and the reader's views without it.",
+  "modules/arc/plan/read-parts/cite-match.js": "Which known name a cited or quoted text means (an EVENT cause, the judge's refused event): the name whole or as cut, else the longest name the text begins with.",
+  "tests/ui/tabs/world/conditions-words.test.js": "Tests that the Conditions here card shows condition names in words.",
+  "tests/modules/arc/event-words.test.js": "Tests that the arc brief, the judge and the open-slot prompt use words, not ids, and that EVENT causes match long names with commas.",
+  "tests/modules/world/daily/words-not-ids.test.js": "Tests that world events are said in words: the summary fill, an event with no summary, card against Problems, faded conditions and offset anchors.",
+  "modules/world/daily/region-label.js": "World events, the daily step: the display name of a region, and of any condition's ref, as the reader sees it.",
+  "modules/world/daily/event-words.js": "World events, the daily step: an event's summary and name in words (a part of a town named by its town), taking a place from the event's own `where` when the summary cannot stand without one.",
+  "modules/world/daily/never-opened.js": "World events, the daily step: tells whether a lapsed event's branch never opened (a lasting requirement never happened), so the step card leaves it out.",
+  "modules/world/chronicle/conditions/reason.js": "Gives the reason the World tab shows for a condition, putting the happening's or pack's summary, or nothing, where an event or template id was stored.",
+  "tests/modules/world/daily/step-card-names.test.js": "Tests that the step card names lapsed and replaced events by their words and leaves out branches that never opened.",
+  "tests/modules/world/chronicle/condition-reason.test.js": "Tests that a condition's reason on the World tab is never the id of the event or template that set it."
 }

@@ -74,11 +74,12 @@ export function writeHappenings(ctx, chronicle, journal, { geo, rev, dateOf = ()
             const open = Object.values(chronicle.events).filter(event => event.by === by && event.state !== 'resolved').sort((a, b) => (b.since ?? 0) - (a.since ?? 0))[0];
             if (!open) continue;
             if (typeof ctx.ifThere === 'function') ctx.ifThere('chronicle', `/events/${open.id}`);
-            Object.assign(open, { state: 'resolved', summary: cleanSummary(String(entry.text)).slice(0, MAX_SUMMARY), updated: at, rev });
+            // An end with no words of its own resolves the entry and keeps what it said.
+            Object.assign(open, { state: 'resolved', summary: cleanSummary(String(entry.text)).slice(0, MAX_SUMMARY) || open.summary, updated: at, rev });
             written.push(open.id);
             continue;
         }
-        if (!entry.fired && !template) continue;
+        if ((!entry.fired && !template) || !String(entry.text ?? '').trim()) continue;
         const id = idOf(by, entry.day);
         const next = {
             id, name: nameOf(chronicle.events, entry.text, dateOf(entry.day), id), summary: cleanSummary(String(entry.text)).slice(0, MAX_SUMMARY),

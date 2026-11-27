@@ -72,7 +72,7 @@ test('settle removes exactly those whose end has come, in key order, with a rece
     assert.deepEqual(conditionsSettleCommands(view(at(2 * DAY), {})), [], 'off: nothing');
     const done = must(run(at(2 * DAY), 'chronicle.conditions.settle', {}));
     assert.deepEqual(Object.keys(done.state.domains.chronicle.conditions).sort(), ['roads-closed@Highmark-Bluewatch', 'unrest@Highmark']);
-    assert.equal(done.result.summary, 'Faded: grain-dear on The March.');
+    assert.equal(done.result.summary, 'Faded: grain dear on The March.');
     const all = must(run(at(9 * DAY), 'chronicle.conditions.settle', {}));
     assert.deepEqual(Object.keys(all.state.domains.chronicle.conditions), ['roads-closed@Highmark-Bluewatch']);
 });

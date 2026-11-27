@@ -11,7 +11,7 @@ import { runDays } from '../../../../modules/world/daily/step.js';
 import { MAP } from './party-map.helpers.js';
 
 const world = extra => ({ ...MAP, events: [], templates: [], ...extra });
-const ev = (id, extra = {}) => ({ id, kind: 'one-off', certainty: 'set-in-motion', where: ['Westport'], window: { after: 'start', within: '10 days' }, ends_when: 'instant', summary: id, ...extra });
+const ev = (id, extra = {}) => ({ id, kind: 'one-off', certainty: 'set-in-motion', where: ['Westport'], window: { after: 'start', within: '10 days' }, ends_when: 'instant', summary: `The ${id}.`, ...extra });
 const at = (run, party, day) => { run.party = party; return run.to(day); };
 
 test('adjacency: two regions are neighbours when a route joins a place in one to a place in the other', () => {
