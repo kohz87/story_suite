@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 import { createNpcRecords } from '../../modules/people/meters/npc-meters-parts/records.js';
 import { ownersOf } from '../../modules/people/meters/npc-meters-parts/owners.js';
 import { resolveDossierTarget } from '../../modules/people/npc-api/dossier-target.js';
+import { knownPerson } from '../../modules/people/meters/npc-lines-parts/stub.js';
+import { personNamed } from '../../modules/people/meters/npc-lines-parts/names.js';
 import { findNpcKey } from '../../modules/people/meters/npc-meters-slice.js';
 
 const people = (ana = {}) => ({
@@ -52,6 +54,14 @@ test('an entry under another dossier\'s id is that dossier\'s, whatever name it 
 test('a new key is never a stored dossier\'s id (a renamed dossier keeps its own)', () => {
     const identify = identifier({ npc_ana: { id: 'npc_ana', name: 'Annie', aliases: [] } });
     assert.notEqual(identify({}, 'Ana').key, 'npc_ana');
+});
+
+test('lines mode: a story line naming a person finds them, not someone stored earlier who has that name as an alias, the dead too', () => {
+    const dead = { lifeState: 'deceased', lifeStateCertainty: 'explicit' };
+    const { npc_ana: ana, npc_bo: bo } = people(dead);
+    const found = knownPerson({ read: domain => (domain === 'people' ? { npcs: { npc_bo: bo, npc_ana: ana } } : { npcs: {} }) }, 'Ana');
+    assert.equal(found.key, 'npc_ana', 'so the death check reads her record');
+    assert.equal(personNamed({ npc_bo: { ...bo, aliases: ['The Ferryman'] } }, 'the ferryman').key, 'npc_bo', 'another alias still finds them');
 });
 
 test('findNpcKey skips a taken key when matching names and aliases, and still takes an id given outright', () => {

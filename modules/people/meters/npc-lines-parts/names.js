@@ -1,5 +1,5 @@
 // Who a story line names (SOAKPEOPLE F50): among the people as this reply sees them (ctx.read('people'), reply-pinned, so a swipe, a Re-read and a replay
-// decide the same way), the person whose name or alias the line writes exactly; else the ONE person a short form fits: a first name or a surname, with or
+// decide the same way), the person whose name, else alias, the line writes exactly; else the ONE person a short form fits: a first name or a surname, with or
 // without a title ("Hesk", "Captain Dalla"; titles and "the" never count as a name); else the ONE person whose role it is ("the Watch-Captain"). Two people
 // a short form fits is nobody: the line must write the full name.
 import { labelKey } from '../../dossier/cast-dossier-parts/shared-text.js';
@@ -14,7 +14,8 @@ export function personNamed(people, name) {
     const asked = labelKey(name);
     if (!asked) return null;
     const rows = Object.entries(isObject(people) ? people : {}).filter(([, record]) => isObject(record));
-    const exact = rows.find(([, record]) => labelsOf(record).map(labelKey).includes(asked));
+    // A person's own name wins over anyone's alias, wherever each stands in the list.
+    const exact = rows.find(([, record]) => labelKey(record.name) === asked) ?? rows.find(([, record]) => labelsOf(record).map(labelKey).includes(asked));
     if (exact) return { key: exact[0], record: exact[1] };
     const words = bareTokens(name);
     const short = words.length ? rows.filter(([, record]) => {
