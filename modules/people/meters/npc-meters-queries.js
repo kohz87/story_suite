@@ -1,7 +1,8 @@
 // Read-only NPC meter queries and screen views. A pure part of npc-meters.js (same owner, moved without change);
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
 import { MAX_STAGES_PER_METER, SECRET_TITLE_MAX, NAME_MAX, FEATURE_NOTES, isObject, isInt, isReplyId, sameReply, clean, own, bandWord, needMet, thresholdReached, stageAt, clamp, intOr, readLeaf } from './npc-meters-config.js';
-import { findNpcKey, meterValue, rungMet, conflictOn } from './npc-meters-slice.js';
+import { meterValue, rungMet, conflictOn } from './npc-meters-slice.js';
+import { ownersOf } from './npc-meters-parts/owners.js';
 import { bondsOf } from './npc-meters-parts/fold.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { eventLog, readEvent } from './npc-meters-pacing.js';
@@ -17,15 +18,14 @@ export function createNpcQueries({
 
     // The meters are the people domain's `bonds`, keyed by npc_ id (src/npc-meters-parts/fold.js).
     const sliceOf = state => bondsOf(state);
+    const ownersIn = state => ownersOf(state?.domains?.people?.npcs);
     // The store's people as the cast lists them: every dossier in the store's order that is not a confirmed death (the same people as npc.known; a record has no
     // archive flag any more), with its bonds entry, or where that entry would start.
-    const castPeople = (state, npcs, defs) => {
+    const castPeople = (state, npcs, defs, owners) => {
         const people = state?.domains?.people;
         if (!isObject(people?.npcs) || !Array.isArray(people.order)) return [];
-        const ids = Object.keys(people.npcs);
         return people.order.map(id => people.npcs[id]).filter(person => isObject(person) && !isTerminalNpcDeath(person) && typeof person.name === 'string' && person.name).map(person => {
-            const labels = [person.id, person.name, ...(Array.isArray(person.aliases) ? person.aliases : [])].filter(label => typeof label === 'string');
-            const key = findNpcKey(npcs, labels, new Set(ids.filter(id => id !== person.id)));
+            const key = owners.entryKey(npcs, person);
             const seed = isObject(person.relationship) ? person.relationship : {};
             const record = key ? npcs[key] : { name: person.name, meters: Object.fromEntries(defs.map(def => [def.id, intOr(seed[def.id], null) === null ? def.start : clamp(intOr(seed[def.id], 0), def.min, def.max)])), stages: {}, unlocked: [] };
             return { id: person.id, key: key ?? person.id, name: person.name, record };
@@ -153,7 +153,7 @@ export function createNpcQueries({
         });
     }
     // The keys of the people present now: an entry found for the name (its dossier's id first), else the dossier's own id (someone with no meters yet).
-    const presentKeys = npcs => new Set(presentNames().map(name => identify(npcs, name)?.key).filter(Boolean));
+    const presentKeys = (npcs, owners) => new Set(presentNames().map(name => identify(npcs, name, owners)?.key).filter(Boolean));
 
     // The dossier's mood and pull (feature mood-pull; only a record that has them): `mood` { word, valence, energy, control, bars,
     // cause, day, rest (the resting axes it fades toward), log (the last moves of the axes, newest first: { n, date, v, a, d, why }) } and `pull` { kind, cause, since, days, level (1..3, the top item's score), inst }. Plain data: the UI escapes the text.
@@ -172,7 +172,7 @@ export function createNpcQueries({
         /**
          * npc.meters({ name }) → { key, name, meters, stages, unlocked, disposition?, reply?,
          * milestones?, rank? } | null; without a name, every entry (in key order). Meters are filled
-         * in for every meter in use.
+         * in for every meter in use. With `id` (a caller that holds the dossier: { id, name, aliases }), that person's own entry.
          */
         'npc.meters'(state, args = {}) {
             const { npcs } = sliceOf(state);
@@ -180,8 +180,9 @@ export function createNpcQueries({
             const defs = defsFrom(settings);
             const view = key => entryView(key, npcs[key], defs, rungsFor(settings, setupFor(npcs[key].name)));
             if (args && typeof args.name === 'string') {
-                const who = identify(npcs, args.name);
-                return who && Object.hasOwn(npcs, who.key) ? view(who.key) : null;
+                const owners = ownersIn(state);
+                const key = typeof args.id === 'string' && args.id ? owners.entryKey(npcs, args) : identify(npcs, args.name, owners)?.key;
+                return key && Object.hasOwn(npcs, key) ? view(key) : null;
             }
             return Object.keys(npcs).sort().map(view);
         },
@@ -201,9 +202,10 @@ export function createNpcQueries({
             const { npcs } = sliceOf(state);
             const settings = storedSettings();
             const defs = defsFrom(settings);
-            const here = presentKeys(npcs);
+            const owners = ownersIn(state);
+            const here = presentKeys(npcs, owners);
             const head = isObject(args) && Object.hasOwn(args, 'headReply') ? args.headReply : undefined;
-            return castPeople(state, npcs, defs)
+            return castPeople(state, npcs, defs, owners)
                 .map(({ key, name, record }) => {
                     const list = bars(record, defs, settings, { headReply: head, reply: tools?.reply ?? null });
                     const ladder = ladderView(record, settings, defs);
@@ -235,7 +237,7 @@ export function createNpcQueries({
         /** npc.next({ name }) → the NPC's ladder from here ({ rank, next, risk, text }), or null. */
         'npc.next'(state, args = {}) {
             const { npcs } = sliceOf(state);
-            const who = identify(npcs, args?.name);
+            const who = identify(npcs, args?.name, ownersIn(state));
             if (!who || !Object.hasOwn(npcs, who.key)) return null;
             const settings = storedSettings();
             return ladderView(npcs[who.key], settings, defsFrom(settings));
@@ -253,7 +255,7 @@ export function createNpcQueries({
             if (!skill || !asked) return null;
             const { npcs } = sliceOf(state);
             const dossier = resolve(asked);
-            const who = identify(npcs, asked);
+            const who = identify(npcs, asked, ownersIn(state));
             const entry = who && Object.hasOwn(npcs, who.key) ? npcs[who.key] : null;
             if (!dossier && !entry) return null;
             const settings = storedSettings();

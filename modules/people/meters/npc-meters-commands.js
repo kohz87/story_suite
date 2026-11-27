@@ -20,7 +20,7 @@ import { seedCastBond } from './npc-meters-parts/cast-bond.js';
 
 export function createNpcCommands({
     featureOn, normalized, defsFrom, tierCaps, ownOrModule, readerAction, headReply, commandReply,
-    identify, ensure, note, changesFrom, setupFor, limitsFor, resolve, settleRecord, run, presentNames, clockDay, clockMinutes, timeMinutes, call, hooks,
+    identifyIn, ensure, note, changesFrom, setupFor, limitsFor, resolve, settleRecord, run, presentNames, clockDay, clockMinutes, timeMinutes, call, hooks,
 }) {
     // ---- the change lines ----
 
@@ -41,7 +41,7 @@ export function createNpcCommands({
         const at = isInt(ctx.carrier?.index) ? ctx.carrier.index : null;
         const reply = replyKey(ctx.carrier?.sid, at);
         const slice = ctx.draft(NPC_DOMAIN);
-        const who = identify(isObject(slice.npcs) ? slice.npcs : {}, line.name);
+        const who = identifyIn(ctx, isObject(slice.npcs) ? slice.npcs : {}, line.name);
         if (!who) ctx.fail('INVALID', 'The line does not name anyone.');
         const day = clockDay(at);
         const current = (isObject(slice.npcs) && isObject(slice.npcs[who.key]) ? slice.npcs[who.key][noteField(line.kind)] : '') ?? '';
@@ -84,7 +84,7 @@ export function createNpcCommands({
         // Dossier labels alone make no bond record: only someone with a bond or a dossier already (N4's stub makes the dossier, not this line).
         // (a memory: alone is a label too: the line is kept for its memory, which ./npc-lines-parts/memory.js saves after it)
         const labelled = Object.keys(fields).length > 0 || Boolean(read.memory);
-        const who = labelled && !changes.length ? identify(ctx.read(NPC_DOMAIN)?.npcs ?? {}, line.name) : null;
+        const who = labelled && !changes.length ? identifyIn(ctx, ctx.read(NPC_DOMAIN)?.npcs ?? {}, line.name) : null;
         const known = Boolean(who && (Object.hasOwn(ctx.read(NPC_DOMAIN)?.npcs ?? {}, who.key) || ctx.read('people')?.npcs?.[who.key]));
         if (labelled && !changes.length && !known && line.op !== '+') problems.push(`${clean(line.name, 40)} has no record yet; ${[...Object.keys(fields), ...(read.memory ? ['memory'] : [])].join(', ')} not stored.`);
         const out = run(ctx, { label: line.name, changes, problems, limit: true, reply, at, disposition, via, allowEmpty: line.op === '+' || (labelled && known), impact: tierCaps() ? { tier, caps: tierCaps() } : null, story: true, reason, key: line.stubKey });
@@ -175,7 +175,7 @@ export function createNpcCommands({
         /** npc.refresh { name }: stages, the ladder and notes again (after the reader changed them). */
         'npc.refresh'(ctx, payload = {}) {
             const slice = ctx.read(NPC_DOMAIN);
-            const who = identify(slice?.npcs ?? {}, payload?.name);
+            const who = identifyIn(ctx, slice?.npcs ?? {}, payload?.name);
             if (!who || !Object.hasOwn(slice?.npcs ?? {}, who.key)) ctx.fail('NOT_FOUND', 'That NPC has no meters yet.');
             const out = run(ctx, { label: payload.name, changes: [], problems: [], limit: false, reply: null, allowEmpty: true });
             if (!out.data.stages.length && !out.data.unlocked.length && !out.data.ranks?.length) ctx.fail('REFUSED', 'Nothing to update.');
@@ -208,7 +208,7 @@ export function createNpcCommands({
             if (!featureOn(FEATURE_NOTES, ctx)) ctx.fail('FEATURE_OFF', 'Dossier notes are turned off.');
             const at = isInt(payload?.reply) && payload.reply >= 0 ? payload.reply : null;
             const slice = ctx.read(NPC_DOMAIN);
-            const who = identify(slice?.npcs ?? {}, payload?.name);
+            const who = identifyIn(ctx, slice?.npcs ?? {}, payload?.name);
             const have = who ? slice?.npcs?.[who.key] : null;
             const text = clean(payload?.text, 200);
             const cue = clean(payload?.cue, 240);
@@ -228,7 +228,7 @@ export function createNpcCommands({
             if (!featureOn(FEATURE_NOTES, ctx)) ctx.fail('FEATURE_OFF', 'Dossier notes are turned off.');
             const at = isInt(payload?.reply) && payload.reply >= 0 ? payload.reply : null;
             const slice = ctx.read(NPC_DOMAIN);
-            const who = identify(slice?.npcs ?? {}, payload?.name);
+            const who = identifyIn(ctx, slice?.npcs ?? {}, payload?.name);
             if (!who) ctx.fail('INVALID', 'It names no one.');
             const out = mergeRefreshTastes(slice?.npcs?.[who.key]?.tastes, payload?.tastes, { name: who.name, day: clockDay(at) ?? 0, r: commandReply(ctx, at) });
             if (!out.added) ctx.fail('REFUSED', 'No new taste to record.');
@@ -243,7 +243,7 @@ export function createNpcCommands({
         'npc.meet'(ctx, payload = {}) {
             if (!ownOrModule(ctx, 'npc.meet', payload)) ctx.fail('REFUSED', 'A meeting is noted only by NPC State\'s own scan.');
             const have = ctx.read(NPC_DOMAIN);
-            const named = identify(have?.npcs ?? {}, payload?.name);
+            const named = identifyIn(ctx, have?.npcs ?? {}, payload?.name);
             if (!named) ctx.fail('INVALID', 'It names no one.');
             const before = have?.npcs?.[named.key];
             const needsMood = featureOn(FEATURE_MOOD_PULL, ctx) && !(before && before.mood);
@@ -276,7 +276,7 @@ export function createNpcCommands({
             if (!ownOrModule(ctx, 'npc.mood', payload)) ctx.fail('REFUSED', 'A mood word is noted only by NPC State\'s own scan.');
             if (!featureOn(FEATURE_MOOD_PULL, ctx)) ctx.fail('FEATURE_OFF', 'Mood and pull are turned off.');
             const target = moodNumbers(payload?.vad) ?? moodFromWord(payload?.word);
-            const had = ctx.read(NPC_DOMAIN)?.npcs?.[identify(ctx.read(NPC_DOMAIN)?.npcs ?? {}, payload?.name)?.key];
+            const had = ctx.read(NPC_DOMAIN)?.npcs?.[identifyIn(ctx, ctx.read(NPC_DOMAIN)?.npcs ?? {}, payload?.name)?.key];
             if (payload?.again === true && had && (had.moodLog || readLeaf(had.mood)?.cause)) ctx.fail('REFUSED', 'The mood already follows a move.');
             const at = isInt(payload?.reply) && payload.reply >= 0 ? payload.reply : null;
             const minutes = clockMinutes(at) ?? timeMinutes(ctx);
@@ -304,7 +304,7 @@ export function createNpcCommands({
             if (!featureOn(FEATURE_NOTES, ctx)) ctx.fail('FEATURE_OFF', 'Dossier notes are turned off.');
             if (payload?.rule !== DRIVE_RULE) ctx.fail('INVALID', 'It names no drive rule this version knows.');
             const slice = ctx.read(NPC_DOMAIN);
-            const who = identify(slice?.npcs ?? {}, payload?.name);
+            const who = identifyIn(ctx, slice?.npcs ?? {}, payload?.name);
             const have = who ? slice?.npcs?.[who.key] : null;
             if (!have) ctx.fail('REFUSED', 'No one by that name has an entry.');
             const at = isInt(payload?.reply) && payload.reply >= 0 ? payload.reply : headReply();
@@ -358,7 +358,7 @@ export function createNpcCommands({
             const castNames = [];
             for (const person of castSeen.fresh) {
                 castNames.push(person.name);
-                const who = identify(slice.npcs, person.name);
+                const who = identifyIn(ctx, slice.npcs, person.name);
                 if (!who || Object.hasOwn(slice.npcs, who.key)) continue;
                 seedCastBond(ctx, slice, who, person, { defs, ensure, note, moodPull, minutes, notesOn: featureOn(FEATURE_NOTES, ctx) });
             }

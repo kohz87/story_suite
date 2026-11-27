@@ -15,10 +15,10 @@ const fold = value => String(value ?? '').replace(/\s+/g, ' ').trim().toLowerCas
 const labelsOf = line => Object.fromEntries(Object.entries(line?.labels ?? {}).map(([label, raw]) => [slug(label), String(raw ?? '')]));
 
 /**
- * Runs one `~ reveal` line. `deps`: { identify, rulesFor, run } (the part's record helpers and its run); `castFirst` (./cast-first.js): a pack person met or
+ * Runs one `~ reveal` line. `deps`: { identifyIn, rulesFor, run } (the part's record helpers and its run); `castFirst` (./cast-first.js): a pack person met or
  * present here gets their dossier from the pack first (S2PA B1). → the run's receipt.
  */
-export function secretLine(ctx, line, { identify, rulesFor, run, call = () => ({}), hooks = {}, defs = () => [], castFirst = null }) {
+export function secretLine(ctx, line, { identifyIn, rulesFor, run, call = () => ({}), hooks = {}, defs = () => [], castFirst = null }) {
     const name = clean(line?.name, 40);
     const { opened = '', quote = '' } = labelsOf(line);
     const found = knownOrCast(ctx, line?.name, castFirst);
@@ -29,7 +29,7 @@ export function secretLine(ctx, line, { identify, rulesFor, run, call = () => ({
     if (!secretEventsShown({ secretEvents: [id], secretEventEvidence: { [id]: quote } }, text).length) ctx.fail('REFUSED', `~ reveal ${name}: no quote found in this reply; the note stays closed.`);
     const slice = ctx.draft(NPC_DOMAIN);
     const full = typeof found.record?.name === 'string' ? found.record.name : line.name;   // (F50: a first name finds the person; their entry is found by the full name)
-    const who = identify(slice.npcs ?? {}, full);
+    const who = identifyIn(ctx, slice.npcs ?? {}, full);
     const record = who ? slice.npcs?.[who.key] : null;
     const rules = rulesFor(who?.name ?? found.record?.name ?? line.name, who?.labels ?? []);
     const earnable = ctx.carrier?.rules?.includes('revealNext') === true;

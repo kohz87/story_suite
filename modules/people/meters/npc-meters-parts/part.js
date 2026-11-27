@@ -50,13 +50,13 @@ export function createNpcPart(hooks = {}) {
         ownRungs, rungsFor, limitsFor,
     } = readers;
     const records = createNpcRecords(readers);
-    const { identify, ensure, note, changesFrom, settleRecord, openCloseNotes, tiered } = records;
+    const { identify, identifyIn, ensure, note, changesFrom, settleRecord, openCloseNotes, tiered } = records;
     const { run } = createNpcRun({ ...readers, ...records });
 
     const shared = {
         call, resolve, baseline, tierCaps, rulesFor, presentNames, featureOn, catalog, normalized,
         storedSettings, tierAllowance, clockDay, clockMinutes, timeMinutes, defsFrom, readerAction, ownOrModule, headReply, commandReply, setupFor,
-        ownRungs, rungsFor, limitsFor, identify, ensure, note, changesFrom, settleRecord,
+        ownRungs, rungsFor, limitsFor, identify, identifyIn, ensure, note, changesFrom, settleRecord,
         openCloseNotes, tiered, run, hooks,
     };
     const built = createNpcCommands(shared);
@@ -80,7 +80,7 @@ export function createNpcPart(hooks = {}) {
     // `~ memory` and `~ reveal` (NSD8, NSD12): only in lines mode; untaught until N7 (grammar '', heads only). Off, a line of either is refused and changes nothing.
     const onlyLines = (name, apply) => folded((ctx, line = {}) => (linesMode(ctx) ? apply(ctx, line) : ctx.fail('REFUSED', `${name} lines are not on.`)));
     const memoryApply = onlyLines('~ memory', (ctx, line) => memoryLine(ctx, line, { date, castFirst }));
-    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run, call, hooks, defs: () => defsFrom(storedSettings()), castFirst }));
+    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identifyIn, rulesFor, run, call, hooks, defs: () => defsFrom(storedSettings()), castFirst }));
     // The host sends every line of the module to the one apply of the `npc` kind: `~ memory` and `~ reveal` go to their own, the rest to the change line.
     // A death line (NSD13, `~ npc Name | died | how: …`) is its own op, in lines mode only; off, it is an ordinary `~ npc` line, byte for byte.
     const diedApply = folded((ctx, line = {}) => diedLine(ctx, line));
@@ -104,7 +104,7 @@ export function createNpcPart(hooks = {}) {
         settings: { defaults: { ...SETTINGS_DEFAULTS }, schema: SETTINGS_SCHEMA },
         features: FEATURES,
         featureOn: id => featureOn(id),
-        identify: (npcs, label) => identify(npcs ?? {}, label),
+        identify: (npcs, label, owners) => identify(npcs ?? {}, label, owners),
         defs: () => defsFrom(storedSettings()),
         meterSettings: () => storedSettings(),
         /** True when Delta's per-reply tick has something to look at (a ladder, or a drifting meter). */

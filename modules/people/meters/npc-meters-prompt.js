@@ -2,6 +2,7 @@
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
 import { FEATURE_GATE, FEATURE_PRESETS, FEATURE_MOOD_PULL, FEATURE_NOTES, RECENT_MESSAGES, SECRET_TEXT_MAX, TAIL_SECRETS_PER_NPC, isInt, clean, bandWord, readLeaf } from './npc-meters-config.js';
 import { meterValue } from './npc-meters-slice.js';
+import { ownersOf } from './npc-meters-parts/owners.js';
 import { gateCue } from './npc-meters-gate.js';
 import { readEvent } from './npc-meters-pacing.js';
 import { moodWord, normalizeMood, storedMoodWord } from './npc-mood.js';
@@ -116,7 +117,7 @@ export function createNpcPrompt({
         const defs = defsFrom(settings);
         const byId = new Map(defs.map(def => [def.id, def]));
         const length = Number.isInteger(view?.chat?.length) ? view.chat.length : 0;
-        const here = presentKeys(npcs);
+        const here = presentKeys(npcs, ownersOf(state?.domains?.people?.npcs));
         const moved = [];
         const notes = [];
         const hidden = [];

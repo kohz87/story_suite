@@ -1019,5 +1019,7 @@
   "packs/screens/inspect-parts/hidden-words.js": "Replaces the join words and every unopened hidden note in one reply's Inspector view with \"(hidden)\".",
   "tests/core/inspect-hidden.test.js": "Tests that the Inspector shows no join words and no unopened hidden note, and still shows an opened one.",
   "tests/modules/arc/cite-bar-cut.test.js": "Tests that a world event name with \"|\" is printed with \"/\" and citable, and that a shortened form two names share matches neither.",
+  "tests/people/npc-alias-other-person-host.test.js": "Tests on the real adapter that no path maps a person to another person's NPC State meters entry, with the other alive, archived or dead.",
+  "modules/people/meters/npc-meters-parts/owners.js": "The one rule for which NPC State meters entry is a person's: a stored dossier's id and name belong to that dossier alone.",
   "tests/people/npc-alias-other-person.test.js": "Tests that an alias that is another person's name never lands on that person's NPC State meters entry."
 }

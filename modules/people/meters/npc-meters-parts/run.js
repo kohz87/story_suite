@@ -8,7 +8,7 @@ import { pacedTier, spendFlatEvent } from '../../relationship/relationship-pacin
 import { askedOf, cutToTier, dayRuleFor, movesOf, nextEvent, pacingNote, withEvidence } from '../npc-meters-pacing.js';
 
 /** The change runner of one npc part, built on its readers and record helpers. */
-export function createNpcRun({ normalized, defsFrom, identify, ensure, setupFor, timeMinutes, tierAllowance, clockDay, clockMinutes, dateOf, featureOn, tiered, tierCaps, limitsFor, rulesFor, openCloseNotes, settleRecord, note }) {
+export function createNpcRun({ normalized, defsFrom, identifyIn, ensure, setupFor, timeMinutes, tierAllowance, clockDay, clockMinutes, dateOf, featureOn, tiered, tierCaps, limitsFor, rulesFor, openCloseNotes, settleRecord, note }) {
     // `milestone`: { add: [{ key, name }], remove: [key] } (the reader's or a story line's).
     function run(ctx, { label, changes, problems, limit, reply, at = null, seed, disposition, allowEmpty = false, milestone = null, notes = null, impact = null, story = false, yieldToStory = false, scanTier = null, scanWhy = '', via = null, reason = '', leaf = null, evidence = null, key = null }) {
         const settings = normalized(ctx.settings(), ctx);
@@ -19,7 +19,7 @@ export function createNpcRun({ normalized, defsFrom, identify, ensure, setupFor,
         const slice = ctx.draft(NPC_DOMAIN);
         if (!isObject(slice.npcs)) slice.npcs = {};
         if (!Array.isArray(slice.problems)) slice.problems = [];
-        const who = identify(slice.npcs, label);
+        const who = identifyIn(ctx, slice.npcs, label);
         if (!who) ctx.fail('INVALID', 'The change does not name anyone.');
         if (key && !Object.hasOwn(slice.npcs, key)) who.key = key;   // (a new person from a stub: the id the stub's dossier was made under)
         const created = ensure(ctx, slice.npcs, who, defs, seed ?? who.seed);

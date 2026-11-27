@@ -25,7 +25,7 @@ const BAR_WIDTHS = Object.freeze([62, 48, 56, 70]);
 
 export function createEditorPart(session, deps) {
     const {
-        catalog, entryFor, headReply, part, setupOf, sliceEntries, gateInputs, worldSecretsOn,
+        catalog, entryFor, headReply, ownersNow, part, setupOf, sliceEntries, gateInputs, worldSecretsOn,
     } = deps;
 
     // ---- the dossier editor and the dossier view (hosted only) ----
@@ -238,10 +238,9 @@ export function createEditorPart(session, deps) {
         const out = {};
         // Ties are kept by the other person's entry key; the map and the Ties rows read them by dossier id and by bond.
         const idByKey = {};
-        for (const npc of npcs) {
-            const found = npc?.id ? part.identify(byKey, npc.name) : null;
-            if (found && Object.hasOwn(byKey, found.key)) idByKey[found.key] = npc.id;
-        }
+        const owners = ownersNow();
+        const keys = new Map(npcs.filter(npc => npc?.id).map(npc => [npc.id, owners.entryKey(byKey, npc)]));
+        for (const [id, key] of keys) if (key && Object.hasOwn(byKey, key)) idByKey[key] = id;
         const canon = aliasCanon(npcs);
         // A pack tie to someone met after this person is added at read once they are (cast-links.js; never stored).
         const met = metCastNames(npcs);
@@ -259,8 +258,8 @@ export function createEditorPart(session, deps) {
         const linked = new Map(withCastLinks(npcs).filter(npc => npc?.id).map(npc => [npc.id, npc]));
         for (const npc of npcs) {
             if (!npc?.id) continue;
-            const who = part.identify(byKey, npc.name);
-            const entry = who && Object.hasOwn(byKey, who.key) ? byKey[who.key] : null;
+            const key = keys.get(npc.id);
+            const entry = key && Object.hasOwn(byKey, key) ? byKey[key] : null;
             const slice = entry ? entries.find(item => item.key === entry.key) : null;
             // Someone with notes but no meters yet still has a Secrets section (every note hidden).
             const secrets = secretsViewOf(npc, slice);
@@ -296,11 +295,12 @@ export function createEditorPart(session, deps) {
         const entries = sliceEntries() ?? [];
         const out = [];
         let people = 0;
-        const open = worldSecretsOn?.() ? offeredSecrets(npcs, entries) : null;
+        const owners = ownersNow();
+        const open = worldSecretsOn?.() ? offeredSecrets(npcs, entries, owners) : null;
         for (const npc of npcs) {
             if (people >= EVENT_WATCH_NPCS) break;
             if (!npc?.id || !npc.present || npc.archived) continue;
-            const slice = entryFor(entries, npc);
+            const slice = entryFor(entries, npc, owners);
             const done = new Set([...(slice?.unlocked ?? []), ...(slice?.held ?? [])]);
             const notes = normalizeSecrets(npc.secrets).filter(note => !done.has(note.id));
             const events = notes.filter(note => note.when).slice(0, EVENT_WATCH_EACH).map(note => ({ note, event: note.when }));
@@ -316,13 +316,13 @@ export function createEditorPart(session, deps) {
     }
 
     // The open pack secret of each present person the narrator is offered: the first open one in the pack's order, people by id, two in all → Map(id → note).
-    function offeredSecrets(npcs, entries) {
+    function offeredSecrets(npcs, entries, owners) {
         const byId = new Map(part.defs().map(def => [def.id, def]));
         const out = new Map();
         const here = npcs.filter(npc => npc?.id && npc.present && !npc.archived).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
         for (const npc of here) {
             if (out.size >= READY_IN_ALL) break;
-            const slice = entryFor(entries, npc);
+            const slice = entryFor(entries, npc, owners);
             const done = new Set([...(slice?.unlocked ?? []), ...(slice?.held ?? [])]);
             const gated = normalizeSecrets(npc.secrets).filter(note => note.gate && !done.has(note.id));
             if (!gated.length) continue;
