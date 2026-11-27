@@ -70,7 +70,7 @@ test('on the host: an event sets a condition, it is active, queries see it, and 
     await host.send('Then.', reply('Quiet.'));
     assert.deepEqual(names(host), ['unrest@Highmark'], 'settled: removed');
     // The fade is told on a card: the settle's, or (the world's daily step owns fades while it steps the days, job C) the daily step's.
-    assert.ok(host.sdk.receipts().some(entry => ['chronicle.conditions.settle', 'chronicle.world.daily'].includes(entry.receipt.type) && /Faded: grain-dear on The March/.test(entry.receipt.summary)));
+    assert.ok(host.sdk.receipts().some(entry => ['chronicle.conditions.settle', 'chronicle.world.daily'].includes(entry.receipt.type) && /Faded: grain dear on The March/.test(entry.receipt.summary)));
     await agrees(host, 'fade');
     host.close();
 });

@@ -2,6 +2,8 @@
 // come, the conditions in the party's realm, the protected cast, hidden lore by title only, the secrets not yet learned (the same list the planner's brief carries, told to the judge as never-reveal) and the lore digest (titles, then the entries whose keys match the
 // place). Hidden lore's text is never sent, whatever the digest holds; the secrets' texts are, so code keeps them out of the judge's NOTE, reasons and corrected lines (scrub.js). Pure on the brief (`chronicle.world.brief`) and the query handed in.
 
+import { eventLine } from '../plan/prompt-parts/world-brief.js';
+
 const MAX_TITLES_CHARS = 4400;
 const MAX_ENTRIES_CHARS = 2400;
 const norm = text => String(text ?? '').replace(/\s+/g, ' ').trim();
@@ -24,7 +26,7 @@ export function judgeContext({ brief, ask, place = '' } = {}) {
     const hidden = new Set(list(brief.hidden).map(title => norm(title).toLowerCase()));
     const parts = [];
     const events = list(brief.threads).filter(thread => thread && typeof thread.key === 'string');
-    if (events.length) parts.push('Active world events (the world settles them):', ...events.map(thread => `- ${norm(thread.key)}${thread.now ? ` — ${norm(thread.now)}` : ''}`));
+    if (events.length) parts.push('Active world events (the world settles them):', ...events.map(thread => `- ${eventLine(thread.key, thread.now, norm)}`));
     const toCome = list(brief.toCome).filter(title => typeof title === 'string' && title.trim());
     if (toCome.length) parts.push('Still to come:', ...toCome.map(title => `- ${norm(title)}`));
     const conditions = list(brief.conditions).filter(text => typeof text === 'string' && text.trim());

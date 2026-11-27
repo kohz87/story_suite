@@ -7,7 +7,7 @@ import { runDays } from '../../../../modules/world/daily/step.js';
 import { drawWith, runner, states, world } from './helpers.js';
 
 const close = (actual, expected, digits = 6) => assert.ok(Math.abs(actual - expected) < 10 ** -digits, `${actual} ≈ ${expected}`);
-const ev = (id, extra = {}) => ({ id, kind: 'one-off', certainty: 'likely', where: ['Highmark Empire'], ends_when: { for: '10 days' }, summary: id, ...extra });
+const ev = (id, extra = {}) => ({ id, kind: 'one-off', certainty: 'likely', where: ['Highmark Empire'], ends_when: { for: '10 days' }, summary: `The ${id}.`, ...extra });
 const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
 test('test 1: set-in-motion hazard: seeded to miss days 1-9 → Eligible 1-9, Active exactly on day 10 (d = 1 → 1)', () => {

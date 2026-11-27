@@ -13,11 +13,13 @@ import { tickInputs } from '../world-daily/cast-tie.js';
 import { tempoOf } from '../world-daily/tempo.js';
 import { partyRegionOf, seatRegionOf } from '../world-daily/party-region.js';
 import { unheldFacts } from '../world-daily/holding-facts.js';
+import { buildGeo } from '../../daily/geo.js';
+import { eventWords } from '../../daily/event-words.js';
+import { refLabel } from '../../daily/region-label.js';
 import { ask as askQuery } from '../queries-parts/shared-ask.js';
 
 const DAY = 1440;
 const MAX = 6;
-const fill = (text, bind) => String(text ?? '').replace(/\{outcome\}/g, '').replace(/\{place\}/g, bind?.place ?? '').replace(/\{region\}/g, bind?.regionName ?? bind?.region ?? bind?.place ?? '').replace(/\{realm\}/g, bind?.realm ?? '').replace(/\s+/g, ' ').trim();
 
 /**
  * `{ day, items: [{ id, title, summary, place, certainty, fires }] }` for tomorrow (`all`: every likely/possible event eligible then, else only those
@@ -44,11 +46,16 @@ export function rollCandidates(view, { all = false, settings = null } = {}) {
     if (!rows) return null;
     // No verdict can change a beat that waits for the party that day, or one forced on its window's last day (waits_for).
     const settled = new Set((dry.report.log ?? []).filter(entry => entry.day === day && (entry.kind === 'waits' || entry.forced)).map(entry => entry.key));
+    const geo = buildGeo(world);
     const items = judged.filter(def => !settled.has(def.id)).map(def => {
         const row = rows[def.id] ?? {};
         const fires = row.fired === day && state.events?.[def.id]?.state !== 'active';
         const open = fires || row.state === 'eligible';
-        return open && (all || fires) ? { id: def.id, title: String(def.title ?? def.id), summary: fill(def.summary, row.bind), place: String(row.bind?.place ?? (Array.isArray(def.where?.refs) ? def.where.refs.slice(0, 2).join(', ') : '')), certainty: def.certainty, fires } : null;
+        if (!open || !(all || fires)) return null;
+        // In words, never ids: the judge may quote them in a reason the reader sees.
+        const words = eventWords(geo, def, row.bind);
+        const place = String(row.bind?.place ?? (Array.isArray(def.where?.refs) ? def.where.refs.slice(0, 2).map(ref => refLabel(geo, ref)).join(', ') : ''));
+        return { id: def.id, title: words.label, summary: words.text, place, certainty: def.certainty, fires };
     }).filter(Boolean).slice(0, MAX);
     return items.length ? { day, items } : null;
 }

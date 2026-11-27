@@ -76,7 +76,7 @@ test('test 108: died on someone with You is refused (Problems) without even_in_p
     run.to(1);
     assert.equal(row(run, 'temiwa').died, undefined, 'she stays alive');
     assert.equal(row(run, 'temiwa').dying, undefined, 'no cue without even_in_party');
-    assert.ok(run.warnings.some(text => /would kill temiwa, who is with You; refused/.test(text)));
+    assert.ok(run.warnings.some(text => /would kill Temiwa, who is with You; refused/.test(text)));
     assert.equal(row(run, 'oren').died, 1);
     run.withYou = [];
     run.to(10);

@@ -1,12 +1,22 @@
 // Story Director v2, part **arc**: the world events block of the planner's brief (switch story-director.world-events; spec §9, ruling 9).
 // The engine's mirror (the query `chronicle.world.brief`) as the planner reads it, after the tracker's threads: each Active world event
-// as a thread of kind world-event (now, then "outcome decided by the world"), "Still to come" (pending backbone stages, titles only),
+// as a thread of kind world-event (now, then "outcome decided by the world"), "Still to come" (pending backbone stages, names only),
 // and the conditions in the party's realm; the EVENT line's rule follows the react-not-resolve rule. No brief (the switch off): nothing, and the tracker text is as before.
 
 import { EVENT_LINE_RULE, WORLD_EVENT_RULE } from './world-rule.js';
 import { DESC_POINTS, KEY_POINTS, PART_POINTS, flat } from '../shared.js';
+import { lineKey } from '../../../world/changes.js';
 
 const SECRETS_RULE = 'Secrets not yet learned (never surface or hint at them in a beat, clock or agenda; they come out only when the story earns it):';
+
+/**
+ * A world event's line: "name — now". A name that is only the start of `now` (an event with no title is named by its summary) is not said
+ * twice; the line is then `now`.
+ */
+export function eventLine(name, now, cut = (text, points) => flat(text, points)) {
+    if (!now) return cut(name, DESC_POINTS);
+    return lineKey(now).startsWith(lineKey(name)) ? cut(now, DESC_POINTS) : `${cut(name, KEY_POINTS)} — ${cut(now, DESC_POINTS)}`;
+}
 
 /** The block's text (the react-not-resolve rule first), or '' when there is no brief (the switch is off). */
 export function worldBriefText(brief) {
@@ -16,10 +26,10 @@ export function worldBriefText(brief) {
     const threads = list(brief.threads).filter(thread => thread && typeof thread.key === 'string');
     if (threads.length) {
         lines.push('World events:');
-        for (const thread of threads) lines.push(`- ${flat(thread.key, KEY_POINTS)}${thread.now ? ` — ${flat(thread.now, DESC_POINTS)}` : ''}${thread.then ? ` → ${flat(thread.then, PART_POINTS)}` : ''}`);
+        for (const thread of threads) lines.push(`- ${eventLine(thread.key, thread.now)}${thread.then ? ` → ${flat(thread.then, PART_POINTS)}` : ''}`);
     }
     const toCome = list(brief.toCome).filter(title => typeof title === 'string' && title.trim());
-    if (toCome.length) lines.push('Still to come:', ...toCome.map(title => `- ${flat(title, KEY_POINTS)}`));
+    if (toCome.length) lines.push('Still to come:', ...toCome.map(title => `- ${flat(title, DESC_POINTS)}`));
     const conditions = list(brief.conditions).filter(text => typeof text === 'string' && text.trim());
     if (conditions.length) lines.push('Conditions in this realm:', ...conditions.map(text => `- ${flat(text, DESC_POINTS)}`));
     // Pack secrets not yet learned (NPC State holds them; the narrator is told none until its gate opens): the planner sees them, never to surface or hint.

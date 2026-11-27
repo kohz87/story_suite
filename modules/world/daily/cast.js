@@ -108,7 +108,7 @@ function die(ws, person, entry, source, day) {
 /** Apply an authored event's `effects.cast` entries (source = { kind, id, title, summary?, evenInParty? }). */
 export function applyCast(ws, entries, source, day) {
     // The two notes about the pack's own entries quote its ids: Problems only.
-    const unread = text => { ws.warnings.push(text); ws.card[text] = ''; };
+    const unread = text => { ws.warnings.push(text); (ws.card ??= {})[text] = ''; };
     if (source.kind !== 'event' && source.open !== true) { unread(`The template "${source.id}" names people; templates never touch named cast.`); return; }
     for (const entry of entries) {
         const person = ws.people.get(entry?.who);

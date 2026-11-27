@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readDefs } from '../../../../modules/world/daily/defs.js';
 import { drawWith, runner, states, world } from './helpers.js';
 
-const ev = (id, extra = {}) => ({ id, kind: 'one-off', certainty: 'likely', where: ['Highmark Empire'], ends_when: { for: '10 days' }, summary: id, ...extra });
+const ev = (id, extra = {}) => ({ id, kind: 'one-off', certainty: 'likely', where: ['Highmark Empire'], ends_when: { for: '10 days' }, summary: `The ${id}.`, ...extra });
 const VEIL = 'power:ashen-veil';
 const w76 = (events, extra = {}) => world({
     powers: [{ id: 'ashen-veil', name: 'Ashen Veil', start: 20 }, { name: 'Crown', start: 0 }],
@@ -62,12 +62,12 @@ test('test 77: not latched — 40 on day 10, 35 on day 11 → Dormant with no ro
 });
 
 test('test 77: false on the last window day → Lapsed the day after; a set-in-motion event Lapses with a warning instead of firing', () => {
-    const w = w76([war({ window: { after: 'start', within: '5 days' } }), war({ id: 'muster', certainty: 'set-in-motion', window: { after: 'start', within: '5 days' } })]);
+    const w = w76([war({ window: { after: 'start', within: '5 days' } }), war({ id: 'muster', summary: 'The muster.', certainty: 'set-in-motion', window: { after: 'start', within: '5 days' } })]);
     const run = runner(w, { draw: drawWith() });
     for (let day = 1; day <= 6; day += 1) { if (run.state) run.state.standings[VEIL] = day === 3 ? 40 : 20; run.to(day); }
     assert.deepEqual([run.row('war-of-faiths').state, run.row('war-of-faiths').closed], ['lapsed', 6]);
     assert.equal(run.row('muster').state, 'lapsed');
-    assert.ok(run.warnings.some(text => /set-in-motion event "muster" lapsed/.test(text)));
+    assert.ok(run.warnings.some(text => /^The event "The muster" lapsed/.test(text)));
 });
 
 test('test 77: an outcome that sets a condition while the value is 40 keeps it after the fall-back; an event requiring the condition stays eligible', () => {

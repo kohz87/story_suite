@@ -6,7 +6,7 @@
 import { lineKey } from '../../world/changes.js';
 import { readPlan } from '../plan/read.js';
 import { refuseResolving, refusalNote } from '../plan/world-guard.js';
-import { flat } from '../plan/shared.js';
+import { KEY_POINTS, flat } from '../plan/shared.js';
 
 const JUDGED = new Set(['beat', 'clock', 'agenda']);
 const EVENT = /^event\s*[:\-–—]?\s*["“'‘](.+?)["”'’]\s*\.?$/i;
@@ -17,7 +17,9 @@ export const reasonNote = (kind, reason) => `Refused: this ${kind} was left out:
 function noteFor(item, rest, events) {
     const named = EVENT.exec(rest)?.[1]?.trim();
     if (!named) return reasonNote(item.kind, rest || 'the Director refused it');
-    const event = events.find(each => [each?.title, each?.id].some(name => String(name ?? '').toLowerCase() === named.toLowerCase()));
+    // A long name may be quoted as the brief cut it.
+    const same = name => Boolean(lineKey(String(name ?? ''))) && [lineKey(String(name)), lineKey(flat(name, KEY_POINTS))].includes(lineKey(named));
+    const event = events.find(each => same(each?.title) || same(each?.id));
     return event ? refusalNote(item.kind, event.title) : reasonNote(item.kind, `it decides how "${named}" ends`);
 }
 

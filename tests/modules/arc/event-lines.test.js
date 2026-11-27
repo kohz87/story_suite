@@ -43,8 +43,8 @@ test('left out: no known cause, no place, a place the map does not know, a third
 
 test('the world check: causes from the brief, the Journal and the threads; places through the atlas; none without a brief', () => {
     const query = (name, args) => (name === 'chronicle.events' ? [{ name: 'Bread Riots' }, { name: 'Lie', judge: 'refused' }, { name: 'Maybe', judge: 'pending' }] : name === 'atlas.place' && args.name === 'highmark' ? { name: 'Highmark' } : null);
-    const world = eventWorld({ brief: { threads: [{ key: 'The succession' }], toCome: ['The vote'], conditions: ['unrest@Highmark: Crowds.'] }, query, threads: [{ key: 'Letter' }] });
-    assert.deepEqual(world.causes, ['The succession', 'The vote', 'unrest@Highmark', 'unrest', 'Bread Riots', 'Letter'], 'a refused or still-waiting Journal entry is no cause');
+    const world = eventWorld({ brief: { threads: [{ key: 'The succession' }], toCome: ['The vote'], conditions: ['unrest at Highmark: Crowds.'] }, query, threads: [{ key: 'Letter' }] });
+    assert.deepEqual(world.causes, ['The succession', 'The vote', 'unrest at Highmark', 'unrest', 'Bread Riots', 'Letter'], 'a refused or still-waiting Journal entry is no cause');
     assert.equal(world.place('highmark'), 'Highmark');
     assert.equal(world.place('nowhere'), null);
     assert.equal(eventWorld({ brief: null, query }), null);

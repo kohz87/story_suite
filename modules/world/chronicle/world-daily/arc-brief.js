@@ -1,8 +1,8 @@
 // World events for the arc planner (switch story-director.world-events; spec §9 The arc director and world events, ruling 9). The
 // query `chronicle.world.brief` gives the planner's brief what the engine knows: each Active event mirrored as a thread of kind
 // `world-event` (seam audit E32: not the tracker's own `event` kind) with now = its summary (and outcome when chosen), then = "outcome
-// decided by the world"; "Still to come", the pending backbone stages (chain stages and set-in-motion events not yet fired), titles
-// only; and the active conditions in the party's realm with what they mean. The mirror is read from the step's state each time it is
+// decided by the world"; "Still to come", the pending backbone stages (chain stages and set-in-motion events not yet fired), names
+// only (the title, else the summary's words, never the id: daily/event-words.js; one with neither is left out); and the active conditions in the party's realm with what they mean. The mirror is read from the step's state each time it is
 // asked (nothing is stored), so it ends when the event ends. Null while the switch is off.
 
 import { setup } from '../queries-parts/env.js';
@@ -16,30 +16,37 @@ import { realmsOf } from '../../daily/geo-scope.js';
 import { entryActive } from '../../daily/holds-read.js';
 import { readWorld } from './read-world.js';
 import { liveTable } from '../conditions/live-holds.js';
+import { eventWords } from '../../daily/event-words.js';
+import { refLabel } from '../../daily/region-label.js';
 
 export const WORLD_EVENT_THEN = 'outcome decided by the world';
 const MAX = 8;
 const DONE = new Set(['active', 'ended', 'lapsed', 'replaced']);
-const fill = (text, outcome, bind) => String(text ?? '').replace(/\{outcome\}/g, outcome ?? '').replace(/\{place\}/g, bind?.place ?? '').replace(/\{region\}/g, bind?.regionName ?? bind?.region ?? bind?.place ?? '').replace(/\{realm\}/g, bind?.realm ?? '').replace(/\s+/g, ' ').trim();
+const bare = text => String(text ?? '').replace(/[\s.!?…:;,]+$/, '');
+/** A condition as the planner reads it, in words ("grain dear at Bluewatch Reach: means"): a reply may cite or echo it. */
+const conditionLine = (geo, entry, means) => `${entry.name.replace(/[-_]+/g, ' ')} at ${refLabel(geo, entry.ref)}${means ? `: ${means}` : ''}`;
 
-/** `{ threads: [{ kind, key, now, then }], toCome: [title], conditions: [text], guard: [{ id, title, outcomes: [name] }] }` (guard: the Active events, for the planner's code guard; then `secrets`, `protectedCast` and `hidden` (lore titles) when there are any, for the planner and the Director judge) from the step's state, the conditions and the world. */
+/** `{ threads: [{ kind, key, now, then }], toCome: [name], conditions: [text], guard: [{ id, title, outcomes: [name] }] }` (guard: the Active events, for the planner's code guard; then `secrets`, `protectedCast` and `hidden` (lore titles) when there are any, for the planner and the Director judge) from the step's state, the conditions and the world. */
 export function arcBrief({ daily = null, table = {}, world = {}, place = '', minute = null, people = null } = {}) {
     const { events } = readDefs(world);
-    const rows = daily?.events ?? {};
-    const threads = events.filter(def => rows[def.id]?.state === 'active').slice(0, MAX).map(def => {
-        const row = rows[def.id];
-        const summary = fill(def.summary, row.outcome, row.bind);
-        return { kind: 'world-event', key: def.title, now: row.outcome ? `${summary} (outcome: ${row.outcome})` : summary, then: WORLD_EVENT_THEN };
-    });
-    const guard = events.filter(def => rows[def.id]?.state === 'active').slice(0, MAX).map(def => ({ id: def.id, title: def.title, outcomes: def.outcomes.map(each => each?.name).filter(name => typeof name === 'string') }));
-    const toCome = events.filter(def => (def.kind === 'chain-stage' || def.certainty === 'set-in-motion') && !DONE.has(rows[def.id]?.state) && rows[def.id]?.fired === undefined).slice(0, MAX).map(def => def.title);
     const geo = buildGeo(world);
+    const rows = daily?.events ?? {};
+    // One name in words per event (its id stays the internal key, in `guard`): the planner cites it and the judge quotes it.
+    const active = events.filter(def => rows[def.id]?.state === 'active').slice(0, MAX).map(def => {
+        const row = rows[def.id];
+        const words = eventWords(geo, def, row.bind, row.outcome);
+        return { def, row, summary: words.text, name: words.label || bare(words.text) };
+    });
+    const threads = active.filter(each => each.name).map(({ row, summary, name }) => ({ kind: 'world-event', key: name, now: row.outcome ? `${summary} (outcome: ${row.outcome})`.trim() : summary, then: WORLD_EVENT_THEN }));
+    const guard = active.map(({ def, name }) => ({ id: def.id, title: name, outcomes: def.outcomes.map(each => each?.name).filter(name => typeof name === 'string') }));
+    const toCome = [...new Set(events.filter(def => (def.kind === 'chain-stage' || def.certainty === 'set-in-motion') && !DONE.has(rows[def.id]?.state) && rows[def.id]?.fired === undefined)
+        .map(def => eventWords(geo, def).label).filter(Boolean))].slice(0, MAX);
     const found = place ? resolveRef(geo, place) : null;
     const realm = found ? realmsOf(geo, [found.name])[0] ?? null : null;
     const means = new Map((Array.isArray(world.conditions) ? world.conditions : []).map(row => [row?.name, row?.means]));
     const conditions = realm === null ? [] : Object.keys(table ?? {}).sort()
         .filter(key => entryActive(table[key], Number.isInteger(minute) ? minute : 0) && realmsOf(geo, [table[key].ref]).includes(realm))
-        .slice(0, MAX).map(key => `${key}${means.get(table[key].name) ? `: ${means.get(table[key].name)}` : ''}`);
+        .slice(0, MAX).map(key => conditionLine(geo, table[key], means.get(table[key].name)));
     const secrets = closedSecrets(people);
     const named = (list, test, field) => (Array.isArray(list) ? list : []).filter(item => item && test(item)).map(item => String(item[field] ?? item.title ?? item.name ?? '').trim()).filter(Boolean).slice(0, 24);
     // For the Director judge: the protected cast (never killed or moved by a happening) and the hidden lore's titles (never its text).
