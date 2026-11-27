@@ -39,3 +39,14 @@ test('two names with one 80-character cut: the whole name (with words after it) 
     assert.equal(finder([ferry])(flat(ferry, 80)), ferry, 'a cut only one name has still reads');
     assert.equal(finder(['The long council', ferry])(`${flat(ferry, 80)} — they argue`), ferry, 'the longer match wins over a short whole name');
 });
+
+test('two names that print alike once "|" reads "/": the printed form cites neither', () => {
+    for (const names of [['Gate | Quay', 'Gate / Quay'], ['Gate / Quay', 'Gate | Quay']]) {
+        const find = finder(names);
+        assert.equal(find('Gate / Quay'), null);
+        assert.equal(find('Gate / Quay — The gate is shut.'), null);
+        const out = readEventLine({ key: 'Closure', desc: 'Ships wait', given: { where: 'Town', because: 'Gate / Quay' }, world: { place: () => 'Town', causes: names } });
+        assert.match(out.refused, /cites no cause/);
+    }
+    assert.equal(finder(['Gate | Quay', 'Gate | Quay'])('Gate / Quay'), 'Gate | Quay', 'one name listed twice is one name');
+});
