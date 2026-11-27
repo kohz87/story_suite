@@ -60,3 +60,15 @@ test('E21: a grown edited Re-read that still fires the feast, a prose-only edit,
     await agrees(host, 'no warnings');
     host.done();
 });
+
+test('E21: an event with no words is "a world event" on the card; the receipt keeps its id', async () => {
+    const host = await newHost(true, { ...SPEC, events: [at('feast', 'start + 1 day', { summary: undefined }), at('riot', 'fired:feast + 2 days', { requires: ['fired:feast'] })] });
+    const crossing = await play(host);
+    await host.st.editMessage(crossing, reply('Dawn.', ['! time +1h']));
+    assert.equal((await host.sdk.reread(crossing)).ok, true);
+    const receipt = dailyReceipts(host).find(entry => entry.index === crossing).receipt;
+    assert.match(receipt.summary, /after this edit a world event no longer fired/);
+    assert.deepEqual(receipt.data.lost, ['feast']);
+    await agrees(host, 'no words');
+    host.done();
+});

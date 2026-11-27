@@ -23,6 +23,8 @@ test('judge: the event tomorrow\'s roll fires is asked about once; a refusal hol
         await day(host, 'Day 2.');
         assert.equal(daily(host).events.riot.fired, day1 + 1, 'the next day it fires');
         assert.equal(model.calls, 2, 'one call a day');
+        const cards = host.sdk.receipts().filter(entry => entry.receipt.type === 'chronicle.world.judged').map(entry => entry.receipt.summary);
+        assert.ok(cards.includes('World: the Director held something back for tomorrow.'), JSON.stringify(cards));
         assert.equal(host.sdk.query('chronicle.directorCalls', {}).count, 2);
         const recorded = JSON.stringify(daily(host));
         await host.swipe(reply('Day 2, again.', ['! time +1d']));

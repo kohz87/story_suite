@@ -33,3 +33,19 @@ test('words the story or the pack gave are kept', () => {
     assert.equal(read(entry('event:toll-war', 'The Toll War')), 'The Toll War');
     assert.equal(read(entry('event:gone', 'The Old War')), 'The Old War');
 });
+
+test('a wider condition takes a template\'s happening only from inside its region or realm', () => {
+    const wide = {
+        worldEvents: [], templates: [{ template: 'hard-times', summary: 'Hard times come to {region}.' }],
+        places: [{ name: 'Atown', region: 'a-reach' }, { name: 'Dtown', region: 'd-reach' }],
+        regions: [{ id: 'a-reach', name: 'Region A' }, { id: 'd-reach', name: 'Region D' }], realms: [{ name: 'Realm A', regions: ['a-reach'] }],
+    };
+    const ask = (name, args) => (name === 'packs.content' ? wide[args.kind] ?? [] : null);
+    const news = place => ({ by: 'event:world.template.hard-times', since: 1440, place, summary: `Hard times come near ${place}.` });
+    const say = (scope, ref, events) => reasonReader(ask, events)(entry('code', 'hard-times', { scope, ref }));
+    // The card's ref for a region is its display name (here-query.js).
+    assert.equal(say('region', 'Region A', [news('Dtown')]), '', 'another region\'s words are not given, nor a summary that needs filling');
+    assert.equal(say('region', 'Region A', [news('Dtown'), news('Atown')]), 'Hard times come near Atown');
+    assert.equal(say('realm', 'Realm A', [news('Dtown'), news('Atown')]), 'Hard times come near Atown');
+    assert.equal(say('realm', 'Realm A', [news('Dtown')]), '');
+});
