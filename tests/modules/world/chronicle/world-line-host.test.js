@@ -59,7 +59,7 @@ test('on the host: a world line sets the pack\'s conditions through the real com
     assert.equal(unrest.scope, 'place');
     assert.ok(host.sdk.query('chronicle.conditions', { ref: 'highmark' }).some(row => row.name === 'unrest'));
     assert.equal('Second Thing' in Object.fromEntries(Object.values(host.head().domains.chronicle.events).map(e => [e.name, 1])), false, 'the second world line is refused');
-    assert.match(summaries(host), /Conditions: unrest \(Highmark\)/);
+    assert.match(summaries(host), /Conditions: \+unrest \(Highmark\)/);
     await agrees(host, 'live');
     // A world line without conditions is not capped: it stands beside the one with conditions.
     await host.send('Listen.', reply('Talk of the gate.', ['+ world Gate Talk — the gate | state: looming | place: Highmark | conditions: +unrest', PLAIN]));

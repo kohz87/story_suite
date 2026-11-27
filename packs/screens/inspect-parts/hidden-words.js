@@ -6,31 +6,34 @@ const HIDDEN = '(hidden)';
 const PART_MIN = 12;   // shorter words are replaced only where they are a whole value, so ordinary text is not cut up
 
 const isObject = value => value !== null && typeof value === 'object';
+// What a locked note may not show: NPC State's own screens hide its title and what opens it too (`packId` is the pack's id for it).
+const NOTE_WORDS = ['text', 'title', 'when', 'gate', 'packId'];
 const segmentsOf = path => String(path ?? '').split('/').slice(1);
 
 /** The ids of every opened note in a state (`bonds` keeps them; an id is made from the note's rule and text). */
 const openedIn = state => new Set(Object.values(state?.domains?.people?.bonds?.npcs ?? {}).flatMap(record => (Array.isArray(record?.unlocked) ? record.unlocked : [])));
 
-// Every place the words are stored: `…/castFrom/join` and a note at `…/secrets/<n>` (whole, or its `text` alone as one op writes it).
+// Every place the words are stored: `…/castFrom/join` and a note at `…/secrets/<n>` (whole, or one of its words as an op writes it).
 function collect(value, path, found) {
     const [third, second, last] = [path.at(-3), path.at(-2), path.at(-1)];
     if (typeof value === 'string') {
         if (second === 'castFrom' && last === 'join') found.joins.add(value);
-        if (third === 'secrets' && last === 'text') found.leaves.add(value);
+        if (third === 'secrets' && NOTE_WORDS.includes(last)) found.leaves.add(value);
         return;
     }
     if (!isObject(value)) return;
     const note = second === 'secrets' && typeof value.text === 'string';
-    if (note) found.notes.push({ text: value.text, id: normalizeSecrets([value])[0]?.id ?? value.id });
-    for (const [key, child] of Object.entries(value)) if (!(note && key === 'text')) collect(child, [...path, key], found);
+    const words = note ? NOTE_WORDS.filter(key => typeof value[key] === 'string') : [];
+    if (note) found.notes.push({ words: words.map(key => value[key]), id: normalizeSecrets([value])[0]?.id ?? value.id });
+    for (const [key, child] of Object.entries(value)) if (!words.includes(key)) collect(child, [...path, key], found);
 }
 
 // The redactor for one side of the reply: what is still unopened there. A value with nothing to hide is returned as it is.
 function redactorFor(found, opened) {
-    const shown = new Set(found.notes.filter(note => opened.has(note.id)).map(note => note.text));
+    const shown = new Set(found.notes.filter(note => opened.has(note.id)).flatMap(note => note.words));
     const words = new Set([
         ...found.joins,
-        ...found.notes.filter(note => !opened.has(note.id)).map(note => note.text),
+        ...found.notes.filter(note => !opened.has(note.id)).flatMap(note => note.words),
         ...[...found.leaves].filter(text => !shown.has(text)),
     ].filter(text => text.trim()));
     const long = [...words].filter(text => text.length >= PART_MIN).sort((a, b) => b.length - a.length);

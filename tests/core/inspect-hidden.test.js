@@ -9,10 +9,11 @@ const JOIN = 'When the blue kite has flown twice.';
 const LOCKED = 'Mira keeps the tide ledger under the stair.';
 const OPEN = 'Mira once ran the ferry at night.';
 const NOTES = [
-    { text: LOCKED, when: 'the ledger is found', from: 'pack' },
+    { title: 'The stair ledger', text: LOCKED, when: 'the ledger is found', from: 'pack' },
+    { id: 'sec_aaaaaaaa', gate: 'fact:lantern-is-lit', packId: 'lantern-oath', text: 'Mira swore the lantern oath.', from: 'pack' },
     { text: OPEN, when: 'the ferry is named', from: 'pack' },
 ];
-const openId = normalizeSecrets(NOTES)[1].id;
+const openId = normalizeSecrets(NOTES)[2].id;
 
 const person = { id: 'npc_mira', name: 'Mira', secrets: NOTES, castFrom: { key: 'p:mira', join: JOIN } };
 const stateOf = (npcs, unlocked) => ({ meta: { rev: 2 }, domains: { people: { npcs, bonds: { npcs: { npc_mira: { name: 'Mira', unlocked } } } } } });
@@ -25,6 +26,7 @@ test('inspectReply: join words and unopened notes read "(hidden)" in the state, 
     const ops = [
         { op: 'add', path: '/domains/people/npcs/npc_mira', value: person },
         { op: 'replace', path: '/domains/people/npcs/npc_mira/secrets/0/text', value: LOCKED, was: LOCKED },
+        { op: 'replace', path: '/domains/people/npcs/npc_mira/secrets/0/title', value: 'The stair ledger', was: 'The stair ledger' },
         { op: 'remove', path: '/domains/people/npcs/npc_mira/castFrom/join', was: JOIN },
     ];
     const kept = JSON.stringify({ state, ops });
@@ -35,9 +37,12 @@ test('inspectReply: join words and unopened notes read "(hidden)" in the state, 
     assert.ok(!all.includes(JOIN) && !all.includes(LOCKED), 'no hidden words anywhere in the view');
     const shown = view.state.domains.people.npcs.npc_mira;
     assert.equal(shown.castFrom.join, '(hidden)');
-    assert.deepEqual(shown.secrets.map(note => note.text), ['(hidden)', OPEN]);
+    assert.deepEqual(shown.secrets.map(note => note.text), ['(hidden)', '(hidden)', OPEN]);
+    assert.deepEqual([shown.secrets[0].title, shown.secrets[0].when, shown.secrets[1].gate, shown.secrets[1].packId], Array(4).fill('(hidden)'), 'a locked note\'s title and what opens it too');
+    assert.equal(shown.secrets[2].when, 'the ferry is named', 'an opened note keeps its own');
+    for (const words of ['stair ledger', 'ledger is found', 'lantern']) assert.ok(!all.includes(words), words);
     assert.equal(view.problems[0].message, 'Refused: (hidden)');
-    assert.equal(view.ops[2].was, '(hidden)');
+    assert.equal(view.ops[3].was, '(hidden)');
     assert.equal(matchPaths(view.state, 'tide ledger').count, 0, 'a search does not find them');
     assert.equal(matchPaths(view.state, 'blue kite').count, 0);
     assert.equal(JSON.stringify({ state, ops }), kept, 'the stored state is not touched');

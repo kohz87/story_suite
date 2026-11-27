@@ -43,8 +43,8 @@ test('on: conditions set through chronicle.condition.set by the narrator, scope 
     // plague is region-scoped: no region on the line, so the place's region (the store refuses a place as a region).
     assert.equal(calls[1].payload.ref, 'Marches');
     assert.deepEqual(Object.keys(run.state.domains.chronicle.conditions).sort(), ['gate-closed@Northgate', 'plague@Marches']);
-    assert.match(run.result.summary, /Conditions: gate closed \(Northgate\), plague \(Marches\)\./);
-    assert.deepEqual(run.result.data.conditions, ['+gate-closed (Northgate)', '+plague (Marches)'], 'the stored form is unchanged');
+    assert.match(run.result.summary, /Conditions: \+gate-closed \(Northgate\), \+plague \(Marches\)\./, 'the stored summary is unchanged');
+    assert.match(run.result.data.shown, /Conditions: gate closed \(Northgate\), plague \(Marches\)\./, 'screens get words');
     assert.match(run.result.summary, /Not used: "gate-open" is not a condition the world lists\./);
 });
 

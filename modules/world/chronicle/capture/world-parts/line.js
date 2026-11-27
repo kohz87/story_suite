@@ -17,8 +17,7 @@ const placeOf = (labels, names) => {
     return value === undefined || CLEAR.test(asText(value).trim()) ? '' : cleanName(value);
 };
 
-// The receipt's summary says each condition in words ("+gate-closed (Northgate)" → "gate closed (Northgate)", a lifted one "… ended");
-// `data.conditions` keeps them as stored (the Director's check reads those).
+// Each condition in words ("+gate-closed (Northgate)" → "gate closed (Northgate)", a lifted one "… ended").
 function inWords(ctx, done) {
     const geo = buildGeo(readWorld((type, args) => ctx.query(type, args)));
     return done.map(item => {
@@ -52,8 +51,10 @@ export function applyWorldLine(ctx, line) {
     const why = asText(line?.text).trim().slice(0, 160) || name;
     const { done, notes } = applyConditions(ctx, items, { place, region: placeOf(labels, ['region']), realm: placeOf(labels, ['realm']), why });
     const marked = fresh ? markForJudge(ctx, ctx.draft('chronicle'), fresh, done) : false;
-    const text = [done.length ? `Conditions: ${inWords(ctx, done).join(', ')}.` : '', notes.length ? `Not used: ${notes.join('; ')}.` : ''].filter(Boolean).join(' ');
-    const out = text ? { ...result, summary: `${result.summary} ${text}`, data: { ...result.data, ...(done.length ? { conditions: done } : {}) } } : result;
+    const text = [done.length ? `Conditions: ${done.join(', ')}.` : '', notes.length ? `Not used: ${notes.join('; ')}.` : ''].filter(Boolean).join(' ');
+    // The summary keeps the stored form (the day digest reads it); `data.shown` is for screens that list the receipt.
+    const shown = done.length ? { shown: `${result.summary} ${text.replace(done.join(', '), () => inWords(ctx, done).join(', '))}` } : {};
+    const out = text ? { ...result, summary: `${result.summary} ${text}`, data: { ...result.data, ...(done.length ? { conditions: done, ...shown } : {}) } } : result;
     return marked ? waiting(out) : out;
 }
 
