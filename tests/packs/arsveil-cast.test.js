@@ -56,3 +56,11 @@ test('the zip carries pack.json and game.json minified: the same content in the 
         assert.deepEqual(JSON.parse(inside), JSON.parse(source), name);
     }
 });
+
+test('every companion keeps when they would join in the hidden join field, never in the personality the reader sees', () => {
+    for (const person of written.filter(entry => entry.kind === 'companion')) {
+        assert.equal(typeof person.join, 'string', person.id);
+        assert.ok(person.join.length > 0, person.id);
+        assert.ok(!/would join/i.test(person.personality), person.id);
+    }
+});
