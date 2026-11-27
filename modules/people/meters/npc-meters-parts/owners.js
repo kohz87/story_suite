@@ -14,9 +14,10 @@ const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
  *   named(label)  the dossiers whose own name this is (any case)
  *   aliased(label)  the dossiers that have this name as an alias
  *   entryKey(npcs, person, asked?) → the key of `person`'s ({ id?, name, aliases? }) entry in `npcs`, or null; `person.labels` is not read.
- *     Their own id first; else an entry under a key that is nobody else's id, found by their name, then `asked` and their aliases (labels(person, asked)).
+ *     Their own id first; else an entry under a key that is nobody else's id and is assigned (ownerOf) to nobody else, found by their name, then `asked`
+ *     and their aliases (labels(person, asked)).
  *   sameName(a, b)  the one comparison of two names (their slugs, as entry keys are matched)
- *   ownerOf(npcs, key)  the stored dossier whose entry `key` is: the one with that id, else the one entryKey assigns it to, or null
+ *   ownerOf(npcs, key)  the stored dossier whose entry `key` is: the one with that id, else the one of those its name or labels reach it, a living one first, or null
  *   asking(npcs, key, labels?)  → { name, labels }: what to ask the dossier hooks (setup, notes) with for that entry: its owner's id; with no
  *     owner, the entry's name, unless a stored dossier carries that name or alias (then nothing: it is not theirs); `gone`: the owner is dead or archived
  */
@@ -48,7 +49,8 @@ export function ownersOf(people) {
         });
         return [person?.name, ...others].filter(label => typeof label === 'string' && label);
     };
-    const entryKey = (npcs, person, asked = []) => {
+    // The entry `person`'s id or labels reach, whoever it is assigned to. `skip(key)`: entries that may not be matched by name.
+    const claim = (npcs, person, asked = [], skip = () => false) => {
         const id = typeof person?.id === 'string' && PEOPLE_ID.test(person.id) ? person.id : null;
         if (id && isObject(npcs) && Object.hasOwn(npcs, id)) return id;
         // A holder without an id (a name alone) is the stored dossier of that name, when there is one.
@@ -57,8 +59,14 @@ export function ownersOf(people) {
             const mine = stored.find(item => isObject(npcs) && Object.hasOwn(npcs, item.id));
             if (mine) return mine.id;
         }
-        return findNpcKey(npcs, labels(person, asked), { has: key => key !== id && has(key) });
+        return findNpcKey(npcs, labels(person, asked), { has: key => (key !== id && has(key)) || skip(key) });
     };
+    // An entry found by name is read by the one dossier it is assigned to (ownerOf): a namesake never borrows it.
+    const entryKey = (npcs, person, asked = []) => claim(npcs, person, asked, key => {
+        const owner = has(person?.id) ? ownerOf(npcs, key) : null;
+        return Boolean(owner) && owner.id !== person.id;
+    });
+    const gone = item => isTerminalNpcDeath(item) || Boolean(item.archived);
     const sameName = (a, b) => npcKey(a) !== null && npcKey(a) === npcKey(b);
     const aliased = label => Object.keys(byId).filter(has).map(record).filter(item => Array.isArray(item.aliases) && item.aliases.some(alias => sameName(alias, label)));
     const ownerOf = (npcs, key) => {
@@ -66,12 +74,14 @@ export function ownersOf(people) {
         if (held) return held;
         const entry = isObject(npcs) && Object.hasOwn(npcs, key) ? npcs[key] : null;
         if (!entry) return null;
-        const mine = item => entryKey(npcs, item) === key;
-        return named(entry.name).find(mine) ?? aliased(entry.name).find(mine) ?? null;
+        const mine = item => claim(npcs, item) === key;
+        // (of several who reach it, a living one before a dead or archived one)
+        const first = list => [...list].sort((a, b) => Number(gone(a)) - Number(gone(b))).find(mine);
+        return first(named(entry.name)) ?? first(aliased(entry.name)) ?? null;
     };
     const asking = (npcs, key, given = null) => {
         const owner = ownerOf(npcs, key);
-        if (owner) return { name: owner.id, labels: [owner.id], ...(isTerminalNpcDeath(owner) || owner.archived ? { gone: true } : {}) };
+        if (owner) return { name: owner.id, labels: [owner.id], ...(gone(owner) ? { gone: true } : {}) };
         const name = npcs?.[key]?.name;
         return named(name).length || aliased(name).length ? { name: '', labels: [] } : { name, labels: given ?? [name] };
     };
