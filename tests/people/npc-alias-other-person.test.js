@@ -70,3 +70,10 @@ test('findNpcKey skips a taken key when matching names and aliases, and still ta
     assert.equal(findNpcKey(npcs, ['Bo', 'Ana'], new Set(['npc_ana'])), null);
     assert.equal(findNpcKey(npcs, ['npc_ana'], new Set(['npc_ana'])), 'npc_ana');
 });
+
+test('an npc_ id that names no stored dossier and no entry (deleted while a command waited) is refused, never made into a person called by the id', () => {
+    const identify = identifier(people());
+    assert.equal(identify({}, 'npc_gone'), null);
+    assert.equal(identify({ npc_gone: entry('Gone') }, 'npc_gone').key, 'npc_gone', 'an entry under that key is still found');
+    assert.equal(identify({}, 'npc_ana').key, 'npc_ana', 'a stored dossier\'s id is still that dossier');
+});

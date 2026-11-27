@@ -26,6 +26,8 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
         const asked = clean(label, NAME_MAX);
         if (!asked) return null;
         const dossier = personOf(npcs, asked, owners);
+        // An npc_ id that is nobody's (a dossier deleted or merged while a command waited) names no one: never an entry called by the id.
+        if (!dossier && PEOPLE_ID.test(asked) && !Object.hasOwn(npcs, asked)) return null;
         const name = clean(dossier?.name ?? asked, NAME_MAX);
         // The key is the person's npc_ id: the dossier's own when there is one (an entry already under it first, then an older one found by name), else an
         // entry found by name, else a new id made as Delta makes dossier ids (so the dossier Delta makes later for that name has the same id).
