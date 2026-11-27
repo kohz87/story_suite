@@ -85,6 +85,7 @@ export function normalizeEntry(raw, nameOf = null) {
         homeBase: legacy ? clip(start.place, 300) : clip(raw.homeBase, 80),
         status: clip(raw.status, 200),
         goal: clip(raw.goal, 500),
+        ...(!legacy && clip(raw.join, 400) ? { join: clip(raw.join, 400) } : {}),
         keyRelationships: links.keyRelationships,
         ties: links.ties,
         ...(links.pending.keyRelationships.length || links.pending.ties.length ? { pendingLinks: links.pending } : {}),

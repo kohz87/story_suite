@@ -10,6 +10,8 @@ import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcri
 import { buildInjection, npcNamedInText, isTerminalNpcDeath } from '../core/core.js';
 import { buildLinesParts } from '../core/core-prompts-lines.js';
 import { withCastLinks } from '../dossier/cast-dossier-parts/cast-links.js';
+import { resolveDossierTarget } from '../npc-api/dossier-target.js';
+import { hideJoinLines } from '../core/core-injection-parts-parts/join-line.js';
 import { injectDepthOf, getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
 
@@ -66,12 +68,31 @@ export function createInjectionPart(rt, deps) {
         return Object.keys(lines).length ? lines : null;
     }
 
+    // The dossier ids of those in the party now (`party.levels`, those who left aside; a member is matched by exact name or alias). Empty
+    // when nothing answers (no host, the RPG off): the join line is then sent for everyone.
+    // While a reply is being swiped or regenerated, the party is the one as of the message just before it (hidden replies count; the first
+    // message has nothing before it, so nobody): that reply's own join no longer counts.
+    function partyAnswer() {
+        const adapter = adapterMeters();
+        if (!adapter) return null;
+        const chat = getContext().chat || [];
+        const tail = chat.findLastIndex(message => message && !message.is_system);
+        const replaced = Boolean(rt.replacingReply) && chat[tail] === rt.replacingReply.message && rt.replacingReply.key === getChatKey();
+        if (!replaced) return adapter.partyLevelsAnswer?.();
+        return tail > 0 ? adapter.at(tail - 1, () => adapter.partyLevelsAnswer?.()) : [];
+    }
+    function partyDossierIds(npcs) {
+        if (!(npcs || []).some(npc => npc?.castFrom?.join)) return new Set();
+        const members = partyAnswer() ?? [];
+        return new Set(members.filter(member => !member?.left).map(member => resolveDossierTarget(npcs, member?.name)).filter(Boolean));
+    }
+
     // The live dossier injection under the current settings and scene defer (sent by updateInjection;
     // tokens() measures the same text).
     function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4) } = {}) {
         const gearLines = castGearLines(state);
         const awayNotes = awayReturnNotes(state);
-        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), levelOn: rpgIsOn() });
+        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), partyIds: partyDossierIds(state.npcs), levelOn: rpgIsOn() });
     }
 
     // The one-pass lines a reply carries: the rules (when armed or kept for a swipe) and the context (armed only), with the note options they
@@ -194,7 +215,7 @@ export function createInjectionPart(rt, deps) {
             estimatedTokens: Math.ceil(text.length / 4),
             budgetTokens: Number(settings.injectBudgetTokens) || 0,
             captureChars: Number(rt.lastInjection.captureChars) || 0,
-            text,
+            text: hideJoinLines(text),
         };
     }
 

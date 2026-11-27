@@ -1003,5 +1003,7 @@
   "tests/packs/ersveil-holding-posts.test.js": "Tests the holding's officer posts: refusals, bonuses, the retainer cap, rejoining and replay.",
   "tests/modules/data-modules/holding-person.test.js": "Tests who a name means for the holding's posts: the post check's wider party match and two unjoined records of one name.",
   "tests/suite/holding-posts.test.js": "Tests the holding's posts on the real suite against the cast's stays record.",
-  "modules/world/daily/event-title.js": "World events, the daily step: an event's title as the Journal shows it, or none when the event has no authored title (never its id)."
+  "modules/world/daily/event-title.js": "World events, the daily step: an event's title as the Journal shows it, or none when the event has no authored title (never its id).",
+  "modules/people/core/core-injection-parts-parts/join-line.js": "Words the narrator's line on when a pack person would join the party, and leaves it out of the sent text the reader sees.",
+  "tests/people/cast-join.test.js": "Tests the hidden join field of a world cast entry: the pack check, the dossier, the narrator's line for non-members only, and the reader's views without it."
 }

@@ -3,9 +3,10 @@ import { cleanText } from '../core-text.js';
 import { narratorTies, tieRoster, tiesTracked } from '../core-keyrel.js';
 import { DEFAULT_BEHAVIOR_CRITERIA } from '../core-prompts.js';
 import { APPROX_CHARS_PER_TOKEN, INJECTION_CAP_BASE_TOKENS, DEFAULT_INJECTION_BUDGET_TOKENS, normalizeInjectionBudgetTokens, selectRelevantNpcs } from '../core-injection-selection.js';
+import { JOIN_LINE } from '../core-injection-parts-parts/join-line.js';
 import { clauseBoundedInjection, compactInjectionBehaviorRubric, injectionEssentialBlock, injectionOptionalFields, lowPlayerStanding, referenceBlock, truncateInjectionText } from '../core-injection-parts.js';
 
-export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false } = {}) {
+export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false, partyIds = null } = {}) {
     const named = new Set(Array.isArray(namedNpcIds) ? namedNpcIds : []);
     const calledIn = npc => !npc?.present && named.has(npc?.id);
     const present = (npcs || []).filter(npc => (Boolean(npc?.present) || calledIn(npc)) && !npc?.archived);
@@ -133,6 +134,16 @@ export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria
             if (chosen[i]) enriched[i] += `; ${chosen[i]}`;
         }
     }
+
+    // A pack person's join line comes after everyone's optional fields, so it never takes another person's room: in rank order,
+    // for those not in the party, and only whole.
+    relevant.forEach((npc, i) => {
+        if (!npc.castFrom?.join || partyIds?.has(npc.id)) return;
+        const line = JOIN_LINE(cleanText(npc.castFrom.join, 400));
+        if (currentLength + 2 + line.length > budgetChars) return;
+        enriched[i] += `; ${line}`;
+        currentLength += line.length + 2;
+    });
 
     // Rebuild with enriched NPC lines while preserving rubric placement.
     const rubricLine = lines.find(line => line.startsWith('RELATIONSHIP-TO-BEHAVIOR RUBRIC:')) || '';

@@ -10,7 +10,7 @@ import { secrets } from './cast-secrets.js';
 import { checkBirthday } from './cast-birthday.js';
 
 // look, voice, personality and the start routine take what NPC State keeps and sends of them.
-const TEXTS = { name: 80, role: 120, species: 60, gender: 40, age: 40, apparentAge: 40, look: 800, wears: 600, voice: 600, personality: 900, history: 1200, homeBase: 80, withYou: 320, status: 200, goal: 200 };
+const TEXTS = { name: 80, role: 120, species: 60, gender: 40, age: 40, apparentAge: 40, look: 800, wears: 600, voice: 600, personality: 900, history: 1200, homeBase: 80, withYou: 320, status: 200, goal: 200, join: 400 };
 
 // The stored appearance is "<look>; <wears>"; together they stay within the 1200 characters the narrator and NPC State's prompts show.
 const LOOK_AND_WEARS = 1195;
