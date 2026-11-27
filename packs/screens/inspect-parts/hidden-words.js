@@ -1,6 +1,6 @@
 // One reply's Inspector view with the join words and every unopened hidden note replaced by "(hidden)".
 
-import { findNpcKey, normalizeSecrets } from '../../../modules/people/meters/npc-meters.js';
+import { normalizeSecrets } from '../../../modules/people/meters/npc-meters.js';
 
 const HIDDEN = '(hidden)';
 const PART_MIN = 12;   // shorter words are replaced only where they are a whole value, so ordinary text is not cut up
@@ -13,12 +13,11 @@ const segmentsOf = path => String(path ?? '').split('/').slice(1);
 const noteId = note => normalizeSecrets([note])[0]?.id ?? note.id;
 const dossierOf = (state, owner) => state?.domains?.people?.npcs?.[owner];
 
-/** Whether `owner`'s note `id` is opened in a state. Two people's notes may share an id, so only the owner's own record counts (found by id, else name, as NPC State does). */
+/** Whether `owner`'s note `id` is opened in a state. Two people's notes may share an id, so only the record under the dossier's own key counts: never one found by a name or alias. */
 function isOpened(state, owner, id) {
     const bonds = state?.domains?.people?.bonds?.npcs ?? {};
-    const dossier = dossierOf(state, owner);
-    const key = findNpcKey(bonds, [owner, dossier?.name, ...(Array.isArray(dossier?.aliases) ? dossier.aliases : [])]);
-    return Array.isArray(bonds[key]?.unlocked) && bonds[key].unlocked.includes(id);
+    const unlocked = Object.hasOwn(bonds, owner) ? bonds[owner]?.unlocked : null;
+    return Array.isArray(unlocked) && unlocked.includes(id);
 }
 
 // Whether the value at `path` is an opened note in its owner's own dossier (`…/<owner>/secrets/<n>`), or one of that note's words.

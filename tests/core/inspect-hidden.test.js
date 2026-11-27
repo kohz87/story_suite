@@ -59,7 +59,7 @@ test('a note id one person opened stays locked for another who has the same id',
         npc_ana: { id: 'npc_ana', name: 'Ana', secrets: [note('The boathouse key', 'the boathouse floods')] },
         npc_bo: { id: 'npc_bo', name: 'Bo', secrets: [note('The cellar key', 'the cellar is dug')] },
     };
-    // Bo's record is under an older key and is found by name.
+    // A record under another key is not Bo's, even with Bo's name on it.
     const state = { meta: { rev: 2 }, domains: { people: { npcs, bonds: { npcs: { npc_ana: { name: 'Ana', unlocked: ['sec_bbbbbbbb'] }, npc_old: { name: 'Bo', unlocked: [] } } } } } };
     const ops = Object.entries(npcs).flatMap(([id, person]) => [
         { op: 'add', path: `/domains/people/npcs/${id}`, value: person },
@@ -74,4 +74,26 @@ test('a note id one person opened stays locked for another who has the same id',
     assert.deepEqual([shown.npc_bo.secrets[0].title, shown.npc_bo.secrets[0].when, shown.npc_bo.secrets[0].text], Array(3).fill('(hidden)'));
     assert.equal(view.ops[1].value, 'The boathouse key');
     assert.equal(view.ops[3].was, '(hidden)');
+});
+
+test('a dossier with no bond record of its own has nothing opened, even with another person\'s name as an alias', async () => {
+    const host = await createHost();
+    await host.send('Look around.', 'You find rope.\n<Changes>\n+ item Rope\n</Changes>');
+    const note = (title, when, text) => ({ id: 'sec_cccccccc', meter: 'trust', at: 40, text, title, when, from: 'pack' });
+    const npcs = {
+        npc_ana: { id: 'npc_ana', name: 'Ana', secrets: [note('The boathouse key', 'the boathouse floods', 'Keeps a spare oar.')] },
+        npc_bo: { id: 'npc_bo', name: 'Bo', aliases: ['Ana'], secrets: [note('The cellar hatch', 'the cellar is dug', 'Hoards candle wax.')] },
+    };
+    const state = { meta: { rev: 2 }, domains: { people: { npcs, bonds: { npcs: { npc_ana: { name: 'Ana', unlocked: ['sec_cccccccc'] } } } } } };
+    const bo = '/domains/people/npcs/npc_bo';
+    const ops = [
+        { op: 'add', path: bo, value: npcs.npc_bo },
+        { op: 'replace', path: `${bo}/secrets/0/title`, value: 'The cellar hatch', was: 'The cellar hatch' },
+        { op: 'replace', path: `${bo}/secrets/0/text`, value: 'Hoards candle wax.', was: 'Hoards candle wax.' },
+    ];
+    const store = { at: () => state, before: () => state, opsAt: () => ops, headIndex: () => host.ctx.chat.length - 1 };
+    const view = inspectReply({ store, chat: host.ctx.chat, index: host.ctx.chat.length - 1 });
+    const all = JSON.stringify(view);
+    for (const words of ['cellar', 'candle wax']) assert.ok(!all.includes(words), words);
+    assert.deepEqual(view.state.domains.people.npcs.npc_ana.secrets, npcs.npc_ana.secrets, 'Ana\'s own note still shows');
 });
