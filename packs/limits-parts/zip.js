@@ -7,8 +7,8 @@ import { PORTRAIT_LIMITS } from './portraits.js';
 // portraits at their largest (every portrait at `source`) and a little more. `ratio` is the most a deflated file may grow when
 // unpacked (checked for files over 256 KB), so a zip that squeezes a huge file into a few bytes is refused before it is unpacked.
 export const ZIP_LIMITS = Object.freeze({
-    archive: PORTRAIT_LIMITS.perPack * PORTRAIT_LIMITS.source + 2 * 1024 * 1024,
-    unpacked: PORTRAIT_LIMITS.perPack * PORTRAIT_LIMITS.source + 2 * 1024 * 1024,
+    archive: PORTRAIT_LIMITS.perPack * PORTRAIT_LIMITS.source + 4 * 1024 * 1024,
+    unpacked: PORTRAIT_LIMITS.perPack * PORTRAIT_LIMITS.source + 4 * 1024 * 1024,
     entry: PORTRAIT_LIMITS.source,
     entries: 40,
     ratio: 100,

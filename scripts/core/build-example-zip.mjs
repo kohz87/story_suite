@@ -1,7 +1,7 @@
 // Builds examples/packs/ersveil.zip from examples/packs/ersveil/ (the format 4 world pack, with its companion game pack examples/packs/ersveil-game/pack.json as
 // game.json and its CONVERSION-NOTES.md):
 // pack.json first, then portraits/<file> for each picture the cast names, in cast order, then the extra files. This is the layout Story Studio exports and Story Block's zip import reads (src/v2/packs/bundle.js).
-// Arsveil's pack.json and game.json go into its zip minified (the source file, pretty-printed for diffs, is close to the zip's limit for one pack.json); every other file goes in byte for byte.
+// Arsveil's pack.json and game.json go into its zip minified (the source file is pretty-printed for diffs; minified, the zip stays small); every other file goes in byte for byte.
 // Deterministic: the zip is written by studio/zip-write.js (the one writer, shared with the Studio): every file is stored (no compression, so no dependence on the zlib version), names are UTF-8, there are no folder
 // entries or extra fields, and the time stamp is fixed (1980-01-01), so rebuilding always gives the same bytes.
 //

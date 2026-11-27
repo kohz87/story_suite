@@ -572,8 +572,8 @@ Content keys of a game pack: `calendar`, `currency`, `economy`, `weather`, `name
 <!-- generated:limits -->
 | Limit | Value |
 |---|---|
-| `packBytes` | 1048576 |
-| `installedBytes` | 2097152 |
+| `packBytes` | 2097152 |
+| `installedBytes` | 4194304 |
 | `installed` | 32 |
 | `depth` | 16 |
 | `keys` | 200 |
@@ -589,8 +589,8 @@ Content keys of a game pack: `calendar`, `currency`, `economy`, `weather`, `name
 <!-- generated:zip-limits -->
 | Zip limit | Value |
 |---|---|
-| `archive` | 337641472 |
-| `unpacked` | 337641472 |
+| `archive` | 339738624 |
+| `unpacked` | 339738624 |
 | `entry` | 10485760 |
 | `entries` | 40 |
 | `ratio` | 100 |

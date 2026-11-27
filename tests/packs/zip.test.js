@@ -62,7 +62,7 @@ test('too much unpacked: by the sizes the zip declares, and by what really comes
     const full = await readPackZip(declared(32, 10 * MB));
     assert.equal(full.ok, true);
     assert.deepEqual(full.files.map(file => file.size), Array(32).fill(10 * MB));
-    await refusedWith(declared(33, 10 * MB), /unpacks to more than 322 MB/);
+    await refusedWith(declared(33, 10 * MB), /unpacks to more than 324 MB/);
     await refusedWith(declared(1, 10 * MB + 1), /"portraits\/p0.png" in the zip is larger than 10 MB/);
     // a small file whose directory claims a size smaller than the truth: the unpacking stops at the claim
     const lie = zip([{ name: 'pack.json', bytes: text(packText(person('a', 'a.png'))) }, { name: 'portraits/a.png', bytes: new Uint8Array(100_000), size: 1000 }]);
@@ -78,9 +78,9 @@ test('a deflated file that claims to unpack to over 100 times its packed size is
     assert.equal((await readPackZip(squeezed(200 * 1024, 100))).ok, true, 'a small file is never held to the ratio');
 });
 
-test('a pack.json over 1 MB inside a zip refuses the zip before it is unpacked', async () => {
-    const big = zip([{ name: 'pack.json', bytes: text('x'), size: 1024 * 1024 + 1, method: 'store', packed: 1024 * 1024 + 1 }]);
-    await refusedWith(big, /The pack.json in the zip is larger than 1024 KB/);
+test('a pack.json over 2 MB inside a zip refuses the zip before it is unpacked', async () => {
+    const big = zip([{ name: 'pack.json', bytes: text('x'), size: 2 * 1024 * 1024 + 1, method: 'store', packed: 2 * 1024 * 1024 + 1 }]);
+    await refusedWith(big, /The pack.json in the zip is larger than 2048 KB/);
 });
 
 test('notes at the top level (README.md, notes .txt) are left out, not refused', async () => {
@@ -114,7 +114,7 @@ test('encrypted, zip64, split and unknown-method zips, damage, and things that a
     const truncated = good().slice(0, 100);
     await refusedWith(truncated, /not a zip/);
     const archive = new Uint8Array(ZIP_LIMITS.archive + 1);
-    await refusedWith(archive, /larger than 322 MB/);
+    await refusedWith(archive, /larger than 324 MB/);
 });
 
 // ---- through the Packs panel and an install ----
@@ -207,9 +207,9 @@ test('a zip may carry game.json: its text comes back beside the pack; a zip with
     assert.equal('game' in (await readPackZip(good())), false);
 });
 
-test('game.json is not a portrait and is not guessed at: a game.json alone has no pack.json; one over 1 MB refuses the zip', async () => {
+test('game.json is not a portrait and is not guessed at: a game.json alone has no pack.json; one over 2 MB refuses the zip', async () => {
     await refusedWith(zip([{ name: 'game.json', bytes: text(JSON.stringify(game4)) }]), /no pack.json/);
-    await refusedWith(zip([{ name: 'pack.json', bytes: text(JSON.stringify(world4)) }, { name: 'game.json', bytes: text(' '.repeat(1024 * 1024 + 1)), method: 'store' }]), /game\.json in the zip is larger than 1024 KB/);
+    await refusedWith(zip([{ name: 'pack.json', bytes: text(JSON.stringify(world4)) }, { name: 'game.json', bytes: text(' '.repeat(2 * 1024 * 1024 + 1)), method: 'store' }]), /game\.json in the zip is larger than 2048 KB/);
     await refusedWith(zip([{ name: 'pack.json', bytes: text(JSON.stringify(world4)) }, { name: 'portraits/game.json', bytes: text('x') }]), /portraits\/game\.json/);
 });
 

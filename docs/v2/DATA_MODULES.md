@@ -469,7 +469,7 @@ Proposed limits are exported host constants and are part of interpreter version 
 
 | Budget | Limit |
 |---|---|
-| Pack / nesting / installed library | Existing 512 KiB / 16 / 2 MiB, no increase |
+| Pack / nesting / installed library | Existing limits, no increase (now 2 MiB / 16 / 4 MiB: packs/limits-parts/core.js) |
 | Definitions per pack / pins per chat / subjects per module | 20 / 28 / 16 (a chat's own blocks: 20; replies from before the `partyRoom` mark: 8 blocks / 16 pins) |
 | Definition / all retained pins / one instance | 32 KiB / 256 KiB / 16 KiB UTF-8 JSON |
 | Fields / kinds / rules / timers / templates per definition | 32 / 16 / 32 / 8 / 16 |

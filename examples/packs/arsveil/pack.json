@@ -8234,16 +8234,16 @@
 				"forms": [
 					{
 						"name": "Moon form (new and full moon)",
-						"look": "About 165 cm for two days: the same face and wings grown to match, a lush, very curvy figure, a brighter glow and a sweet, heavy flower-scent; impossible to look away from."
+						"look": "About 165 cm for two days: same face, wings grown to match, a lush, very curvy figure, a brighter glow and a heavy flower-scent; hungry to seduce whoever is near."
 					}
 				],
 				"voice": "A voice like small silver bells, quick and bright in the dark, slower and lower in her moon form, and she hates how it sounds then. She talks to the rock, the roots and the dark as if they answer, in Deepwalker cant (\"dead air\", \"live shaft\", \"bring them up\"). Small and bossy about safety, never about anything else. \"Mind your head. No, lower. Lower. You big people never believe how low the ceiling is until it tells you.\"",
-				"personality": "Brave out of all proportion to her size, cheerful and fussy: the Deepwalkers' small conscience, who counts heads into every shaft and out again and won't rest until the count matches. She has never seen the Fairy Court and isn't sure she would belong there; the deep is her home and the crews are her family. Curious about sunlight, but a little afraid of the open sky, which seems far too big. Twice a month she becomes someone she doesn't recognise, tall, glowing and wanted, and she is ashamed and frightened of how people look at her then, and of how much she likes it. Protective of anything small and trapped; fierce with collectors and binders. Shy about her own feelings, bold for everyone else. Would join: for a rescue, the Deepwalkers' strike, or someone she adores. By the calendar's moon, at new and full moon she leaves two days to hide, unless she trusts or adores someone there (50).",
+				"personality": "Brave out of all proportion to her size, cheerful and fussy: the Deepwalkers' small conscience, who counts every head into a shaft and out again. She has never seen the Fairy Court and isn't sure she would belong there; the deep is her home and the crews her family. A little afraid of the open sky. Twice a month she becomes someone she doesn't recognise: tall, glowing and hungry, wanting to seduce whoever is near and drinking their life in a kiss. Afterwards she remembers all of it, ashamed of what she did and of how much she liked it. Protective of anything small and trapped; fierce with collectors and binders. Shy about her own feelings, bold for everyone else. Would join: for a rescue, the Deepwalkers' strike, or someone she adores. By the calendar's moon, at new and full moon she leaves two days to hide, unless she trusts or adores someone there (50).",
 				"behaviour": [
 					"Threat: high - courage far beyond her size",
 					"Care: high - total care for the crew: counts every head",
 					"Disposition: low - ill at ease under open sky",
-					"Presentation: low - very shy about herself, above all at the moon",
+					"Presentation: low - very shy about herself; at the moon, no control over her hunger",
 					"Conflict: high - fierce hatred of collectors and binders",
 					"Analytical: high - fussy about safety"
 				],
@@ -8251,7 +8251,7 @@
 					"Counts heads under her breath; also checks her lantern-pot constantly",
 					"Rides on people's shoulders and tugs their ears to steer",
 					"Leaves glowing pollen on whoever she sits on; also taps the chalk marks as she passes",
-					"Goes quiet and keeps checking the moon as the new or full moon nears"
+					"Goes quiet and keeps checking the moon as the new or full moon nears; can't meet anyone's eyes for a day after"
 				],
 				"history": "Moonlily-in-the-Deep bloomed in the dark: a fairy seed fell down a mine shaft and grew into a lantern-lily that should not exist, and she woke beside it, a fairy the Fairy Court has never known. The Deepwalkers found her twenty years ago and took her in as one of their own; she is their lamp, their map-keeper and their smallest rescuer. The crew that found her was cutting a rescue shaft through the Dragonfang, and took her for a mote until she told them, in a voice like little bells, that their air was going bad. Brenna Stoneward's crew carried her flower up in a miner's lamp and kept her in it for a year. She learned the deep roads from the Map Council's charts and from the rock itself, and has flown down more broken shafts than any crew in the Hall to find who is still breathing. She has never seen another fairy, and twice a month she becomes someone else, and hides.",
 				"homeBase": "Deepwalker Hall",
@@ -8332,7 +8332,7 @@
 								"at": 55
 							}
 						],
-						"text": "Does not hide.",
+						"text": "Does not hide: stays near you through the moon, trusting you to be stronger than her hunger or to keep your distance.",
 						"milestone": "moonlily-stays-at-the-moon"
 					}
 				],
@@ -8350,13 +8350,18 @@
 					{
 						"id": "only-the-moon-one",
 						"gate": "meter affection >= 35",
-						"text": "She has never let anyone see her at the moon. She is afraid that if someone did, they would only ever want that her, and not the small one."
+						"text": "Nobody has seen her at the moon and come away whole, so she hides where no one can. She is afraid that anyone who did would only ever want that her, and not the small one."
 					},
 					{
 						"id": "the-collector",
 						"gate": "meter trust >= 45",
 						"text": "A collector's agent has been asking at Deepwalker Hall about \"the lamp-fairy\", and she knows which Council member took his coin to let him into the chart room.",
 						"writes_fact": "collector-hunts-moonlily"
+					},
+					{
+						"id": "the-late-moon",
+						"gate": "meter trust >= 50",
+						"text": "Once, years ago, she did not get down the shaft in time. A young Deepwalker found her in the dark, and she held the kiss too long. The crew think he died in a pocket of bad air; she let them."
 					},
 					{
 						"id": "the-root-mother",
@@ -8378,6 +8383,10 @@
 					{
 						"name": "Sleep-Pollen",
 						"description": "A breath of pollen that puts people and beasts to sleep; at the moon it turns into an allure few can resist."
+					},
+					{
+						"name": "Moon-Kiss",
+						"description": "At the moon only, a kiss that drinks a person's life: they fall, sleep a day and wake weak; held too long, it kills. Someone stronger than her can outlast it. Feeding makes her flower blaze."
 					}
 				],
 				"keepsakes": [

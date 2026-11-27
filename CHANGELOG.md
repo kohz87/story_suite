@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Packs: a pack file can now be up to 2 MB (was 1 MB), and installed packs up to 4 MB together (was 2 MB).
+- Arsveil: Moonlily's moon form now hungers to seduce, and her kiss drinks a person's life force; someone stronger than her can outlast it.
 - World: Journal lines for people an event moves or kills no longer end with the event's code name in brackets ("left Kingfisher Post for Bluewatch Village.").
 - Ersveil rules 1.2.0: your own holding (off until you turn it on in Settings, Packs and trackers). Found a company, fief or trading house in the story and grow it; paid months raise loyalty.
 - Your holding has officer posts: in the story, give a companion who stays at the seat a post (steward, marshal, spymaster, healer, quartermaster or envoy) for a small bonus.
