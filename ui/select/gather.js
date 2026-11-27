@@ -4,6 +4,7 @@ import { isHere } from './people.js';
 import { personaStamp } from './persona-stamp.js';
 import { ownerOf } from '../runtime/owner-id.js';
 import { presentOf } from './people-parts.js';
+import { namesakes } from '../../modules/people/meters/npc-meters-parts/namesakes.js';
 
 const SCENE = ['director.time', 'director.status', 'scene.place', 'scene.weather', 'scene.you', 'party.actors', 'party.pc', 'party.levels',
   'party.terms', 'rpg.sheet', 'party.newCharacter', 'mounts.pace', 'director.goal', 'director.next', 'atlas.trip', 'inventory.wallet', 'inventory.currency',
@@ -19,11 +20,12 @@ const hereOf = (list, place, present, read) => (Array.isArray(list)
   }))
   : null);
 
-// The names the scene has here that no stored person answers to (name or alias, any case); [] without a people list or a present list.
+// The names the scene has here that no stored person answers to (name or alias, any case, or a namesake's shown form Name "Nickname"); [] without a people list or a present list.
 const unrecordedOf = (list, present) => {
   const known = new Set((Array.isArray(list) ? list : []).filter(row => row && typeof row === 'object').flatMap(row => [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])]).map(name => String(name ?? '').trim().toLowerCase()));
   const seen = new Set();
-  return (Array.isArray(present) && Array.isArray(list) ? present : []).map(name => String(name ?? '').trim()).filter(name => name && !known.has(name.toLowerCase()) && !seen.has(name.toLowerCase()) && seen.add(name.toLowerCase()));
+  const shared = namesakes(Array.isArray(list) ? list : []);
+  return (Array.isArray(present) && Array.isArray(list) ? present : []).map(name => String(name ?? '').trim()).filter(name => name && !known.has(name.toLowerCase()) && !shared.asForm(name)?.found.length && !seen.has(name.toLowerCase()) && seen.add(name.toLowerCase()));
 };
 
 // Asks each query once; the people come from the store (`people.list`). A query that is not there is a gap (null), never an error.
