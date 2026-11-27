@@ -6,7 +6,8 @@ const KEEP = ' (keep this to yourself; let it come about through the story, neve
 const JOIN_LINE = text => LEAD + text + KEEP;
 
 // A line cut short by a budget has lost its ending: it then goes to the end of its line.
-const SENT = new RegExp(`(?:; )?${LEAD}[^\\n]*?(?:${KEEP.replace(/[()]/g, '\\$&')}|$)`, 'gm');
+const literal = words => words.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const SENT = new RegExp(`(?:; )?${literal(LEAD)}[^\\n]*?(?:${literal(KEEP)}|$)`, 'gm');
 
 /** The sent text as the reader may see it: the join line is left out. */
 const hideJoinLines = text => String(text ?? '').replace(SENT, '');

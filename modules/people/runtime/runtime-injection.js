@@ -70,8 +70,18 @@ export function createInjectionPart(rt, deps) {
 
     // The dossier ids of those in the party now (`party.levels`, those who left aside; a member is matched by exact name or alias). Empty
     // when nothing answers (no host, the RPG off): the join line is then sent for everyone.
+    // While a reply is being swiped or regenerated, the party is the one before it: that reply's own join no longer counts.
+    function partyAnswer() {
+        const adapter = adapterMeters();
+        if (!adapter) return null;
+        const chat = getContext().chat || [];
+        const tail = chat.findLastIndex(message => message && !message.is_system);
+        const replaced = Boolean(rt.replacingReply) && chat[tail] === rt.replacingReply.message && rt.replacingReply.key === getChatKey();
+        const before = replaced ? chat.slice(0, tail).findLastIndex(message => message && !message.is_system && !message.is_user) : -1;
+        return before >= 0 ? adapter.at(before, () => adapter.partyLevelsAnswer?.()) : adapter.partyLevelsAnswer?.();
+    }
     function partyDossierIds(npcs) {
-        const members = adapterMeters()?.partyLevelsAnswer?.() ?? [];
+        const members = partyAnswer() ?? [];
         return new Set(members.filter(member => !member?.left).map(member => resolveDossierTarget(npcs, member?.name)).filter(Boolean));
     }
 

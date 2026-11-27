@@ -10,6 +10,7 @@ import { applyCastEntry, castView, linkToCast, normalizeCast } from '../../modul
 import { peopleQueries } from '../../modules/people/domain/queries.js';
 import { dossierFields } from '../../modules/people/adapter/queries-dossier.js';
 import { redactSentOf, sentText } from '../../core/sent/sent.js';
+import { suite } from './helpers/pacing-suite.js';
 
 // The runtime reads the host's stubs when it loads.
 globalThis.__npcMock ??= { extensionSettings: {}, context: {}, saveSettingsCalls: 0 };
@@ -105,4 +106,44 @@ test('the sent dossier asks `party.levels` who is in the party: a member goes wi
     // The diagnostics dialog reads the last sent text through `injectionPreview`.
     const preview = createInjectionPart({ lastInjection: { text: liveText(null) } }, { getChatKey: () => 'no-chat' }).injectionPreview();
     assert.ok(preview.sending && !preview.text.includes('lighthouse'), preview.text);
+});
+
+test('while the reply where they joined is rerolled, the party is read as of the reply before, so the line is back', () => {
+    const chat = [{ mes: 'On.' }, { is_user: true, mes: 'Join us?' }, { mes: 'Fenna joins.' }];
+    const was = globalThis.__npcMock.context;
+    globalThis.__npcMock.context = { chat };
+    try {
+        let asOf = null;
+        const adapter = {
+            partyLevelsAnswer: () => (asOf === null ? [{ name: 'Fenna', left: false }] : []),
+            at: (index, read) => { asOf = index; try { return read(); } finally { asOf = null; } },
+        };
+        const send = replacingReply => createInjectionPart({ replacingReply }, {
+            awayReturnNotes: () => null, scenePresenceView: npcs => npcs, hostedMeterView: npcs => npcs, adapterMeters: () => adapter, getChatKey: () => 'chat-1',
+        }).liveInjectionText({ npcs: [present()], turn: 1 }, { injectLimit: 3, injectBudgetTokens: 1800 }, { namedNpcIds: [], transcript: 'Fenna ties up the ferry.' });
+        assert.ok(!send(null).includes('would join'));
+        assert.ok(send({ key: 'chat-1', message: chat[2] }).includes('would join'));
+        assert.ok(!send({ key: 'another-chat', message: chat[2] }).includes('would join'));
+    } finally { globalThis.__npcMock.context = was; }
+});
+
+test('replay == live: a dossier made inside a reply keeps the words through a rebuild, and a swipe and a swipe back', async () => {
+    const raw = entry({ id: 'torka', name: 'Torka' });
+    const cast = {
+        id: 'story-director', name: 'Story Director stand-in (cast)', domains: { zzcast: { initial: () => ({}) } },
+        queries: { 'director.cast': () => [{ key: 'ersveil:torka', pack: 'ersveil', id: 'torka', name: 'Torka', aliases: [], met: { on: null, where: 'The quay' }, alive: true, entry: structuredClone(raw) }] },
+    };
+    const s = await suite({ lines: true, modules: [cast], records: {} });
+    const people = () => s.host.head().domains.people;
+    const kept = () => Object.values(people().npcs).find(npc => npc.name === 'Torka')?.castFrom.join;
+    await s.say(['~ npc Torka | goal: mend the ferry']);
+    const at = s.host.store.headIndex();
+    const live = JSON.stringify(people());
+    assert.equal(kept(), WORDS);
+    s.host.store.rebuild();
+    assert.equal(JSON.stringify(people()), live, 'a rebuild');
+    await s.swipe(['~ npc Torka | goal: sell the ferry']);
+    assert.equal(kept(), WORDS, 'another swipe');
+    await s.host.st.swipeTo(at, 0);
+    assert.equal(JSON.stringify(people()), live, 'swipe back');
 });
