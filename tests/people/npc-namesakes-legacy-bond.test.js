@@ -1,4 +1,4 @@
-// A legacy meters entry kept under a shared name belongs to one dossier (ownerOf's, a living one before a dead one): the other namesake's dossier
+// A legacy meters entry kept under a shared name belongs to one dossier (ownerOf's: the first by id, alive or not): the other namesake's dossier
 // reads nothing of it, no locked or opened note's title or text.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -53,4 +53,36 @@ test('the dead namesake\'s dossier page shows no meter change, ladder or note of
     assert.equal(asked.find(([name, id]) => name === 'npc.meters' && id === 'npc_guard-a')[2], 'npc_guard', 'the living one still reads it');
     const gone = JSON.stringify(pages['npc_guard-b']);
     assert.ok(!/shared the watch|Living title|"trust":70/.test(gone), gone);
+});
+
+// The owner is fixed: a death, or the list order changing (a scan re-sorts it by who was seen last), never hands the entry to the namesake.
+test('the ferryman\'s entry, trust and opened note stay his before and after his death, in either list order', async () => {
+    const owned = note('Ferryman');
+    const locked = note('Watchman');
+    for (const death of [{}, dead]) {
+        const ferryman = guard('npc_guard-a', 'Ferryman', { secrets: [owned], ...death });
+        const watchman = guard('npc_guard-b', 'Watchman', { secrets: [locked] });
+        for (const people of [[ferryman, watchman], [watchman, ferryman]]) {
+            const h = await cast(...people);
+            const state = structuredClone(h.store.head());
+            const bonds = { npc_guard: { ...legacy([ID]), meters: { trust: 73, affection: 0, desire: 0, tension: 0 } } };
+            state.domains.people.bonds = { npcs: bonds };
+            // both shapes the callers pass: the stored map, and people.list's rows
+            for (const stored of [state.domains.people.npcs, h.runQuery('people.list', {}, state)]) {
+                const owners = ownersOf(stored);
+                assert.equal(owners.ownerOf(bonds, 'npc_guard').id, 'npc_guard-a');
+                assert.equal(owners.entryKey(bonds, { id: 'npc_guard-b', name: 'Guard', aliases: [] }), null);
+            }
+            const his = h.runQuery('npc.meters', { id: 'npc_guard-a', name: 'Guard' }, state);
+            assert.deepEqual([his.key, his.meters.trust, his.unlocked], ['npc_guard', 73, [ID]]);
+            assert.equal(h.runQuery('npc.meters', { id: 'npc_guard-b', name: 'Guard' }, state), null);
+            const rows = h.runQuery('npc.cast', { departed: true }, state);
+            assert.ok(!JSON.stringify(rows).includes('Watchman '), `the watchman's locked note stays unshown: ${JSON.stringify(rows)}`);
+            const alive = h.runQuery('npc.cast', {}, state);
+            const withNotes = [...alive, ...rows].filter(row => row.opened.length);
+            assert.deepEqual(withNotes.map(row => [row.key, row.opened.map(item => item.title)]), [[death.lifeState ? 'npc_guard-a' : 'npc_guard', ['Ferryman title']]], JSON.stringify(withNotes));   // (a departed row is keyed by dossier id)
+            const bar = row => row.bars.find(item => item.id === 'trust').value;
+            assert.deepEqual(alive.filter(row => bar(row) === 73).map(row => row.key), death.lifeState ? [] : ['npc_guard'], JSON.stringify(alive));
+        }
+    }
 });

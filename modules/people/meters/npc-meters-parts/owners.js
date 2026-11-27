@@ -17,7 +17,7 @@ const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
  *     Their own id first; else an entry under a key that is nobody else's id and is assigned (ownerOf) to nobody else, found by their name, then `asked`
  *     and their aliases (labels(person, asked)).
  *   sameName(a, b)  the one comparison of two names (their slugs, as entry keys are matched)
- *   ownerOf(npcs, key)  the stored dossier whose entry `key` is: the one with that id, else the one of those its name or labels reach it, a living one first, or null
+ *   ownerOf(npcs, key)  the stored dossier whose entry `key` is: the one with that id, else the first by id of those its name (else their alias) reaches it, alive or not, or null
  *   asking(npcs, key, labels?)  → { name, labels }: what to ask the dossier hooks (setup, notes) with for that entry: its owner's id; with no
  *     owner, the entry's name, unless a stored dossier carries that name or alias (then nothing: it is not theirs); `gone`: the owner is dead or archived
  */
@@ -75,8 +75,8 @@ export function ownersOf(people) {
         const entry = isObject(npcs) && Object.hasOwn(npcs, key) ? npcs[key] : null;
         if (!entry) return null;
         const mine = item => claim(npcs, item) === key;
-        // (of several who reach it, a living one before a dead or archived one)
-        const first = list => [...list].sort((a, b) => Number(gone(a)) - Number(gone(b))).find(mine);
+        // (of several who reach it, the first by id, alive or not: ids never change, and the stored order does, with who was seen last)
+        const first = list => [...list].sort((a, b) => (a.id < b.id ? -1 : 1)).find(mine);
         return first(named(entry.name)) ?? first(aliased(entry.name)) ?? null;
     };
     const asking = (npcs, key, given = null) => {
