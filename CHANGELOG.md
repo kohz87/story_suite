@@ -7,7 +7,7 @@ What changed in each release, in short. The full record of every change is in [t
 - NPC State: people who share a name are told apart by their nicknames: the story names the right one, and a line that can't tell which is refused.
 - NPC State: a dead person's own secrets can still be opened by a story line that reveals one.
 - NPC State: someone whose nickname is another person's name no longer shares that person's feelings, stages or opened secrets, alive or dead.
-- NPC State: when two people share a name, a scan about one no longer gives them the other's death, looks or birth date.
+- NPC State: a living person no longer dies, or takes on another's looks or birth date, just because someone else shares their name or a nickname.
 - Spoiler fixes: the Inspector and the "What's sent" copy hide when someone would join and unopened secrets; the planner is not told of branches still waiting on earlier events.
 - World: cards, the World tab and the Journal now name world events and conditions in words ("grain dear", the event's own sentence), never by their code names, and lapsed branches you never reached stay off the step card.
 - World: a pack can now say when a companion would join; it stays hidden and comes through the story.

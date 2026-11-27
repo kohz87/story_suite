@@ -254,3 +254,34 @@ test('namesakes: replay of an unmarked entry reads its rows as before the rule, 
     assert.deepEqual(r.marked, { failed: null, moods: ['', ''], count: 2 }, 'by the rule nobody is picked, and the scene is not asked to pick');
     assert.deepEqual(r.tied, { failed: null, moods: ['', 'angry'], count: 2 });
 });
+
+// A dead namesake: the live scan and the replay boundary leave the living Guard alive; a death already in the people handed to the runtime stays.
+test('namesakes: a row for the living Guard beside a dead one, in the live scan, in an unmarked entry\'s replay, and after a reload', () => {
+    const r = runCalls('dead-namesake', true, async ({ reply, mockState, sleep }) => {
+        mockState.sdk.query = (name, args) => (name === 'npc.replySid' ? `sid-${args?.asOf}` : null);
+        const api = globalThis.NPCStateDelta;
+        const guards = dead => api.normalizeState({ npcs: [
+            { id: 'npc_g1', name: 'Guard', role: 'guard', present: true, ...(dead ? { present: false, lifeState: 'deceased', lifeStateCertainty: 'explicit' } : {}) },
+            { id: 'npc_g2', name: 'Guard', role: 'guard', present: false, lifeState: 'deceased', lifeStateCertainty: 'explicit', mood: 'cold' }] }).npcs;
+        const seen = npcs => ['npc_g1', 'npc_g2'].map(id => { const npc = npcs.find(item => item.id === id); return [npc.lifeState, Boolean(npc.present), npc.mood || '']; });
+        const row = { id: 'npc_g1', name: 'Guard', present: true, mood: 'wary' };
+        await reply('At the gate stood Orsen, arms folded.', PAYLOAD);
+        api.hydratePeople({ npcs: guards(false) });
+        const run = await reply('Beside the Guard stood Brannoc, arms folded.', { npcs: [row, { ...PAYLOAD.npcs[0], name: 'Brannoc' }] });
+        await sleep(600);
+        const live = seen(api.getState().npcs);
+        const written = api.getState().captureJournal.find(item => item.messageId === run.id);
+        const { messageId, key, fp } = written;
+        api.hydratePeople({ captureJournal: [{ messageId, key, fp, backgroundRule: 1, parsed: { npcs: [row] }, watch: [], fills: {} }] });
+        const copy = api.replay.empty();
+        copy.npcs = guards(false);
+        const failed = await api.replay.reply(copy, run.id, { toast() {}, write() {} }, api.uiStatus().chatKey);
+        api.hydratePeople({ npcs: guards(true) });
+        return { live, failed: failed ?? null, replayed: seen(copy.npcs), reloaded: seen(api.getState().npcs) };
+    });
+    const dead = ['deceased', false, 'cold'];
+    assert.deepEqual(r.live, [['unknown', true, 'wary'], dead]);
+    assert.equal(r.failed, null);
+    assert.deepEqual(r.replayed, [['unknown', true, 'wary'], dead]);
+    assert.deepEqual(r.reloaded.map(item => item[0]), ['deceased', 'deceased'], 'a stored death is not rewritten');
+});
