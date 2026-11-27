@@ -66,8 +66,8 @@ export function createQueriesPart(session, deps) {
         const npc = runtime()?.getNpc?.(id);
         return npc && typeof npc === 'object' ? npc : null;
     };
-    // The same by name, else by the first of `labels` that finds one; a dossier's own name is never looked up by that person's other labels.
-    const holderOf = (name, labels) => dossierOf(name) ?? (isOwnName(npcList(), name) ? undefined : labels.map(dossierOf).find(Boolean));
+    // The same by name, else by the first of `labels` that finds one; for a dossier's own name (namesakes), only a dossier with that same own name.
+    const holderOf = (name, labels) => dossierOf(name) ?? labels.map(dossierOf).find(isOwnName(npcList(), name) ? npc => npc && isOwnName([npc], name) : Boolean);
     const storedSettings = () => {
         try { return session.sdkRef?.settings?.(MODULE_ID) ?? {}; } catch { return {}; }
     };

@@ -111,3 +111,76 @@ test('an older entry under no dossier\'s id, found by the person\'s own name, is
     assert.equal(h.def.queries['npc.cast'](state, {}, null).find(item => item.name === 'Bo').key, 'npc_older');
     assert.equal(h.def.queries['npc.meters'](state, { id: 'npc_ana', name: 'Ana', aliases: [] }, null), null);
 });
+
+const plainPerson = (id, name, aliases = [], extra = {}) => ({ id, name, aliases, present: true, relationship: { trust: 10, affection: 0, desire: 0, tension: 0 }, ...extra });
+async function cast(...records) {
+    const delta = fakeDelta();
+    delta.records = Object.fromEntries(records.map(record => [record.id, record]));
+    const h = await host({ delta });
+    h.bonds = () => h.store.head().domains.people.bonds?.npcs ?? {};
+    h.line = text => {
+        const [result] = h.reply('Later.', text).results;
+        assert.equal(result.ok, true, JSON.stringify(result));
+    };
+    // The trust a person's slice and cast row (found by their key) show.
+    h.trustOf = id => {
+        const row = h.runQuery('npc.cast').find(item => item.key === id);
+        return [h.adapter.sliceView([delta.api.getNpc(id)])[0].relationship.trust, row?.bars.find(bar => bar.id === 'trust').value];
+    };
+    // The dossiers stored again on a new reply (they carry no archive flag; only the live list has one).
+    const later = async () => {
+        h.reply('Later.');
+        await seedPeople(h.sdk, h.store, Object.values(delta.records).map(({ archived, ...record }) => record));
+    };
+    h.add = record => { delta.records[record.id] = record; return later(); };
+    h.die = id => { Object.assign(delta.records[id], DEATH); return later(); };
+    return h;
+}
+
+test('two "Guard" dossiers, one addressed by its own alias: its trust ceiling and its note apply', async () => {
+    const secrets = [note('Guard', { meter: 'trust', at: 11 })];
+    const h = await cast(plainPerson('npc_g1', 'Guard'), plainPerson('npc_g2', 'Guard', ['Old Tom'], { meterSetup: { limits: { trust: { ceiling: 12 } } }, secrets }));
+    h.line('~ npc Old Tom | trust: +10');
+    assert.deepEqual(Object.keys(h.bonds()), ['npc_g2']);
+    assert.equal(h.bonds().npc_g2.meters.trust, 12, 'held at the ceiling');
+    assert.deepEqual(h.bonds().npc_g2.unlocked, [ID]);
+});
+
+test('a dead person with no entry, written in another case, gets their own dossier id, name and starting values', async () => {
+    const h = await cast(plainPerson('npc_ana', 'Ana'));
+    await h.die('npc_ana');
+    h.line('~ npc ana | trust: +5');
+    assert.deepEqual(Object.keys(h.bonds()), ['npc_ana']);
+    assert.deepEqual([h.bonds().npc_ana.name, h.bonds().npc_ana.meters.trust], ['Ana', 15]);
+});
+
+test('a dead person with no entry, written by their full name, gets their own dossier id whatever it is, with its starting values', async () => {
+    const h = await cast(plainPerson('npc_stranger', 'Ana Vell'));
+    await h.die('npc_stranger');
+    h.line('~ npc Ana Vell | trust: +5');
+    assert.deepEqual(Object.keys(h.bonds()), ['npc_stranger']);
+    assert.equal(h.bonds().npc_stranger.meters.trust, 15);
+});
+
+test('a renamed dossier that does not keep the old name as an alias gets no lines written for it', async () => {
+    const h = await cast(plainPerson('npc_ana', 'Annie'));
+    h.line('~ npc Ana | trust: +5');
+    const keys = Object.keys(h.bonds());
+    assert.equal(keys.length, 1);
+    assert.notEqual(keys[0], 'npc_ana');
+    assert.deepEqual([h.bonds()[keys[0]].name, h.bonds()[keys[0]].meters.trust], ['Ana', 5]);
+    assert.equal(h.adapter.meters('Annie'), null);
+    assert.deepEqual(h.trustOf('npc_ana'), [10, 10]);
+});
+
+for (const [first, second] of [['npc_g1', 'npc_g2'], ['npc_g2', 'npc_g1']]) {
+    test(`two same-name dossiers with no entries: the first stored (${first}) gets the entry`, async () => {
+        const h = await cast(plainPerson(first, 'Guard'));
+        await h.add(plainPerson(second, 'Guard'));
+        h.line('~ npc Guard | trust: +5');
+        assert.deepEqual(Object.keys(h.bonds()), [first]);
+        assert.equal(h.bonds()[first].meters.trust, 15);
+        assert.deepEqual(h.trustOf(first), [15, 15]);
+        assert.deepEqual(h.trustOf(second), [10, 10]);
+    });
+}
