@@ -6,6 +6,8 @@ import { applyEffects, runEvacuations } from './effects.js';
 import { releaseHolds } from './holds.js';
 import { releaseDisplaced } from './cast.js';
 import { weightValue } from './weight.js';
+import { titleOf, unfiredSummary } from './event-title.js';
+import { neverOpened } from './never-opened.js';
 
 const DAY = 1440;
 
@@ -76,5 +78,7 @@ export function closeEvent(ws, def, day, state, why = '') {
     if (state === 'lapsed') recordAnchor(ws.anchors, `lapsed:${def.id}`, day);
     releaseHolds(ws, def.id, day * DAY);
     releaseDisplaced(ws, def.id, day * DAY);
-    ws.log.push({ kind: state, key: def.id, day, ...(why ? { why } : {}) });
+    // For the step's card (summary.js): the words a reader sees, and whether a lapsed event's branch never opened.
+    const text = titleOf(def.title, def.id) || unfiredSummary(def.summary, def.id);
+    ws.log.push({ kind: state, key: def.id, day, ...(why ? { why } : {}), ...(text ? { text } : {}), ...(state === 'lapsed' && neverOpened(ws, def, day) ? { unopened: true } : {}) });
 }

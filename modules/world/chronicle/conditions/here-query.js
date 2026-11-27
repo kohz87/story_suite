@@ -7,17 +7,9 @@ import { hereConditions } from '../world-note-parts/here.js';
 import { effectsText } from '../world-note-parts/build.js';
 import { isInt } from '../domain-parts/shared-basics.js';
 import { WORLD_EVENTS_FEATURE } from './feature.js';
+import { reasonReader } from './reason.js';
 
 const plain = text => String(text ?? '').replace(/\s+/g, ' ').trim().replace(/[.!?…]+$/, '');
-
-// The reason a reader sees: a condition the daily step set by a spec event (`by: event:<id>`, `why` that id) says the happening's own summary;
-// any other keeps the words the story or the pack gave.
-function reasonOf(entry, events) {
-    const id = /^event:(?!pack\.|world\.)(.+)$/.exec(String(entry.by ?? ''))?.[1];
-    const found = id ? events.filter(event => event?.by === `event:world.${id}` || event?.by === `event:world.template.${id}`) : [];
-    const best = found.find(event => event.since === entry.since) ?? found.sort((a, b) => (b.since ?? 0) - (a.since ?? 0))[0];
-    return plain(best?.summary) || plain(best?.name?.replace(/ · [^·]*$/, '')) || (typeof entry.why === 'string' ? entry.why : '');
-}
 
 const clean = text => String(text ?? '').replace(/,? \d{1,2}:\d{2}.*$/, '');
 
@@ -32,9 +24,10 @@ export const conditionsHereQuery = Object.assign((state, args, tools) => {
     if (!place) return { place: '', conditions: [] };
     const calendar = calendarFrom(query);
     const events = ask(query, 'chronicle.events', {}) ?? [];
+    const reasonOf = reasonReader(query, Array.isArray(events) ? events : []);
     const conditions = hereConditions(query, place).map(entry => ({
         key: entry.key, name: entry.name, ref: entry.ref, since: isInt(entry.since) ? entry.since : null, sinceText: isInt(entry.since) ? clean(dateText(calendar, entry.since)) : '',
-        why: reasonOf(entry, Array.isArray(events) ? events : []), means: entry.declared.means ?? '', told: effectsText(entry.declared.effects),
+        why: reasonOf(entry), means: entry.declared.means ?? '', told: effectsText(entry.declared.effects),
     }));
     return { place, conditions };
 }, { feature: WORLD_EVENTS_FEATURE });

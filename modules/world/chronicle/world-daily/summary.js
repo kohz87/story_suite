@@ -4,13 +4,15 @@
 
 const MAX_ITEMS = 8;
 const MAX_CHARS = 1200;
+const bare = text => text.replace(/[.!?…]+$/, '');
 
 /** `dailySummary(report)` → '' when nothing happened, else "World: …". */
 export function dailySummary(report) {
     const items = report.journal.filter(entry => !entry.rumour).map(entry => entry.text);
     for (const entry of report.log) {
-        if (entry.kind === 'lapsed') items.push(`Lapsed: ${entry.key}.`);
-        if (entry.kind === 'replaced') items.push(`Replaced: ${entry.key}.`);
+        // An event is named by its words, never its id: one with none is left out, and so is a lapse whose branch never opened.
+        if (entry.kind === 'lapsed' && entry.text && !entry.unopened) items.push(`Lapsed: ${bare(entry.text)}.`);
+        if (entry.kind === 'replaced' && entry.text) items.push(`Replaced: ${bare(entry.text)}.`);
         if (entry.kind === 'faded' || entry.kind === 'released') items.push(`Faded: ${entry.key.replace('@', ' on ')}.`);
     }
     const shown = items.slice(0, MAX_ITEMS);
