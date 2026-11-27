@@ -3,7 +3,7 @@
 // owner's approval: WORLDEV2.REPORT.md). Code keeps the roll: the judge may only hold an event back (a cited reason) or, in the daily pass, make it
 // likelier or less likely for the day. Pure.
 
-import { THINK_BLOCK, flat } from '../plan/shared.js';
+import { THINK_BLOCK, barless, flat } from '../plan/shared.js';
 import { lineKey } from '../../world/changes.js';
 
 const BASE = [
@@ -20,7 +20,8 @@ export const rollSystem = pass => [...BASE, ...(pass ? [PASS] : []), ...ANSWER, 
 export function rollPrompt({ world = '', items = [] } = {}) {
     // A name taken from the summary is not said twice.
     const head = item => (!item.summary ? flat(item.title, 80) || 'An event with no description' : !item.title || lineKey(item.summary).startsWith(lineKey(item.title)) ? flat(item.summary, 240) : `${flat(item.title, 80)} — ${flat(item.summary, 240)}`);
-    const line = item => `${head(item)}${item.place ? ` | place: ${flat(item.place, 80)}` : ''}`;
+    const line = item => `${barless(head(item))}${item.place ? ` | place: ${barless(flat(item.place, 80))}` : ''}`;
+    // An item's own words print "|" as "/"; the " | place:" separator stays.
     return [world, 'Items:', ...items.map((item, index) => `${index + 1}: ${line(item)}`)].filter(Boolean).join('\n');
 }
 

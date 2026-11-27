@@ -3,6 +3,7 @@
 // place). Hidden lore's text is never sent, whatever the digest holds; the secrets' texts are, so code keeps them out of the judge's NOTE, reasons and corrected lines (scrub.js). Pure on the brief (`chronicle.world.brief`) and the query handed in.
 
 import { eventLine } from '../plan/prompt-parts/world-brief.js';
+import { barless } from '../plan/shared.js';
 
 const MAX_TITLES_CHARS = 4400;
 const MAX_ENTRIES_CHARS = 2400;
@@ -28,9 +29,9 @@ export function judgeContext({ brief, ask, place = '' } = {}) {
     const events = list(brief.threads).filter(thread => thread && typeof thread.key === 'string');
     if (events.length) parts.push('Active world events (the world settles them):', ...events.map(thread => `- ${eventLine(thread.key, thread.now, norm)}`));
     const toCome = list(brief.toCome).filter(title => typeof title === 'string' && title.trim());
-    if (toCome.length) parts.push('Still to come:', ...toCome.map(title => `- ${norm(title)}`));
+    if (toCome.length) parts.push('Still to come:', ...toCome.map(title => `- ${barless(norm(title))}`));
     const conditions = list(brief.conditions).filter(text => typeof text === 'string' && text.trim());
-    if (conditions.length) parts.push('Conditions in this realm:', ...conditions.map(text => `- ${norm(text)}`));
+    if (conditions.length) parts.push('Conditions in this realm:', ...conditions.map(text => `- ${barless(norm(text))}`));
     const cast = list(brief.protectedCast).filter(name => typeof name === 'string' && name.trim());
     if (cast.length) parts.push(`Protected cast (never killed, moved or changed by a plan): ${cast.map(norm).join('; ')}`);
     const hiddenTitles = list(brief.hidden).filter(title => typeof title === 'string' && title.trim());
