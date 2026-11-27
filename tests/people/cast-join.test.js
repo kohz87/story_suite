@@ -11,6 +11,8 @@ import { peopleQueries } from '../../modules/people/domain/queries.js';
 import { dossierFields } from '../../modules/people/adapter/queries-dossier.js';
 import { redactSentOf, sentText } from '../../core/sent/sent.js';
 import { suite } from './helpers/pacing-suite.js';
+import { CORE_FEATURE } from '../../core/features.js';
+import { make } from '../modules/rpg/join.helpers.js';
 
 // The runtime reads the host's stubs when it loads.
 globalThis.__npcMock ??= { extensionSettings: {}, context: {}, saveSettingsCalls: 0 };
@@ -55,7 +57,7 @@ test('the narrator is told once while the person is not in the party, and not on
     assert.ok(text.indexOf('background: Runs the night ferry.') < text.indexOf('would join the party:'), 'after background');
     assert.ok(!inject(present(), { partyIds: new Set(['npc_fenna']) }).includes('would join'));
     assert.ok(inject(present(), { partyIds: new Set(['npc_other']) }).includes(JOIN_LINE(WORDS)));
-    assert.equal(injectionOptionalFields(present()).at(-1), JOIN_LINE(WORDS));
+    assert.ok(!injectionOptionalFields(present()).includes(JOIN_LINE(WORDS)), 'not one of the fields shared out in turns');
 });
 
 test('under a shrinking budget the line goes whole, before the essentials and no later than the background', () => {
@@ -68,6 +70,22 @@ test('under a shrinking budget the line goes whole, before the essentials and no
         else without += 1;
     }
     assert.ok(without > 0, 'some budget leaves it out');
+});
+
+test('the line takes no room from another person: a sparse dossier ranked first does not cost the next one their appearance', () => {
+    const ann = { ...createNpcRecord('Ann', []), id: 'npc_ann', present: true, castFrom: { join: 'j'.repeat(400) } };
+    const bea = { ...createNpcRecord('Bea', []), id: 'npc_bea', present: true, appearance: 'tall, grey-eyed and weathered; '.repeat(6), location: 'the north quay' };
+    const send = (options, budget) => buildInjection([ann, bea], 'Ann waves. Bea waits.', 1, 3, undefined, budget, null, { includeAppearance: true, ...options });
+    for (let budget = 512; budget <= 900; budget += 4) {
+        const text = send({}, budget);
+        const without = send({ partyIds: new Set(['npc_ann']) }, budget);
+        const rows = text.split('\n');
+        const [a, b] = ['- Ann:', '- Bea:'].map(lead => rows.findIndex(row => row.startsWith(lead)));
+        assert.ok(a >= 0 && a < b, `${budget}: ${text}`);
+        assert.equal(rows[b], without.split('\n').find(row => row.startsWith('- Bea:')), `${budget}: Bea's line`);
+        assert.equal(text.replace(`; ${JOIN_LINE('j'.repeat(400))}`, ''), without, `${budget}: only the whole line differs`);
+    }
+    assert.match(send({}, 512).split('\n').find(row => row.startsWith('- Bea:')), /APPEARANCE/);
 });
 
 test('the dossier queries, the cast block and "What\'s sent" never carry the words', () => {
@@ -124,6 +142,72 @@ test('while the reply where they joined is rerolled, the party is read as of the
         assert.ok(!send(null).includes('would join'));
         assert.ok(send({ key: 'chat-1', message: chat[2] }).includes('would join'));
         assert.ok(!send({ key: 'another-chat', message: chat[2] }).includes('would join'));
+    } finally { globalThis.__npcMock.context = was; }
+});
+
+test('ordinary text that only looks like the join line is shown as it is', () => {
+    for (const text of [
+        '- A: IDENTITY x; background: She would join the party: that sails north; goal: y\n- B: z',
+        '- A: IDENTITY x; memories: would join the party: if asked; location: the quay',
+        '- A: IDENTITY x; background: She would join the party: that sails…\n- B: z',
+    ]) assert.equal(hideJoinLines(text), text);
+});
+
+// The real store, the real RPG's `party.levels` and the production adapter's own `at` and `partyLevelsAnswer`. Fenna joins as a Character
+// made by `dm.define`, which is stored on the latest reply.
+async function rerolled(arrange) {
+    const s = await suite({ records: {} });
+    const was = globalThis.__npcMock.context;
+    try {
+        s.host.features.set(CORE_FEATURE.leanRpg, true);
+        await arrange(s);
+        const chat = s.host.ctx.chat;
+        globalThis.__npcMock.context = { chat };
+        const send = replacingReply => createInjectionPart({ replacingReply }, {
+            awayReturnNotes: () => null, scenePresenceView: npcs => npcs, hostedMeterView: npcs => npcs, adapterMeters: () => s.adapter, getChatKey: () => 'chat-1',
+        }).liveInjectionText({ npcs: [present()], turn: 1 }, { injectLimit: 3, injectBudgetTokens: 1800 }, { namedNpcIds: [], transcript: 'Fenna ties up the ferry.' });
+        return { chat, head: send(null).includes('would join'), reroll: send({ key: 'chat-1', message: chat.at(-1) }).includes('would join') };
+    } finally { globalThis.__npcMock.context = was; s.host.close(); }
+}
+
+test('real store: a join in a hidden reply before the rerolled one still counts', async () => {
+    const result = await rerolled(async s => {
+        await s.say([]);
+        await make(s.host, 'Fenna');
+        s.host.ctx.chat.at(-1).is_system = true;
+        await s.say([]);
+    });
+    assert.equal(result.head, false, 'the head lists Fenna');
+    assert.equal(result.reroll, false, 'so does the reroll');
+});
+
+test('real store: with no earlier reply, the rerolled reply\'s own join does not count', async () => {
+    const result = await rerolled(async s => {
+        s.host.ctx.chat.length = 0;
+        await s.say([]);
+        await make(s.host, 'Fenna');
+    });
+    assert.deepEqual(result.chat.map(message => Boolean(message.is_user)), [true, false]);
+    assert.equal(result.head, false, 'the head lists Fenna');
+    assert.equal(result.reroll, true);
+});
+
+test('a rerolled first message has an empty party, and no dossier with join words means no party query', () => {
+    const chat = [{ mes: 'Fenna is aboard.' }];
+    const was = globalThis.__npcMock.context;
+    globalThis.__npcMock.context = { chat };
+    try {
+        let asked = 0;
+        const adapter = { partyLevelsAnswer: () => { asked += 1; return [{ name: 'Fenna', left: false }]; }, at: () => assert.fail('nothing precedes the first message') };
+        const send = (npc, replacingReply) => createInjectionPart({ replacingReply }, {
+            awayReturnNotes: () => null, scenePresenceView: npcs => npcs, hostedMeterView: npcs => npcs, adapterMeters: () => adapter, getChatKey: () => 'chat-1',
+        }).liveInjectionText({ npcs: [npc], turn: 1 }, { injectLimit: 3, injectBudgetTokens: 1800 }, { namedNpcIds: [], transcript: 'Fenna ties up the ferry.' });
+        assert.ok(send(present(), { key: 'chat-1', message: chat[0] }).includes('would join'));
+        assert.equal(asked, 0);
+        send({ ...present(), castFrom: { key: 'ersveil:fenna' } }, null);
+        assert.equal(asked, 0);
+        send(present(), null);
+        assert.equal(asked, 1);
     } finally { globalThis.__npcMock.context = was; }
 });
 

@@ -70,17 +70,19 @@ export function createInjectionPart(rt, deps) {
 
     // The dossier ids of those in the party now (`party.levels`, those who left aside; a member is matched by exact name or alias). Empty
     // when nothing answers (no host, the RPG off): the join line is then sent for everyone.
-    // While a reply is being swiped or regenerated, the party is the one before it: that reply's own join no longer counts.
+    // While a reply is being swiped or regenerated, the party is the one as of the message just before it (hidden replies count; the first
+    // message has nothing before it, so nobody): that reply's own join no longer counts.
     function partyAnswer() {
         const adapter = adapterMeters();
         if (!adapter) return null;
         const chat = getContext().chat || [];
         const tail = chat.findLastIndex(message => message && !message.is_system);
         const replaced = Boolean(rt.replacingReply) && chat[tail] === rt.replacingReply.message && rt.replacingReply.key === getChatKey();
-        const before = replaced ? chat.slice(0, tail).findLastIndex(message => message && !message.is_system && !message.is_user) : -1;
-        return before >= 0 ? adapter.at(before, () => adapter.partyLevelsAnswer?.()) : adapter.partyLevelsAnswer?.();
+        if (!replaced) return adapter.partyLevelsAnswer?.();
+        return tail > 0 ? adapter.at(tail - 1, () => adapter.partyLevelsAnswer?.()) : [];
     }
     function partyDossierIds(npcs) {
+        if (!(npcs || []).some(npc => npc?.castFrom?.join)) return new Set();
         const members = partyAnswer() ?? [];
         return new Set(members.filter(member => !member?.left).map(member => resolveDossierTarget(npcs, member?.name)).filter(Boolean));
     }
