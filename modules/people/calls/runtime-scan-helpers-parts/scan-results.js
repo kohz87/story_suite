@@ -81,6 +81,7 @@ export function refusedLooks(prior, after, updates = [], rows = []) {
 
 // The three mood numbers the scan gave with a person's mood word (its row's moodV / moodA / moodD, only with a mood text), or null.
 export function scanMoodNumbers(rows, npc, moodOf) {
-    const row = (Array.isArray(rows) ? rows : []).find(item => item && ((item.id && item.id === npc.id) || (item.name && npcMatchesLabel(npc, item.name))));
+    // (a row tied to one namesake, `settledId`, is that id's alone)
+    const row = (Array.isArray(rows) ? rows : []).find(item => item && (item.settledId ? item.settledId === npc.id : (item.id && item.id === npc.id) || (item.name && npcMatchesLabel(npc, item.name))));
     return moodOf(row) ? moodNumbers(row) : null;
 }

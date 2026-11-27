@@ -1037,5 +1037,6 @@
   "tests/modules/arc/cite-bar-cut.test.js": "Tests that a world event name with \"|\" is printed with \"/\" and citable, and that a shortened form two names share matches neither.",
   "tests/people/npc-alias-other-person-host.test.js": "Tests on the real adapter that no path maps a person to another person's NPC State meters entry, with the other alive, archived or dead.",
   "modules/people/meters/npc-meters-parts/owners.js": "The one rule for which NPC State meters entry is a person's: a stored dossier's id and name belong to that dossier alone.",
-  "tests/people/npc-alias-other-person.test.js": "Tests that an alias that is another person's name never lands on that person's NPC State meters entry."
+  "tests/people/npc-alias-other-person.test.js": "Tests that an alias that is another person's name never lands on that person's NPC State meters entry.",
+  "tests/people/npc-namesakes-mood-numbers.test.js": "Tests that a scan row tied to one namesake gives its mood numbers to that person only."
 }
