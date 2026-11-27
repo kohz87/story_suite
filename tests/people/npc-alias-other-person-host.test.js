@@ -184,3 +184,13 @@ for (const [first, second] of [['npc_g1', 'npc_g2'], ['npc_g2', 'npc_g1']]) {
         assert.deepEqual(h.trustOf(second), [10, 10]);
     });
 }
+
+test('a dead "Ana" never gets the limits of a living person found by an alias the two share', async () => {
+    const h = await cast(plainPerson('npc_ana', 'Ana', ['Red']));
+    h.line('~ npc Ana | trust: +1');
+    await h.add(plainPerson('npc_bo', 'Bo', ['Red'], { meterSetup: { limits: { trust: { ceiling: 12 } } } }));
+    await h.die('npc_ana');
+    h.line('~ npc Ana | trust: +10');
+    assert.ok(h.bonds().npc_ana.meters.trust > 12, `not held at Bo's ceiling: ${h.bonds().npc_ana.meters.trust}`);
+    assert.equal(h.bonds().npc_bo, undefined);
+});
