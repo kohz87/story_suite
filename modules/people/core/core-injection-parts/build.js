@@ -5,7 +5,7 @@ import { DEFAULT_BEHAVIOR_CRITERIA } from '../core-prompts.js';
 import { APPROX_CHARS_PER_TOKEN, INJECTION_CAP_BASE_TOKENS, DEFAULT_INJECTION_BUDGET_TOKENS, normalizeInjectionBudgetTokens, selectRelevantNpcs } from '../core-injection-selection.js';
 import { clauseBoundedInjection, compactInjectionBehaviorRubric, injectionEssentialBlock, injectionOptionalFields, lowPlayerStanding, referenceBlock, truncateInjectionText } from '../core-injection-parts.js';
 
-export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false } = {}) {
+export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false, partyIds = null } = {}) {
     const named = new Set(Array.isArray(namedNpcIds) ? namedNpcIds : []);
     const calledIn = npc => !npc?.present && named.has(npc?.id);
     const present = (npcs || []).filter(npc => (Boolean(npc?.present) || calledIn(npc)) && !npc?.archived);
@@ -102,7 +102,7 @@ export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria
     // starve another. Relationship summary is deliberately late: live identity/state already won priority.
     // Resolved appearance uses the same optional budget as other continuity. It must not
     // shrink the essential identity/agency budget or be spliced ahead of characterization.
-    const optionalByNpc = relevant.map(npc => injectionOptionalFields(npc, includeAppearance, sceneDeferred));
+    const optionalByNpc = relevant.map(npc => injectionOptionalFields(npc, includeAppearance, sceneDeferred, Boolean(partyIds?.has(npc.id))));
     const enriched = essentialBlocks.slice();
     const maxPriority = Math.max(0, ...optionalByNpc.map(fields => fields.length));
     for (let priority = 0; priority < maxPriority; priority++) {

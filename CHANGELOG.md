@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- World: a pack can now say when a companion would join; it stays hidden and comes through the story.
 - Arsveil: an eleventh companion, Clover Inkwell, the sweet halfling clerk at Bluewatch's Guild desk, who is a little too devoted to her adventurer.
 - Arsveil: companions show their natures more clearly (Nasai, Kel, Odile, Moonlily, Elwyn, Merisande), and Solenne's devotion grows as she comes to trust you.
 - Packs: a pack file can now be up to 2 MB (was 1 MB), and installed packs up to 4 MB together (was 2 MB).

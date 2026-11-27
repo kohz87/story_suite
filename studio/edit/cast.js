@@ -40,6 +40,7 @@ const MORE = [
     ['mannerisms', 'chips', 'Mannerisms', 'Short habits (at most 4)'], ['drawnTo', 'chips', 'Drawn to', 'What draws them (at most 6 short phrases)'],
     ['homeBase', 'place', 'Home base', 'Where they live when the story does not move them'], ['withYou', 'long', 'With you', 'How they are with your character'],
     ['status', 'text', 'Status', 'Their state now, in a few words'], ['goal', 'text', 'Goal', 'What they want'],
+    ['join', 'long', 'Join', 'When they would join the party. Only the narrator is told; players never see it'],
     ['canDieUnmet', 'toggle', 'Can die unmet', 'The story may kill them before the party has met them'],
 ];
 // Fields with a place on this page (the rest are only in the JSON row).

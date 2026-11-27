@@ -73,7 +73,7 @@ test('a companion shows every field behind "more fields"; a figure only the ligh
     const companion = open(0);
     const page = companion.draw();
     assert.equal(field(page, 'voice'), null);
-    assert.match(page.querySelector('.st-morebar').textContent, /21 more fields: id, other names, look, start, birthday…/);
+    assert.match(page.querySelector('.st-morebar').textContent, /22 more fields: id, other names, look, start, birthday…/);
     page.querySelector('.st-moreshow').click();
     const opened = companion.draw();
     for (const key of ['id', 'aliases', 'look', 'start.place', 'start.goal', 'start.routine', 'birthday', 'protected', 'voice', 'history', 'homeBase', 'canDieUnmet']) assert.ok(field(opened, key), key);
@@ -82,7 +82,7 @@ test('a companion shows every field behind "more fields"; a figure only the ligh
     const light = figure.draw();
     for (const key of ['id', 'aliases', 'look', 'start.place', 'birthday', 'protected']) assert.ok(field(light, key), key);
     assert.equal(field(light, 'voice'), null);
-    assert.match(light.querySelector('.st-morebar').textContent, /A figure needs only a name; 15 companion fields are not shown/);
+    assert.match(light.querySelector('.st-morebar').textContent, /A figure needs only a name; 16 companion fields are not shown/);
     light.querySelector('.st-every').click();
     assert.ok(field(figure.draw(), 'voice'));
 });

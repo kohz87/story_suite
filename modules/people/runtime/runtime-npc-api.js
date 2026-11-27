@@ -7,6 +7,7 @@ import { pageHandles } from './handles.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { buildNpcProfiles } from '../npc-api/profile-list.js';
 import { replyPreview } from '../npc-api/reply-preview.js';
+import { hideJoinLines } from '../core/core-injection-parts-parts/join-line.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 
 export function createNpcApiPart(rt, deps) {
@@ -80,7 +81,7 @@ export function createNpcApiPart(rt, deps) {
             head.textContent = `${part.label} · about ${part.tokens} tokens`;
             const body = document.createElement('pre');
             body.className = 'delta-whats-sent-text';
-            body.textContent = part.text;
+            body.textContent = hideJoinLines(part.text);
             root.append(head, body);
         }
     }

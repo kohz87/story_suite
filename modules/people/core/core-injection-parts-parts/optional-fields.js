@@ -3,6 +3,7 @@ import { DURABLE_PROFILE_LIMITS } from '../core-relationship.js';
 import { cleanList, cleanText, normalizeName } from '../core-text.js';
 import { IMPORTANT_MEMORY_LIMIT } from '../core-record.js';
 import { normalizeGender } from '../core-identity.js';
+import { JOIN_LINE } from './join-line.js';
 
 const INJECTED_APPEARANCE_LABEL = 'APPEARANCE (authoritative; species cannot override the form): ';
 const INJECTED_PHYSICAL_LABEL = 'PHYSICAL FEATURES (authoritative): ';
@@ -27,7 +28,7 @@ function injectionAppearanceVariants(npc, sceneDeferred = false) {
     return variants;
 }
 
-export function injectionOptionalFields(npc, includeAppearance = false, sceneDeferred = false) {
+export function injectionOptionalFields(npc, includeAppearance = false, sceneDeferred = false, inParty = false) {
     const importantMemories = cleanList(npc.memories, IMPORTANT_MEMORY_LIMIT, DURABLE_PROFILE_LIMITS.memory);
     const appearanceVariants = includeAppearance ? injectionAppearanceVariants(npc, sceneDeferred) : [];
     return [
@@ -41,5 +42,6 @@ export function injectionOptionalFields(npc, includeAppearance = false, sceneDef
         npc.location && `location: ${npc.location}`,
         npc.homeBase && `home base: ${npc.homeBase}`,
         npc.background && `background: ${cleanText(npc.background, 320)}`,
+        npc.castFrom?.join && !inParty && JOIN_LINE(cleanText(npc.castFrom.join, 400)),
     ].filter(Boolean);
 }
