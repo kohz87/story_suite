@@ -72,7 +72,8 @@ export function createEditorSave(rt, deps, helpers) {
         const storyFields = { level, abilities: pairs('abilities', BUILT_IN_LIMITS.abilities), keepsakes: pairs('keepsakes', BUILT_IN_LIMITS.keepsakes) };
         // Only what this save ADDS is checked: a person's unchanged name never blocks it, whoever else has that name (namesakes are allowed).
         const others = state.npcs.filter((item, i) => i !== index);
-        const had = new Set([current.name, ...(current.aliases || [])].map(normalizeName));
+        // (the old own name is not "had": a rename that also types it as a nickname adds it; kept unrenamed, it is dropped below as the name itself)
+        const had = new Set((current.aliases || []).map(normalizeName));
         const nameCollision = normalizeName(stableInputs.name) !== normalizeName(current.name) && others.some(item => npcMatchesLabel(item, stableInputs.name));
         if (nameCollision) {
             globalThis.toastr?.warning?.(`NPC State: another dossier already matches ${stableInputs.name}.`);

@@ -35,6 +35,9 @@ test('namesakes and shared labels do not block a save; another person\'s own nam
         // A rename to a name someone else answers to is still refused; a namesake renamed away keeps no alias that is the other's name.
         await save('npc_bo', { name: 'Wenna' });
         check('rename to a taken name', npc('npc_bo').name === 'Bo' && warned.some(text => /another dossier already matches Wenna/.test(text)));
+        // A rename that also keeps the old shared name as a typed nickname adds it: the old own name is not "had".
+        await save('npc_tomas-2', { name: 'Aldo', aliases: 'Tomas' });
+        check('rename plus the old shared name as a nickname', npc('npc_tomas-2').name === 'Tomas' && warned.includes("NPC State: Tomas is another person's name; pick a nickname only this person has."));
         await save('npc_tomas-2', { name: 'Aldo' });
         check('renamed namesake', npc('npc_tomas-2').name === 'Aldo' && !npc('npc_tomas-2').aliases.includes('Tomas'));
         await save('npc_bo', { name: 'Bram' });
