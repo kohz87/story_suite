@@ -80,6 +80,7 @@ export function createRegistration({ defs, declared, owners, fallbacks, canonica
             // Only a feature that says it carries `presets` (features.js): one that does not follows its default in every preset.
             ...(feature.presets === undefined ? {} : { presets: presetsOf(feature) }),
             needs: needsOf(feature),
+            ...(Array.isArray(feature.replaces) && feature.replaces.length ? { replaces: Object.freeze(feature.replaces.map(String)) } : {}),
         }))));
         refusals.delete(id);
         for (const message of definitionWarnings(def)) warn(`${def.name ?? id}: ${message}.`);

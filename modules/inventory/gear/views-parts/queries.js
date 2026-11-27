@@ -1,8 +1,11 @@
-// Builds the four gear queries (`inventory.statBonus`, `inventory.gear`, `gear.view`, `gear.carry`) over the supplied readers.
+// Builds the five gear queries (`inventory.statBonus`, `inventory.gear`, `gear.view`, `gear.carry`, `gear.statLabels`) over the supplied readers.
 
 import { carryAnswer } from '../carry.js';
 import { statBonus, gearAnswer } from './answers.js';
 import { gearView } from './view.js';
+import { GEAR } from '../stats.js';
+import { membersOf, pcOf } from '../../validate-parts/party.js';
+import { partyNames } from '../carry-parts/party-names.js';
 
 /**
  * The two gear queries: `inventory.gear` and `gear.carry` (`items.carry`'s answer from Story Block's own rules, asked only when no
@@ -14,10 +17,26 @@ export function createGearQueries({ on, kit = () => false, empty = () => false, 
     const gate = (fn, recorded = false) => Object.assign((state, args, tools) => (on() || args?.recorded === true ? fn(state, args, tools) : null), recorded ? {} : { feature });
     // The mount rows, as the (feature-gated) `mounts.list` query gives them: none while Mounts is off.
     const mountsOf = tools => { try { const rows = tools?.query?.('mounts.list'); return Array.isArray(rows) ? rows : []; } catch { return []; } };
+    // The party module's roster ({ members: [{ id, name }], pc }): every member it names has room of their own from the start.
+    const rosterOf = (state, tools) => {
+        const query = (name, args) => tools?.query?.(name, args), party = state?.domains?.party ?? null;
+        // (no party module answering and no party domain: there is no roster to leave, so nobody who holds things reads as gone)
+        let answers = false;
+        // (the RPG answers party.actors with null once every Character is gone, but party.levels still lists those who left: that is a roster too)
+        try { answers = Array.isArray(query('party.actors')) || (Array.isArray(query('party.levels')) && query('party.levels').length > 0); } catch { answers = false; }
+        if (!answers && !party) return null;
+        return { members: membersOf(query, party), pc: pcOf(query, party) };
+    };
+    // The party's names: a mount whose `where` names one of them travels with the party.
+    const crewOf = (state, tools, options) => partyNames((name, args) => tools?.query?.(name, args), state?.domains?.party ?? null, options);
     return {
         'inventory.statBonus': gate((state, args) => statBonus(state, typeof args?.owner === 'string' && args.owner ? args.owner : 'party', condOf)),
-        'inventory.gear': gate((state, args, tools) => gearAnswer(state, args, { condOf, carryOf, penalty, mounts: mountsOf(tools) }), true),
-        'gear.view': gate((state, args, tools) => gearView(state, args, { kit, empty, condOf, carryOf, penalty, mounts: mountsOf(tools), names: id => names(state, tools, id), owners: () => owners(state, tools) })),
-        'gear.carry': gate((state, args, tools) => carryAnswer(state, args, { carryOf, mounts: mountsOf(tools) })),
+        'inventory.gear': gate((state, args, tools) => gearAnswer(state, args, { condOf, carryOf, penalty, mounts: mountsOf(tools), roster: rosterOf(state, tools), nameOf: id => names(state, tools, id), crew: crewOf(state, tools) }), true),
+        'gear.view': gate((state, args, tools) => gearView(state, args, { kit, empty, condOf, carryOf, penalty, mounts: mountsOf(tools), roster: rosterOf(state, tools), names: id => names(state, tools, id), owners: () => owners(state, tools), crew: crewOf(state, tools) })),
+        // The seven names a reader sees for the gear's stats, in the gear's order: a fallback, so a module that runs its own stats (Text RPG) answers instead while it is on.
+        'gear.statLabels': Object.assign(() => [...GEAR.stats], { fallback: true }),
+        // (`legacy: true`: an item line of a reply captured before the roster counted is judged as it was then, story-parts/item.js; `riders: false`: one captured
+        // before a mount's riders counted reads its mounts without the party's names; `stored: true`, any story line: without the live persona name)
+        'gear.carry': gate((state, args, tools) => carryAnswer(state, args, { carryOf, mounts: mountsOf(tools), roster: rosterOf(state, tools), nameOf: id => names(state, tools, id), legacy: args?.legacy === true, crew: args?.riders === false ? [] : crewOf(state, tools, { persona: args?.stored !== true }) })),
     };
 }

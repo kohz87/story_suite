@@ -300,7 +300,7 @@ test('scan-admitted people: the scan sends npc.meet for a dossier it just made, 
         const tick = () => new Promise(resolve => setTimeout(resolve, 5));
         part.forwardRelationshipChangesToHost([old], [old, fresh, { id: 'n3', name: 'Gone', archived: true }], 4, null, []);
         await tick();
-        assert.deepEqual(sent, [{ name: 'Coram', personality: 'calm and stoic', about: 'a ferryman', reply: 4 }], 'the meeting names the reply the scan read');
+        assert.deepEqual(sent, [{ id: 'n2', name: 'Coram', personality: 'calm and stoic', about: 'a ferryman', reply: 4 }], 'the meeting names the reply the scan read');
         sent.length = 0;
         // Not the dead and not incidental extras (the slice holds 80 people); an ordinary, living, meaningful one is met.
         const extras = [{ id: 'd1', name: 'Raider', lifeState: 'deceased' }, { id: 'd2', name: 'Raider Two', lifeState: 'dead' }, { id: 'i1', name: 'Passer-by', dossierSignal: 'incidental' }, { id: 'm1', name: 'Wren', dossierSignal: 'meaningful', lifeState: 'alive' }];

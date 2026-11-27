@@ -6,6 +6,7 @@ import { oneLine } from '../../../core/text.js';
 import { isObject } from '../core.js';
 
 const PLAIN = /[<>{}]/;
+// A cast text's limit counts characters (code points), as before; prompts cut by UTF-16 units, so text with astral characters near a limit can lose its last characters there (known limit).
 export const plain = (value, max) => typeof value === 'string' && value.trim().length > 0 && [...value].length <= max && !PLAIN.test(value);
 const only = (record, fields, at, say) => { for (const key of Object.keys(record)) if (!fields.includes(key)) say(`${at}.${key}`, `"${key}" is not a field here (expected ${fields.join(', ')}).`, 'UNKNOWN_FIELD'); };
 

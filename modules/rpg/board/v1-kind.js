@@ -66,7 +66,7 @@ function choicesOf(sheet, step, carried = {}) {
 function playedOf(state, setup, steps, dice) {
     const { sheet, input } = inputOf(state, setup);
     if (!input.party.length || !input.foes.length) throw new Error('There is no fight to play.');
-    const record = playBoard(input, { dice, ...(setup.start ? { start: structuredClone(setup.start) } : {}), ...(setup.fleeIdle === 1 ? { fleeIdle: true } : {}), ...(setup.speedFull === 1 ? { speedFull: true } : {}), ...(setup.horde ? { horde: structuredClone(setup.horde) } : {}) }, steps.map((step, at) => choicesOf(sheet, step, at === 0 ? setup.stance : {})));
+    const record = playBoard(input, { dice, ...(setup.start ? { start: structuredClone(setup.start) } : {}), ...(setup.fleeIdle === 1 ? { fleeIdle: true } : {}), ...(setup.speedFull === 1 ? { speedFull: true } : {}), ...(setup.soakWhole === 1 ? { soakWhole: true } : {}), ...(setup.horde ? { horde: structuredClone(setup.horde) } : {}) }, steps.map((step, at) => choicesOf(sheet, step, at === 0 ? setup.stance : {})));
     return { sheet, input, record };
 }
 
@@ -93,8 +93,9 @@ function openV1(state, { anchor, seed, attempt = 0, args = {} }) {
     // (a horde, 21 Nov: the pre-check's words, else the narrator's horde line on the Foes block; code builds the reserve from them and the front once, here, and the setup keeps it.
     // A resumed fight is never a horde: a fled or lost horde leaves no reserve to come back to.)
     const horde = args.resumed ? null : hordeFrom(wordsOf(args.horde) ?? blockWords(real(state), front), front);
+    // (`soakWhole`: soak takes off only the whole points it adds up to, so 6% on a 3-damage hit takes nothing, 22 Nov (owner); a fight opened before rounds the damage left down)
     // (`speedFull`: a Speed stance adds its full mastery to evasion, 20 Nov; `gearStats`: the stats of the worn gear count in every roll, 20 Nov; `gearWear`: a decisive hit taken wears the body armour (else the off-hand) and a decisive miss the weapon, one step, v1-wear.js, 20 Nov; a fight opened before it rolls with the sheet's stats; `fleeIdle`: a member who picked nothing pays no stance in an exchange where the party flees and gets away, combat/exchange.js; a fight opened before the mark has none; `xpRule: 'each2'`: the XP of 15 for each foe at the tier's own factor, 20 Nov evening; 'each' (that afternoon) keeps mob 0.5 / minion 0.75; a setup without one pays per group as before)
-    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each2', gearStats: 1, gearWear: 1, speedFull: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }), ...waitMark(state, sheet, args.away),
+    const setup = { id: `${anchor}:${attempt}`, v1: 1, fleeIdle: 1, xpRule: 'each2', gearStats: 1, gearWear: 1, speedFull: 1, soakWhole: 1, groups, offset: 0, rules: structuredClone(args.rules ?? {}), practice: practiceOf(args.practice) ?? PRACTICE.perUse, ...(xpRateOf(args.rate) === null ? {} : { rate: args.rate }), ...waitMark(state, sheet, args.away),
         ...(Array.isArray(args.resumed?.foes) && args.resumed.foes.length ? { resumed: true, carried: { foes: structuredClone(args.resumed.foes) } } : {}), ...(horde ? { horde } : {}) };
     try { playedOf(state, setup, [], portDice(seed, 0)); } catch (error) { return { error: error.message }; }
     return { setup, seed };

@@ -10,6 +10,9 @@ import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcri
 import { buildInjection, npcNamedInText, isTerminalNpcDeath } from '../core/core.js';
 import { buildLinesParts } from '../core/core-prompts-lines.js';
 import { withCastLinks } from '../dossier/cast-dossier-parts/cast-links.js';
+import { ownerTargets } from '../npc-api/dossier-target.js';
+import { namesakes } from '../meters/npc-meters-parts/namesakes.js';
+import { hideJoinLines } from '../core/core-injection-parts-parts/join-line.js';
 import { injectDepthOf, getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
 
@@ -44,6 +47,14 @@ export function createInjectionPart(rt, deps) {
             .map(npc => npc.id);
     }
 
+    // The names for the context's reminder (core-prompts-lines-parts/context.js): the people in the scene now (hosted: the scene's presence) and the
+    // dossiers the player's message calls (`namedNpcIds`, who often arrive in the reply); the dead never.
+    function presentNames(state, namedNpcIds = []) {
+        const named = new Set(namedNpcIds);
+        const shared = namesakes(state?.npcs || []);
+        return scenePresenceView(state?.npcs || []).filter(npc => (npc?.present || named.has(npc?.id)) && npc.name && !isTerminalNpcDeath(npc)).map(npc => shared.shown(npc.id) ?? npc.name);
+    }
+
     // (Story Block 2.18.0) The signature gear line of each pack cast dossier: { [npcId]: "Gear: A, B" }, only for those the host answers
     // for. Empty without a host, on an older Story Block without `packs.castGear`, and while gear is off or the person is in the party.
     function castGearLines(state) {
@@ -59,12 +70,33 @@ export function createInjectionPart(rt, deps) {
         return Object.keys(lines).length ? lines : null;
     }
 
+    // The dossier ids of those in the party now (`party.levels`, those who left aside; a member is matched by exact name or alias). Empty
+    // when nothing answers (no host, the RPG off): the join line is then sent for everyone.
+    // While a reply is being swiped or regenerated, the party is the one as of the message just before it (hidden replies count; the first
+    // message has nothing before it, so nobody): that reply's own join no longer counts.
+    function partyAnswer() {
+        const adapter = adapterMeters();
+        if (!adapter) return null;
+        const chat = getContext().chat || [];
+        const tail = chat.findLastIndex(message => message && !message.is_system);
+        const replaced = Boolean(rt.replacingReply) && chat[tail] === rt.replacingReply.message && rt.replacingReply.key === getChatKey();
+        if (!replaced) return adapter.partyLevelsAnswer?.();
+        return tail > 0 ? adapter.at(tail - 1, () => adapter.partyLevelsAnswer?.()) : [];
+    }
+    function partyDossierIds(npcs) {
+        if (!(npcs || []).some(npc => npc?.castFrom?.join)) return new Set();
+        const members = partyAnswer() ?? [];
+        const target = ownerTargets(npcs);
+        return new Set(members.filter(member => !member?.left).map(member => target(member?.name)).filter(Boolean));
+    }
+
     // The live dossier injection under the current settings and scene defer (sent by updateInjection;
     // tokens() measures the same text).
-    function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4) } = {}) {
+    // `saidBeside`: the one-pass context going out with it; a line about namesakes that it says is not said again here.
+    function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4), saidBeside = '' } = {}) {
         const gearLines = castGearLines(state);
         const awayNotes = awayReturnNotes(state);
-        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), levelOn: rpgIsOn() });
+        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), partyIds: partyDossierIds(state.npcs), saidBeside, levelOn: rpgIsOn() });
     }
 
     // The one-pass lines a reply carries: the rules (when armed or kept for a swipe) and the context (armed only), with the note options they
@@ -75,15 +107,18 @@ export function createInjectionPart(rt, deps) {
         // the story events of present people's locked notes (with the context); the list is kept for the reply that carries it.
         const noteOptions = hostedNotePromptOptions(state, settings);
         const built = adapterMeters()
-            ? buildLinesParts({ ...noteOptions, moodWord: true, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds })
+            ? buildLinesParts({ ...noteOptions, moodWord: true, levelOn: rpgIsOn(), existingNpcs: state.npcs || [], turn: state.turn, dormantAfter: settings.staleArchiveAfter, namedNpcIds, present: presentNames(state, namedNpcIds) })
             : { rules: '', context: '' };
         return { rules: built.rules, context: armed ? built.context : '', noteOptions };
     }
+    // A prompt text with the host's macros ({{user}}) filled in, as SillyTavern fills in an extension prompt.
+    const withNames = (text, ctx = getContext()) => (text && typeof ctx.substituteParams === 'function' ? ctx.substituteParams(text) : text);
     // The one-pass lines the next ordinary reply would carry (it is armed, so rules and context), as "What's sent" shows them.
     function nextCaptureParts(state, settings) {
         if (!narrationCaptureEnabled(settings)) return { rules: '', context: '' };
         const { rules, context } = captureParts(state, settings, { armed: true, rulesSent: true, namedNpcIds: namedByPlayerNpcIds(state) });
-        return { rules, context };
+        // (the rules name the reader with {{user}}: shown with the name filled in, as it is sent)
+        return { rules: withNames(rules), context };
     }
 
     function updateInjection() {
@@ -111,18 +146,19 @@ export function createInjectionPart(rt, deps) {
         const rulesSent = narrationCaptureEnabled(settings) && !rt.captureRulesWithheld;
         if (!settings.inject && !armed && !rulesSent) return clear('"Inject present NPC state" is off.');
         const namedNpcIds = namedByPlayerNpcIds(state);
-        const prompt = settings.inject ? liveInjectionText(state, settings, { namedNpcIds, transcript }) : '';
         const { noteOptions, ...parts } = captureParts(state, settings, { armed, rulesSent, namedNpcIds });
+        const prompt = settings.inject ? liveInjectionText(state, settings, { namedNpcIds, transcript, saidBeside: parts.context }) : '';
         const capture = parts.context;
         const present = (state.npcs || []).filter(npc => npc?.present);
         const depth = injectDepthOf(settings);
+        const shared = namesakes(state.npcs || []);
         rt.lastInjection = {
             text: prompt,
             reason: prompt ? '' : (!settings.inject ? '"Inject present NPC state" is off.' : (present.length ? 'No present NPC was selected for injection.' : 'No NPC is marked present in the latest scanned scene.')),
             at: Date.now(),
             chatKey: injectionKey,
             depth,
-            namedByPlayer: (state.npcs || []).filter(npc => namedNpcIds.includes(npc.id)).map(npc => npc.name),
+            namedByPlayer: (state.npcs || []).filter(npc => namedNpcIds.includes(npc.id)).map(npc => shared.shown(npc.id) ?? npc.name),
             captureChars: parts.rules.length + capture.length,
             captureRules: parts.rules,
             captureContext: capture,
@@ -141,7 +177,7 @@ export function createInjectionPart(rt, deps) {
     function holdCaptureRules() {
         const ctx = getContext();
         const rules = String(rt.lastInjection.captureRules || '');
-        rt.sentCaptureRules = rules && typeof ctx.substituteParams === 'function' ? ctx.substituteParams(rules) : rules;
+        rt.sentCaptureRules = withNames(rules, ctx);
     }
     function keepCaptureRules(eventData) {
         const rules = String(rt.sentCaptureRules || '').trim();
@@ -184,7 +220,7 @@ export function createInjectionPart(rt, deps) {
             estimatedTokens: Math.ceil(text.length / 4),
             budgetTokens: Number(settings.injectBudgetTokens) || 0,
             captureChars: Number(rt.lastInjection.captureChars) || 0,
-            text,
+            text: hideJoinLines(text),
         };
     }
 

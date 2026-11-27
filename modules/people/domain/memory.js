@@ -1,6 +1,8 @@
 // `people.memory { id, memories, stamps? }`: a person's important memories as a story line leaves them (NPC State's `~ memory` line, and the words of a why:, a lie or a milestone), written inside the
 // reply's transaction. Only a module's own command may send it. NPC State works the list out (who, day, no repeat or rewording; the five-memory cap applies where a record is read); this command stores the list as given
-// and its dates (`stamps`: { normalized text: { m: reply index, d: story day text } }) and nothing else of the record. A bad list is refused and nothing is stored.
+// and its dates (`stamps`: { normalized text: { m: reply index, d: story day text } }), and stamps `fieldChangeMessages.memories` with this reply when the list changed (./change-stamp.js); nothing else of the record. A bad list is refused and nothing is stored.
+
+import { stampChanged } from './change-stamp.js';
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const LIST_MAX = 500;
@@ -23,7 +25,9 @@ export function peopleMemory(domain) {
                 const slice = ctx.read(domain);
                 if (!isObject(slice?.npcs) || !isObject(slice.npcs[id])) return ctx.fail('REFUSED', 'There is no such person in this story.');
                 const record = ctx.draft(domain).npcs[id];
+                const before = { memories: Array.isArray(record.memories) ? [...record.memories] : [] };
                 record.memories = [...memories];
+                stampChanged(ctx, { domain, id, record, before }, ['memories']);
                 if (stamps && Object.keys(stamps).length) record.memoryStamps = JSON.parse(JSON.stringify(stamps));
                 else delete record.memoryStamps;
                 return { summary: `${record.name ?? 'someone'}: memories.`, data: { id, memories: memories.length }, narrate: false };

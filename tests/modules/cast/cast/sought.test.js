@@ -119,7 +119,7 @@ test('a message that cannot be asking for her kind does not even ask the planner
     }
 });
 
-test('sought elsewhere: a rumor, not a meeting; the tail describes her with no name or alias, the card says "Heard of", and it is told once', async t => {
+test('sought elsewhere: a rumor, not a meeting; the tail names her and says she is not in the scene, the card (no name) says "Heard of", and it is told once', async t => {
     quiet(t);
     const model = planner({ sought: () => '? cast temiwa | "a healer"' });
     const host = await asked({ source: castSource([inPack(temiwa('Kesh'))]), model });
@@ -130,10 +130,9 @@ test('sought elsewhere: a rumor, not a meeting; the tail describes her with no n
         assert.deepEqual(person.rumored.map(({ where, at }) => [where, at]), [['Kesh', host.ctx.chat.length - 1]]);
         const lines = castLines(host);
         assert.equal(lines.length, 1);
-        assert.match(lines[0], /^\[Cast\] People here know of a saintess candidate, healer, at Watchhouse infirmary by day in Kesh\.$/);
-        // Nothing in the whole prompt names her.
-        const everything = [...sent(host, 'story_suite_static'), ...sent(host, TAIL_KEY)].join('\n');
-        assert.doesNotMatch(everything, /Temiwa|Last Candle/i);
+        assert.match(lines[0], /^\[Cast\] Someone sought is not in this scene: Sister Temiwa, Saintess candidate, healer \(weathered\), manner: wary, speaks: low, at Kesh\. If the story goes to them .* by this name .* only after someone in the story says it\.$/);
+        // Only the tail names her (the static prompt never does), and never a secret or her history.
+        assert.doesNotMatch(sent(host, 'story_suite_static').join('\n'), /Temiwa|Last Candle/i);
         const note = Object.values(slice(host).notes).find(item => item.kind === 'heard');
         assert.equal(note.head, 'Heard of: a saintess candidate, healer, at Watchhouse infirmary by day in Kesh');
         assert.doesNotMatch(JSON.stringify([note, receipts(host, 'cast.rumor').map(item => item.receipt)]), /Temiwa|Last Candle/i);
@@ -170,7 +169,7 @@ test('a rumor is told again after she moves', async t => {
         await host.send('Hm.', said('Quiet.'));
         assert.equal(people(host)['ersveil:temiwa'].where, 'Ashford');
         assert.equal(receipts(host, 'cast.rumor').length, 2, 'told again, for the new place');
-        assert.match(castLines(host).join('\n') || 'none', /none|know of a saintess candidate, healer.*Ashford/);
+        assert.match(castLines(host).join('\n') || 'none', /none|Sister Temiwa.*, at Ashford\./);
         assert.deepEqual(people(host)['ersveil:temiwa'].rumored.map(item => item.where), ['Ashford']);
     } finally {
         host.close();

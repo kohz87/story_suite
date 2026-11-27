@@ -1,11 +1,11 @@
 // The inventory domain's commands (inventory.js re-exports every public name): the command table and the guard of the commands that make something out of nothing; commands/wallet.js holds the purse commands and TOLD, commands/bag.js the Party Bag slot.
 
-import { isPlainObject, capitalize, ownerNameIn, clone } from '../scene/domains/common.js';
+import { isPlainObject, capitalize, clone } from '../scene/domains/common.js';
 import { cleanName, resolveDef, slugify, aliasKey } from '../scene/names.js';
 import { handDef, slotWordOf } from './gear.js';
 import { fill } from '../../core/strings.js';
 import { RPG_MODULE, MAX_NOTE, gearOn, KINDS, RARITIES, MAX_UNSTACKED, condOf, COND_MAX, condWrite, nonBlank, isCount, FEATURE } from './state.js';
-import { itemText, baseSlot } from './validate.js';
+import { itemText, baseSlot, ownerSaid } from './validate.js';
 import {
     count, receiverArg, textArg, defineGiven, defineByName, addStack, grantInto, told, E, ownerArg, peekPackDef,
     stackIn, boundId, refuseBound, ambiguous, stacksOf, freeId, storeDef, unbound, shortOf, takeAcross,
@@ -15,7 +15,7 @@ import { wear, repair, gearWear, itemEquip, stow, restore, release } from './wea
 import { lootTake } from './loot.js';
 import {
     byReader, handStats, handSlot, kitOpen, holdBudget, remakeAsEquipment, guardReaderEdit, addDecision,
-    handPlace, handEdit, numberEdit, wantsRepoint, repoint, renameDecision, editStack, editPieces, setCarry,
+    handPlace, handEdit, supplyEdit, numberEdit, wantsRepoint, repoint, renameDecision, editStack, editPieces, setCarry,
 } from './edit.js';
 import { readerCarry } from './lines.js';
 import { TOLD, createWalletCommands } from './commands/wallet.js';
@@ -59,7 +59,7 @@ export function createInventoryCommands(env) {
                 : grantInto(ctx, inv, def, qty, owner, note);
             if (payload.bound === true) for (const id of stacks) inv.stacks[id].bound = owner;
             return {
-                summary: `${capitalize(ownerNameIn(ctx, owner))} gains ${itemText(def.name, qty)}.`,
+                summary: `${capitalize(ownerSaid(ctx, owner))} gains ${itemText(def.name, qty)}.`,
                 data: { def: def.id, qty, owner, stacks, created },
                 narrate: told(ctx),
             };
@@ -174,14 +174,14 @@ export function createInventoryCommands(env) {
                 const group = payload.group === true && !original.stack ? Object.values(inv.stacks).filter(item => item.def === stack.def && item.owner === stack.owner).length : stack.qty;
                 if ((typeof payload.name === 'string' && cleanName(payload.name) !== original.name) || (payload.qty !== undefined && payload.qty !== group)) refuseBound(ctx, inv, stack);
             }
-            // The reader's own gear (gear on): kind, slot, rarity and bonus of a piece they added by hand.
+            const oldName = original.name, before = editPieces(inv, stack), slotWitness = payload.slot === undefined ? null : editPieces(inv, stack, true);
+            const decision = typeof payload.name === 'string' ? { witness: renameDecision(inv, stack, payload, true), story: 1 } : null;
+            // Gear fields: the reader's own piece, any equipment's slot alone, or the Supply kind. The replay guard's witness is read above, before a slot change takes pieces off.
             if (['kind', 'slot', 'rarity', 'stats'].some(key => payload[key] !== undefined)) {
                 if (wantsRepoint(env, inv, stack, payload)) repoint(ctx, inv, stack, payload);
-                else handEdit(ctx, env, inv, stack, payload);
+                else if (!supplyEdit(ctx, inv, stack, payload)) handEdit(ctx, env, inv, stack, payload);
             }
             const numbers = payload.weight !== undefined || payload.soak !== undefined;   // the Bag Edit's load weight and soak: any unbound piece, any time; set last, on the def the piece ends up on (after the rename's witness and copy)
-            const oldName = original.name;
-            const decision = typeof payload.name === 'string' ? { witness: renameDecision(inv, stack, payload, true), story: 1 } : null;
             let groupQty;
             // The screen counts separate pieces together without changing the one-piece stack invariant.
             if (payload.group === true && !original.stack && payload.qty !== undefined) {
@@ -189,7 +189,7 @@ export function createInventoryCommands(env) {
                 if (qty > MAX_UNSTACKED) ctx.fail('INVALID', fill(E.itemGroupLimit, { max: MAX_UNSTACKED }));
                 const editPiece = payload.name !== undefined || payload.note !== undefined;
                 const pieces = Object.values(inv.stacks).filter(item => item.def === stack.def && item.owner === stack.owner);
-                guardReaderEdit(ctx, 'inventory.edit', editStack(stack), editPieces(inv, stack), decision);
+                guardReaderEdit(ctx, 'inventory.edit', editStack(stack), before, decision, slotWitness);
                 // The selected piece is never the one removed (the equip that follows in the same Save names it): other loose pieces go, the last added first.
                 const spare = pieces.filter(item => item.equipped === null && !boundId(ctx, item));
                 const loose = spare.filter(item => item.id !== stack.id).reverse();
@@ -208,7 +208,7 @@ export function createInventoryCommands(env) {
                 }
                 groupQty = qty;
             }
-            if (groupQty === undefined) guardReaderEdit(ctx, 'inventory.edit', editStack(stack), null, decision);
+            if (groupQty === undefined) guardReaderEdit(ctx, 'inventory.edit', editStack(stack), null, decision, slotWitness);
             if (payload.qty !== undefined && groupQty === undefined) {
                 const qty = count(ctx, payload.qty, undefined);
                 // A non-stacking item is one stack per piece (the domain's invariant).
@@ -298,7 +298,7 @@ export function createInventoryCommands(env) {
             if (payload.to === undefined || payload.to === null) ctx.fail('INVALID', 'Say who should get it.');
             const to = receiverArg(ctx, payload.to);
             const from = stack.owner;
-            if (to === from) ctx.fail('REFUSED', `${def.name} is already with ${ownerNameIn(ctx, to)}.`);
+            if (to === from) ctx.fail('REFUSED', `${def.name} is already with ${ownerSaid(ctx, to)}.`);
             const qty = count(ctx, payload.qty, stack.qty);
             if (qty > stack.qty) ctx.fail('NOT_ENOUGH', shortOf(def.name, stack.qty));
             // The reader's hand-over (Give on the Inventory screen): only the taker's own load is checked.
@@ -323,7 +323,7 @@ export function createInventoryCommands(env) {
                 }
             }
             return {
-                summary: `${capitalize(ownerNameIn(ctx, from))} gives ${itemText(def.name, qty)} to ${ownerNameIn(ctx, to)}.`,
+                summary: `${capitalize(ownerSaid(ctx, from))} gives ${itemText(def.name, qty)} to ${ownerSaid(ctx, to)}.`,
                 data: { def: def.id, qty, from, to, stack: moved },
                 narrate: told(ctx),
             };
@@ -340,7 +340,7 @@ export function createInventoryCommands(env) {
             guardReaderEdit(ctx, 'inventory.drop', editStack(stack));
             take(inv, stack, qty);
             return {
-                summary: `${capitalize(ownerNameIn(ctx, owner))} drops ${itemText(def.name, qty)}.`,
+                summary: `${capitalize(ownerSaid(ctx, owner))} drops ${itemText(def.name, qty)}.`,
                 data: { def: def.id, qty, owner, stack: stack.id, ...(ctx.cause === 'ui' ? { edit: true } : {}) },
                 narrate: told(ctx),
             };
@@ -363,7 +363,7 @@ export function createInventoryCommands(env) {
             stack.equipped = where;
             const away = occupant ? `, putting away ${inv.defs[occupant.def].name}` : '';
             return {
-                summary: `${capitalize(ownerNameIn(ctx, stack.owner))} equips ${def.name} (${where})${away}.`,
+                summary: `${capitalize(ownerSaid(ctx, stack.owner))} equips ${def.name} (${where})${away}.`,
                 data: { stack: stack.id, def: def.id, slot: where, replaced: occupant?.id ?? null },
                 narrate: told(ctx),
             };
@@ -378,7 +378,7 @@ export function createInventoryCommands(env) {
             const slot = stack.equipped;
             stack.equipped = null;
             return {
-                summary: `${capitalize(ownerNameIn(ctx, stack.owner))} takes off ${def.name}.`,
+                summary: `${capitalize(ownerSaid(ctx, stack.owner))} takes off ${def.name}.`,
                 data: { stack: stack.id, def: def.id, slot },
                 narrate: told(ctx),
             };

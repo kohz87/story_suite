@@ -10,7 +10,7 @@ const S = STRINGS.inventory;
 const G = S.gear;
 
 export const INVENTORY_GRID_WIDGET = 'story-block.inventory-grid';
-const GEAR_ORDER = Object.freeze(['equipment', 'consumable', 'goods', 'quest', 'material', 'money']);
+const GEAR_ORDER = Object.freeze(['equipment', 'consumable', 'supply', 'goods', 'quest', 'material', 'money']);
 const CARRY_MS = 5000;   // how long a focus waits for the screen's next draw
 
 const shown = (item, filter) => (!filter.rarity || filter.rarity === item.rarity)

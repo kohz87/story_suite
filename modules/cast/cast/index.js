@@ -10,7 +10,7 @@
 //   scene's place (name, role, look; note-parts/here.js) so it does not invent doubles of them.
 // * Steps (capture.js, all cause `system`, before a reply, hooks.js): `cast.sync` (the packs' cast joined, changed or left), `cast.advance`
 //   (the planner's batch after a day change or a time skip), `cast.meet` (paths cross for the first time, also when the reader sought a kind of
-//   person) and `cast.rumor` (the reader sought a kind of person who is elsewhere: the narrator hears of them with no name). One step after the reply:
+//   person) and `cast.rumor` (the reader sought a kind of person who is elsewhere: the narrator is told who and where they are, the card is nameless). One step after the reply:
 //   `cast.withdraw` (the reply did not show the person the meeting brought in, so the meeting is taken back), and with world events on
 //   `cast.story` (the story's own moves and stays records become a person's base, world-parts/story-bases.js).
 // * Narrator: the one cue for a meeting, in the reply it happens in, and the world's own people at the scene's place (note.js). No static text.

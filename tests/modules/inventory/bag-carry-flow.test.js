@@ -54,7 +54,9 @@ test('+ Add then Carries, a rename then Carries on the new stack, Carry as bag t
   await ok(host, 'inventory.carry', { stack: after, carry: 20 });
   assert.equal(capacity(host, 'party'), base + 20);
   await ok(host, 'inventory.bag', { owner: MARA, stack: after });
-  assert.equal(capacity(host, 'party'), base, 'the sack\'s room left the shared bag');
+  assert.equal(capacity(host, 'party'), base + 20, 'the sack\'s room moved to Mara: the party\'s total is the same');
+  const [mara] = host.sdk.query('gear.view', {}).carry.people;
+  assert.equal(mara.capacity, 30 + 20);
   assert.deepEqual(host.sdk.query('gear.view', { owner: MARA }).bagSlot, { stack: after, name: 'Big Sack', carry: 20 }, 'and is Mara\'s bag');
   const sack = bagItem(host, 'Big Sack');
   assert.deepEqual([sack.carry, sack.bagLike, sack.isBag, sack.wornBy], [20, true, true, MARA]);

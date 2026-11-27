@@ -2,8 +2,8 @@
 
 import { castOn } from '../settings.js';
 import { isAlive, isInt, isRecord, slotOf, tables } from '../domain.js';
-import { castOf, samePlace } from '../entries.js';
-import { rumorText } from '../sought.js';
+import { castOf } from '../entries.js';
+import { rumorLine } from './rumor-line.js';
 import { cueOf, meetingFresh } from './cue.js';
 import { meetingAt } from '../world-parts/shown.js';
 
@@ -16,12 +16,12 @@ export function cueLines(slice, cast, at, chat = null) {
     const meeting = slotOf(slice?.meeting);
     const { people } = tables(slice);
     const lines = [];
-    // A sought person who is elsewhere: people here know of them, said with no name (only in the reply it was decided for).
+    // A sought person who is elsewhere: the narrator is told who they are, by name, and that they are not here (only in the reply it was decided for).
     for (const key of Object.keys(people).sort()) {
         const person = people[key];
         const rumor = isRecord(person) ? slotOf(person.rumored) : null;
         if (!rumor || isRecord(person.met) || !isAlive(person) || !meetingFresh(rumor, at) || lines.length >= 1) continue;
-        const text = rumorText(cast.byKey.get(key), { where: rumor.where, home: samePlace(rumor.where, cast.byKey.get(key)?.place) });
+        const text = rumorLine(cast.byKey.get(key), rumor.where);
         if (text) lines.push(`[Cast] ${text}`);
     }
     if (!meeting || !meetingFresh([{ ...meeting, at: meetingAt(slice.meeting, chat) }], at)) return lines;

@@ -8,23 +8,36 @@
 // cue (cue.js), and anyone met is known to the story, so only the unmet are here. Pure: the line is read from the state and the packs each reply,
 // so a swipe, a rewind or a reload sends the same line.
 
-import { cutWords, isMet } from '../domain.js';
+import { isMet } from '../domain.js';
+import { faceOf } from './face.js';
 import { isPersona } from '../../../time/tracker/initiative.js';
 import { movable } from '../world-parts/movable.js';
+import { isSettlementKind } from '../../../scene/settlement-kind.js';
 
-/** At most this many people on the line, and this much of each one's role, look, manner and voice. */
+/** At most this many people on the line (each one's face is cut to size in face.js). */
 export const HERE_MAX = 4;
-const ROLE_MAX = 60;
-const LOOK_MAX = 90;
-const MANNER_MAX = 70;
-const VOICE_MAX = 90;
 const KINDS = new Set(['figure', 'companion']);
 
 // One instruction, worded for any persona name (no verb agrees with {{user}}); the list follows it.
 const HEAD = '[People here] The world\'s own people at this place or nearby, not necessarily in the scene. When the story needs someone of their role, use that person by this name rather than making up someone new; the narration uses a name only after someone in the story says it:';
 
-// 0: at the scene's place itself; 1: at its parent (the atlas's saved parent, else the "Town / Spot" a name writes first, else the town of the
-// party's place line); null: anywhere else, a sibling, a district under it or a grandparent included (only the place and its parent are told).
+// The settlement the party is in (owner, 21 Nov: "if it's a village, limit it to the village, town to town, city to city"; a district, a ward or a
+// guild office is a spot inside one, not one itself; the kinds are scene/place-inside.js isSettlementKind): the place itself or the nearest place it sits in (the atlas's parents, or the "Town / Spot" a name writes
+// first) that is a village, town or city; else, for a spot that is not one itself, the region the story saved it under when that region is one
+// ("~ place South Granary | region: Bluewatch Village"); else none (a road, the wilds, a place with no settlement above it).
+function settlementOf(here, party) {
+    const chain = [here, ...here.up];
+    // The nearest settlement, except a story-made "settlement" tied to a pack's village (entries.js `locator` `tie`): that village is the settlement.
+    const towns = chain.filter(spot => isSettlementKind(spot.kind));
+    const found = (towns[0]?.tie && towns.find(spot => spot.key === towns[0].tie)) || towns[0];
+    if (found) return found.key;
+    if (!party.region) return null;
+    const region = party.locate(party.region);
+    return region?.key && region.key !== here.key && isSettlementKind(region.kind) ? region.key : null;
+}
+
+// 0: at the scene's place itself; 1: at the settlement it is in (or, outside any settlement, its parent: the atlas's saved parent, else the
+// "Town / Spot" a name writes first, else the town of the party's place line); 2: anywhere else inside that settlement; null: anywhere else.
 function rankOf(where, party) {
     if (!where) return null;
     if (typeof party.locate === 'function' && !party.old) {
@@ -32,13 +45,17 @@ function rankOf(where, party) {
         const there = party.locate(where);
         if (!here?.key || !there?.key) return null;
         if (there.key === here.key) return 0;
+        const town = settlementOf(here, party);
+        if (town) return there.key === town ? 1 : there.up.some(up => up.key === town) ? 2 : null;
         const parent = here.up[0]?.key ?? (party.town ? party.locate(party.town)?.key : null);
         return parent && there.key === parent ? 1 : null;
     }
     const same = (a, b) => String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
     if (same(where, party.place)) return 0;
-    const town = String(party.place).includes('/') ? String(party.place).split('/')[0] : party.town;
-    return town && same(where, town) ? 1 : null;
+    const town = String(party.place).includes('/') ? String(party.place).split('/')[0] : party.town || party.region;
+    if (!town) return null;
+    if (same(where, town)) return 1;
+    return String(where).includes('/') && same(String(where).split('/')[0], town) ? 2 : null;
 }
 
 /**
@@ -57,14 +74,6 @@ export function hereLine(slice, frame, { persona = '' } = {}) {
         .sort((a, b) => a.rank - b.rank || order.get(a.key) - order.get(b.key))
         .slice(0, HERE_MAX);
     if (!people.length) return '';
-    const said = people.map(({ entry }) => {
-        // (a "; " stays the list's own separator: one inside a role or look reads as a comma)
-        const role = cutWords(String(entry.raw?.role ?? '').replace(/;/g, ','), ROLE_MAX);
-        const look = cutWords(String(entry.raw?.look ?? '').replace(/;/g, ','), LOOK_MAX);
-        // (the first sentence of the personality, and the voice, so the first lines they speak are theirs)
-        const manner = cutWords(String(entry.raw?.personality ?? '').split(/(?<=[.!?])\s/)[0].replace(/;/g, ',').replace(/[.]$/, ''), MANNER_MAX);
-        const voice = cutWords(String(entry.raw?.voice ?? '').replace(/;/g, ',').replace(/[.]$/, ''), VOICE_MAX);
-        return `${entry.name}${role ? `, ${role}` : ''}${look ? ` (${look.replace(/[.]$/, '')})` : ''}${manner ? `, manner: ${manner}` : ''}${voice ? `, speaks: ${voice}` : ''}`;
-    });
+    const said = people.map(({ entry }) => faceOf(entry));
     return `${HEAD} ${said.join('; ')}.`;
 }

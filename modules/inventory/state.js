@@ -6,7 +6,7 @@
 export { KINDS, RARITIES, STORY_KIND, KIND_ORDER } from './state-parts/kinds.js';
 export { MAX_NAME, MAX_NOTE, MAX_UNSTACKED } from './state-parts/limits.js';
 export { initialInventory, defaultDef, isCount, nonBlank } from './state-parts/shape.js';
-export { FEATURE, INVENTORY_FEATURES, RPG_MODULE } from './state-parts/features.js';
+export { FEATURE, INVENTORY_FEATURES, RPG_MODULE, RPG_FEATURE } from './state-parts/features.js';
 export { gearOn, featureOn } from './state-parts/feature-checks.js';
 export { COND_MAX, COND_LOG_MAX } from './state-parts/shared-cond.js';
 export { condEvents, condOf } from './state-parts/cond-read.js';

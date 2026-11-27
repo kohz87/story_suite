@@ -16,7 +16,7 @@ export function youGrammar(label = '', gear = false) {
 export const CORE_KINDS = Object.freeze({
     item: Object.freeze({ grammar: '+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)' }),
     coin: Object.freeze({ grammar: '+ coin 30 | from: who (- coin 5 | to: who when paid; whenever {{user}} is paid or pays in the story, even a few coins, write the coin line, with the amount as the story says it). Pay each find once. Do not repeat loot already paid in an earlier reply.' }),
-    place: Object.freeze({ grammar: '~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind)' }),
+    place: Object.freeze({ grammar: '~ place Name | kind: settlement|wild|dungeon|… | region: wider area (kind and region only for a place not yet on the map) | with: who came along (the rest stay behind). A spot inside a town is written Town / Spot with its own kind (building, room, yard…), never settlement' }),
     // `after: ['place']`: a move leaves behind everyone it does not bring (scene.js setPlace), so a reply's present lines run behind its place line,
     // whatever order they were written in (registry captureEntry, capture-flow linesInOrder): the people the story adds at the new place stay.
     present: Object.freeze({ grammar: '+ present Name when someone arrives, - present Name when they leave; when someone already here is first named, - present the old word and + present the name (- present clerk, + present Nelje)', after: Object.freeze(['place']) }),
@@ -26,7 +26,7 @@ export const CORE_KINDS = Object.freeze({
     // Without a pack that gives a Rank (`content.you.rank`) the line names wearing and condition only; with one, `youGrammar(label)`.
     you: Object.freeze({ grammar: youGrammar(''), feature: CORE_FEATURE.you }),
     // The party's mounts (src/v2/domains/mounts.js): their grammar line only while `story-block.mounts` is on.
-    mount: Object.freeze({ grammar: '+ mount Name | kind: horse|mule|cart|… | count: 1 | pace: km/day | where: who rides or where it is (~ mount Name | condition: lame; - mount Name when lost or sold; at most 6)', feature: CORE_FEATURE.mounts }),
+    mount: Object.freeze({ grammar: '+ mount Name | kind: horse|mule|cart|… | pace: km/day | where: with the party, who rides it, or where it was left (one line for each animal or vehicle, named for what tells it apart, like Grey Mare or Bay Gelding with the white blaze; count: only for a string of pack animals that is never split; ~ mount Name | condition: lame; - mount Name when lost or sold; at most 12)', feature: CORE_FEATURE.mounts }),
     // MODULES §F100: off, the kind and its grammar line are left out (a host without Features keeps it).
     loot: Object.freeze({ grammar: '? loot Thing, Other Thing x2 — where it lies (things the party could pick up; the reader chooses what to take)', feature: FEATURE.loot }),
     // MODULES §F115: display kinds, read for the reader alone (src/v2/extras.js); each under its feature.

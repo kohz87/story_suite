@@ -1,4 +1,6 @@
 /* Writes the hidden-note rules, the lines builder's story-event paragraph and the targeted-prompt addendum for the prompts. */
+import { storyWatch } from './secret-watch.js';
+
 const LAYERED_SECRETS_RULE = 'HIDDEN NOTES: for each NEW dossier-worthy NPC only (never an existing one), also return "secrets" in its npcs[] row: 2 to 5 layered hidden notes, light to deep, as many as the person is deep (a passing shopkeeper 2, someone central 4-5). Ground them in the established background; never contradict it or invent a rival backstory. Each {"title":"<=60 chars","text":"<=300 chars, one fact the player does not know yet","meter":"trust|affection|desire|tension","at":whole number 1..100, higher for deeper layers} or, for a layer that opens on a story event instead, {"title","text","when":"short event <=120 chars"}. Written once; never repeat or rewrite them later.';
 // A targeted pass (backfill) is about one NEW dossier: the same notes, asked for that person.
 const LAYERED_SECRETS_RULE_TARGET = LAYERED_SECRETS_RULE.replace('for each NEW dossier-worthy NPC only (never an existing one), also return "secrets" in its npcs[] row', 'this dossier is NEW: also return "secrets" in the npcs[] row of the target');
@@ -7,12 +9,8 @@ const watchItems = eventWatch => (Array.isArray(eventWatch) ? eventWatch : []).f
 function eventWatchRule(eventWatch, { window = false } = {}) {
     const watch = watchItems(eventWatch);
     if (!watch.length) return '';
-    const where = window ? 'the supplied story shows happened' : 'the CURRENT exchange clearly shows happened (never from earlier history, never a guess)';
-    return `STORY EVENTS to look for (present NPCs' hidden notes): ${watch.map(item => `${item.key} = ${item.name}: ${item.event}`).join(' | ')}. Return top-level "secretEvents":["<key>",...] with ONLY the keys whose event ${window ? where + ' (clearly, never a guess)' : where}; [] or omit when none. ${EVENT_STRICT_RULE}`;
+    return storyWatch(window ? 'window' : 'current', watch);
 }
-
-// The event must happen as written, by the actor it names; each returned key carries a quote the code checks (secretEventsShown).
-const EVENT_STRICT_RULE = 'An event counts only when it happens as written, by the actor it names ("pressed" needs someone to press that person on it); the person raising the topic themselves, a mention, a hint or something about to happen does not. Also return "secretEventEvidence":{"<key>":"short exact quote showing the event"} for every key; no quote, no key.';
 
 /**
  * The scanner prompt's rules about hidden notes ('' when neither is asked), numbered from `start` after the last rule.
@@ -28,11 +26,6 @@ export function hiddenNotePromptRules({ layeredSecrets = false, eventWatch = nul
     return lines.length ? lines.map((line, index) => `\n${start + index}. ${line}`).join('') : '';
 }
 
-// The one-pass lines builder's story-event paragraph (NSD12, G8): the watch list and the event rule's first sentence as they are; the two JSON sentences ("Return top-level secretEvents",
-// "Also return secretEventEvidence") are replaced by the approved line form. The keys are the notes' own ids (a line can name them again on a Re-read; a position in a list cannot be).
-const LINE_FORM = 'Because there is no JSON block in the reply, a secret event is written as a line: ~ reveal Name | opened: <key> | quote: "short exact quote from this reply". Only when the event happened as written, by the actor it names. No quote, no line.';
-const EVENT_FIRST_SENTENCE = EVENT_STRICT_RULE.slice(0, EVENT_STRICT_RULE.indexOf(' Also return'));
-
 /**
  * The story events to look for in the lines builder ('' with none): [{ key, name, event, note? }]. The key the line is taught is the note's own id (`note`, as
  * the watch carries it beside the scan's short `sN` key; S2PA B3: a `~ reveal` line takes only a note id), else `key`.
@@ -41,7 +34,7 @@ export function hiddenNoteEventLinesParagraph(eventWatch) {
     const watch = watchItems(eventWatch);
     if (!watch.length) return '';
     const keyOf = item => (typeof item.note === 'string' && item.note ? item.note : item.key);
-    return `\n\nSTORY EVENTS to look for (present NPCs' hidden notes): ${watch.map(item => `${keyOf(item)} = ${item.name}: ${item.event}`).join(' | ')}. ${EVENT_FIRST_SENTENCE} ${LINE_FORM}`;
+    return `\n\n${storyWatch('lines', watch.map(item => ({ key: keyOf(item), name: item.name, event: item.event })))}`;
 }
 
 /**

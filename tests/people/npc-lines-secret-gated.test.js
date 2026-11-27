@@ -20,10 +20,11 @@ const stub = {
 };
 const records = (gate = 'meter trust >= 40') => {
     const all = dossiers();
-    all.npc_oren.secrets = [{ packId: 'rite', gate, text: TEXT, from: 'pack' }, { title: 'Old', text: 'He likes tea.', meter: 'trust', at: 90 }];
+    // An earlier secret that never opens stands first, so `rite` is never the next one a reply could earn (npc-lines-secret-earned): only its gate opens it here.
+    all.npc_oren.secrets = [{ packId: 'first', gate: 'fact:never', text: 'Something older.', from: 'pack' }, { packId: 'rite', gate, text: TEXT, from: 'pack' }, { title: 'Old', text: 'He likes tea.', meter: 'trust', at: 90 }];
     return all;
 };
-const ID = normalizeSecrets(records().npc_oren.secrets)[0].id;
+const ID = normalizeSecrets(records().npc_oren.secrets)[1].id;
 const reply = (story, lines) => `${story}${lines.length ? `\n\n<Changes>\n${lines.join('\n')}\n</Changes>` : ''}`;
 const quiet = async run => { const original = console.warn; console.warn = () => {}; try { return await run(); } finally { console.warn = original; } };
 const say = async (s, story, lines) => { await quiet(async () => { await s.host.send('And then?', reply(story, lines)); await s.adapter.ticked(); }); return s.host.store.headIndex(); };

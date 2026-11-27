@@ -14,16 +14,17 @@ export function derivedFields(row, known = null) {
         identityKind: inferNpcIdentityKind(name, known?.identityKind),
         dossierReason: String(row?.dossierReason ?? known?.dossierReason ?? '').trim() || STUB_REASON,
         ...(Array.isArray(row?.memories) && row.memories.length > IMPORTANT_MEMORY_LIMIT ? { memoryRetention: 'top5' } : {}),
-        // The summary of the bond is written by the Refresh (N8) from several scenes, never by a line: the dossier's own stays.
+        // The summary of the bond is never the fill-in's or a stub's to write (the Refresh, N8, and a `toward:` line do, ./toward.js): the dossier's own stays.
         relationshipSummary: String(known?.relationshipSummary ?? ''),
     };
 }
 
 /** The people record a stub makes under `id` (`stamp`: the reply's place, 1-based): the dossier a new person starts from, with the role and the look as written, and the derived fields.
- *  `memories` and `memoryStamps` start as empty containers (N5): a later reply's memory is an add into them, so deleting the reply that wrote an earlier memory never takes the container away. */
+ *  `memories` and `memoryStamps` start as empty containers (N5): a later reply's memory is an add into them, so deleting the reply that wrote an earlier memory never takes the container away.
+ *  So does `fieldChangeMessages` (the dossier's "changed at reply" stamps, DOSSFIX2 N1): a later line's stamp is an add into it, so a person a line made moves their last change too. */
 export function stubRecord({ name, role, look }, id, baseline, stamp = 1) {
     const record = createNpcRecord(name, [], baseline);
     const { identityKind, dossierReason } = derivedFields({ name }, null);
     // No clock: the stamp is the reply's place (a small integer, not epoch ms: nothing may order people by it), so a Re-read of the same line makes the same record (replay equals live).
-    return { ...record, id, role, appearance: look, identityKind, dossierReason, createdAt: stamp, updatedAt: stamp, memoryStamps: {} };
+    return { ...record, id, role, appearance: look, identityKind, dossierReason, createdAt: stamp, updatedAt: stamp, memoryStamps: {}, fieldChangeMessages: {} };
 }

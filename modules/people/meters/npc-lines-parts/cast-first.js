@@ -101,7 +101,9 @@ export function createCastFirst({ baseline, bond }) {
             packName, gated: ctx.feature?.(WORLD_EVENTS) === true, placeName: ref => placeNameOf(ctx, ref),
         });
         if (!filled) return null;
-        ctx.call('people.stub', { id, record: normalizeNpcRecord(filled) });
+        // (the normalizer drops the stub's empty change-stamps container; it is put back so the person's later lines move their last change, as a stub's do)
+        const record = normalizeNpcRecord(filled);
+        ctx.call('people.stub', { id, record: record.fieldChangeMessages ? record : { ...record, fieldChangeMessages: {} } });
         bond(ctx, ctx.draft(NPC_DOMAIN), { key: id, name: shown }, person);
         return { id, name: shown };
     }
@@ -116,7 +118,9 @@ export function createCastFirst({ baseline, bond }) {
  * the pack person met or present here whose dossier `castFirst` makes now, as a `~ npc` line would (a short form that also fits such a pack person is
  * nobody, as there). → { key, record? } or null (the line is then refused as before).
  */
-export function knownOrCast(ctx, name, castFirst) {
+export function knownOrCast(ctx, name, castFirst, personId = null) {
+    const held = personId ? ctx.read('people')?.npcs?.[personId] : null;   // (the dossier the line was settled on: ./which.js)
+    if (held) return { key: personId, record: held };
     let found = knownPerson(ctx, name);
     const exact = found?.record && [found.record.name, ...(Array.isArray(found.record.aliases) ? found.record.aliases : [])].map(labelKey).includes(labelKey(name));
     if (found?.record && !exact && typeof castFirst?.fits === 'function' && castFirst.fits(ctx, name)) found = null;

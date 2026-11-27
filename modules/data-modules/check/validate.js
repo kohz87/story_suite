@@ -4,6 +4,7 @@
 import { oneLine } from '../../../core/text.js';
 import { effects, rewardTypes } from './effects.js';
 import { collectOffers, imports } from './imports.js';
+import { refusalParts } from './refusal-parts.js';
 import { blockFunctions, layoutKeys, stageFields } from './layout.js';
 import { migrations } from './migration.js';
 import { dataModuleDefaults } from './names.js';
@@ -48,6 +49,8 @@ export function validateDataModules(value, { packId, capabilities = [], definiti
             if (typeof definition.prompt !== 'string' || [...definition.prompt].length > L.prompt) add('DM_BOUNDS', `${at}.prompt`, STRINGS.blocks.promptLimit);
             else definition.prompt = oneLine(definition.prompt);
         }
+        // (`startsOff`: a card offer leaves the module for the reader to turn on; never filled in, so a definition without it keeps its hash)
+        if (definition.startsOff !== undefined && definition.startsOff !== true) add('DM_SCHEMA', `${at}.startsOff`, 'startsOff is true or left out.');
         if (definition.role !== undefined && !ROLES.includes(definition.role)) add('DM_SCHEMA', `${at}.role`, STRINGS.blocks.roleInvalid);
         else if (definition.role !== undefined && definition.scope === 'character') add('DM_SCHEMA', `${at}.role`, STRINGS.blocks.roleChat);
         if (definition.show !== undefined) {
@@ -125,6 +128,8 @@ export function validateDataModules(value, { packId, capabilities = [], definiti
             const kindEnv = { ...env, args: kind.labels };
             if (kind.when !== undefined) conditionType(kind.when, kindEnv, `${path}.when`, add);
             effects(kind.effects, kindEnv, `${path}.effects`, add);
+            // (never defaulted: a definition without them keeps its normalized form and hash)
+            if (kind.refusals !== undefined) refusalParts(kind.refusals, kindEnv, `${path}.refusals`, add);
             kind.oncePerReply = claims;
             kind.when ??= true;
             kind.ui ??= false;

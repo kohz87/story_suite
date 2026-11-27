@@ -12,7 +12,7 @@ test('each skill row shows its practice toward the next rank, and Max at the top
   ] };
   const card = skillsCard(member, {});
   const rows = card.querySelectorAll('.sk');
-  assert.equal(rows[0].querySelector('.skp').textContent, '34/100');
+  assert.equal(rows[0].querySelector('.skp').textContent, '134/200');
   assert.match(rows[0].querySelector('.skp').getAttribute('title'), /134 of 200 to Adept \(needs level 10\)/);
   assert.equal(rows[1].querySelector('.skp').textContent, 'Max');
 });

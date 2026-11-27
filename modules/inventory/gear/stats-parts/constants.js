@@ -5,8 +5,8 @@ export const GEAR = Object.freeze({
     slots: Object.freeze(['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory']),
     // The keys a worn piece is filed under (accessories have two places).
     places: Object.freeze(['weapon', 'body', 'off-hand', 'head', 'cloak', 'feet', 'accessory-1', 'accessory-2']),
-    // The seven stats a piece can raise, and the one each slot raises when nothing else says.
-    stats: Object.freeze(['STR', 'VIT', 'AGI', 'DEX', 'INT', 'LUK', 'CHA']),
+    // The seven stats a piece can raise (the sixth is WIS, as Text RPG and the RPG's sheet name it; LUK from an older save or pack is read as WIS: gearStatKey), and the one each slot raises when nothing else says.
+    stats: Object.freeze(['STR', 'VIT', 'AGI', 'DEX', 'INT', 'WIS', 'CHA']),
     slotStat: Object.freeze({ weapon: 'STR', body: 'VIT', 'off-hand': 'VIT', head: 'VIT', cloak: 'AGI', feet: 'AGI', accessory: 'CHA' }),
     // The total stat points a rarity gives (Plan A: stats stay 1–20, so gear stays small).
     budget: Object.freeze({ common: 1, uncommon: 2, rare: 3, epic: 4, legendary: 5 }),
@@ -25,5 +25,10 @@ export const GEAR = Object.freeze({
     soak: Object.freeze({ caps: Object.freeze({ body: 2, 'off-hand': 2, head: 1, cloak: 0, feet: 0, accessory: 0 }), capMax: 2, max: 50, minCond: 40 }),
     // Load weights (a thing weighs `weight` a unit; coins 0): a pack's `weight`, or the reader's Edit, 0 up to `max`; with none the default by slot (equipment) or kind, which a story line never raises.
     weight: Object.freeze({ max: 99, bySlot: Object.freeze({ weapon: 3, body: 5, 'off-hand': 4, head: 2, cloak: 2, feet: 2, accessory: 0 }), byKind: Object.freeze({ quest: 0 }), other: 1 }),
+    // Paperwork: goods or material whose head noun is one of these (a whole word, plurals too; weight.js headNoun) weighs 0 by default.
+    paperwork: Object.freeze(['paper', 'parchment', 'ledger', 'pass', 'permit', 'licence', 'license', 'tally', 'chit', 'slip', 'warrant', 'writ', 'deed', 'receipt', 'ticket', 'voucher', 'invoice', 'letter', 'note', 'notice', 'scroll', 'map', 'contract', 'certificate', 'charter', 'manifest']),
     carry: Object.freeze({ base: 10, perStr: 2, strMin: 1, strMax: 20, strDefault: 10 }),
 });
+
+/** A stat name as gear keeps it: upper case, and LUK (what gear's sixth stat was called before it was WIS) is WIS. Any other word is returned in upper case as it is. */
+export const gearStatKey = raw => { const key = String(raw ?? '').trim().toUpperCase(); return key === 'LUK' ? 'WIS' : key; };

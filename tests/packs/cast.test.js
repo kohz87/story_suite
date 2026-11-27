@@ -69,8 +69,8 @@ test('the caps: people per pack, aliases, text lengths', () => {
     assert.ok(result.warnings.some(warning => warning.code === 'BAD_CONTENT' && warning.path === 'content.cast'));
     assert.equal(kept({ aliases: Array.from({ length: WORLD_CAST_LIMITS.aliases }, (_, n) => `A${n}`) }).aliases.length, WORLD_CAST_LIMITS.aliases);
     leftOut([person({ aliases: Array.from({ length: WORLD_CAST_LIMITS.aliases + 1 }, (_, n) => `A${n}`) })], 'content.cast[0].aliases');
-    assert.equal(kept({ look: 'a'.repeat(600) }).look.length, 600);
-    leftOut([person({ look: 'a'.repeat(601) })], 'content.cast[0].look');
+    assert.equal(kept({ look: 'a'.repeat(800) }).look.length, 800);
+    leftOut([person({ look: 'a'.repeat(801) })], 'content.cast[0].look');
     leftOut([person({ withYou: 'a'.repeat(321) })], 'content.cast[0].withYou');
 });
 

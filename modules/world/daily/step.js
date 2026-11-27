@@ -7,7 +7,7 @@
 import { seededDraw } from './chance.js';
 import { readDefs } from './defs.js';
 import { eventsDay } from './events-day.js';
-import { buildGeo } from './geo.js';
+import { buildGeo, resolveRef } from './geo.js';
 import { fadeConditions, releaseHolds } from './holds.js';
 import { recordAnchor } from './anchors.js';
 import { releaseDisplaced } from './cast.js';
@@ -19,6 +19,7 @@ import { settleOpen } from './open-day.js';
 import { makeStepCalendar } from './cal.js';
 import { lapseUnpaired } from './pair-lapse.js';
 import { applyStartWorld } from './start-world.js';
+import { regionKey } from './near.js';
 
 const DAY = 1440;
 // A step over more days than this shows the long-skip note (seam audit E16: 14, or the reader's longest jump when that is lower; the host passes it).
@@ -29,14 +30,17 @@ export const stepTally = { days: 0 };
 const list = value => (Array.isArray(value) ? value : []);
 const record = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : {});
 
-function people(world) {
+function people(world, geo) {
+    // A home written as the file id or alias of a place whose pack opted into file ids (geo.js) is that place, by name (the step
+    // compares homes with place names); any other stays as written.
+    const named = home => { const found = home === null ? null : resolveRef(geo, home); return found?.kind === 'place' && found.place.fileIds ? found.name : home; };
     const out = new Map();
     for (const person of list(world.cast)) {
         if (typeof person?.id !== 'string') continue;
         const start = person.start && typeof person.start === 'object' ? person.start.place : person.start;
         // canDieUnmet: only an explicit true lets an unmet person die (seam audit E6: absent counts as false).
         // `home`: where play begins for them (spec §8 start.place; the cast store starts them there too), else their homeBase.
-        out.set(person.id, { id: person.id, name: person.name ?? person.id, kind: person.kind ?? null, protected: person.protected === true, canDieUnmet: person.canDieUnmet === true, home: start ?? person.homeBase ?? null });
+        out.set(person.id, { id: person.id, name: person.name ?? person.id, kind: person.kind ?? null, protected: person.protected === true, canDieUnmet: person.canDieUnmet === true, home: named(start ?? person.homeBase ?? null) });
     }
     return out;
 }
@@ -65,13 +69,14 @@ function standingsOf(world, saved, names) {
  * The step's working state (`ws`) for a stored state, a world and a clock day: used by `runDays` and, for the open templates' asking side,
  * to check a Director's answer with the same rules the step applies. Returns `{ ws, defs, tombOf }`.
  */
-export function makeWs({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, marks = null, withYou = [], positions = null, opens = null, calendar = null }) {
+export function makeWs({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, marks = null, withYou = [], positions = null, opens = null, calendar = null, partyRegion = '', seatRegion = '', unheld = [] }) {
     const campaign = typeof state?.seed === 'string' ? state.seed : String(seed ?? '');
     const paced = Number.isFinite(tempo) && tempo >= 0.25 && tempo <= 4;
     const defs = readDefs(world);
     const cal = makeStepCalendar(calendar, world.seasons);
+    const geo = buildGeo(world);
     const ws = {
-        geo: buildGeo(world), people: people(world), met: new Set(met), tempo: paced ? tempo : 1, rev,
+        geo, people: people(world, geo), met: new Set(met), tempo: paced ? tempo : 1, rev,
         declared: new Map(list(world.conditions).filter(row => typeof row?.name === 'string').map(row => [row.name, { name: row.name, scope: row.scope, fades: row.fades ?? null, placeStatus: row.placeStatus === true, open: row.open === true }])),
         table: { ...record(table) }, masks: { ...record(state?.masks) }, anchors: structuredClone(record(state?.anchors)),
         events: structuredClone(record(state?.events)), lastMajor: { ...record(state?.lastMajor) }, cast: structuredClone(record(state?.cast)),
@@ -79,6 +84,8 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
         cooldowns: { ...record(state?.cooldowns) }, startDay: Number.isInteger(state?.start) ? state.start : today,
         draw: draw ?? ((day, key) => seededDraw(campaign, day, key)), warnings: [...defs.warnings, ...(paced ? [] : [`Tempo ${tempo} is outside 0.25-4; tempo 1 is used.`])], log: [], journal: [], tomb: new Set(), day: today,
         cal, withYou: new Set(list(withYou)), pos: structuredClone(record(positions)), moves: [], released: [], deaths: [],
+        // What the step's card says for a warning, by its text ('' leaves it to Problems): pack-author notes, which quote the pack's ids.
+        card: Object.fromEntries(defs.warnings.map(text => [text, ''])),
     };
     // Pack format 4 (§4.2): events whose date or season this calendar lacks are Lapsed at load, and templates with one are left out.
     defs.templates = lapseUnpaired(ws, defs, today, !state);
@@ -96,8 +103,13 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
     ws.standingKey = (kind, ref) => (`${kind}:${ref}` in ws.standings ? `${kind}:${ref}` : ws.standingNames.get(`${kind}:${ref}`) ?? `${kind}:${ref}`);
     ws.anchor = key => recordAnchor(ws.anchors, key, ws.day);
     for (const [key, days] of Object.entries(record(marks?.anchors)).sort(([a], [b]) => (a < b ? -1 : 1))) for (const day of list(days)) if (Number.isInteger(day)) recordAnchor(ws.anchors, key, day);
+    // Facts the story no longer supports (the holding's, holding-facts.js): their remembered days are dropped.
+    for (const key of unheld) delete ws.anchors[key];
     const tombOf = day => new Set(marks?.tomb?.day === day ? list(marks.tomb.keys) : []);
     ws.tomb = tombOf(today);
+    // Where the party is (near.js): `waits_for` reads the scene's region; `in:` / `near:` terms read it and the holding seat's.
+    ws.scene = regionKey(ws.geo, partyRegion);
+    ws.party = new Set([ws.scene, regionKey(ws.geo, seatRegion)].filter(Boolean));
     // The Director's stored verdicts on the daily roll (read only; daily/director-mark.js).
     ws.directorMarks = record(marks?.marks);
     return { ws, defs, tombOf, campaign };
@@ -105,21 +117,23 @@ export function makeWs({ state = null, table = {}, world = {}, today, seed, temp
 
 
 /**
- * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip?, marks?, withYou?, positions? })` → null when there is nothing to step (today was stepped),
- * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings, tomb, moves, released, deaths } }`. `withYou`: the cast ids
+ * `runDays({ state, table, world, today, seed, tempo, met, rev, draw?, longSkip?, marks?, withYou?, positions?, partyRegion?, seatRegion?, unheld? })` → null when there is nothing to step (today was stepped),
+ * else `{ daily, conditions, report: { from, to, days, note, log, journal, warnings, card, tomb, moves, released, deaths } }`. `withYou`: the cast ids
  * with You at the tick (party or scene); `positions`: { [cast id]: { at, base } } from the cast store (cast-where.js). `report.moves`,
  * `released` and `deaths` are what the host mirrors into the cast store. `state` is chronicle.daily (or null),
  * `table` chronicle.conditions, `seed` the campaign seed (kept in the state from the first step), `draw` a test's own draw. `marks` is
  * the ledger (chronicle.ledger: anchors world lines made, taken into the state's anchors; the conditions cleared on `tomb.day`, which
- * nothing sets again that day). `report.tomb` is what was cleared on the last stepped day, for the ledger.
+ * nothing sets again that day). `report.tomb` is what was cleared on the last stepped day, for the ledger. `partyRegion` is the scene's
+ * region now and `seatRegion` the holding seat's: they hold on `today` only (on a skip's earlier days no `in:` / `near:` term holds).
  */
-export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null, opens = null, settle = false, calendar = null }) {
+export function runDays({ state = null, table = {}, world = {}, today, seed, tempo = 1, met = [], rev = 0, draw = null, longSkip = LONG_SKIP, marks = null, withYou = [], positions = null, opens = null, settle = false, calendar = null, partyRegion = '', seatRegion = '', unheld = [] }) {
     if (!Number.isInteger(today)) return null;
     const prior = Number.isInteger(state?.day) ? state.day : null;
     // `settle`: no new day, only the open slots whose answers are stored since (open templates, open-day.js).
     if (prior !== null && today <= prior && !(settle && list(state?.pending).length)) return null;
     if (prior !== null && today < prior) today = prior;
-    const { ws, defs, tombOf, campaign } = makeWs({ state, table, world, today, seed, tempo, met, rev, draw, marks, withYou, positions, opens, calendar });
+    const { ws, defs, tombOf, campaign } = makeWs({ state, table, world, today, seed, tempo, met, rev, draw, marks, withYou, positions, opens, calendar, partyRegion, seatRegion, unheld });
+    const now = { scene: ws.scene, party: ws.party };
     const first = prior === null ? today : Math.max(prior + 1, today - MAX_DAYS + 1);
     if (prior !== null && first > prior + 1) ws.warnings.push(`${first - prior - 1} days before the last ${MAX_DAYS} were not simulated.`);
     // A hold whose event is not Active here (its step's reply was deleted, or the step's state was lost) would never end: released now.
@@ -132,6 +146,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
         stepTally.days += 1;
         ws.day = day;
         ws.tomb = tombOf(day);
+        ({ scene: ws.scene, party: ws.party } = day === today ? now : { scene: null, party: new Set() });
         fadeConditions(ws, day * DAY);
         releaseDisplaced(ws, null, day * DAY);
         applyDeferred(ws, day);
@@ -150,7 +165,7 @@ export function runDays({ state = null, table = {}, world = {}, today, seed, tem
     return {
         daily, conditions: ws.table,
         report: {
-            from: first, to: today, days, note: days > longSkip ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)], tomb: [...ws.tomb].sort(),
+            from: first, to: today, days, note: days > longSkip ? `${days} world days simulated` : '', log: ws.log, journal: ws.journal, warnings: [...new Set(ws.warnings)], card: ws.card, tomb: [...ws.tomb].sort(),
             moves: ws.moves, released: ws.released, deaths: ws.deaths,
         },
     };

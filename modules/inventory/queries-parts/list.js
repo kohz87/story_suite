@@ -25,6 +25,8 @@ export function listItems(inventory, owner = null, carry = null, gear = false, n
                 slot: def.slot, qty: stack.qty, owner: stack.owner, equipped: stack.equipped, ...(gear && stack.equipped !== null ? { equippedBy: stack.owner } : {}), note: stack.note, from: stack.from,
                 ...(condOf(stack, inventory) < COND_MAX ? { cond: condOf(stack, inventory) } : {}),
                 ...(stack.key === true ? { key: true } : {}),
+                // (an item the reader marked as a supply: the one kind the Edit can put it back to)
+                ...(def.kind === 'supply' && def.wasKind ? { wasKind: def.wasKind } : {}),
                 ...(stack.story === true ? { story: true } : {}),
                 // (gear on, a piece the reader made by hand: marked, with its own bonus, so a saved character keeps it exactly)
                 ...((gear || def.hand === true) && handDef(inventory, def) ? { hand: true, ...(def.kind === 'equipment' ? { stats: statsFor(def, stack) } : {}) } : {}),

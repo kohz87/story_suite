@@ -6,7 +6,8 @@ import { dossierPages, dossierCards } from './cards.js';
 import { dossierHero } from './hero.js';
 import { dossierBar } from './top-bar.js';
 import { dossierPart } from './part.js';
-import { dossierLibrary, libraryPeople } from './library.js';
+import { dossierLibrary } from './library.js';
+import { libraryPeople, chipSets, stepPerson } from './library-sets.js';
 import { dossierMapTab } from './map-tab.js';
 import { sendFollow } from './follow.js';
 
@@ -20,7 +21,7 @@ export { dossierPages };
  */
 export function dossierPage(first, ctx = {}) {
   let d = first;
-  const state = { page: null, tab: 'dossier', menu: false, sure: false, following: Boolean(d.following), lib: false, libFilter: 'all', map: {} };
+  const state = { page: null, tab: 'dossier', menu: false, sure: false, following: Boolean(d.following), lib: false, libFilter: 'around', libQuery: '', map: {} };
   const cmd = (type, extra = {}) => ctx.port?.command?.(type, { personId: d.id, ...extra });
   let pages = dossierPages(d, ctx.youName);
   const releases = { dossier: null, page: null, menu: null };
@@ -148,25 +149,73 @@ export function dossierPage(first, ctx = {}) {
     body.classList.remove('paged');
   }
 
+  // The library's own controls redraw it alone. After a chip or the fold changes, the list starts at the open person (or its start).
+  function redrawLibrary() { keeping(drawLibrary); }
+  function relist() {
+    redrawLibrary();
+    for (const row of LISTS.map(sel => root.querySelector?.(sel))) if (row) { row.scrollTop = 0; row.scrollLeft = 0; }
+    reveal();
+  }
+  function pickPerson(id) {
+    if (id === d.id) return;
+    show(id);
+    reveal();
+  }
+  // ‹ › and the arrow keys go through the chosen chip's order; focus that was on a portrait moves to the new person's.
+  function stepBy(delta) {
+    const people = libPeople();
+    const id = stepPerson(people, chipSets(people)[state.libFilter], d.id, delta);
+    if (!id) return;
+    const onPortrait = Boolean(root.ownerDocument?.activeElement?.closest?.('.dlib [data-person-id]'));
+    pickPerson(id);
+    if (onPortrait) (root.querySelector?.('.dlib [aria-current="true"]') ?? root.querySelector?.('.dlib [data-act="library"]'))?.focus?.({ preventScroll: true });
+  }
+  // The open person's portrait is brought into the library's list (the list alone scrolls, never the page behind it).
+  function reveal() {
+    for (const sel of LISTS) {
+      const list = root.querySelector?.(sel);
+      const mine = list?.querySelector?.('[aria-current="true"]');
+      if (!mine?.getBoundingClientRect || !list.getBoundingClientRect) continue;
+      const outer = list.getBoundingClientRect();
+      const inner = mine.getBoundingClientRect();
+      if (inner.left < outer.left) list.scrollLeft -= outer.left - inner.left; else if (inner.right > outer.right) list.scrollLeft += inner.right - outer.right;
+      if (inner.top < outer.top) list.scrollTop -= outer.top - inner.top; else if (inner.bottom > outer.bottom) list.scrollTop += inner.bottom - outer.bottom;
+    }
+  }
+
   function drawLibrary() {
     libSlot.replaceChildren(dossierLibrary(libPeople(), {
-      currentId: d.id, open: state.lib, filter: state.libFilter,
-      onToggle: () => { state.lib = !state.lib; drawLibrary(); },
-      onFilter: (id) => { state.libFilter = id; drawLibrary(); },
-      onPick: (id) => { if (id !== d.id) show(id); },
+      currentId: d.id, open: state.lib, filter: state.libFilter, query: state.libQuery,
+      onToggle: () => { state.lib = !state.lib; relist(); },
+      onMore: () => { Object.assign(state, { lib: true, libFilter: 'all', libQuery: '' }); relist(); },
+      onFilter: (id) => { state.libFilter = id; relist(); },
+      onQuery: (text) => { state.libQuery = text; },
+      onStep: stepBy, onPick: pickPerson,
     }));
   }
 
-  // A redraw keeps where the reader was: the columns' scroll (an outlined card low in the list stays in view) and the focus on the control it was on.
-  const KEEP = ['.dhero', '.dcards', '.dmapv .rmain', '.dlib .lrow'];
-  const keyOf = el => (el?.dataset?.page && el.classList?.contains('dcard') ? `.dcard[data-page="${el.dataset.page}"]` : el?.dataset?.act ? `[data-act="${el.dataset.act}"]` : el?.dataset?.tab ? `[data-tab="${el.dataset.tab}"]` : null);
+  // A redraw keeps where the reader was: the columns' and lists' scroll (an outlined card low in the list stays in view) and the focus on the control it was on.
+  const LISTS = ['.dlib .lrow', '.dlib .row2'];
+  const KEEP = ['.dhero', '.dcards', '.dmapv .rmain', ...LISTS];
+  const keyOf = (el) => {
+    if (el?.closest?.('.dlib')) {
+      if (el.dataset?.personId) return `.dlib [data-person-id="${el.dataset.personId}"]`;
+      if (el.dataset?.filter) return `.dlib [data-filter="${el.dataset.filter}"]`;
+    }
+    return el?.dataset?.page && el.classList?.contains('dcard') ? `.dcard[data-page="${el.dataset.page}"]` : el?.dataset?.act ? `[data-act="${el.dataset.act}"]` : el?.dataset?.tab ? `[data-tab="${el.dataset.tab}"]` : null;
+  };
   function keeping(redraw) {
-    const scrolls = KEEP.map(sel => root.querySelector?.(sel)?.scrollTop ?? 0);
+    const scrolls = KEEP.map(sel => { const el = root.querySelector?.(sel); return [el?.scrollTop ?? 0, el?.scrollLeft ?? 0]; });
     const active = root.ownerDocument?.activeElement;
     const focus = active && root.contains(active) ? keyOf(active) : null;
+    const inLibrary = Boolean(focus && active.closest?.('.dlib'));
     redraw();
-    KEEP.forEach((sel, i) => { const el = root.querySelector?.(sel); if (el && scrolls[i]) el.scrollTop = scrolls[i]; });
-    if (focus) root.querySelector?.(focus)?.focus?.({ preventScroll: true });
+    KEEP.forEach((sel, i) => { const el = root.querySelector?.(sel); const [top, left] = scrolls[i]; if (el && top) el.scrollTop = top; if (el && left) el.scrollLeft = left; });
+    if (!focus) return;
+    // (a library control that is gone or switched off hands the focus to the strip's head, so the arrow keys keep working)
+    let next = root.querySelector?.(focus);
+    if (inLibrary && (!next || next.disabled)) next = root.querySelector?.('.dlib [data-act="library"]');
+    next?.focus?.({ preventScroll: true });
   }
 
   function draw() {
@@ -176,7 +225,10 @@ export function dossierPage(first, ctx = {}) {
       if (state.tab === 'map') drawMap(); else drawDossier();
       drawLibrary();
     });
+    soon(reveal);
   }
+  // On a first draw the dossier is not in the page yet (no layout to measure): the open person is brought into view on the next frame (UI check 26 Nov).
+  function soon(fn) { const win = root.ownerDocument?.defaultView; if (win?.requestAnimationFrame) win.requestAnimationFrame(() => fn()); else setTimeout(fn, 0); }
 
   function downFromStack() { shut = true; release('menu'); release('page'); ctx.onClose?.(); }
   draw();

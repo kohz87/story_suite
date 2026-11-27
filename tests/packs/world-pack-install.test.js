@@ -85,3 +85,15 @@ test('a place with a free-word kind that placeKinds does not map is refused at t
     const mapped = validatePack(pack({ content: { places, conditions, placeKinds: { 'harbour town': 'town' } } }));
     assert.equal(mapped.ok, true, JSON.stringify(mapped.errors));
 });
+
+test('a fact only a likelier_if or less_if weighs is no gap; one an anchor or gate waits on still is', async () => {
+    const { validatePack } = await import('../../packs/validate.js');
+    const pack = structuredClone(sample);
+    const event = pack.content.worldEvents[0];
+    event.likelier_if = { ...(event.likelier_if ?? {}), 'fact:story-only-hint': '×2' };
+    const only = validatePack(JSON.stringify(pack)).warnings.filter(warning => warning.code === 'UNWRITTEN_FACT');
+    assert.ok(!only.some(warning => /story-only-hint/.test(warning.message)), 'a weighting fact alone is not reported');
+    event.requires = [...(Array.isArray(event.requires) ? event.requires : []), 'fact:story-only-hint'];
+    const gated = validatePack(JSON.stringify(pack)).warnings.filter(warning => warning.code === 'UNWRITTEN_FACT');
+    assert.ok(gated.some(warning => /story-only-hint/.test(warning.message)), 'a gate on it still is');
+});

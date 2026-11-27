@@ -1,5 +1,5 @@
 /* NPC State stored memories: the important-memory limit, the memory normalizer, the date stamps and their upkeep. */
-import { durableSemanticSimilarity, DURABLE_PROFILE_LIMITS, semanticDedupeItems } from '../core-relationship.js';
+import { memorySimilarity, DURABLE_PROFILE_LIMITS, semanticDedupeItems } from '../core-relationship.js';
 import { cleanList, normalizeName } from '../core-text.js';
 
 export const IMPORTANT_MEMORY_LIMIT = 5;
@@ -9,6 +9,7 @@ export function normalizeStoredMemories(value) {
         maxItems: 64,
         maxChars: DURABLE_PROFILE_LIMITS.memory,
         similarity: 0.58,
+        measure: memorySimilarity,   // (two different events sharing a phrase are both kept)
     });
     if (cleaned.length <= IMPORTANT_MEMORY_LIMIT) return cleaned;
     // Keep only the most recent bounded set after semantic dedupe.
@@ -27,7 +28,9 @@ export function normalizeMemoryStamps(value, memories) {
         if (!Number.isInteger(message) || message < 0) continue;
         const date = typeof stamp.d === 'string' ? stamp.d.trim().slice(0, 40) : '';
         const sid = typeof stamp.s === 'string' && stamp.s ? stamp.s : '';   // a `~ memory` line's reply marker (the per-reply cap) survives a rewrite of the record
-        out[key] = { m: message, ...(date ? { d: date } : {}), ...(sid ? { s: sid } : {}) };
+        const label = typeof stamp.l === 'string' && stamp.l ? stamp.l : '';   // and a memory: label's (one a person a reply)
+        const reply = typeof stamp.r === 'string' && stamp.r ? stamp.r : '';   // and any other line memory's reply (a retelling in the same reply is one memory)
+        out[key] = { m: message, ...(date ? { d: date } : {}), ...(sid ? { s: sid } : {}), ...(label ? { l: label } : {}), ...(reply ? { r: reply } : {}) };
     }
     return Object.keys(out).length ? out : undefined;
 }
@@ -51,7 +54,7 @@ export function stampMemories(before, after, message = null, dateAt = null) {
         const fact = factOf.get(key);
         if (fact) { const day = fact.d || String(dateAt?.(fact.r) ?? '').trim().slice(0, 40); out[key] = day ? { m: fact.r, d: day } : { m: fact.r }; continue; }
         if (had.has(key)) continue;   // stored before stamps existed: no date, never a guessed one
-        const reworded = gone.find(item => durableSemanticSimilarity(item, text) >= 0.58);
+        const reworded = gone.find(item => memorySimilarity(item, text) >= 0.58);
         if (reworded) { const inherited = old[normalizeName(reworded)]; if (inherited) out[key] = inherited; continue; }   // an undated old memory stays undated
         if (!Number.isInteger(message) || message < 0) continue;
         date ??= String(dateAt?.(message) ?? '').trim().slice(0, 40);

@@ -35,21 +35,38 @@ function askedRef(ctx, geo, scope, { place, region, realm, explicit }) {
     return '';
 }
 
+const inWords = name => low(name).replace(/[-_]+/g, ' ');
+
+/**
+ * The note `reason` about condition `slug`, never led by the slug: what the narrator `written` is quoted only when that, in words, is not the
+ * condition's name (the slug and its words are one name). Else the reason stands alone when it names the condition in words, or is led by them.
+ */
+export function said(written, slug, reason) {
+    if (written && inWords(written) !== inWords(slug)) return `"${written}": ${reason}`;
+    const words = String(slug).replace(/[-_]+/g, ' ');
+    // As whole words: "rain" is not named by "Rainmoor".
+    const whole = text => ` ${inWords(text).replace(/[^\p{L}\p{N}]+/gu, ' ').trim()} `;
+    return whole(reason).includes(whole(words)) ? reason : `${words}: ${reason}`;
+}
+
 /**
  * For one `{ name, scope, placeStatus? }` the pack declares and the line's `place` / `region` / `realm` / `explicit` ref: `{ ref }` (the
  * name the store keeps it under) when the command will take it, or `{ refusal }` (the words for the card) when it would refuse.
  */
-export function conditionTarget(ctx, known, { place, region = '', realm = '', explicit = '' }, clear) {
-    if (ctx.cause === 'ui') return { refusal: `"${known.name}": conditions are set by the story, not by a click` };
-    const geo = hostGeo(ask(ctx));
+export function conditionTarget(ctx, known, { place, region = '', realm = '', explicit = '', written = known.name }, clear) {
+    const about = reason => ({ refusal: said(written, known.name, reason) });
+    if (ctx.cause === 'ui') return about('conditions are set by the story, not by a click');
+    const geo = hostGeo(ask(ctx), ctx.carrier);
     const asked = askedRef(ctx, geo, known.scope, { place, region, realm, explicit });
-    if (!asked) return { refusal: known.scope === 'route' ? `"${known.name}" is a route condition: write it as ${known.name}@<route>` : `"${known.name}" needs a place on the line` };
+    // (the route form names the slug itself: that is what the narrator writes)
+    const words = known.name.replace(/[-_]+/g, ' ');
+    if (!asked) return about(known.scope === 'route' ? `${words} is a route condition: write it as ${known.name}@<route>` : `${words} needs a place on the line`);
     const table = ctx.draft('chronicle')?.conditions ?? {};
     const ref = knownRef(ask(ctx), known.scope, asked, geo)
         ?? (clear ? Object.values(table).find(entry => entry?.name === known.name && low(entry.ref) === low(asked))?.ref : null);
-    if (!ref) return { refusal: `"${known.name}": "${asked}" is not a ${known.scope} of this world` };
+    if (!ref) return about(`"${asked}" is not a ${known.scope} of this world`);
     if (clear) return { ref };
     // The draft: it holds what this same line set a moment ago (the commands run on the reply's drafts).
     const refusal = setRefusal({ query: ask(ctx), chronicle: ctx.draft('chronicle') ?? {}, geo, declared: known, ref, now: clockOf(ctx), by: 'narrator' });
-    return refusal ? { refusal: `"${known.name}": ${refusal}` } : { ref };
+    return refusal ? about(refusal) : { ref };
 }

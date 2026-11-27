@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 
 import { createModule, namespaced, partSettings, PARTS, storyDirectorModule } from '../../../../modules/director/module.js';
 import { STATIC_TEXT, staticText } from '../../../../modules/time/tracker/note.js';
-import { STATIC_TEXT as ATLAS_STATIC, TAIL_BUDGET as ATLAS_BUDGET, TRIP_TAIL_BUDGET } from '../../../../modules/atlas/atlas/note.js';
+import { PLACES_TAIL_BUDGET, STATIC_TEXT as ATLAS_STATIC, TAIL_BUDGET as ATLAS_BUDGET, TRIP_TAIL_BUDGET } from '../../../../modules/atlas/atlas/note.js';
 import { RECAP_BUDGET } from '../../../../modules/time/recap.js';
 import { screens as SCREENS } from '../../../../modules/director/screens/index.js';
 import { mapScreen } from '../../../../modules/atlas/atlas/screen.js';
@@ -49,7 +49,7 @@ test('statics in part order, budgets summed, kinds dispatched to their part', ()
     assert.equal(awayPart.context.budget, 300);
     assert.equal(hostStatic(def, id => plain(id) && id !== 'story-director.threads'), staticText({ threads: false }));
     assert.equal(hostStatic(def, () => true, {}), `${STATIC_TEXT}\n${def.context.parts.find(part => part.feature === 'story-director.initiative').static()}\n${def.context.parts.find(part => part.feature === 'story-director.world-events').static()}\n${PULSE_STATIC}`);
-    assert.equal(def.context.budget, 500 + RECAP_BUDGET + ATLAS_BUDGET + TRIP_TAIL_BUDGET + CHRONICLE_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET + awayPart.context.budget + CAST_BUDGET + ARC_TAIL_BUDGET + checksPart.context.budget);
+    assert.equal(def.context.budget, 500 + RECAP_BUDGET + ATLAS_BUDGET + PLACES_TAIL_BUDGET + TRIP_TAIL_BUDGET + CHRONICLE_BUDGET + DIGEST_TAIL_BUDGET + BACKLOG_BUDGET + awayPart.context.budget + CAST_BUDGET + ARC_TAIL_BUDGET + checksPart.context.budget);
     assert.deepEqual(PARTS.map(([id]) => id), ['tracker', 'time', 'atlas', 'chronicle', 'world', 'away', 'cast', 'names', 'pulse', 'encounters', 'arc', 'checks', 'ripples', 'screens']);
     assert.match(def.capture.kinds.hook.grammar, /a quest is a job/);
     assert.equal(def.capture.kinds.quest.grammar(), '', 'the quest rides on the hook line');

@@ -31,11 +31,13 @@ export function soakOf(vit, defenceMastery = 0, gear = 0) {
     return Math.min(V1.soakCap, Math.max(0, Math.floor(Number(vit) || 0)) + whole(defenceMastery) * V1.soak.stanceStep + whole(gear));
 }
 
-/** A hit after the decisive ×1.5 step and soak; a hit always gets at least one damage through. */
-export function takeHit(damage, soak = 0, decisive = false) {
+/** A hit after the decisive ×1.5 step and soak; a hit always gets at least one damage through. `soakWhole` (a fight opened from 22 Nov, owner): soak takes off
+ *  only the whole points it adds up to (3 damage at 6% stays 3); without it the damage left is rounded down (3 at 6% was 2), as a fight opened before keeps. */
+export function takeHit(damage, soak = 0, decisive = false, soakWhole = false) {
     const base = whole(damage), raw = decisive ? Math.floor(base * V1.decisiveTimes) : base;
     const reduced = Math.min(V1.soakCap, Math.max(0, Math.floor(Number(soak) || 0)));
-    return Math.max(V1.damage.min, Math.floor(raw * (V1.percent - reduced) / V1.percent));
+    const left = soakWhole ? raw - Math.floor(raw * reduced / V1.percent) : Math.floor(raw * (V1.percent - reduced) / V1.percent);
+    return Math.max(V1.damage.min, left);
 }
 
 /** Healing: WIS÷3 + full mastery. */

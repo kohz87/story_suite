@@ -4,6 +4,7 @@ import { createFakeSdk } from './helpers/fake-sdk.js';
 import { mount, fakeTimers, flush } from './helpers/fake-dom.js';
 import { fishingModule, fishingProps } from '../src/module.js';
 import { renderFishing, resetFishingWidget } from '../src/widget.js';
+import { definitionProblems } from '../../../core/registry/registry-checks-parts/problems.js';
 
 // The tab as Story Block would run it: render(el, view, api) from the head state, again after every commit.
 function setup({ place = { name: 'Moonfall Lake', kind: 'wild' }, seeds } = {}) {
@@ -186,22 +187,28 @@ test('the registered fishing widget looks up what a layout leaves out', async ()
     const def = fishingModule(fake.sdk);
     fake.sdk.registerModule(def);
     fake.setPlace({ name: 'Moonfall Lake', kind: 'wild' });
-    assert.ok(def.widgets.fishing.props.session);
+    assert.ok(def.widgets['fishing-activity.fishing'].props.session);
     const el = mount();
     const timers = fakeTimers();
     const api = { query: fake.sdk.query, command: (type, payload) => fake.sdk.command(type, payload), timers };
-    def.widgets.fishing.render(el, {}, api);
+    def.widgets['fishing-activity.fishing'].render(el, {}, api);
     assert.equal(role(el, 'where').textContent, 'at Moonfall Lake');
     await act(el, 'cast').click();
     await flush();
     // A layout re-rendering the widget with no props still finds the open line by query.
-    def.widgets.fishing.render(el, {}, api);
+    def.widgets['fishing-activity.fishing'].render(el, {}, api);
     assert.equal(phase(el), 'waiting');
     const open = fake.sdk.query('fishing.session');
     await timers.advance(open.bite);
     await act(el, 'reel').click();
     await flush();
-    def.widgets.fishing.render(el, {}, api);
+    def.widgets['fishing-activity.fishing'].render(el, {}, api);
     assert.equal(el.findAll(n => n.className?.startsWith('sbf-catch ')).length, 1);
     assert.equal(fake.calls.find(c => c.type === 'fishing.cast').cause, 'ui');
+});
+
+test('the module registers: the widget name starts with the module id and a dot', () => {
+    const def = fishingModule(createFakeSdk().sdk);
+    assert.deepEqual(definitionProblems(def), []);
+    assert.deepEqual(Object.keys(def.widgets), ['fishing-activity.fishing']);
 });

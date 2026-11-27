@@ -16,6 +16,7 @@ import {
     stampChangedFields,
 } from '../../core/core.js';
 import { applyNpcMemories, scanFactCandidates } from '../../memory/memory-fact-apply.js';
+import { copiesLineSummary, takeSummarySource } from '../../core/relationship-summary-source.js';
 import { spendEvent } from '../relationship-pacing.js';
 
 export function suppressPrimaryRelationshipForFocusedDecisions(parsed, decisions, stateNpcs = () => []) {
@@ -24,6 +25,7 @@ export function suppressPrimaryRelationshipForFocusedDecisions(parsed, decisions
     for (const raw of clone.npcs || []) {
         const matchedId = [...decisions.keys()].find(id => {
             if (String(raw?.id || '') === String(id)) return true;
+            if (raw?.settledId) return false;   // (tied to one namesake: that id alone)
             const stateNpc = stateNpcs().find(npc => npc.id === id);
             return Boolean(stateNpc && raw?.name && npcMatchesLabel(stateNpc, raw.name));
         });
@@ -109,10 +111,12 @@ export function applyFocusedRelationshipDecisions(state, decisions, caps, source
             && decision.relationshipSummaryDecisionProvided
             && !(Array.isArray(npc.manualProfileFields) && npc.manualProfileFields.includes('relationshipSummary'))) {
             const proposedSummary = String(decision.relationshipSummary || '').trim().slice(0, 700);
-            if (relationshipSummaryConsistent(proposedSummary, npc.relationship, decision.context || '', npc.relationshipMilestones)) {
+            if (!copiesLineSummary(proposedSummary, npc)
+                && relationshipSummaryConsistent(proposedSummary, npc.relationship, decision.context || '', npc.relationshipMilestones)) {
                 const calibrated = calibrateRelationshipSummary(proposedSummary, npc.relationship);
                 if (calibrated && calibrated !== String(npc.relationshipSummary || '').trim()) {
                     npc.relationshipSummary = calibrated;
+                    takeSummarySource(npc);
                     summaryChanged = true;
                 }
             }

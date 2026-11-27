@@ -24,7 +24,8 @@ const run = async (host, name, payload) => {
     return out;
 };
 const bagState = host => host.sdk.query('inventory.items').filter(item => item.equipped === 'bag').map(item => [item.name, item.owner]).sort();
-const shared = host => host.sdk.query('gear.view', { owner: 'party' }).carry;
+// (the shared bag's own capacity: the party's total less the room of the members counted by themselves)
+const shared = host => { const all = host.sdk.query('gear.carry', {}); return { capacity: all.capacity - all.people.reduce((sum, person) => sum + person.capacity, 0) }; };
 
 test('a companion carries a bag: it is handed to them, the shared capacity follows, a swap and None put the old one back', async t => {
     const host = await fresh(t);

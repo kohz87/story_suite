@@ -11,11 +11,17 @@ import { createCore } from './core.js';
 import { createSkills } from './skills.js';
 import { createParty } from './party.js';
 import { createAct } from './act.js';
+import { holdingOf } from '../holding/read.js';
+import { MONTH_CUE_TOKENS, monthCue } from '../holding/tail.js';
+import { postLines, postRoom } from '../holding/post-tail.js';
+import { createVacate } from '../holding/vacate.js';
 import { createBlocks } from './blocks.js';
 import { createFields } from './fields.js';
 import { validateDomain, resolveModule, moduleView, pinnedPresentation, grammarFor, replayInputs } from './views.js';
+import { referenceOf } from '../grammar.js';
 import { blockCardSlots, tailLines, tailRoom } from './prompt.js';
 import { B, initial } from './shared.js';
+import { quietRole } from './replaced.js';
 
 export function createDataModulesPart(opts = {}) {
     // Build parts in order: act.js and blocks.js read earlier parts when they are created.
@@ -26,9 +32,13 @@ export function createDataModulesPart(opts = {}) {
     Object.assign(d, createAct(d));
     Object.assign(d, createBlocks(d));
     Object.assign(d, createFields(d));
-    const { state, settings, boardOn, wrap, offers, guard, finish, setField, tick, settle, afterCapture, act } = d;
-    const kind = { get enabled() { return Boolean(Object.keys(state()?.domains?.dataModules?.active ?? {}).length); },
-        grammar: '! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)', apply: wrap((ctx, line, call) => act(ctx, {}, line, call)) };
+    Object.assign(d, createVacate(d));
+    const { state, settings, boardOn, rpgReplaced, wrap, offers, guard, finish, setField, tick, settle, vacate, afterCapture, act } = d;
+    const replaced = () => { try { return rpgReplaced() === true; } catch { return false; } };
+    // The `! dm` kind stays enabled while any block is pinned (a Re-read of a kept line must reach act.js); its grammar line is taught while some pinned block is not quiet.
+    const loud = () => Object.keys(state()?.domains?.dataModules?.active ?? {}).some(id => !quietRole(activeDefinition(state(), id), replaced()));
+    const kind = { get enabled() { return Object.keys(state()?.domains?.dataModules?.active ?? {}).length > 0; },
+        grammar: () => loud() ? '! dm Module — reason | kind: name | label: value (only the lines listed under Data modules; each has its own op)' : '', apply: wrap((ctx, line, call) => act(ctx, {}, line, call)) };
     return {
         domains: { dataModules: { initial, deferred: true, snapshot: 'when-present', scratch: ['perReply', 'boardFlags'], validate: validateDomain } },
         commands: { 'dm.pin': wrap((ctx, payload, call) => d.target(ctx, payload, false, call)), 'dm.migrate': wrap((ctx, payload, call) => d.target(ctx, payload, true, call)),
@@ -37,6 +47,7 @@ export function createDataModulesPart(opts = {}) {
             'dm.remove': wrap((ctx, payload, call) => d.changeBlock(ctx, payload, 'remove', call)),
             'dm.attach': wrap(d.attach), 'dm.set': wrap(setField), 'dm.act': wrap((ctx, payload, call) => act(ctx, payload, null, call)), 'dm.capture': { internal: true, handler: wrap((ctx, line, call) => act(ctx, {}, line, call)) },
             'dm.tick': { internal: true, handler: wrap(tick) }, 'dm.settle': { internal: true, handler: wrap(settle) },
+            'dm.vacate': { internal: true, handler: wrap(vacate) },
             // The Ask card's "Add to party" (rpg only: the feature gate leaves it out while the RPG is off).
             'dm.join': Object.assign(wrap(d.addParty), { feature: LEAN_RPG_FEATURE }),
             // A full party's card: the member the reader picked steps out and the newcomer joins (one reader action).
@@ -57,7 +68,7 @@ export function createDataModulesPart(opts = {}) {
             } },
             dm: kind, party: { grammar: hint => { const lib = rpgLib(); return lib === null ? '' : hint?.view?.rule?.('partyFields') ?? true ? lib.joinGrammarOwn(lib.soulNaming(hint?.view?.state ?? state())) : lib.joinGrammar(); }, feature: LEAN_RPG_FEATURE, get enabled() { const lib = rpgLib(); return lib !== null && lib.joinMode(settings()) !== 'off' && lib.partyOf(state()).length > 0; }, apply: wrap(d.party) } },
         queries: { 'dataModules.offers': offers, 'dataModules.view': moduleView, 'dataModules.public': publicView,
-            'dataModules.replayInputs': replayInputs, 'dataModules.actors': actorsOf,
+            'dataModules.replayInputs': replayInputs, 'dataModules.actors': actorsOf, 'dataModules.holding': holdingOf,
             'dataModules.setup': prefix => {
                 const installed = offers(), rows = [...installed];
                 for (const [module, active] of Object.entries(prefix.domains?.dataModules?.active ?? {})) if (!rows.some(row => row.module === module)) {
@@ -87,10 +98,11 @@ export function createDataModulesPart(opts = {}) {
         context: {
             static: () => {
                 const board = boardOn() === true;
-                return grammarFor(state(), null, { rolled: board, board });
+                return grammarFor(state(), null, { rolled: board, board, replaced: replaced() });
             },
             tail: view => {
-                const lines = tailLines(view.state, typeof view.feature === 'function' ? view.feature(LEAN_RPG_FEATURE) === true : true);
+                const rpgOn = typeof view.feature === 'function' ? view.feature(LEAN_RPG_FEATURE) === true : true;
+                const lines = tailLines(view.state, rpgOn, !rpgOn && view.featureOrReplacement?.(LEAN_RPG_FEATURE) === true);
                 if (boardOn()) {
                     const lib = rpgLib();
                     // (an ended board fight is still a fight for this reply: the clear emptied the Foes block, but the reply that tells its end keeps the fight tail)
@@ -100,10 +112,16 @@ export function createDataModulesPart(opts = {}) {
                     const played = ended || typeof view.interactionStop === 'string';
                     lines.push(...(lib?.boardReplyGrammar?.(view.state, { fight, ended, played }) ?? []));
                 }
+                const cue = monthCue(view);
+                if (cue) lines.push(cue);
+                const holding = holdingOf(view.state);
+                if (holding) lines.push(...postLines(view.state, holding, referenceOf(Object.keys(view.state.domains.dataModules.active), holding.module)));
                 return { lines, optional: [] };
             },
             // Tail room for the lines above: 100 tokens for each pinned module (300 for one with a role), on top of the core's own; none without a pin.
-            extra: () => Object.keys(state()?.domains?.dataModules?.active ?? {}).slice(0, L.pins).reduce((sum, id) => sum + tailRoom(activeDefinition(state(), id), true, instanceOf(state(), id)?.fields), 0),
+            extra: () => Object.keys(state()?.domains?.dataModules?.active ?? {}).slice(0, L.pins).reduce((sum, id) => quietRole(activeDefinition(state(), id), replaced()) ? sum : sum + tailRoom(activeDefinition(state(), id), true, instanceOf(state(), id)?.fields), 0)
+                // (room for the holding's monthly reminder, kept whether or not this reply has it, and for what is said about its posts)
+                + ((now, held) => (held ? MONTH_CUE_TOKENS + postRoom(held) + postRoom(held, now) : 0))(state(), holdingOf(state())),
         },
     };
 }

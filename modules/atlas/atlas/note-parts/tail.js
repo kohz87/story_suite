@@ -1,11 +1,13 @@
 // Building the atlas and trip tail lines and reading the scene's place.
 
 import { mapSettings } from '../../places.js';
-import { packWorld, worldOf } from '../world.js';
+import { packPlace, packWorld, worldOf } from '../world.js';
 import { parentOf } from '../parent.js';
 import { travelTime } from '../travel.js';
 import { TRIP_FEATURE, calendarOf, tripLines, tripView } from '../trip.js';
 import { TAIL_BUDGET } from './grammar.js';
+import { compassWords, kmScale, trustedPoint } from '../where.js';
+import { PLACES_TAIL_BUDGET, placesLine } from './places-line.js';
 import { anchorOf, packRegions } from '../anchor.js';
 
 // Characters the line may take: Story Block estimates tokens as characters / 4.
@@ -30,8 +32,11 @@ export function scenePlace(view) {
     return { name: String(place?.name ?? ''), kind: String(place?.kind ?? ''), region: String(place?.region ?? '') };
 }
 
-/** "Routes from Bluewatch Village: Old Weir by road, 2 h · Thunder Ruins by trail, ≈ 1.5 days." or ''. */
-export function routesLine(world, here, { map } = {}) {
+// Any point a place has (the default for a caller without the atlas): routesLine's own callers pass the vouched-for one (where.js).
+const anyPoint = place => (Number.isFinite(place?.x) && Number.isFinite(place?.y) ? { x: place.x, y: place.y } : null);
+
+/** "Routes from Bluewatch Village: Old Weir (east) by road, 2 h · Thunder Ruins (north) by trail, ≈ 1.5 days." or ''. */
+export function routesLine(world, here, { map, pointOf = anyPoint } = {}) {
     const at = world.find(here);
     if (!at) return '';
     // Street legs inside a city ("Highmark Capital / Crown Keep", 0.5 day) tell the narrator nothing: skip a leg whose two ends are the same
@@ -68,7 +73,9 @@ export function routesLine(world, here, { map } = {}) {
     for (const { other, route, trip } of items) {
         if (seen.has(other.id)) continue;
         seen.add(other.id);
-        const item = `${other.name}${route.kind ? ` by ${route.kind}` : ''}${trip ? `, ${trip.text}` : ''}`;
+        // The way the far end lies (owner, 22 Nov: the narrator sent the Bluewatch–Auvoth road "east"; Auvoth lies west): none from a guessed point.
+        const direction = compassWords(pointOf(from), pointOf(other), map);
+        const item = `${other.name}${direction ? ` (${direction})` : ''}${route.kind ? ` by ${route.kind}` : ''}${trip ? `, ${trip.text}` : ''}`;
         const next = text ? `${text} · ${item}` : item;
         if ((head + next + '.').length > MAX_CHARS) break;
         text = next;
@@ -82,15 +89,21 @@ export function atlasTail(view) {
     if (!atlas) return { lines: [], optional: [] };
     const here = scenePlace(view).name;
     if (!here.trim()) return { lines: [], optional: [] };
-    const world = worldOf(atlas, packOf(view));
+    const pack = packOf(view);
+    const world = worldOf(atlas, pack);
     const map = mapSettings(settingsOf(view).map);
-    let line = routesLine(world, here, { map });
+    const packHas = name => { const found = packPlace(pack, name); return Number.isFinite(found?.x) && Number.isFinite(found?.y); };
+    const pointOf = place => trustedPoint(place, { atlas, world, packHas });
+    let line = routesLine(world, here, { map, pointOf });
     // World events on (LAB2-3): a place with no routes of its own the story made (a tavern) gives the routes of the pack place it stands for (anchor.js), as the news and conditions do.
     if (!line && worldEventsOn(view)) {
         const anchor = anchorOf(world, atlas, packOf(view), here, { region: scenePlace(view).region, regions: packRegions(typeof view?.query === 'function' ? (name, args) => view.query(name, args) : null) });
-        if (anchor?.name && anchor.via !== 'pack') line = routesLine(world, anchor.name, { map });
+        if (anchor?.name && anchor.via !== 'pack') line = routesLine(world, anchor.name, { map, pointOf });
     }
-    return { lines: [], optional: line ? [line] : [] };
+    // Where places lie (as the crow flies): its own room in the part's budget; the last optional line, so the first to go when the tail is full.
+    const said = [view?.chat?.lastUser, view?.chat?.lastReply].filter(text => typeof text === 'string').join('\n');
+    const where = placesLine(world, here, { said, map, pointOf, scale: kmScale(world, map), maxChars: PLACES_TAIL_BUDGET * 4 });
+    return { lines: [], optional: [line, where].filter(Boolean) };
 }
 
 /**

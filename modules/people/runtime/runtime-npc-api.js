@@ -7,6 +7,8 @@ import { pageHandles } from './handles.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { buildNpcProfiles } from '../npc-api/profile-list.js';
 import { replyPreview } from '../npc-api/reply-preview.js';
+import { hideJoinLines } from '../core/core-injection-parts-parts/join-line.js';
+import { hideSecretWatch } from '../core/core-prompts-capture-parts/secret-watch.js';
 import { getSettings, effectiveCustomFieldNames } from '../settings/runtime-settings.js';
 
 export function createNpcApiPart(rt, deps) {
@@ -18,8 +20,8 @@ export function createNpcApiPart(rt, deps) {
         const key = getChatKey();
         if (settings.enabled === false || key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return { injection: '', rules: '', capture: '' };
         const state = getChatState(key);
-        const injection = settings.inject ? liveInjectionText(state, settings, { transcript: recentTranscript(4) }) : '';
         const { rules, context } = nextCaptureParts(state, settings);
+        const injection = settings.inject ? liveInjectionText(state, settings, { transcript: recentTranscript(4), saidBeside: context }) : '';
         return { injection, rules, capture: context };
     }
 
@@ -80,7 +82,7 @@ export function createNpcApiPart(rt, deps) {
             head.textContent = `${part.label} · about ${part.tokens} tokens`;
             const body = document.createElement('pre');
             body.className = 'delta-whats-sent-text';
-            body.textContent = part.text;
+            body.textContent = hideJoinLines(hideSecretWatch(part.text));
             root.append(head, body);
         }
     }

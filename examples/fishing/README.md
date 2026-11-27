@@ -74,7 +74,7 @@ the `fishing.cast` receipt (or the open session in state); the widget just times
 `hooked`. It never reads message text, and re-rendering it (the host re-renders tabs after every
 commit) keeps the line's clock and never casts again. `renderFishing(el, props, api)` takes
 `props = { place, spot, session, log, last, currency }` and `api = { command, query }`, so it can be
-placed by itself as a widget in any layout: the module registers it as `widgets.fishing` (SPEC §13.5),
+placed by itself as a widget in any layout: the module registers it as `widgets["fishing-activity.fishing"]` (SPEC §13.5),
 and every prop left out is looked up by query. The Fishing tab simply calls it with props from the head
 state.
 
@@ -96,3 +96,9 @@ node --test tests/*.test.js
 Same seed gives the same catch, a failed reel grants nothing, one cast is one fish even when the
 narrating reply is swiped, release, every rejection leaves the state as it was, and the widget's
 timing (fake timers, fake DOM).
+
+## Writing your own module
+
+The step-by-step guide, with a 10-minute walk-through and every definition key, is
+[`docs/dev/writing-a-module.md`](../../docs/dev/writing-a-module.md). Its rule-first version for coding assistants is the
+"Writing a plug-in module" part of [`AI-README.md`](../../AI-README.md). The second reference, a rules module, is [Text RPG](../text-rpg/README.md).

@@ -3,7 +3,7 @@
 A module is a definition object. A built-in module is a folder `modules/<name>/` (the core module, in `core/`, merges the
 parts of scene, inventory, data modules and the RPG; Director and NPC State are listed in `core/modules-list.js#BUILTIN_MODULES`);
 an outside extension registers its own with `sdk.registerModule(def)` after `await StoryBlock.ready`
-(`examples/fishing/index.js` is the reference). The registry (`core/registry.js#createRegistry`) checks the definition when it
+(`examples/fishing/index.js` is the reference; the how-to is `docs/dev/writing-a-module.md`, and "Writing a plug-in module" below). The registry (`core/registry.js#createRegistry`) checks the definition when it
 registers and refuses it, with a plain sentence, if it breaks a rule (`core/registry/registry-checks.js#definitionProblems`).
 The definition names what the module owns; the host does the rest.
 
@@ -25,9 +25,8 @@ The definition names what the module owns; the host does the rest.
 - **`hooks`.** Steps the host calls at fixed points: `beforeGenerate`, `afterCapture`, `canGenerate` and a few named ones
   (`docs/v2/SPEC.md` §6). They ask for `system` steps; they never write state themselves.
 - **`settings`, `features`, `cards`.** What the module adds to Settings, the switches the reader can turn off, and the
-  cards it shows under replies. (`tabs`, `screens` and `widgets` are still accepted and registered, but the current view draws
-  its own fixed tabs from `ui/tabs` and no module or pack screen or tab, so an outside module reaches the view through queries
-  and cards only, and a tab such as the one in `examples/fishing` is not drawn today; `docs/dev/ui-and-screens.md` top note.)
+  cards it shows under replies. (`tabs` are accepted but not drawn: the view draws its own fixed tabs. A plug-in's own `screens` and `widgets` open in the view's sheet, through the Party tab's
+  `party.newCharacter` answer; nothing else draws a module screen. `docs/dev/ui-and-screens.md` top note, `docs/dev/writing-a-module.md`.)
 - **`interactions`.** Kinds for the interaction port (`core/registry/registry-checks-parts/interaction-problems.js`: `version`,
   `title`, `feature`, `screen`, `limits`, `changes`, `ready`, `open`, `witness`, `validate`, `play`, `settle`, `note`, and optionally
   `actors`, `auto`, `opening`, `view`, `carry` with `next`, `marker`, `autoSend`).

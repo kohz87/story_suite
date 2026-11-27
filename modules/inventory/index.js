@@ -17,4 +17,4 @@ export { STORY_WEAR, wearWord } from './wear.js';
 export { DEFINITIONS_MAX_IDS, carryBonuses, listItems, equipmentView, ENCUMBERED_PENALTY, defCarry, ENCUMBERED_STATS, encumbrance, encumbranceTail, definitionsOf } from './queries.js';
 export { KINDS, RARITIES, KIND_ORDER, initialInventory, FEATURE, INVENTORY_FEATURES, gearOn, featureOn, COND_MAX, COND_LOG_MAX, condEvents, condOf, defaultDef, CARRY_MAX, packCarry } from './state.js';
 export { itemText, legendEarned, MANY_SLOTS, MAX_MANY, baseSlot, slotLimits, canWear } from './validate.js';
-export { promptNote, WALLET_NOTE, inventoryTail } from './prompt.js';
+export { promptNote, WALLET_NOTE, inventoryTail, storyDaysPassed } from './prompt.js';

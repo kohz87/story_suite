@@ -16,10 +16,32 @@ function blockOf(sdk, member) {
   return (Array.isArray(rows) ? rows : []).find((row) => row?.pinned === true && row.pinnedDefinition?.role === 'character' && actorIdOf(row.module) === member) ?? null;
 }
 
+/** A row command name a plug-in sheet may name. */
+const COMMAND_NAME = /^[A-Za-z][\w.-]{0,79}$/;
+
+// What each stat was raised by: the Party sheet sends the new values, a plug-in's spend command takes the points bought ({} when nothing changed; { bad } names a stat that is unknown or lowered).
+function raisedBy(was, now) {
+  const raised = {};
+  for (const [key, value] of Object.entries(now ?? {})) {
+    const from = was?.[key];
+    if (!Number.isInteger(value) || !Number.isInteger(from)) return { bad: 'That is not a stat.' };
+    if (value < from) return { bad: 'Points cannot be taken back.' };
+    if (value > from) raised[key] = value - from;
+  }
+  return raised;
+}
+
 // The same one `dm.set` the removed Spend points sheet sent: the raised stats and the points left, all or nothing.
 async function spend(sdk, payload) {
   const rows = sdk?.query?.('rpg.sheet', {});
   const sheet = (Array.isArray(rows) ? rows : []).find((row) => row?.id === payload?.member);
+  // A plug-in sheet (a module that answers `rpg.sheet` itself) names its own spend command on the row: it gets the member and the points bought for each stat.
+  const own = sheet?.commands?.spend;
+  if (typeof own === 'string' && COMMAND_NAME.test(own)) {
+    const raised = raisedBy(sheet.stats, payload?.stats);
+    if (typeof raised.bad === 'string') return NO(raised.bad);
+    return Object.keys(raised).length ? sdk.command(own, { member: payload?.member, stats: raised }) : { ok: true };
+  }
   const block = blockOf(sdk, payload?.member);
   if (!sheet || !block || !sheet.stats) return NO('That character has no points to spend.');
   const fields = {};

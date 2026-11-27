@@ -33,7 +33,8 @@ export function statSheet(member, ctx = {}) {
   let left = member.points;
   const sheet = openSheet(ctx, { title: `${member.name} · Stats` });
   const save = async () => {
-    await ctx.port?.command('rpg.stats.spend', { member: member.id, stats: { ...staged } });
+    const answer = await ctx.port?.command('rpg.stats.spend', { member: member.id, stats: { ...staged } });
+    if (answer?.ok === false) { sheet.subtitle(answer.message || 'Not saved.'); return; }
     sheet.close();
   };
 
@@ -91,7 +92,8 @@ function head(member, ctx) {
     h('div', { class: 'shtop' }, h('div', { class: 'nm' }, member.name),
       MORE.some(type => can(ctx, type)) ? h('button', { type: 'button', class: 'ibtn', dataset: { more: '1' }, 'aria-label': `More for ${member.name}`, 'aria-haspopup': 'dialog', onClick: () => moreSheet(member, ctx) }, '⋯') : null),
     h('div', { class: 'chips' }, h('span', { class: 'lvl2' }, member.line),
-      h('span', { class: 'chip2', title: `VIT ${member.stats.VIT}% + gear points` }, glyph('offhand'), `${member.soakPct}%`)),
+      member.carrying ? h('span', { class: 'chip2', dataset: { carrying: member.id } }, `Carrying ${member.carrying.load} / ${member.carrying.capacity}`) : null,
+      Number.isFinite(member.soakPct) ? h('span', { class: 'chip2', title: `VIT ${member.stats?.VIT ?? 0}% + gear points` }, glyph('offhand'), `${member.soakPct}%`) : null),
     member.away ? h('div', { class: 'awn' }, `${member.away.where} · last seen ${member.away.lastSeen}. Still in the party: counts for load and pace, and sits out fights while away.`) : null,
     effects.length ? h('div', { class: 'fx2' }, effects.map(e => h('span', { class: `f ${e.tone}`, dataset: { status: e.id } },
       h('span', { class: 'ic' }, glyph(e.tone === 'buff' ? 'stance' : 'warn')),
@@ -100,6 +102,8 @@ function head(member, ctx) {
 }
 
 function statTiles(member, ctx) {
+  // (a sheetless member, such as a Text RPG companion, has no stats: a short line instead of seven tiles)
+  if (!member.stats) return h('p', { class: 'fine', dataset: { note: 'no-stats' } }, 'No stat sheet: what they can do is told by the story.');
   const can = member.points > 0;
   return h('div', { class: 'st7' }, STATS.map(k => h('button', {
     type: 'button',
@@ -111,13 +115,21 @@ function statTiles(member, ctx) {
   }, k, h('b', null, member.stats[k], member.bonus?.[k] ? h('small', { class: 'gb' }, `+${member.bonus[k]}`) : null))));
 }
 
+// Keepsakes from the member's NPC State profile: only listed, never worn or counted in rolls.
+function keepsakes(member) {
+  if (!member.keepsakes?.length) return null;
+  return [h('div', { class: 'secl' }, 'Keepsakes'), h('ul', { class: 'keeps', dataset: { list: 'keepsakes' } },
+    member.keepsakes.map(k => h('li', null, h('b', null, k.name), k.note ? h('small', null, ' — ' + k.note) : null)))];
+}
+
 /** Builds one member's sheet; the player's own sheet skips the name, bars and XP (the card above has them). */
 export function memberSheet(member, ctx = {}, { pc = false } = {}) {
   const left = [
     pc ? null : bars(member.bars),
-    pc ? null : h('div', { class: 'xp2' }, h('span', null, 'XP'), h('i', null, h('b', { style: { width: `${member.xpPct}%` } })), h('span', null, `${member.xpPct}/100`)),
-    h('div', { class: 'secl' }, 'Stats', member.points ? h('span', { class: 'pts' }, `${plural(member.points)} to spend`) : null),
+    pc ? null : h('div', { class: 'xp2' }, h('span', null, 'XP'), h('i', null, h('b', { style: { width: `${member.xpPct}%` } })), h('span', null, member.xpLabel ?? `${member.xpPct}/100`)),
+    h('div', { class: 'secl' }, 'Stats', member.stats && member.points ? h('span', { class: 'pts' }, `${plural(member.points)} to spend`) : null),
     statTiles(member, ctx),
+    keepsakes(member),
   ];
   return h(
     'section',

@@ -4,7 +4,7 @@ import { actorIdOf } from '../roster.js';
 import { GEAR_VERSION } from './shared-marks.js';
 import { MEMBERS_MAX, OWN_MAX } from './shared-caps.js';
 import { isObject, ask } from './shared-helpers.js';
-import { dressOf } from './dress.js';
+import { dressOf, LOAD_RULE } from './dress.js';
 
 export { sameWho };
 
@@ -39,5 +39,5 @@ export function planGear(sheet, query, reader = '') {
         const own = [...(named ? [named.id] : []), ...(at === lead ? ['party'] : [])];
         who[character.key] = { own: own.slice(0, OWN_MAX), ...dressOf(own, party, (owner) => (owner === 'party' ? party : ask(query, 'inventory.gear', { owner }))) };
     }
-    return { v: GEAR_VERSION, who };
+    return { v: GEAR_VERSION, rule: LOAD_RULE, who };
 }

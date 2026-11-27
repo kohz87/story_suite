@@ -16,10 +16,18 @@ function singular(word) {
 export const nameKey = text => wordsOf(text).map(singular).filter(word => !STOP.has(word)).join('\u0000');
 const distinctiveWords = text => wordsOf(text).map(singular).filter(word => !STOP.has(word));
 
-/** Whether every distinctive word of `name` (plurals are fine) appears whole in `message` or in `previous` (the reply just before it, which introduced the foes). */
+// Two words are one when they are the same, or one is the other with an ending of at most three letters, both at least four letters long
+// ("size" and "sized", "hound" and "hounds", "swarm" and "swarming"; owner, 23 Nov: the pre-check's "Hound-sized river-rats" for "6 hound size
+// rats" was refused, so no fight board opened).
+const sameWord = (a, b) => a === b || (Math.min(a.length, b.length) >= 4 && Math.abs(a.length - b.length) <= 3 && (a.startsWith(b) || b.startsWith(a)));
+
+/**
+ * Whether every distinctive word of `name` (plurals and short endings are fine) appears whole in `message` or in `previous` (the reply just
+ * before it, which introduced the foes).
+ */
 export function namedInMessage(name, message, previous = '') {
     const wanted = distinctiveWords(name);
     if (!wanted.length) return false;
     const seen = new Set([...wordsOf(message), ...wordsOf(previous)].map(singular));
-    return wanted.every(word => seen.has(word));
+    return wanted.every(word => seen.has(word) || [...seen].some(other => sameWord(word, other)));
 }

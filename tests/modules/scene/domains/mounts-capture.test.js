@@ -20,7 +20,7 @@ test('a missing pace is the kind\'s usual one: horse 35, pony 30, camel 30, mule
     for (const kind of ['', 'griffin', null, undefined]) assert.equal(paceOfKind(kind), DEFAULT_PACE, String(kind));
 });
 
-test('the validator: no mounts is fine; at most six rows with a name, short texts, a count of 1 to 8 and a pace of 1 to 200', () => {
+test('the validator: no mounts is fine; at most twelve rows with a name, short texts, a count of 1 to 8 and a pace of 1 to 200', () => {
     const row = (name, over = {}) => ({ name, kind: 'horse', count: 1, pace: 35, condition: '', where: '', ...over });
     const scene = rows => ({ ...initialScene(), mounts: rows });
     assert.deepEqual(validateScene(initialScene()), [], 'older chats read as none');
@@ -38,7 +38,7 @@ test('the validator: no mounts is fine; at most six rows with a name, short text
     assert.match(validateMounts(scene({ x: row('A', { pace: 1.5 }) })).join(' '), /pace/);
     assert.match(validateMounts(scene({ x: row('Mare'), y: row(' mare') })).join(' '), /twice/);
     const seven = Object.fromEntries(Array.from({ length: MAX_ROWS + 1 }, (_, n) => [`m:${n}`, row(`Mount ${n}`)]));
-    assert.match(validateScene(scene(seven)).join(' '), /At most 6 mounts/);
+    assert.match(validateScene(scene(seven)).join(' '), /At most 12 mounts/);
 });
 
 test('mounts.pace worked out from rows: the slowest row, the count in all, the walk when there are too few', () => {
@@ -133,15 +133,38 @@ test('- mount for a mount the party does not have is quiet, like - present: said
     checkInvariants(host, 'after the quiet lines');
 });
 
-test('a seventh row is refused with a plain Problem; the six stay', async t => {
+test('a thirteenth row is refused with a plain Problem; the twelve stay', async t => {
     const host = await fresh(t);
-    await host.send('Many.', block('Many.', ['A', 'B', 'C', 'D', 'E', 'F', 'G'].map(name => `+ mount ${name} | kind: pony`)));
-    assert.deepEqual(names(host), ['A', 'B', 'C', 'D', 'E', 'F']);
-    assert.deepEqual(problems(host), ['"+ mount G | kind: pony" was not used: The party can keep at most 6 mounts, so G was not added.']);
-    // Sold one: there is room again. An update of a mount the party has is never "a seventh".
-    await host.send('Sold.', block('Sold.', ['- mount C', '+ mount G | kind: pony', '+ mount A | where: led']));
-    assert.deepEqual(names(host), ['A', 'B', 'D', 'E', 'F', 'G']);
+    const all = [...'ABCDEFGHIJKL'];
+    await host.send('Many.', block('Many.', [...all, 'M'].map(name => `+ mount ${name} | kind: pony`)));
+    assert.deepEqual(names(host), all);
+    assert.deepEqual(problems(host), ['"+ mount M | kind: pony" was not used: The party can keep at most 12 mounts, so M was not added.']);
+    // Sold one: there is room again. An update of a mount the party has is never "a thirteenth".
+    await host.send('Sold.', block('Sold.', ['- mount C', '+ mount M | kind: pony', '+ mount A | where: led']));
+    assert.deepEqual(names(host), [...all.filter(name => name !== 'C'), 'M']);
     assert.deepEqual(problems(host), []);
+});
+
+test('a Re-read of a reply without the mountRiders mark keeps six rows; a marked one keeps the seventh; replay == live', async t => {
+    const host = await fresh(t);
+    const lines = [...'ABCDEFG'].map(name => `+ mount ${name} | kind: pony`);
+    await host.send('Many.', block('Many.', lines));
+    const at = lastIndex(host);
+    const record = () => host.ctx.chat[at].extra.storySuite;
+    assert.ok(record().rules.includes('mountRiders'), 'a new reply is marked');
+    assert.equal((await host.sdk.reread(at)).ok, true);
+    assert.deepEqual(names(host), [...'ABCDEFG']);
+    const live = JSON.stringify(host.head().domains.scene);
+    host.store.rebuild();
+    assert.equal(JSON.stringify(host.head().domains.scene), live, 'rebuild == live');
+    // The reply as an older version left it: no mark, and its text read again.
+    host.ctx.chat[at].mes = block('Many.', []);
+    assert.equal((await host.sdk.reread(at)).ok, true);
+    record().rules = record().rules.filter(name => name !== 'mountRiders');
+    host.ctx.chat[at].mes = block('Many.', lines);
+    await host.sdk.reread(at);
+    assert.deepEqual(names(host), [...'ABCDEF']);
+    assert.ok(problems(host).some(message => /at most 6 mounts, so G was not added/.test(message)), JSON.stringify(problems(host)));
 });
 
 // ---------------------------------------------------------------------------------------------------
@@ -157,7 +180,7 @@ test('the grammar line and the tail line: one line each, the same bytes reply to
     await host.send('Saddle up.', block('The yard.', [MARE, '+ mount Guild remounts | kind: horse | count: 4', '+ mount Burr | kind: mule | condition: tired | where: led']));
     await host.send('On.', 'On.');
     assert.equal(staticText(host), on, 'the static part does not move with the mounts');
-    assert.match(tailText(host), /^Mounts: Grey Mare \(horse, 35 km\/day, ridden by Wessel\); Guild remounts ×4 \(horse, 35 km\/day\); Burr \(mule, 25 km\/day, tired, led\)$/m);
+    assert.match(tailText(host), /^Mounts: horse ×5 \(35 km\/day\) with the party \(Wessel\): Grey Mare, Guild remounts ×4; Burr \(mule, 25 km\/day, tired, led\)$/m);
     assert.equal(mountsTail({ domains: { scene: initialScene() } }), null);
 
     host.features.set(MOUNTS_FEATURE, false);

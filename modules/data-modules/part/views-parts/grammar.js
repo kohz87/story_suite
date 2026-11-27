@@ -4,12 +4,14 @@ import { moduleGrammar, referenceOf } from '../../grammar.js';
 import { oneLine } from '../../../../core/text.js';
 import { boardGrammar, boardXpGuide } from '../../board-static.js';
 import { isMarkedCharacter, restLine } from '../../recovery.js';
+import { quietRole } from '../replaced.js';
+import { isHolding } from '../../holding/read.js';
 
 /**
  * The static lines for the pinned modules (empty without a pin); they change only when a pin does. `quiet` is an optional table by role ({ skip, keep } or the kinds to offer); the fight board's own
  * pieces come from board-static.js. A long list of values (the health words) is told once.
  */
-export function grammarFor(state, quiet = null, { rolled = false, board = false } = {}) {
+export function grammarFor(state, quiet = null, { rolled = false, board = false, replaced = false } = {}) {
     // `rolled` (the RPG on, Rolls automatic): skill practice comes only from rolled uses, so the narrator is not offered `practice-N` and the texts
     // that told it to practise a skill say nothing of it (the Combat rules' XP guide line, the Skills block's description).
     const noPractice = text => String(text ?? '').replace(/\s*Practice a skill 5 to 20 per use\./u, '').replace(/\s+and adds practice/u, '');
@@ -20,6 +22,8 @@ export function grammarFor(state, quiet = null, { rolled = false, board = false 
         let definition = activeDefinition(state, id);
         if (marked && definition?.role === 'rules' && typeof definition.prompt === 'string') definition = { ...definition, prompt: definition.prompt.replace(/\s*XP guide:.*$/gmu, '').trim() };
         // (The board's pieces come from a static file, so a preview before the lazy RPG library has loaded words them the same.)
+        // (The RPG's role blocks teach nothing while a feature that replaces the RPG is on: their lines would be refused.)
+        if (quietRole(definition, replaced)) return '';
         const only = (board && boardGrammar(definition?.role)) || (quiet && definition?.role ? quiet[definition.role] : null);
         if (definition && only?.skip) {
             // (A skipped block may keep one line of its text: the XP guide stays on a quiet reply, whatever words the pinned block holds it in.)
@@ -28,7 +32,9 @@ export function grammarFor(state, quiet = null, { rolled = false, board = false 
             return kept ? oneLine(board ? boardXpGuide(value) : value) : '';
         }
         const shown = definition && rolled && (definition.role === 'rules' || definition.role === 'skills') ? { ...definition, prompt: noPractice(definition.prompt) } : definition;
-        const own = shown ? moduleGrammar(shown, referenceOf(active, id), { seen, ...(only ?? {}), ...(rolled && definition.role === 'skills' ? { without: /^practice-\d+$/u } : {}) }) : '';
+        // (the holding's post lines are taught in the prompt's tail, once there is a seat: holding/post-tail.js)
+        const without = rolled && definition?.role === 'skills' ? /^practice-\d+$/u : isHolding(definition) ? /^(?:un)?post$/u : null;
+        const own = shown ? moduleGrammar(shown, referenceOf(active, id), { seen, ...(only ?? {}), ...(without ? { without } : {}) }) : '';
         // A marked Character also gets one separate line on what each recovery kind restores: its own room (outside the prompt and grammar caps), so nothing old is dropped.
         const recovery = own && isMarkedCharacter(definition) ? restLine(definition) : '';
         return recovery ? `${own}\n${recovery}` : own;

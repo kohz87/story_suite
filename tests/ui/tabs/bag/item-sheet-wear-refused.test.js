@@ -24,6 +24,20 @@ test('a refused Wear keeps the sheet open with the reason; a hand-made piece get
   assert.ok(el.querySelector('[data-field="slot"]'), 'the Edit form shows the Slot field');
 });
 
+test('a story piece whose slot the reader may change gets Edit item too, with Slot focused', async () => {
+  installFakeDom();
+  const ctx = refusing('Choose a slot for Bag: its name does not say where it is worn.');
+  const el = itemSheet(gear({ hand: false, slotEdit: true, slot: '' }), ctx);
+  el.querySelector('.btn2.pri').click();
+  el.querySelectorAll('.pick .mb')[0].click();
+  await tick();
+  const editBtn = el.querySelectorAll('.btn2').find(b => b.textContent === 'Edit item');
+  assert.ok(editBtn, 'Edit item is offered');
+  editBtn.click();
+  assert.ok(el.querySelector('[data-field="slot"]'), 'the Edit form shows the Slot field');
+  assert.equal(el.querySelector('[data-field="rarity"]'), null);
+});
+
 test('a refused Wear on a piece the reader cannot edit shows the reason only', async () => {
   installFakeDom();
   const ctx = refusing('Old map is not equipment, so it cannot be put on.');

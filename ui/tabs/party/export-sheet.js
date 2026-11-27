@@ -5,12 +5,15 @@ import { openSheet } from './slot-picker.js';
 
 const things = n => `${n} thing${n === 1 ? '' : 's'}`;
 const NOTE = 'Saves a file you can import when you make a character in another chat. The name stays in this chat.';
+const CLAMPED = 'More than 60 points to spend: the file keeps 60, the most a character file holds.';
 const NOT_SAVED = 'Not saved: the name, XP, Health, Mana and Stamina (a new character starts full), skill practice, and anything about the story.';
 
 /** Opens "Export <name>" for `member`; the file is asked of the RPG again at Save, so it is what is true then. `ctx` has the `port` and the `doc`. */
 export async function exportSheet(member, ctx = {}) {
   const sheet = openSheet(ctx, { title: `Export ${member.name}`, subtitle: 'Party member' });
-  const first = await ctx.port?.command('party.export', { member: member.id });
+  // A plug-in sheet (a module that answers `rpg.sheet` itself) names its own export query on the row: the port asks it instead of `rpg.characterFile`.
+  const via = typeof member?.commands?.export === 'string' ? { via: member.commands.export } : {};
+  const first = await ctx.port?.command('party.export', { member: member.id, ...via });
   if (first?.ok !== true) { sheet.body.replaceChildren(h('p', { class: 'ps-note' }, first?.message || 'This character is no longer in the story.')); return sheet; }
   const keep = { inventory: first.items > 0, money: first.own === true && first.money > 0 };
   const status = h('p', { class: 'ps-note', role: 'status' }, '');
@@ -20,13 +23,13 @@ export async function exportSheet(member, ctx = {}) {
     return h('label', { class: 'ps-opt', dataset: { option: key } }, box, h('b', null, label), h('small', null, available ? help : ''));
   };
   const save = async () => {
-    const now = await ctx.port?.command('party.export', { member: member.id, inventory: keep.inventory, money: keep.money });
+    const now = await ctx.port?.command('party.export', { member: member.id, ...via, inventory: keep.inventory, money: keep.money });
     if (now?.ok !== true) { status.textContent = now?.message || 'The file could not be saved.'; return; }
     try { saveGamePack(ctx.doc ?? globalThis.document, now.text, now.fileName); } catch { status.textContent = 'The file could not be saved.'; return; }
     sheet.close();
   };
   sheet.body.replaceChildren(
-    h('p', { class: 'ps-note' }, NOTE),
+    h('p', { class: 'ps-note' }, first.clamped === true ? `${NOTE} ${CLAMPED}` : NOTE),
     h('div', { class: 'ps-opt', dataset: { option: 'character' } }, h('b', null, 'Character'), h('small', null, `Lv ${first.level} · ${first.points ? `${first.points} to spend` : 'no points to spend'}, the seven stats and its skills`)),
     option('inventory', first.items ? `Inventory · ${things(first.items)}` : 'Inventory · nothing carried', 'Names, counts and notes, with what kind and rarity each is.', first.items > 0),
     first.own ? option('money', first.money > 0 ? `Money · ${first.money}` : 'Money · nothing in the purse', 'Kept as its value, so another game\'s coins show it in their own words.', first.money > 0) : null,

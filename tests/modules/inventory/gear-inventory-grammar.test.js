@@ -8,7 +8,7 @@ import { createCoreModule } from '../../../modules/scene/domains/index.js';
 import { createHarness, line } from './helpers/fake-ctx.js';
 import { core, stocked } from './fixtures.js';
 import { pack } from '../../packs/helpers/fixtures.js';
-import { FIGHT, ITEM_LINE, ON, defNamed, equip, fresh, gearCore, reply, staticOf, tail, wear } from './gear-inventory.helpers.js';
+import { FIGHT, ITEM_LINE, ON, SUPPLY_WORDS, defNamed, equip, fresh, gearCore, reply, staticOf, tail, wear } from './gear-inventory.helpers.js';
 
 test('stats: the narrator\'s named stats are held to the budget; with none named the kind or name picks; every slot gives them; a pack lists its own', async () => {
     assert.deepEqual(statsOf({ dex: 2, STR: '3', cha: -1, luk: 1.5, foo: 4 }), { DEX: 2 });
@@ -44,7 +44,7 @@ test('every slot gives its stats through inventory.gear, and a broken piece take
     const host = await fresh(t);
     await host.send('Loot.', reply('Gear.', ['+ item Oak Staff | rarity: rare | equipped: weapon', '+ item Iron Helm | rarity: uncommon | equipped: head', '+ item Silk Cloak | rarity: uncommon | equipped: cloak', '+ item Walking Boots | rarity: uncommon | equipped: feet', '+ item Jade Ring | rarity: epic | equipped: accessory', '+ item Travel Pack']));
     const bonus = () => host.sdk.query('inventory.statBonus', { owner: 'party' });
-    assert.deepEqual(bonus(), { STR: 0, VIT: 2, AGI: 4, DEX: 0, INT: 3, LUK: 0, CHA: 4 });
+    assert.deepEqual(bonus(), { STR: 0, VIT: 2, AGI: 4, DEX: 0, INT: 3, WIS: 0, CHA: 4 });
     await host.send('Smash.', reply('Crash.', ['~ hit weapon 3']));
     assert.equal(bonus().INT, 0, 'broken: no stats');
     assert.equal(host.sdk.query('inventory.items').find(item => item.name === 'Travel Pack').equipped, null, 'a bag is worn nowhere');
@@ -176,7 +176,8 @@ test('gear on: the item grammar names the gear words (one short line) and stays 
     const first = staticOf(host);
     const line = first.split('\n').find(text => text.startsWith('+ item Name'));
     assert.ok(line, 'the item grammar line');
-    const added = line.slice(ITEM_LINE.length);
+    assert.ok(line.endsWith(SUPPLY_WORDS), 'the supplies sentence ends the line');
+    const added = line.slice(ITEM_LINE.length, -SUPPLY_WORDS.length);
     assert.ok(added.length <= 400, `the gear words take ${added.length} characters`);
     for (const word of ['kind: weapon|armour|shield|head|cloak|feet|accessory|bag', 'rarity: common|uncommon|rare|epic|legendary', 'DEX: +1', 'at most 2', 'equipped: slot', 'wear: scuff|tear|ruin', 'repair: mend|restore', 'gear the story makes special (enchanted, masterwork, blessed)', 'ordinary gear needs none']) assert.ok(added.includes(word), word);
     await host.send('Loot.', reply('Gear.', ['+ item Iron Sword | rarity: rare | equipped: weapon']));
@@ -191,7 +192,7 @@ test('gear off (or the RPG off): the item grammar line is the old one, and the s
         t.after(() => host.close());
         await host.send('Hello.', 'The road.');
         const text = staticOf(host);
-        assert.ok(text.split('\n').includes(ITEM_LINE), 'the old line, byte for byte');
+        assert.ok(text.split('\n').includes(ITEM_LINE + SUPPLY_WORDS), 'the plain line, byte for byte');
         assert.doesNotMatch(text, /rarity:|equipped: slot|repair: mend|accessory\|bag/);
         const before = text;
         await host.send('Loot.', reply('Gear.', ['+ item Rope']));
@@ -206,7 +207,7 @@ test('a reply written with the grammar\'s words applies slot, rarity, stats, equ
     assert.deepEqual([blade.slot, blade.rarity], ['weapon', 'rare']);
     const gear = host.sdk.query('inventory.gear', { owner: 'party' });
     assert.deepEqual([gear.slots.weapon.name, gear.slots.cloak.name], ['Plain Thing', 'Fur Mantle']);
-    assert.deepEqual(gear.statBonus, { STR: 0, VIT: 0, AGI: 3, DEX: 2, INT: 0, LUK: 0, CHA: 0 }, 'each piece gives its rarity\'s points in full: the rare blade DEX 2 + AGI 1, the uncommon mantle AGI 2');
+    assert.deepEqual(gear.statBonus, { STR: 0, VIT: 0, AGI: 3, DEX: 2, INT: 0, WIS: 0, CHA: 0 }, 'each piece gives its rarity\'s points in full: the rare blade DEX 2 + AGI 1, the uncommon mantle AGI 2');
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck | wear: ruin']));
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck again | wear: ruin']));
     await host.send('Fight.', reply('Torn.', ['~ item Plain Thing — struck again | wear: ruin']));

@@ -3,13 +3,12 @@
 export const TAIL_BUDGET = 80;
 /** The trip's own room (feature `story-director.trip`): "On the road: …" with a few stages to come, and the reached-a-place cue. */
 export const TRIP_TAIL_BUDGET = 90;
-
 /**
  * The atlas kinds' grammar: the route line carries the landmark's (one line for the family; the landmark has none of its own),
  * and both are taught only while the story has a route or a landmark (the lean diet, 3 Nov). The trip line only while a route is known.
  */
 export const GRAMMAR = Object.freeze({
-    route: '+ route Place — Other Place | hours: 2 (or days: 1.5) | kind: road|river|trail|sea (- route Place — Other Place when it is gone); + landmark Name | region: where | kind: town|ruin|cave|… | plane: underground (only off the surface)',
+    route: '+ route Place — Other Place | hours: 2 (or days: 1.5) | kind: road|river|trail|sea | way: north (where Other Place lies from Place; only when the story says the way) (- route Place — Other Place when it is gone); + landmark Name | region: where | kind: town|ruin|cave|… | at: 12 km east of Place (only when the story says how far and which way) | plane: underground (only off the surface)',
     landmark: '',
     trip: '~ trip Place | by: riding|foot|wagon|boat|ship | via: Stop, Stop (the party sets out by the known routes; ~ trip stop; ~ trip delay: 1 day | because: lame horse)',
 });

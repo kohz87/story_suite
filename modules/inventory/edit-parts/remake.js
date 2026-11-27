@@ -26,6 +26,7 @@ export function remakeAsEquipment(ctx, inv, def, keep, slot) {
     const place = keep.slot ?? def.slot ?? gearSlotOf(null, def.name);
     Object.assign(inv.defs[def.id], { kind: 'equipment', stack: false, slot: place ?? null, stats: keep.stats ?? {}, hand: true });
     def.kind = 'equipment'; def.stack = false; def.slot = place ?? null; def.stats = keep.stats ?? {};
+    delete inv.defs[def.id].noBonus; delete def.noBonus;   // remade as the reader's own: its bonus is read afresh
 }
 
 // Where a piece of `slot` goes on `owner`: an accessory takes the place named when it is free, else the other one when that is free

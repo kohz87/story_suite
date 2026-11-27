@@ -1,6 +1,7 @@
 // Story Director v2, chronicle note: builds the [World] tail lines for the next reply.
 
 import { isOpen } from '../domain.js';
+import { isStaleNews } from '../domain-parts/stale.js';
 import { nearness, scenePlaceOf, tailPick } from '../pick.js';
 import { agoText, nowFrom } from '../queries.js';
 import { TAIL_BUDGET } from './static-prompt.js';
@@ -25,15 +26,18 @@ function itemLine(event, now) {
 
 /** `context.tail(view)` → `{ lines, optional }` (SPEC §5). */
 export function chronicleTail(view) {
-    const chronicle = view?.state?.domains?.chronicle;
-    if (!chronicle || !Object.values(chronicle.events ?? {}).some(isOpen)) return { lines: [], optional: [] };
+    const stored = view?.state?.domains?.chronicle;
+    if (!stored) return { lines: [], optional: [] };
     const query = queryOf(view);
+    const now = nowFrom(query, view.state);
+    // Old news (no word for a long while) is not told as under way; the pick and the state are left as they are.
+    const chronicle = { ...stored, events: Object.fromEntries(Object.entries(stored.events ?? {}).filter(([, event]) => !isStaleNews(event, now))) };
+    if (!Object.values(chronicle.events).some(isOpen)) return { lines: [], optional: [] };
     const near = nearness(query, scenePlaceOf(query, view.state));
     const at = Number.isSafeInteger(view?.chat?.length) ? view.chat.length : null;
     const rev = Number.isSafeInteger(view?.state?.meta?.rev) ? view.state.meta.rev : 0;
     // With the world-events switch on these lines are not sent: the world note takes their place (index-parts/hooks.js, seam audit E23).
     const ids = tailPick(chronicle, { at, rev, near });
-    const now = nowFrom(query, view.state);
     const lines = [TAIL_HEADER];
     let used = TAIL_HEADER.length;
     for (const id of ids) {

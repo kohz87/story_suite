@@ -38,7 +38,10 @@ function buildDef(def, env, about, keep = {}) {
     const id = def.id;
     // While gear is on, the kind word of a story line (`+ item Healing Draught | kind: consumable`): a new plain item takes the inventory kind it names (consumable, material, quest);
     // a gear word (weapon, cloak, ...) is not one and is read by the gear step below.
-    const saidKind = STORY_KIND[String(about.words?.kind ?? '').normalize('NFKC').toLowerCase().trim().split(/[^a-z]+/).find(word => Object.hasOwn(STORY_KIND, word))];
+    const kindWords = String(about.words?.kind ?? '').normalize('NFKC').toLowerCase().trim().split(/[^a-z]+/);
+    const saidKind = STORY_KIND[kindWords.find(word => Object.hasOwn(STORY_KIND, word))];
+    // `kind: supply` counts with gear on or off, for a line under the `supplyKind` rule mark.
+    if (about.supplyKind === true && def.kind === 'goods' && kindWords.some(word => word === 'supply' || word === 'supplies')) def.kind = 'supply';
     if (about.gear === true && saidKind && def.kind === 'goods') def.kind = saidKind;   // (only with gear on: gear off builds the def exactly as 2.17.0 did)
     // Gear (`story-block.gear`): the slot and rarity the line's words and the name give, before the modules' hooks.
     if (about.gear === true) {
@@ -46,6 +49,8 @@ function buildDef(def, env, about, keep = {}) {
             allowLegendary: about.legendary === true, ceiling: about.ceiling ?? null,
             onHeld: (wanted, given) => env.problem?.({ module: 'story-block', code: 'HELD', message: `${def.name} was written ${wanted}; the story's items reach ${given} here${about.legendary === true ? '' : ' (legendary needs a quest completed or a hard fight won in the same reply)'}.` }),
         });
+        // A supply is never worn: a slot noun in its name gives it no slot, bonus or soak.
+        if (def.kind === 'supply') { def.slot = null; def.stats = {}; delete def.soak; }
     }
     const hooks = env.hookEntries?.('item.define') ?? env.hooks('item.define').map(fn => ({ moduleId: null, fn }));
     for (const { moduleId, fn } of hooks) {

@@ -31,7 +31,7 @@ export const MESSAGE_STRINGS = {
         itemGroupEquipped: 'Unequip pieces before removing them.',
         itemGroupSelected: 'That count would remove the piece you are editing. Edit another piece, or unequip one first.',
         bound: 'Bound to {name}: {item} stays with them.',
-        itemCannotMerge: '{name} cannot be combined with this stack.', itemQuantityLarge: 'That quantity is too large.',
+        itemCannotMerge: '{name} cannot be combined with this stack.', itemWornMerge: 'This change takes the piece off, so it cannot join {name} in the same Save. Save the slot or kind first, then the name.', itemQuantityLarge: 'That quantity is too large.',
         purseAmount: 'The amount must be a whole number of at least 0.', purseSet: 'You set the purse to {amount}.',
         moneyEmpty: 'Enter an amount of money.', moneyWhole: 'Enter whole amounts of the coins used here.',
         moneyUnknown: '"{name}" is not a coin here.', moneyLarge: 'That amount is too large.',

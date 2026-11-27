@@ -18,7 +18,7 @@ Version of the extension, read from `core/version.js` (one number for the whole 
 `scripts/release.mjs`):
 
 <!-- generated:version -->
-**Version `0.1.6`**, pack format 4.
+**Version `0.1.7`**, pack format 4.
 <!-- /generated:version -->
 
 - Call the people module **NPC State** in anything a person reads. Its folder is `modules/people`.
@@ -158,7 +158,7 @@ main, never a tag.
 A module is a definition object. A built-in module is a folder `modules/<name>/` (the core module, in `core/`, merges the
 parts of scene, inventory, data modules and the RPG; Director and NPC State are listed in `core/modules-list.js#BUILTIN_MODULES`);
 an outside extension registers its own with `sdk.registerModule(def)` after `await StoryBlock.ready`
-(`examples/fishing/index.js` is the reference). The registry (`core/registry.js#createRegistry`) checks the definition when it
+(`examples/fishing/index.js` is the reference; the how-to is `docs/dev/writing-a-module.md`, and "Writing a plug-in module" below). The registry (`core/registry.js#createRegistry`) checks the definition when it
 registers and refuses it, with a plain sentence, if it breaks a rule (`core/registry/registry-checks.js#definitionProblems`).
 The definition names what the module owns; the host does the rest.
 
@@ -180,9 +180,8 @@ The definition names what the module owns; the host does the rest.
 - **`hooks`.** Steps the host calls at fixed points: `beforeGenerate`, `afterCapture`, `canGenerate` and a few named ones
   (`docs/v2/SPEC.md` §6). They ask for `system` steps; they never write state themselves.
 - **`settings`, `features`, `cards`.** What the module adds to Settings, the switches the reader can turn off, and the
-  cards it shows under replies. (`tabs`, `screens` and `widgets` are still accepted and registered, but the current view draws
-  its own fixed tabs from `ui/tabs` and no module or pack screen or tab, so an outside module reaches the view through queries
-  and cards only, and a tab such as the one in `examples/fishing` is not drawn today; `docs/dev/ui-and-screens.md` top note.)
+  cards it shows under replies. (`tabs` are accepted but not drawn: the view draws its own fixed tabs. A plug-in's own `screens` and `widgets` open in the view's sheet, through the Party tab's
+  `party.newCharacter` answer; nothing else draws a module screen. `docs/dev/ui-and-screens.md` top note, `docs/dev/writing-a-module.md`.)
 - **`interactions`.** Kinds for the interaction port (`core/registry/registry-checks-parts/interaction-problems.js`: `version`,
   `title`, `feature`, `screen`, `limits`, `changes`, `ready`, `open`, `witness`, `validate`, `play`, `settle`, `note`, and optionally
   `actors`, `auto`, `opening`, `view`, `carry` with `next`, `marker`, `autoSend`).
@@ -341,6 +340,74 @@ Where tests live: `tests/core`, `tests/ui`, `tests/modules/<module>`, `tests/peo
 (the whole-suite and prompt tests), `tests/scripts` (checks, code map, this file's generator). A test file is held to the same
 rules as code (450 lines, one job).
 
+## Writing a plug-in module
+
+A plug-in module is a SillyTavern extension of its own that links into Story Suite through the SDK. The long guide for people is
+`docs/dev/writing-a-module.md`; the references are `examples/fishing` (a mini-game) and `examples/text-rpg` (a rules module: prompt,
+Party tab, replaces the RPG). Copy their layout. Do not write a module for what a data module (Settings → Packs and trackers, no code) does.
+
+**Files.**
+
+```
+manifest.json   { display_name, loading_order, requires: [], optional: [], dependencies: ["third-party/story_suite"], js: "index.js", author, version }
+index.js        const host = globalThis.StoryBlock; host.ready.then(sdk => sdk.registerModule(myModule(sdk)))   (log one line if host.ready is missing)
+src/module.js   re-exports the definition; src/module-parts/*.js hold its parts (definition, commands, queries, tail, settings, constants)
+src/rules/      pure rules (no ctx, no DOM): easy to test with chosen numbers
+tests/          node --test; tests/helpers/host.js wraps createHost from the testkit (copy it from examples/text-rpg/tests/helpers/host.js)
+```
+
+The extension lives in its own git repository with `manifest.json` at its root (SillyTavern's Install extension needs that). Import nothing from
+Story Suite's files in the extension itself; take everything from `sdk`. The definition is checked at registration by
+`core/registry/registry-checks.js#definitionProblems`; `registerModule` throws its sentence.
+
+**Definition keys and shapes.** (`docs/v2/SPEC.md` §3, §4, §6, §13.)
+
+- `id` lowercase `[a-z0-9._-]`; `name`, `version`, `description` text; `icon` `fa-…` (≤ 40 characters); `requires`, `capabilities` as above.
+- `domains: { name: { initial(), validate(slice) → string[], counters?: ['wood', 'members/*/xp'], scratch?, deferred?, holders? } }`. Name starts with a
+  letter, no `/` or `~`. `initial()` is plain JSON. One owner per domain.
+- `commands: { 'mod.verb': (ctx, payload) => ({ summary, data?, narrate? }) }`, or `{ handler, internal?, prelude? }`; names are words joined by dots,
+  never starting `capture.` or `module.`. Gate with `Object.assign(handler, { feature: 'mod.on' })`.
+- `queries: { 'mod.name': (state, args, tools) => value }`; `null` while the module or its feature is off. Properties: `feature`, `fallback: true`.
+- Host query `persona.name` → the reader's persona name (`""` with none); `persona.portrait` → a safe URL of the reader's persona picture or `null` (a read of the live context, never stored); show a letter for `null`.
+- `capture: { kinds: { kind: { grammar: 'one line', aliases?, heads?, display? } }, apply(ctx, line) }`; `line` is `{ op, kind, name, text, labels }`.
+- `context: { feature?, static(), tail(view) → { lines, optional }, budget }` (or `parts`). `view` has `state`, `query`, `feature`.
+- `hooks: { beforeGenerate(view, info) → { commands: [{ type, payload }] } | null, afterCapture, canGenerate, … }`: they ask for steps, never write.
+- `features: [{ id, label, describe, default, prompt?, needs?, presets?, replaces?: ['story-block.rpg'] }]`.
+- `settings: { section: 'Page title', defaults, schema: { key: { type: 'bool'|'int'|'choice'|'text'|'list'|'profile', label: 'Section: Name', help?, feature?, max?, options?, form? } } }`.
+  `form: 'prompt'` on a `text` field is the prompt editor (`builtin`: the default text, `max`: its length); empty means the built-in. Read with `sdk.settings(id)` or `ctx.settings(id)`.
+- `widgets: { 'mod.name': { props, feature?, render(el, props, api) } }` (names start with the module id and a dot) and `screens: [{ id: 'mod/name', title, mounts: ['dialog'], feature?, template: '<ss-widget name="mod.name" data-props="{}"></ss-widget>' }]`.
+  The view opens a plug-in's own screen in its bottom sheet (`api = { command, query, preview, commit, on, close }`); `tabs` are not drawn.
+- `cards`, `interactions`, `headerControls`, `replayQueries` as in the section above; do not use `tabs`.
+
+**`ctx` in a handler.** `read(domain)` (frozen), `draft(domain)` (own domains only), `call(type, payload)` (same transaction), `query(name, args)`,
+`rng()`, `roll('2d6')`, `claim(key)`, `id(prefix)`, `absolute(domain, path)`, `unique`, `ifThere`, `feature(id)`, `settings(id)`, `time()`, `fail(code, message)`,
+`cause`, `caller`, `receiptId`, `carrier`. Handlers are synchronous.
+
+**Replay == live: do and do not.**
+
+- Do take every random number from `ctx.rng()` / `ctx.roll()`; draw in a fixed order. Don't call `Math.random`, `Date.now()` or `new Date()`.
+- Do list every number that moves in the domain's `counters`. Do call `ctx.absolute(domain, path)` when a command *sets* a number. Don't write
+  an absolute number for something that moves by adding.
+- Do keep per-item records and per-item counts in keyed maps (`{ [id]: … }`, `practice: { lore: 4 }`). Don't edit a list by position; appending at the end is fine.
+- Do derive what follows from other state on each read (level from xp). Don't store a copy of it.
+- Do keep per-reply bookkeeping under the reply's id (`ctx.carrier.sid`) or in the receipt's `data`, and list its top-level fields in `scratch`.
+- Do claim one-time acts with `ctx.claim(key)`. Don't await, fetch, call a model or touch the DOM in a handler. Plain JSON only in state and `data`.
+- A middle delete drops that reply's changes and replays the later ones on the new base; write commands that still make sense there (ids, not positions).
+- Do give a command with a switch the same `feature`, answer `FEATURE_OFF` from commands and `null` from queries when it is off.
+
+**Prompt.** `static` and each kind's `grammar` are byte-identical every reply of a chat: no names, counts, times or dice; new static text goes behind a feature.
+`tail` carries per-reply facts, the line that must survive first, `optional` lines last. `budget` is tokens (about 4 characters each); ask for the least that works
+(Fishing 20, Text RPG 600). Render compact text, never JSON.
+
+**Party tab.** `party.actors` → `[{ id, name, pc? }]` and `party.newCharacter` → a screen id or `null` and `party.pc` → `{ id }` of the reader's character or `null` are plain queries; `rpg.sheet` (rows) and `party.levels`
+(`[{ id, name, level, left }]`) are `fallback: true` because the built-in RPG owns them. A sheet row may carry `commands: { spend, skillEdit, export }` (command names; `export` is the query the Export sheet asks). All answer `null`
+while the module is off. Replacing the RPG: a feature with `replaces: ['story-block.rpg']`; active = own feature on **and** the replaced one off (`examples/text-rpg/src/module-parts/active.js#active`).
+
+**Tests.** Use the testkit (`createHost({ modules: [def], settings: { features: { 'mod.on': true } } })`). Required: `definitionProblems(def)` is `[]` (`core/registry.js#definitionProblems`);
+each command and each refusal; replay (`host.store.rebuild()`), reload (a second host on a copy of the chat), swipe and back (`host.swipe`, `host.st.swipeTo`),
+a middle delete (`host.st.deleteMessage`), a Re-read (`host.turn.reread`); feature off; static bytes equal across two replies with different state.
+Run `node --test "tests/*.test.js"` in the extension; in this repository run `npm run check` and the tests of the folders touched.
+
 ## Combat Rules v1 and the fight board
 
 The fight board is the one interaction kind built (`story-block/fight`, declared in `modules/rpg/board/interaction.js`), and
@@ -361,6 +428,7 @@ equals live. The marks today:
 | `xpRule` | how a win pays: absent, per group; `'each'`, 15 for each foe; `'each2'`, the same with a mob paying a quarter and a minion half (`modules/rpg/combat/rewards.js#winXp`) |
 | `gearStats` | the stats of worn gear count in every roll and in the log (`modules/rpg/board/v1-kind.js`), read live like soak |
 | `speedFull` | a Speed stance adds its full skill mastery to evasion, not half (`modules/rpg/combat/rolls.js#playerRoll`) |
+| `soakWhole` | soak takes off only the whole points it adds up to, so a small hit through low soak is not cut by one (`modules/rpg/combat/damage.js#takeHit`) |
 | `gearWear` | a decisive hit taken wears the body armour (else the shield) and a decisive miss wears the weapon, one step, and the narrator is told (`modules/rpg/board/v1-wear.js`) |
 
 To change a combat rule: add a mark, write it where the setup is built, read it where the rule applies with the old
@@ -492,7 +560,7 @@ Format read: 4 (an older format, or none, is refused and named for the converter
 
 Kinds: `world`, `game`.
 
-Top-level fields of `pack.json`: `id`, `format`, `kind`, `version`, `name`, `author`, `description`, `requires`, `recommends`, `content`.
+Top-level fields of `pack.json`: `id`, `format`, `kind`, `version`, `name`, `author`, `description`, `requires`, `recommends`, `placeIds`, `content`.
 
 Content keys of a world pack: `lore`, `placeKinds`, `routeKinds`, `places`, `routes`, `regions`, `realms`, `markets`, `cast`, `powers`, `scores`, `conditions`, `worldEvents`, `templates`, `start`, `foes`, `items`.
 
@@ -504,8 +572,8 @@ Content keys of a game pack: `calendar`, `currency`, `economy`, `weather`, `name
 <!-- generated:limits -->
 | Limit | Value |
 |---|---|
-| `packBytes` | 1048576 |
-| `installedBytes` | 2097152 |
+| `packBytes` | 2097152 |
+| `installedBytes` | 4194304 |
 | `installed` | 32 |
 | `depth` | 16 |
 | `keys` | 200 |
@@ -521,8 +589,8 @@ Content keys of a game pack: `calendar`, `currency`, `economy`, `weather`, `name
 <!-- generated:zip-limits -->
 | Zip limit | Value |
 |---|---|
-| `archive` | 337641472 |
-| `unpacked` | 337641472 |
+| `archive` | 339738624 |
+| `unpacked` | 339738624 |
 | `entry` | 10485760 |
 | `entries` | 40 |
 | `ratio` | 100 |

@@ -1,0 +1,154 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { applyXp } from '../src/module-parts/kinds/xp.js';
+import { applyCondition, applyInjury, applyFall } from '../src/module-parts/kinds/status.js';
+import { applyHealth, applySpend } from '../src/module-parts/kinds/pools.js';
+import { applySkill, applyCompanion } from '../src/module-parts/kinds/roster.js';
+import { applyLine, kindsOf } from '../src/module-parts/kinds.js';
+import { levelOf, pointsOf, woundsOf } from '../src/module-parts/standing.js';
+import { astra, fakeCtx, line, run, sliceOf } from './helpers/fake-ctx.js';
+
+const asRolled = (hardest = 3, used = 1) => ({ list: [10, 10, 10], floor: 0, used, hardest });
+
+test('+ xp with no foes record pays 10 XP when a roll succeeded this reply, none without a win, and a size: or threat: on the line is ignored', () => {
+    const paid = (extra, rolled) => {
+        const slice = sliceOf([astra()], rolled);
+        return [run(applyXp, fakeCtx(slice), line('xp', 'Party', 'a duel', extra)), slice.members.ac_astra001.xp];
+    };
+    assert.equal(paid({}, { ...asRolled(3), won: true })[1], 10);
+    assert.equal(paid({ size: 'great', threat: 'above you' }, { ...asRolled(3), won: true, threat: 0 })[1], 10, 'the old size and threat do not pay');
+    assert.equal(paid({ size: 'huge' }, { ...asRolled(3), won: true })[1], 10, 'a size that is no size is ignored too');
+    assert.equal(paid({ size: 'major' }, asRolled(3))[1], 0, 'a roll that did not succeed pays nothing');
+    assert.equal(paid({ size: 'real' }, { list: [10, 10, 10], floor: 0 })[1], 0, 'no roll, no XP');
+});
+
+test('+ xp: levels add points, only one line counts a reply, a companion earns with the party (their joining level holds until their xp passes it)', () => {
+    const rorke = astra({ id: 'ac_rorke001', name: 'Rorke', pc: false, companion: { level: 5, strengths: [] } });
+    const slice = sliceOf([astra({ xp: 95 }), rorke], { ...asRolled(), won: true });
+    const ctx = fakeCtx(slice);
+    const first = run(applyXp, ctx, line('xp', 'Party', 'the pass'));
+    assert.equal(first.result.narrate, true);
+    assert.match(first.result.summary, /Astra reaches level 2/);
+    const me = slice.members.ac_astra001;
+    assert.deepEqual([levelOf(me), pointsOf(me), rorke.xp, levelOf(rorke), pointsOf(rorke)], [2, 1, 10, 5, 0]);
+    me.bought.p1 = { stat: 'str', n: 1, seq: 0 };
+    assert.equal(pointsOf(me), 0, 'a spent point is not offered again');
+    assert.equal(run(applyXp, ctx, line('xp', 'Party', 'again')).code, 'LIMITED');
+});
+
+test('~ condition: timed, treated, replaced by name, cleared, at most four', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice, { time: 600 });
+    run(applyCondition, ctx, line('condition', 'Astra', 'poisoned', { until: '2 hours' }));
+    run(applyCondition, ctx, line('condition', 'Astra', 'bleeding', { until: 'treated' }));
+    const me = slice.members.ac_astra001;
+    assert.deepEqual(me.conditions, [{ name: 'poisoned', until: 720 }, { name: 'bleeding', until: 'treated' }]);
+    run(applyCondition, ctx, line('condition', 'Astra', 'poisoned', { until: 'cleared' }));
+    assert.deepEqual(me.conditions.map(item => item.name), ['bleeding']);
+    for (const name of ['stunned', 'frightened', 'burning', 'prone']) run(applyCondition, ctx, line('condition', 'Astra', name, { until: 'treated' }));
+    assert.deepEqual(me.conditions.map(item => item.name), ['stunned', 'frightened', 'burning', 'prone']);
+    assert.equal(run(applyCondition, ctx, line('condition', 'Nobody', 'prone')).code, 'NOT_FOUND');
+});
+
+test('+ injury: stats it hampers, days by grave, at most three kept', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice, { time: 100 });
+    run(applyInjury, ctx, line('injury', 'Astra', 'cracked rib', { hampers: 'STR, agi, luck', grave: 'serious' }));
+    const me = slice.members.ac_astra001;
+    assert.deepEqual(me.injuries[0], { name: 'cracked rib', hampers: ['str', 'agi'], heals: 100 + 10 * 1440, grave: 'serious' });
+    for (const name of ['a', 'b', 'c']) run(applyInjury, ctx, line('injury', 'Astra', name));
+    assert.deepEqual(me.injuries.map(item => item.name), ['a', 'b', 'c']);
+    assert.equal(me.injuries[0].grave, 'minor');
+});
+
+test('with no story clock a timed condition is held until cleared and an injury has no end time yet', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice);
+    run(applyCondition, ctx, line('condition', 'Astra', 'poisoned', { until: '2 hours' }));
+    run(applyInjury, ctx, line('injury', 'Astra', 'cracked rib', { grave: 'minor' }));
+    const me = slice.members.ac_astra001;
+    assert.deepEqual(me.conditions, [{ name: 'poisoned', until: 'treated' }]);
+    assert.equal(me.injuries[0].heals, null);
+});
+
+test('! fall closes the sheet: it is kept, and later lines for the character are refused', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice);
+    run(applyFall, ctx, line('fall', 'Astra', 'cut down on the bridge'));
+    assert.deepEqual(slice.members.ac_astra001.fallen, { how: 'cut down on the bridge' });
+    assert.equal(run(applyHealth, ctx, line('health', 'Astra', 'Hurt')).code, 'REFUSED');
+});
+
+test('~ health sets the wound stage to the word, down or up; Down is 5', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice);
+    const me = slice.members.ac_astra001;
+    run(applyHealth, ctx, line('health', 'Astra', 'Wounded', { why: 'a spear' }));
+    assert.equal(me.wounds, 3);
+    run(applyHealth, ctx, line('health', 'Astra', 'Hurt'));
+    assert.equal(me.wounds, 2);
+    run(applyHealth, ctx, line('health', 'Astra', 'Down'));
+    assert.equal(woundsOf(me), 5);
+    run(applyHealth, ctx, line('health', 'Astra', 'Unhurt'));
+    assert.equal(me.wounds, 0);
+    assert.equal(run(applyHealth, ctx, line('health', 'Astra', 'Dizzy')).code, 'INVALID');
+});
+
+test('~ spend takes the skill\'s cost, refuses without it, and a Down character cannot spend', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice);
+    const me = slice.members.ac_astra001;
+    run(applySpend, ctx, line('spend', 'Astra', 'Obscure'));
+    assert.equal(me.pools.sp.now, 12);
+    me.pools.sp.now = 1;
+    assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Obscure')).code, 'NOT_ENOUGH');
+    assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Dancing')).code, 'NOT_FOUND');
+    me.down = true;
+    assert.equal(run(applySpend, ctx, line('spend', 'Astra', 'Lore')).code, 'REFUSED');
+});
+
+test('+ skill takes the next free slot (5 at level 1, one more every tenth level) and reads both grammars', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice);
+    const me = slice.members.ac_astra001;
+    run(applySkill, ctx, line('skill', 'Astra', 'Tracking; wis; utility', { from: 'Rorke taught her' }));
+    run(applySkill, ctx, line('skill', 'Astra', 'Knots', { stat: 'dex', type: 'craft', cost: '1 sp' }));
+    assert.deepEqual(me.skills[2], { learned: 0, name: 'Tracking', about: 'Rorke taught her', stat: 'wis', type: 'utility', cost: null });
+    assert.deepEqual(me.skills[3].cost, { pool: 'sp', n: 1 });
+    run(applySkill, ctx, line('skill', 'Astra', 'Haggling; cha; social'));
+    assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).code, 'LIMITED');
+    me.xp = 900;
+    assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).ok, true);
+    assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Cooking; wis; craft')).code, 'INVALID', 'twice');
+    assert.equal(run(applySkill, ctx, line('skill', 'Astra', 'Luck; luck')).code, 'INVALID');
+});
+
+test('+ companion makes a sheetless member with a level and up to three strengths; a known one keeps the level they joined at (they level from the xp they earn)', () => {
+    const slice = sliceOf();
+    const ctx = fakeCtx(slice);
+    const done = run(applyCompanion, ctx, line('companion', 'Rorke', '', { level: '9', strengths: 'very strong, a veteran swordswoman, tracker, extra' }));
+    const rorke = slice.members[done.result.data.member];
+    assert.deepEqual([rorke.name, rorke.pc, rorke.companion], ['Rorke', false, { level: 9, strengths: ['very strong', 'a veteran swordswoman', 'tracker'] }]);
+    run(applyCompanion, ctx, line('companion', 'rorke', '', { level: '10' }));
+    assert.deepEqual([Object.keys(slice.members).length, rorke.companion.level, levelOf(rorke)], [2, 9, 9]);
+    assert.equal(run(applyCompanion, ctx, line('companion', 'Astra', '', { level: '3' })).code, 'REFUSED');
+});
+
+test('every kind refuses quietly while off, and the dispatcher knows only its own kinds', () => {
+    const off = fakeCtx(sliceOf(), { on: false });
+    for (const kind of Object.keys(kindsOf(null))) assert.equal(run(applyLine, off, line(kind, 'Astra', 'x', { size: 'real' })).code, 'FEATURE_OFF', kind);
+    assert.equal(run(applyLine, fakeCtx(sliceOf()), line('roll', 'Astra')).code, 'INVALID');
+});
+
+test('the kinds table: heads, the feature, and grammar only while active', () => {
+    const on = kindsOf({ feature: id => id === 'text-rpg.on' });
+    const off = kindsOf({ feature: () => false });
+    assert.deepEqual(Object.keys(on).sort(), ['companion', 'condition', 'fall', 'foes', 'health', 'injury', 'lesson', 'rest', 'skill', 'spend', 'train', 'try', 'xp']);
+    assert.deepEqual(on.try.heads, ['? try']);
+    assert.deepEqual(on.foes.heads, ['+ foes', '- foes']);
+    assert.deepEqual(on.lesson.heads, ['+ lesson']);
+    assert.equal(on.xp.feature, 'text-rpg.on');
+    assert.match(on.try.grammar(), /^\? try Who \|/);
+    assert.equal(off.try.grammar(), '');
+    assert.ok(Object.values(on).every(kind => kind.grammar().length < 260), 'grammar lines are short');
+});

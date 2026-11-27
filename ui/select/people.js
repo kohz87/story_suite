@@ -1,6 +1,7 @@
 // Turns the store's people rows, the people away (director.away.view), the party answers and the social graph into the People view-model (PEOPLE_SHAPE), leaving gaps null or empty.
 
 import { tieKind } from './tie-kinds.js';
+import { namesakes } from '../../modules/people/meters/npc-meters-parts/namesakes.js';
 
 const WHERE_MAX = 40;
 const FILTERS = ['all', 'party', 'followed', 'deceased', 'dormant'];
@@ -65,7 +66,8 @@ export function selectPeople({ list, away: awayView, party, ties, place, present
   const active = [...here, ...elsewhere];
   // Names the scene has here that no record answers to (a person the story named but NPC State has no dossier for): told, never dropped silently.
   const known = new Set((Array.isArray(list) ? list : []).filter(isRecord).flatMap(labelsOf));
-  const unrecorded = [...new Set((Array.isArray(present) ? present : []).map(name => String(typeof name === 'string' ? name : name?.name ?? '').trim()).filter(name => name && !known.has(keyOf(name))))];
+  const shared = namesakes(Array.isArray(list) ? list : []);   // (a namesake's shown form Name "Nickname" is that person)
+  const unrecorded = [...new Set((Array.isArray(present) ? present : []).map(name => String(typeof name === 'string' ? name : name?.name ?? '').trim()).filter(name => name && !known.has(keyOf(name)) && !shared.asForm(name)?.found.length))];
   const edges = tiesOf(ties);
   return {
     filter: FILTERS.includes(filter) ? filter : 'all',

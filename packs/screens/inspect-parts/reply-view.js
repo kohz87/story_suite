@@ -4,6 +4,7 @@ import { readRecord } from '../../../core/persist.js';
 import { oneLine } from '../../../core/text.js';
 import { receiptCue } from '../../../modules/rpg/cue.js';
 import { diffStates } from './diff.js';
+import { hideWords } from './hidden-words.js';
 
 export const receiptView = receipt => ({
     id: String(receipt?.id ?? ''),
@@ -21,7 +22,8 @@ export const receiptView = receipt => ({
  * One reply as the inspector shows it, or `{ ok: false, index, message }` when it holds no story:
  * `{ ok: true, index, name, rev, checkpoint, head, state, before, diff: { entries, more }, ops, receipts,
  * problems: [{ code, message }] }`. `problems(index)` → the problems the host knows of for that reply
- * (replay, the turn's, the refused change lines). `state` and `before` are the store's frozen copies.
+ * (replay, the turn's, the refused change lines). `state` and `before` are the store's frozen copies,
+ * with join words and unopened hidden notes replaced (./hidden-words.js).
  */
 export function inspectReply({ store, chat, index, problems = () => [] }) {
     const messages = Array.isArray(chat) ? chat : [];
@@ -39,7 +41,7 @@ export function inspectReply({ store, chat, index, problems = () => [] }) {
     const receipts = (Array.isArray(record.receipts) ? record.receipts : []).map(receiptView);
     let found = [];
     try { found = problems(index) ?? []; } catch { found = []; }
-    return {
+    return hideWords({
         ok: true,
         index,
         name: oneLine(messages[index]?.name ?? '', 40),
@@ -52,5 +54,5 @@ export function inspectReply({ store, chat, index, problems = () => [] }) {
         ops: store.opsAt?.(index) ?? [],
         receipts,
         problems: found.map(item => ({ code: String(item?.code ?? item?.why ?? ''), message: oneLine(item?.message ?? item?.reason ?? item?.line ?? item, 400) })),
-    };
+    });
 }

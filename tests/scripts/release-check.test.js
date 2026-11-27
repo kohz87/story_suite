@@ -17,8 +17,8 @@ before(async () => {
 });
 after(() => fs.rmSync(outRoot, { recursive: true, force: true }));
 
-test('the release gate is green on this tree: version 0.1.6, no tag, every set builds', () => {
-  assert.equal(RELEASE_VERSION, '0.1.6');
+test('the release gate is green on this tree: version 0.1.7, no tag, every set builds', () => {
+  assert.equal(RELEASE_VERSION, '0.1.7');
   assert.deepEqual(result.problems, []);
   assert.deepEqual(result.rows.map(row => row.name), BUNDLE_SETS.map(set => set.name));
 });
@@ -69,32 +69,32 @@ function fakeRepo(version, tags) {
   return fake;
 }
 
-test('the gate names a version other than 0.1.6', async () => {
+test('the gate names a version other than 0.1.7', async () => {
   const fake = fakeRepo('9.9.9', []);
   try {
     const { problems } = await checkRelease({ repoRoot: fake, outRoot: path.join(fake, 'out'), sets: [] });
-    assert.deepEqual(problems, ['package.json version is 9.9.9, the release is 0.1.6']);
+    assert.deepEqual(problems, ['package.json version is 9.9.9, the release is 0.1.7']);
   } finally {
     fs.rmSync(fake, { recursive: true, force: true });
   }
 });
 
-test('the gate refuses a tag for exactly 0.1.6 and ignores tags that only contain the digits', async () => {
-  const fake = fakeRepo('0.1.6', ['v10.1.6', 'sb-v2.10.1.6', 'sb-v0.1.6', 'v0.1.6', '0.1.6']);
+test('the gate refuses a tag for exactly 0.1.7 and ignores tags that only contain the digits', async () => {
+  const fake = fakeRepo('0.1.7', ['v10.1.7', 'sb-v2.10.1.7', 'sb-v0.1.7', 'v0.1.7', '0.1.7']);
   try {
     const { problems } = await checkRelease({ repoRoot: fake, outRoot: path.join(fake, 'out'), sets: [] });
-    assert.deepEqual(problems, ['releases are not tagged; found tag 0.1.6, sb-v0.1.6, v0.1.6']);
+    assert.deepEqual(problems, ['releases are not tagged; found tag 0.1.7, sb-v0.1.7, v0.1.7']);
   } finally {
     fs.rmSync(fake, { recursive: true, force: true });
   }
 });
 
 test('the gate names a lock file whose version differs from package.json', async () => {
-  const fake = fakeRepo('0.1.6', []);
+  const fake = fakeRepo('0.1.7', []);
   fs.writeFileSync(path.join(fake, 'package-lock.json'), JSON.stringify({ version: '0.0.0' }));
   try {
     const { problems } = await checkRelease({ repoRoot: fake, outRoot: path.join(fake, 'out'), sets: [] });
-    assert.deepEqual(problems, ['package-lock.json version is 0.0.0, package.json says 0.1.6']);
+    assert.deepEqual(problems, ['package-lock.json version is 0.0.0, package.json says 0.1.7']);
   } finally {
     fs.rmSync(fake, { recursive: true, force: true });
   }

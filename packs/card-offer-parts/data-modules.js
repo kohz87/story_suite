@@ -3,16 +3,18 @@
 /**
  * Turns on the data modules of pack `packId` in this chat, one by one, as Settings → Data modules' "Enable for this chat" does (`dm.pin`
  * with the hashes the offer shows), and saves the chat at once so the choice is on disk and the tab shows without a reply or a reload.
+ * A module whose definition says `startsOff` is left for the reader to turn on there: it is named in `off` and not counted.
  * `sdk`: query and command; `save()`: the store's save now; `still()`: false once the chat the click was made in is not the open one (nothing more is
- * pinned then). → `{ pinned, failed: [message], total, moved }`.
+ * pinned then). → `{ pinned, failed: [message], off: [name], total, moved }`.
  */
 export async function enableDataModules({ sdk, packId, save = null, still = () => true }) {
     let rows = [];
     try { rows = sdk.query('dataModules.setup') ?? []; } catch { rows = []; }
     const mine = rows.filter(row => row?.packId === packId);
-    const out = { pinned: 0, failed: [], total: mine.length, moved: false };
+    const waits = row => row.definition?.startsOff === true;
+    const out = { pinned: 0, failed: [], off: mine.filter(row => !row.pinned && waits(row)).map(row => row.definition.name), total: mine.filter(row => !waits(row)).length, moved: false };
     for (const row of mine) {
-        if (row.pinned) continue;
+        if (row.pinned || waits(row)) continue;
         // Checked before each pin: the chat may have changed while the earlier ones were on their way.
         if (!still()) { out.moved = true; break; }
         if (row.available === false) { out.failed.push(`${row.definition?.name ?? row.module} is waiting: ${row.reason || 'not ready'}`); continue; }

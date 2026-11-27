@@ -53,6 +53,10 @@
 .xp2{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;font:700 12px var(--su-font);color:var(--su-muted)}
 .xp2 i{display:block;height:4px;border-radius:2px;background:var(--su-tint);overflow:hidden}
 .xp2 i b{display:block;height:100%;background:var(--su-accent);border-radius:2px}
+.psheet .keeps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font:400 12px/1.5 var(--su-font);color:var(--su-muted);overflow-wrap:anywhere}
+.psheet .keeps li{margin:0}
+.psheet .keeps b{color:var(--su-text)}
+.psheet .keeps small{font-size:12px}
 .st7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
 @container (max-width:420px){.st7{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @container (min-width:620px) and (max-width:779px){.st7{grid-template-columns:repeat(4,minmax(0,1fr))}} /* the stats sit in half the page here: 7 tiles would be under 44 px wide */

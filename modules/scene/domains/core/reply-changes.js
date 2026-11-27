@@ -18,6 +18,11 @@ const headOf = headIndex => {
     try { return typeof headIndex === 'function' ? headIndex() : -1; } catch { return -1; }
 };
 
+// A line a module's own receipt asks the card to show: `data.card: { line, detail?, refused? }` (any module's; `refused` for a line it did not apply).
+const cardOf = receipt => (isRec(receipt.data?.card) && text(receipt.data.card.line) ? receipt.data.card : null);
+
+const ownLines = receipts => receipts.map(cardOf).filter(Boolean).map(card => ({ glyph: 'note', line: text(card.line).slice(0, 240), detail: text(card.detail).slice(0, 240) || null, applied: card.refused !== true }));
+
 function receiptsAt(tools, index, state) {
     let list = [];
     try { list = typeof tools?.receipts === 'function' ? tools.receipts() ?? [] : []; } catch { list = []; }
@@ -25,7 +30,7 @@ function receiptsAt(tools, index, state) {
     // The reader's own edits are not the reply's changes (a `ui` receipt); every other cause is. The join card's answers are (Add to party, a bench choice, Edit first's
     // Character: readerJoins): the reply offered the companion, so their joining is the reply's.
     const joins = new Set(readerJoins(all, state));
-    return all.filter(receipt => ((SHOWN.has(receipt.type) || isPartyReceipt(receipt)) && receipt.cause !== 'ui') || joins.has(receipt));
+    return all.filter(receipt => ((SHOWN.has(receipt.type) || isPartyReceipt(receipt) || cardOf(receipt)) && receipt.cause !== 'ui') || joins.has(receipt));
 }
 
 // A line Assist wrote (the repair's or the safety net's lines; capture marks their receipts `assist`), not the reply's own.
@@ -111,7 +116,7 @@ export function replyChanges(state, args, tools, headIndex) {
   let weather = null;
   try { weather = tools?.hasQuery?.('scene.weather') ? text(tools.query('scene.weather')?.text) || null : null; } catch { weather = null; }
   // Own lines and Assist's are worked out apart, so a total never mixes them, and each Assist line is marked.
-  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list), ...personLines(list), ...partyLines(list, state)];
+  const linesOf = list => [...itemLines(list, state), ...coinLines(list), ...sceneLines(list), ...personLines(list), ...partyLines(list, state), ...ownLines(list)];
   const own = linesOf(receipts.filter(item => !fromAssist(item))).map(line => ({ ...line, assist: false }));
   const assist = linesOf(receipts.filter(fromAssist)).map(line => ({ ...line, assist: true }));
   return {

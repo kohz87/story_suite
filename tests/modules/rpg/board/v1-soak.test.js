@@ -23,7 +23,7 @@ async function world(t) {
     await set(host, 'character', { who: 'Ren' });
     await set(host, 'character', { level: 8, vit: 24 });
     await set(host, 'skills', { who: 'Ren' });
-    await host.send('Foes.', reply('Rats.', ['+ dm foes — why | kind: set-slot-1 | name: Brutes | count: 4 | level: 6 | tier: standard']));
+    await host.send('Foes.', reply('Rats.', ['+ dm foes — why | kind: set-slot-1 | name: Brutes | count: 4 | level: 5 | tier: standard']));
     return host;
 }
 // the soak % of the first foe hit that lands in the fight's lines (a foe-attack row: …, outcome, soak, damage, HP)

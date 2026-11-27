@@ -7,6 +7,8 @@ import { activeDefinition, inputsOf, instanceOf, resolveActor } from '../adapter
 import { hashJson } from '../../../core/replay.js';
 import { fold, readSheet } from '../../rpg/read.js';
 import { LEAN_RPG_FEATURE } from '../../rpg/names.js';
+import { replacedLine } from './replaced.js';
+import { refusalText } from '../interpreter-parts/refusal-text.js';
 import { XP_RATE, scaleXp, xpRateFrom, xpRateOf } from '../../rpg/levels.js';
 import { FOE_LEVEL, averageLevel, bandOfRank, foeRandom, foeLevelCap, levelOf, partyLevels, pickLevel } from '../../rpg/foes.js';
 import { SKILL_SLOTS_MAX, SLOT_NUMBER, isTypedSkills, stanceTypeOf } from '../../../core/runtime/skill-slots.js';
@@ -15,6 +17,9 @@ import { focusPick } from './skills-parts/room.js';
 import { B, rpg, draftOf, stateOf, pairKey, subjectsOf, instancePath, prefixImports } from './shared.js';
 import { skillCapacity } from './skills.js';
 import { namedChanges } from './prompt.js';
+import { isHolding } from '../holding/read.js';
+import { postLabels, postProblem } from '../holding/stays.js';
+import { withPeople } from '../holding/person.js';
 
 const LEARN_KIND = new RegExp(`^learn-${SLOT_NUMBER}$`, 'u');
 const PRACTICE_KIND = new RegExp(`^practice-${SLOT_NUMBER}$`, 'u');
@@ -77,6 +82,8 @@ export function createAct(deps) {
         let definition = activeDefinition(prefix, module);
         call.label = definition?.name ?? module;
         if (!definition) refuse('DM_SCHEMA', '', 'Unsupported or damaged pin.');
+        // A story line for an RPG role block while a feature that replaces the RPG is on: not used, quietly (a Re-read of a line that was kept runs `again`, which sees the RPG on).
+        if (line && replacedLine(ctx, definition)) refuse('FEATURE_OFF', '', 'the RPG is replaced by another feature, so its blocks are not used.');
         dependency(definition, prefix);
         // A learn line for a Skills block made before the extra slots that would be refused for lack of a slot (every slot it has is full) while the character's level has
         // opened one it lacks: the block is extended first (growSkills). Any other line leaves the block as it is. A Re-read grows it only when the reply, as it stands, holds
@@ -100,6 +107,7 @@ export function createAct(deps) {
         line = foesClearLine(ctx, definition, prefix, module, line);
         let given = line ? withKind(definition, line) : { ...payload.labels, kind: payload.kind, ...(payload.who !== undefined ? { who: payload.who } : {}) };
         if (redirect) given = { ...given, kind: redirect };
+        if (isHolding(definition) && ['post', 'unpost'].includes(given.kind)) given = postLabels(given);
         const strictPractice = Boolean(line && definition.role === 'skills' && PRACTICE_KIND.test(String(given.kind ?? '')) && ctx.carrier?.rules?.includes('skillPractice'));
         let namedSkill;
         if (strictPractice && (dmOwn(given, 'skill') || dmOwn(given, 'name'))) {
@@ -179,11 +187,20 @@ export function createAct(deps) {
         if (route?.adjust) args.stat = route.adjust.stat;
         const same = definition.role === 'foes' && /^set-slot-\d$/u.test(labels.kind) && typeof args.name === 'string'
             ? [1, 2, 3, 4, 5, 6].find(n => typeof instance.fields[`foe${n}`] === 'string' && instance.fields[`count${n}`] > 0 && fold(instance.fields[`foe${n}`]) === fold(args.name)) : undefined;
+        // (whom a post line named: its replay asks again whether they travel with You and what they hold)
+        let posted = null;
         if (same !== undefined) evaluation.effects([{ op: 'set', path: [`foe${same}`], value: ['arg', 'name'] }, { op: 'set', path: [`count${same}`], value: ['arg', 'count'] }, { op: 'set', path: [kind.labels.level ? `level${same}` : `class${same}`], value: ['arg', kind.labels.level ? 'level' : 'class'] }], { arg: args });
         else if (route?.update) evaluation.effects(['about', 'stat', 'uses'].filter(key => dmOwn(definition.state, `${key}${route.slot}`)).map(key => ({ op: 'set', path: [`${key}${route.slot}`], value: ['arg', key] })), { arg: args });
         else {
             const run = route ? definition.kinds[route.kind] : kind;
-            if (!evaluation.condition(['kind', route?.kind ?? labels.kind], run.when, { arg: args })) refuse('DM_CONDITION', '', run.refusal ?? 'Kind condition is not met.');
+            if (!evaluation.condition(['kind', route?.kind ?? labels.kind], run.when, { arg: args })) refuse('DM_CONDITION', '', refusalText(run, evaluation, instance.fields, args));
+            // A post of the holding: who may take it is asked of the story here, once, and the line records the name the story keeps them under.
+            if (isHolding(definition) && labels.kind === 'post') {
+                const answer = postProblem(ctx, withPeople(ctx, prefix), fieldsBefore, args, deps.isReader);
+                if (answer.why) refuse('DM_CONDITION', '', answer.why);
+                args.person = answer.who;
+                posted = [answer.who];
+            }
             evaluation.effects(run.effects, { arg: args });
             // A marked Character's bar is lowered by the story, never raised (a rest, a full rest or a heal does that).
             const raised = SET_KINDS[labels.kind];
@@ -195,8 +212,8 @@ export function createAct(deps) {
         const result = evaluation.finish();
         const changes = namedChanges(definition, fieldsBefore, instance.fields);
         const recorded = guard(ctx, prefix, { kind: 'dm.act', module, hash: active.hash, generation: active.generation, subject,
-            reads: [...result.reads.map(read => read.path), ...(strictPractice ? Object.keys(definition.state).filter(key => /^skill\d+$/u.test(key)).sort().map(key => ['fields', key]) : [])], imports: prefixImports(definition), clock: restKind,
-            actor: subject !== 'chat', decision: { args, inputs, decisions: result.decisions.map(({ source: _source, cursor: _cursor, ...rest }) => rest), conds: grown ? [] : result.conds, ...(clock !== null ? { clock } : {}), ...(xpRate !== XP_RATE.default ? { xpRate } : {}), ...(grown ? { grown: dataModuleHash(grown) } : {}) } });
+            reads: [...result.reads.map(read => read.path), ...(posted ? [['fields', 'seat']] : []), ...(strictPractice ? Object.keys(definition.state).filter(key => /^skill\d+$/u.test(key)).sort().map(key => ['fields', key]) : [])], imports: prefixImports(definition), clock: restKind,
+            actor: subject !== 'chat', posted, decision: { args, inputs, decisions: result.decisions.map(({ source: _source, cursor: _cursor, ...rest }) => rest), conds: grown ? [] : result.conds, ...(clock !== null ? { clock } : {}), ...(xpRate !== XP_RATE.default ? { xpRate } : {}), ...(grown ? { grown: dataModuleHash(grown) } : {}) } });
         // The concrete outcome kept beside the inputs (and past the receipts' display data): which line, for whom, what was frozen, what was limited.
         const outcome = { kind: labels.kind, ...(route ? { skill: { slot: route.slot, name: route.update ? route.name : instance.fields[`skill${route.slot}`] } } : {}), subject, ...(xpKept !== null ? { xpRate: xpKept } : {}), decisions: result.decisions.map(({ source: _source, cursor: _cursor, ...rest }) => rest), notes: [...result.notes, ...adjustNotes], ...(result.fired.length ? { rules: result.fired } : {}) };
         // A story line that writes a character's XP: what the character had before it is kept for the reply (see finish), so that a won fight, whose XP is

@@ -6,7 +6,7 @@
 
 | What | Limit |
 |---|---|
-| One pack | 1,048,576 bytes of UTF-8 |
+| One pack | 2,097,152 bytes of UTF-8 |
 | Nesting | 16 |
 | Object keys | 200 |
 | List entries | 1000 |
@@ -44,7 +44,7 @@
 | One portrait, picked | WebP, PNG or JPEG, 10 MB at most |
 | One portrait, kept | 150 KB at most: a larger picture is made smaller on import (WebP, 1200 px on its long side at most); a picture already that small is kept as it is |
 | Portrait files in one pack | 32 |
-| A pack zip: the zip, unpacked in all, one file in it, entries | 322 MB, 322 MB, 10 MB, 40 |
+| A pack zip: the zip, unpacked in all, one file in it, entries | 324 MB, 324 MB, 10 MB, 40 |
 
 ## Event conditions
 

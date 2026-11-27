@@ -102,6 +102,10 @@ function readyProfileDevelopmentRecords(field, ledger, rawUpdate = {}) {
         && current.some(parsed => developmentRecordMatches(record, parsed)));
 }
 
+// A row tied to one namesake (`settledId`) is that id's alone; any other row is matched by its id or name.
+const profileRowMatches = (raw, npc) => (raw.settledId ? String(raw.settledId) === String(npc?.id)
+    : Boolean((raw.id && String(raw.id) === String(npc?.id)) || (raw.name && mechanics.npcMatchesLabel(npc, raw.name))));
+
 // The row that supplies one durable field for this NPC. Profile rows still come before ordinary
 // rows, but a matching row that does not carry the field (an unchanged Speech-only profile row)
 // must not hide another field's candidate and evidence in a later matching row.
@@ -109,10 +113,7 @@ export function durableUpdateForNpc(scanResult, npc, field = '') {
     const profile = Array.isArray(scanResult?.profileUpdates) ? scanResult.profileUpdates
         : (Array.isArray(scanResult?.profile_updates) ? scanResult.profile_updates : []);
     const ordinary = Array.isArray(scanResult?.npcs) ? scanResult.npcs : [];
-    const matches = [...profile, ...ordinary].filter(raw => raw && typeof raw === 'object' && (
-        (raw.id && String(raw.id) === String(npc?.id))
-        || (raw.name && mechanics.npcMatchesLabel(npc, raw.name))
-    ));
+    const matches = [...profile, ...ordinary].filter(raw => raw && typeof raw === 'object' && profileRowMatches(raw, npc));
     if (!field) return matches[0] || null;
     const has = (raw, key) => Object.prototype.hasOwnProperty.call(raw, key);
     const snake = field.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
@@ -127,10 +128,7 @@ export function appearanceUpdateForNpc(scanResult, npc) {
     const profile = Array.isArray(scanResult?.profileUpdates) ? scanResult.profileUpdates
         : (Array.isArray(scanResult?.profile_updates) ? scanResult.profile_updates : []);
     const ordinary = Array.isArray(scanResult?.npcs) ? scanResult.npcs : [];
-    const matches = [...profile, ...ordinary].filter(raw => raw && typeof raw === 'object' && (
-        (raw.id && String(raw.id) === String(npc?.id))
-        || (raw.name && mechanics.npcMatchesLabel(npc, raw.name))
-    ));
+    const matches = [...profile, ...ordinary].filter(raw => raw && typeof raw === 'object' && profileRowMatches(raw, npc));
     const carriesAppearance = raw => {
         const evidence = raw?.evidence ?? raw?.profileEvidence ?? raw?.profile_evidence ?? {};
         return Object.prototype.hasOwnProperty.call(raw, 'appearance')

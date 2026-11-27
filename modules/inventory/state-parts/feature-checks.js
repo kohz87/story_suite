@@ -2,13 +2,14 @@
 
 import { FEATURE } from './features.js';
 
-// The gear switch lives in Settings → RPG and counts only while the RPG is on.
+// The gear switch lives in Settings → RPG and counts only while the RPG, or a feature that replaces it, is on.
 const RPG_FEATURE = 'story-block.rpg';
 
 /** Whether the gear feature is on for this handler (or view): off unless the host says so (off by default, and only while the RPG is on). */
 export function gearOn(ctx) {
     try {
-        return typeof ctx?.feature === 'function' && ctx.feature(FEATURE.gear) === true && ctx.feature(RPG_FEATURE) === true;
+        if (typeof ctx?.feature !== 'function' || ctx.feature(FEATURE.gear) !== true) return false;
+        return ctx.feature(RPG_FEATURE) === true || (typeof ctx.featureOrReplacement === 'function' && ctx.featureOrReplacement(RPG_FEATURE) === true);
     } catch {
         return false;
     }

@@ -8,25 +8,38 @@ import { makeNpcId } from '../../core/core-identity.js';
 import { isNoteKind } from '../../notes/npc-notes-kinds.js';
 import { stubRecord } from './derived.js';
 import { personNamed } from './names.js';
+import { ownersOf } from '../npc-meters-parts/owners.js';
+import { namesakes, whichRefusal } from '../npc-meters-parts/namesakes.js';
 
 const ROLE_MAX = 60;
 export const STUB_LOOK_MAX = 100;   // the approved length; a look is stored exactly as written up to it, never shorter
 const STUBS_PER_REPLY = 4;   // b6-soak-2: the same four a reply as the capture block's new people (CAPTURE_NEW_NPCS_PER_BLOCK); it also bounds the fill-ins the stubs own
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 
-/** → { name, role, look, problems } from a `+ npc` line (read from the line as written: its parts are the role and the look, whatever they hold). */
+const MEMORY_SLOT = /^memory\s*:\s*/i;
+
+/** → { name, role, look, memory?, problems } from a `+ npc` line (read from the line as written: its parts are the role and the look, whatever they hold, and a
+ *  `memory:` part after the role, which is the person's first memory and never part of the look: ./memory.js saves it). */
 export function readStub(line) {
     // The first slot is the role even when empty (`+ npc Ilse || eyes: grey` has a look and no role); only empty slots after it are dropped.
     const slots = (line?.raw === undefined ? String(line?.text ?? '').split(';') : String(line.raw).split('|').slice(1)).map(part => part.trim());
-    const [role = '', ...rest] = slots;
+    const [role = '', ...parts] = slots;
+    const memory = clean(parts.find(part => MEMORY_SLOT.test(part))?.replace(MEMORY_SLOT, '') ?? '', 300);
+    const rest = parts.filter(part => !MEMORY_SLOT.test(part));
     const looks = rest.filter(Boolean);
     const written = clean(looks.join('; '), 10000);
     const look = clean(written, STUB_LOOK_MAX);
     const problems = written.length > look.length ? [`${clean(line.name, 40)}: the look was cut to ${STUB_LOOK_MAX} characters.`] : [];
-    return { name: clean(line?.name, NAME_MAX), role: clean(role, ROLE_MAX), look, problems };
+    return { name: clean(line?.name, NAME_MAX), role: clean(role, ROLE_MAX), look, ...(memory ? { memory } : {}), problems };
 }
 
 const isToken = (name, key) => new RegExp(`^\\{\\{\\s*${key}\\s*\\}\\}$`, 'i').test(String(name ?? '').trim());
+
+/** The person a line is about: the dossier it was settled on (`personId`: ./which.js), else the one its name is (knownPerson). */
+function personOf(ctx, line) {
+    const held = line.personId ? ctx.read('people')?.npcs?.[line.personId] : null;
+    return held ? { key: line.personId, record: held } : knownPerson(ctx, line.name);
+}
 
 /** The person a name is, among the people (by name or alias, else the one a first name, surname or role fits: ./names.js) and the meter entries: { key, record? } or null. */
 export function knownPerson(ctx, name) {
@@ -35,14 +48,17 @@ export function knownPerson(ctx, name) {
     const person = personNamed(ctx.read('people')?.npcs, name);
     if (person) return person;
     const bonds = ctx.read(NPC_DOMAIN)?.npcs;
-    for (const [key, record] of Object.entries(isObject(bonds) ? bonds : {})) if (labelKey(record?.name) === asked) return { key };
+    // An entry no stored dossier owns: one that is a dossier's (under an old name they no longer answer to) is not found by that name.
+    const owners = ownersOf(ctx.read('people')?.npcs);
+    for (const [key, record] of Object.entries(isObject(bonds) ? bonds : {})) if (labelKey(record?.name) === asked && !owners.ownerOf(bonds, key)) return { key };
     // Only the people and the meter entries as this reply sees them: Delta's own list is the head's, so a Re-read of an earlier reply would decide by later replies.
     return null;
 }
 
 // The line under the full name of the person it names (unchanged when it already writes that name, or when only a meter entry knows them): an alias or a
-// first name would otherwise make the meter entry look for a person by a name the dossier list may not hold yet.
-const named = (line, found) => (typeof found.record?.name === 'string' && labelKey(found.record.name) !== labelKey(line.name) ? { ...line, name: found.record.name } : line);
+// first name would otherwise make the meter entry look for a person by a name the dossier list may not hold yet. `personId`: their dossier's id, so the
+// meter entry stays theirs when the full name is a namesake's too.
+const named = (line, found) => (typeof found.record?.name === 'string' && labelKey(found.record.name) !== labelKey(line.name) ? { ...line, name: found.record.name, personId: found.key } : line);
 const labelsWrite = (record, name) => [record.name, ...(Array.isArray(record.aliases) ? record.aliases : [])].map(labelKey).includes(labelKey(name));
 
 // A tie's `with:` names someone with a record (refused otherwise, as `~ npc` of an unknown name is), written as their full name. A pack person met or present
@@ -70,9 +86,12 @@ function refusalOf(ctx, name, hooks) {
     let players = [];
     try { players = (hooks.playerNames?.() ?? []).map(labelKey).filter(Boolean); } catch { /* no names known */ }
     if (isToken(name, 'user') || isToken(name, 'char') || players.includes(asked)) return `${name} is the player or the character you play; + npc is only for someone new.`;
-    const known = knownPerson(ctx, name);
+    // A shown form (Name "Nickname") is settled first: nobody is ever made under it.
+    const form = /["“]/.test(name) ? namesakes(ctx.read('people')).asForm(name) : null;
+    const known = form?.found.length ? { record: (form.one ?? { record: form.found[0] }).record } : knownPerson(ctx, name);
     const as = known?.record?.name && labelKey(known.record.name) !== asked ? ` as ${known.record.name}` : '';
-    return known ? `${name} is already listed${as}; + npc is only for someone new.` : '';
+    if (known) return `${name} is already listed${as}; + npc is only for someone new.`;
+    return form?.group ? whichRefusal(form.group) : '';
 }
 
 /**
@@ -106,11 +125,13 @@ export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst
             const id = makeNpcId(stub.name, taken);
             if (!PEOPLE_ID.test(id)) ctx.fail('INVALID', `${stub.name} cannot be given an id.`);
             ctx.call('people.stub', { id, record: stubRecord(stub, id, baseline(), stamp) });
-            const out = handler(ctx, { ...on, labels: {}, name: stub.name, stubKey: id });
+            // (a namesake's new entry is theirs by id: the shared name could be the other one's)
+            const shares = ownersOf(ctx.read('people')?.npcs).named(stub.name).length > 1;
+            const out = handler(ctx, { ...on, labels: {}, name: stub.name, stubKey: id, ...(shares ? { personId: id } : {}) });
             if (stub.problems.length) note(ctx.draft(NPC_DOMAIN), ctx.rev, stub.problems);
             return stub.problems.length ? { ...out, data: { ...out.data, problems: [...(out.data?.problems ?? []), ...stub.problems] } } : out;
         }
-        let found = knownPerson(ctx, line.name);
+        let found = personOf(ctx, line);
         // F50 with SFF4 #1: a first name, surname or role that found one listed person but also fits a pack person who has no dossier yet fits two: nobody.
         if (found?.record && !labelsWrite(found.record, line.name) && typeof castFirst?.fits === 'function' && castFirst.fits(ctx, line.name)) found = null;
         if (!found?.record) {

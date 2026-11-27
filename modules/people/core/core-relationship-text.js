@@ -4,5 +4,5 @@
    before. Never imports core-relationship.js, core-mechanics.js or core.js. Public face: re-exports its parts. */
 export { durableRefinementTokens } from './core-relationship-text-parts/tokens.js';
 export { durableTokenCoverage, durableSeedGrounded, durableEvidenceGroundsValue } from './core-relationship-text-parts/grounding.js';
-export { durableSemanticSimilarity, chooseCompactEquivalent, semanticDedupeItems } from './core-relationship-text-parts/similarity.js';
+export { durableSemanticSimilarity, memorySimilarity, chooseCompactEquivalent, semanticDedupeItems } from './core-relationship-text-parts/similarity.js';
 export { splitDurableClaimUnits, compactDurableText } from './core-relationship-text-parts/clauses.js';

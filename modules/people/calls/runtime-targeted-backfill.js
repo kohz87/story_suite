@@ -150,7 +150,8 @@ export function createTargetedBackfillPart(rt, deps, { prepareCanonicalScanBase,
                 if (!preserved) return;
                 Object.assign(finalNpc, backfillLiveState(preserved, keptPresent));
                 finalNpc.seenCount = Number(preserved.seenCount || 0);
-                finalNpc.lastSeenTurn = repairedPresence
+                // (a new person's fill-in: they were in the reply that made them, so they are seen then, present or not)
+                finalNpc.lastSeenTurn = repairedPresence || request.reason === FILL_REASON
                     ? Math.max(Number(preserved.lastSeenTurn || 0), Number(state.turn || 0))
                     : Number(preserved.lastSeenTurn || 0);
                 finalNpc.lastWorldActiveTurn = Number(preserved.lastWorldActiveTurn || 0);

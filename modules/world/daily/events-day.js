@@ -9,12 +9,15 @@ import { capBlock, eventRealms, takeSlots } from './caps.js';
 import { dailyChance, rollChance } from './chance.js';
 import { closeEvent, endEvent, fireEvent } from './fire.js';
 import { scaleDays } from './durations.js';
+import { eventWords } from './event-words.js';
+import { neverOpened } from './never-opened.js';
 import { oncePerStretch, seededDay, stretchOf } from './season-chance.js';
 import { bindOf, placesFor, weightedPick } from './placement.js';
 import { modifierProduct, requiresHold } from './requires.js';
 import { cascadeState, preEmpted, windowAnchor } from './cascade.js';
 import { isThreshold, thresholdHolds } from './threshold.js';
 import { markedChance } from './director-mark.js';
+import { waitedChance } from './waits.js';
 
 const FINISHED = new Set(['ended', 'lapsed', 'replaced']);
 
@@ -38,20 +41,20 @@ function endsToday(ws, def, row, day) {
     return def.ends.anyOf.some(text => (isThreshold(text) ? thresholdHolds(ws, text) : happenedSince(ws, text, row.fired, day)));
 }
 
-/** Roll and, on a hit, fire when the caps allow (set-in-motion fires over them). */
+/** Roll and, on a hit, fire when the caps allow (set-in-motion, and a waited beat forced on its last day, fire over them). */
 function attempt(ws, def, day, given, bind) {
     const row = ws.events[def.id];
     row.state = 'eligible';
     // The Director's stored verdict on today's roll (director-mark.js): a veto discards it, a weight scales its odds.
-    const { chance, veto } = markedChance(ws, def, day, given);
+    const { chance, veto } = given.forced ? { chance: given, veto: '' } : markedChance(ws, def, day, given);
     if (veto) { ws.log.push({ kind: 'roll', key: def.id, day, result: 'vetoed (Director)' }); return; }
     if (chance.blocked) { ws.log.push({ kind: 'roll', key: def.id, day, result: 'blocked (×0)' }); return; }
     const roll = rollChance(ws.draw, day, def.id, chance);
-    ws.log.push({ kind: 'roll', key: def.id, day, p: Number(chance.p.toFixed(6)), result: roll.hit ? 'hit' : 'miss' });
+    ws.log.push({ kind: 'roll', key: def.id, day, p: Number(chance.p.toFixed(6)), result: roll.hit ? 'hit' : 'miss', ...(chance.forced ? { forced: true } : {}) });
     if (!roll.hit) return;
     const realms = eventRealms(ws, def, bind);
     const major = def.severity === 'major';
-    const block = major && def.certainty !== 'set-in-motion' ? capBlock(ws, realms, day) : '';
+    const block = major && def.certainty !== 'set-in-motion' && !given.forced ? capBlock(ws, realms, day) : '';
     if (block) { ws.log.push({ kind: 'cap', key: def.id, day, why: block }); return; }
     if (major) takeSlots(ws, realms, day);
     fireEvent(ws, def, day, bind, realms);
@@ -84,16 +87,30 @@ function oneEvent(ws, def, day) {
     if (preEmpted(ws, def, day)) return closeEvent(ws, def, day, 'replaced', 'pre-empted');
     const win = windowed(ws, def, row, day);
     if (win.lapse) {
-        if (def.certainty === 'set-in-motion') ws.warnings.push(`The set-in-motion event "${def.id}" lapsed: its requirements did not hold on its last day.`);
+        if (def.certainty === 'set-in-motion') {
+            if (neverOpened(ws, def, day)) {
+                // A branch that never opened: no words of it anywhere, and nothing on the card.
+                const quiet = 'An event lapsed: its window closed.';
+                ws.warnings.push(quiet);
+                (ws.card ??= {})[quiet] = '';
+            } else {
+                const said = eventWords(ws.geo, def).label;
+                ws.warnings.push(`${said ? `The event "${said}"` : 'An event'} lapsed: its requirements did not hold on its last day.`);
+            }
+        }
         return closeEvent(ws, def, day, 'lapsed', 'its window closed');
     }
     if (!win.open || !requiresHold(ws, def, day)) { row.state = 'dormant'; return; }
     const m = modifierProduct(ws, def, day);
     const span = stretchOf(ws, def, day);
-    if (oncePerStretch(def) && day < seededDay(ws, def, span)) { row.state = 'eligible'; return; }
+    // The seeded day of a 100%-per-season chance does not hold a waits_for beat back: waits.js alone decides when it waits.
+    if (!def.waitsFor && oncePerStretch(def) && day < seededDay(ws, def, span)) { row.state = 'eligible'; return; }
     const days = def.chance?.per === 'season' || !win.length ? span.length : win.length;
     const left = win.end === null ? 1 : win.end - day + 1;
-    attempt(ws, def, day, dailyChance(def, { days, left, m }), null);
+    let chance = dailyChance(def, { days, left, m });
+    if (def.waitsFor) chance = waitedChance(ws, def, chance, { day, last: day >= win.end });
+    if (!chance) { row.state = 'eligible'; return; }
+    attempt(ws, def, day, chance, null);
 }
 
 function recurring(ws, def, day) {

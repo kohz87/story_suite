@@ -443,7 +443,7 @@ export function createMutationsPart(rt, deps) {
         setChatState(getChatKey(), result.state);
         persistCritical(); renderDossier(); updateInjection();
         const addedNpc = result.report.npcId ? result.state.npcs.find(npc => npc.id === result.report.npcId) : null;
-        if (addedNpc) globalThis.toastr?.success?.(`NPC State: ${addedNpc.name} created. Use the wand beside the dossier to Scan dossier and populate it.`);
+        if (addedNpc) globalThis.toastr?.[isTerminalNpcDeath(addedNpc) ? 'warning' : 'success']?.(isTerminalNpcDeath(addedNpc) ? `NPC State: nobody new was added; that name matches ${addedNpc.name}, who has died.` : `NPC State: ${addedNpc.name} created. Use the wand beside the dossier to Scan dossier and populate it.`);
     }
 
     return { updateNpcAppearance, updateNpcLifeState, npcFormName, setNpcPortrait, setNpcPortraitSeed, removeNpcPortrait, deleteNpcById, setNpcArchiveStateById, exportBundleBytes, importBundleBytes, addNpcManually };

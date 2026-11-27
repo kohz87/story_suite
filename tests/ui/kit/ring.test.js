@@ -44,3 +44,14 @@ test('feelingsRing pad moves the radius and ticks adds four quarter marks', () =
   assert.equal(ticks[0].getAttribute('d'), 'M50.00 3.00L50.00 -0.50');
   assert.equal(feelingsRing({}).querySelectorAll('.ring-tick').length, 0);
 });
+
+test('feelingsRing is linear: +38 sweeps 38% of its quarter, +50 half, a tiny value a sliver', () => {
+  installFakeDom();
+  // The arc ends where the sweep ends: from the top (0 deg) clockwise, x = 50 + r sin(sweep).
+  const endX = value => Number(feelingsRing({ trust: value }, { width: 6, pad: 1 }).querySelectorAll('.ring-arc')[0].getAttribute('d').split(' ').at(-2));
+  const r = 50 - 3 - 1;
+  const at = deg => Number((50 + r * Math.sin((deg * Math.PI) / 180)).toFixed(2));
+  assert.equal(endX(38), at(34.2));
+  assert.equal(endX(50), at(45));
+  assert.equal(endX(1), at(3));
+});

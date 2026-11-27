@@ -119,3 +119,13 @@ test('the run starts on the world\u2019s start date on the calendar, not on day 
     const many = date => JSON.stringify(simulate({ pack: { ...world, content: { ...world.content, start: { ...world.content.start, date } } }, seed: 'a', days: 90 }).rows.map(row => row.fired));
     assert.notEqual(many({ year: 611, month: 1, day: 1 }), many({ year: 611, month: 7, day: 1 }));
 });
+
+test('the result says when the pack reads where the party is, which a dry run does not simulate', () => {
+    const says = extra => simulate({ pack: { ...pack, content: { ...pack.content, ...extra } }, seed: 'a', days: 2 }).readsParty;
+    const [levy] = pack.content.worldEvents, [riot] = pack.content.templates;
+    assert.equal(says({}), false);
+    for (const field of [{ waits_for: { near: ['Valegard'] } }, { requires: ['in:Valegard'] }, { requires_any: ['near:Valegard'] }, { likelier_if: { 'near:@region': '×3' } }, { less_if: { 'in:Valegard': '×0' } }]) {
+        assert.equal(says({ worldEvents: [{ ...levy, ...field }] }), true, JSON.stringify(field));
+    }
+    assert.equal(says({ templates: [{ ...riot, likelier_if: { 'near:@region': '×3' } }] }), true, 'a template');
+});

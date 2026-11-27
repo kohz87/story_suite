@@ -41,8 +41,8 @@ test('the rumor line survives the same pressure', async t => {
         await host.send('I look around.', said('Harrow is quiet.'));
         const lines = castLinesOf(host);
         assert.equal(lines.length, 1);
-        assert.match(lines[0], /^\[Cast\] People here know of a saintess candidate, healer/);
-        assert.doesNotMatch(lines[0], /Temiwa/);
+        assert.match(lines[0], /^\[Cast\] Someone sought is not in this scene: Sister Temiwa, Saintess candidate, healer/);
+        assert.match(lines[0], /use this person by this name/);
     } finally {
         host.close();
     }

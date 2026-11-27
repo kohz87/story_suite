@@ -97,3 +97,16 @@ test('a button goes through the port: a command as the reader\'s action, a windo
   assert.equal(why.textContent, 'Not now.');
   assert.equal(replyCardStrip([], () => {}), null);
 });
+
+test('a card keeps four rows unless it declares more (up to 8, rows then say up to 200 characters); the declaration travels from the entry to the reader', () => {
+  const rows = Array.from({ length: 10 }, (_, at) => ({ text: `row ${at + 1} ${'x'.repeat(150)}` }));
+  assert.equal(readCard({ title: 'T', rows }).rows.length, 4, 'built-in cards: unchanged');
+  assert.equal(readCard({ title: 'T', rows }).rows[0].text.length <= 120, true);
+  assert.equal(readCard({ title: 'T', rows }, 6).rows.length, 6);
+  assert.equal(readCard({ title: 'T', rows }, 8).rows.length, 8);
+  assert.equal(readCard({ title: 'T', rows }, 99).rows.length, 8, 'never past 8');
+  assert.equal(readCard({ title: 'T', rows }, 2).rows.length, 4, 'a declaration below 4 changes nothing');
+  assert.equal(readCard({ title: 'T', rows }, 8).rows[0].text.length > 120, true);
+  const { handle } = engine({ entries: [{ moduleId: 'wide', id: 'wide/card', rows: 8, fn: () => ({ title: 'Wide', rows }) }] });
+  assert.equal(replyCardsOf(handle.head()).list[0].card.rows.length, 8);
+});

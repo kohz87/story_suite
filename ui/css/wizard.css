@@ -5,7 +5,7 @@
 .su-root .wz .sh-panel{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#191a2b)}
 .su-root[data-scheme="light"] .wz .sh-panel{background:linear-gradient(var(--su-panel2),var(--su-panel2)),var(--su-flat,#e8e9f1)}
 /* the × is the mock's .x (44 px, radius 10, no border, 16 px glyph), as the Inspector and Scene sheets draw it */
-.su-root [data-sheet="new-character"] .sh-x,.su-root [data-sheet="rpg-hold"] .sh-x{width:44px;height:44px;flex:none;padding:1px 6px;background:var(--su-tint);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}
+.su-root [data-sheet="new-character"] .sh-x,.su-root [data-sheet="rpg-hold"] .sh-x,.su-root [data-sheet="plugin-screen"] .sh-x{width:44px;height:44px;flex:none;padding:1px 6px;background:var(--su-tint);border:0;color:var(--su-text);font:800 16px var(--su-font);border-radius:10px;cursor:pointer}
 .su-root .wz-steps{align-self:stretch}
 .su-root .wz-steps button{flex:1 1 0}
 /* the summary row: the Party sheet's 44 px tile and name, the points or skills pill, then the stats and skills lines */

@@ -237,7 +237,7 @@ function heroTurn(actor, state, choice, roll, actorIndex, lines, moves) {
     return { result: null };
 }
 
-function foeAttack(foe, hero, roll, slot, lines, moves, speedFull = false) {
+function foeAttack(foe, hero, roll, slot, lines, moves, speedFull = false, soakWhole = false) {
     const die = dieAt(roll, 'foe', slot, `${labelOf(foe)} attack`);
     const attack = die + opposition(foe);
     const evasionDie = dieAt(roll, 'check', slot, `${labelOf(hero)} evasion`);
@@ -248,7 +248,7 @@ function foeAttack(foe, hero, roll, slot, lines, moves, speedFull = false) {
         return;
     }
     const soak = soakOf(number(hero.stats.vit), hero.stance === 'defence' ? masteryOf(hero) : 0, hero.gearSoak);
-    const damage = takeHit(foeDamage(foe), soak, outcome === 'decisive'), before = number(hero.hp), after = Math.max(0, before - damage);
+    const damage = takeHit(foeDamage(foe), soak, outcome === 'decisive', soakWhole), before = number(hero.hp), after = Math.max(0, before - damage);
     recordMove(hero, 'hp', after, moves);
     lines.push(['foe-attack', labelOf(foe), labelOf(hero), die, attack, evasionDie, evasion, outcome, soak, damage, number(hero.hp)]);
 }
@@ -262,7 +262,7 @@ function choiceFor(choices, actor, index) {
 /**
  * Play one exchange on a copy of `sheet` ({ party, foes }). `choices` is an object keyed by hero id/label or an array in
  * party order; a missing hero choice is automatic (the simulator's policy). `options.roll(kind, slot)` returns each d20,
- * `options.order` is the fight's fixed per-side order, `options.rotation` keeps the foe target rotation, `options.fleeIdle` defers an idle member's stance in a flee exchange, and `options.speedFull` gives a Speed stance its full mastery on evasion.
+ * `options.order` is the fight's fixed per-side order, `options.rotation` keeps the foe target rotation, `options.fleeIdle` defers an idle member's stance in a flee exchange, `options.speedFull` gives a Speed stance its full mastery on evasion, and `options.soakWhole` lets soak take off only whole points (damage.js takeHit).
  * `options.horde` ({ setup, state }: the checked setup.horde and its moving state) plays a horde: the ends `cleared`, `leader` and `held`, and the refill.
  * Returns { sheet, lines, moves, order, rotation, result } with result null while the fight is open; a horde also returns `horde` (the state after) and `end` for a win.
  */
@@ -315,7 +315,7 @@ export function playExchange(sheet, choices = null, options = {}) {
             if (!standing.length) return;
             const hero = standing[rotation % standing.length];
             rotation += 1;
-            foeAttack(foe, hero, options.roll, 1000000 + index * 10, lines, moves, options.speedFull === true);
+            foeAttack(foe, hero, options.roll, 1000000 + index * 10, lines, moves, options.speedFull === true, options.soakWhole === true);
         });
         if (!living(party).length) result = 'loss';
     };

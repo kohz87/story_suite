@@ -4,6 +4,8 @@
 // A part of the adapter closure: createEditorPart(session, deps) gets the adapter's shared state (session) and the adapter's options,
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. No SillyTavern import.
 
+import { secretWatchEvent } from '../core/core-prompts-capture-parts/secret-watch.js';
+import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import {
     FEATURE_STAGES, limitsFromLines, limitsToLines, meterValue, MAX_SECRETS, normalizeSecrets, secretsFromLines, secretsToLines, wordKey,
 } from '../meters/npc-meters.js';
@@ -25,7 +27,7 @@ const BAR_WIDTHS = Object.freeze([62, 48, 56, 70]);
 
 export function createEditorPart(session, deps) {
     const {
-        catalog, entryFor, headReply, part, setupOf, sliceEntries, gateInputs, worldSecretsOn,
+        catalog, entryFor, headReply, ownersNow, part, setupOf, sliceEntries, gateInputs, worldSecretsOn,
     } = deps;
 
     // ---- the dossier editor and the dossier view (hosted only) ----
@@ -48,6 +50,8 @@ export function createEditorPart(session, deps) {
      * titles), the stage ladder track, the per-meter limits, the milestones and the custom meters'
      * values (the slice's). Every value is escaped.
      */
+    // The notes' rules of a dossier the caller holds are asked for by its id.
+    const heldBy = npc => (typeof npc?.id === 'string' && npc.id ? { name: npc.id, labels: [npc.id], ...(isTerminalNpcDeath(npc) ? { gone: true } : {}) } : undefined);
     function editorHtml(npc) {
         if (!session.hosted || !npc) return '';
         const settings = part.meterSettings();
@@ -61,7 +65,7 @@ export function createEditorPart(session, deps) {
         const opened = new Set(entry?.unlocked ?? []);
         const notes = normalizeSecrets(npc.secrets);
         const shown = notes.filter(note => editorShows(note, opened));
-        const rules = new Map(part.notes({ name: npc.name, unlocked: [...opened], meters: entry?.meters }).locked.map(note => [note.id, note.opens]));
+        const rules = new Map(part.notes({ name: npc.name, unlocked: [...opened], meters: entry?.meters }, heldBy(npc)).locked.map(note => [note.id, note.opens]));
         let html = box(EDITOR.secrets, 'Hidden notes', 'One per line: "meter threshold: [title] note" (e.g. "trust 60: [Her past] She is the duke\'s daughter."), "when the duke falls => [title] note" for a note that opens on a story event (up to 120 characters; Delta\'s scan watches for it while this NPC is present), or "trust 60 or when the duke falls => note" for whichever comes first. A meter rule opens at or above its threshold (at or below it for a negative one). The story is told every note while this NPC is present (locked ones as hidden, never to be revealed). This box holds the notes you wrote and the notes that are opened; any other note stays hidden from you until it opens, and is kept as it is when you save.', secretsToLines(shown));
         if (notes.length) {
             let hiddenCount = 0;
@@ -105,10 +109,10 @@ export function createEditorPart(session, deps) {
         const value = id => {
             try { const got = read(id); return got === null || got === undefined ? undefined : String(got); } catch { return undefined; }
         };
+        const entry = entryFor(sliceEntries(), current);   // once: whose entry this is, for the notes, milestones and meters
         const secrets = value(EDITOR.secrets);
         if (secrets !== undefined) {
             // The box held only the notes the reader may see (editorHtml); every other note is kept exactly as it was.
-            const entry = entryFor(sliceEntries(), current);
             const was = new Set(entry?.unlocked ?? []);
             const before = normalizeSecrets(current?.secrets);
             const kept = new Set(before.filter(note => !editorShows(note, was)).map(note => note.id));
@@ -151,7 +155,6 @@ export function createEditorPart(session, deps) {
             const next = { track: track === undefined ? was.track : track.trim().slice(0, 80), limits: parsed.limits };
             if (JSON.stringify(next) !== JSON.stringify(was)) out.meterSetup = next.track || Object.keys(next.limits).length ? next : null;
         }
-        const entry = entryFor(sliceEntries(), current);
         const milestones = value(EDITOR.milestones);
         if (milestones !== undefined) {
             const had = entry?.milestones ?? {};
@@ -178,7 +181,7 @@ export function createEditorPart(session, deps) {
     function secretsViewOf(npc, entry) {
         const rules = normalizeSecrets(npc?.secrets);
         if (!rules.length) return [];
-        const notes = part.notes({ name: npc.name, unlocked: entry?.unlocked ?? [], meters: entry?.meters });
+        const notes = part.notes({ name: npc.name, unlocked: entry?.unlocked ?? [], meters: entry?.meters }, heldBy(npc));
         const opened = new Map(notes.opened.map(note => [note.id, note]));
         const locked = new Map(notes.locked.map(note => [note.id, note]));
         const out = [];
@@ -238,10 +241,9 @@ export function createEditorPart(session, deps) {
         const out = {};
         // Ties are kept by the other person's entry key; the map and the Ties rows read them by dossier id and by bond.
         const idByKey = {};
-        for (const npc of npcs) {
-            const found = npc?.id ? part.identify(byKey, npc.name) : null;
-            if (found && Object.hasOwn(byKey, found.key)) idByKey[found.key] = npc.id;
-        }
+        const owners = ownersNow();
+        const keys = new Map(npcs.filter(npc => npc?.id).map(npc => [npc.id, owners.entryKey(byKey, npc)]));
+        for (const [id, key] of keys) if (key && Object.hasOwn(byKey, key)) idByKey[key] = id;
         const canon = aliasCanon(npcs);
         // A pack tie to someone met after this person is added at read once they are (cast-links.js; never stored).
         const met = metCastNames(npcs);
@@ -259,11 +261,14 @@ export function createEditorPart(session, deps) {
         const linked = new Map(withCastLinks(npcs).filter(npc => npc?.id).map(npc => [npc.id, npc]));
         for (const npc of npcs) {
             if (!npc?.id) continue;
-            const who = part.identify(byKey, npc.name);
-            const entry = who && Object.hasOwn(byKey, who.key) ? byKey[who.key] : null;
+            const key = keys.get(npc.id);
+            const entry = key && Object.hasOwn(byKey, key) ? byKey[key] : null;
             const slice = entry ? entries.find(item => item.key === entry.key) : null;
-            // Someone with notes but no meters yet still has a Secrets section (every note hidden).
-            const secrets = secretsViewOf(npc, slice);
+            // Someone with notes but no meters yet still has a Secrets section (every note hidden). The cast leaves the dead out: theirs is shown
+            // once a note of theirs has been opened, from their own meters entry.
+            const own = entry ? null : entryFor(entries, npc, owners);
+            const view = secretsViewOf(npc, slice ?? own);
+            const secrets = !entry && isTerminalNpcDeath(npc) && !view.some(note => note.state === 'open') ? [] : view;
             if (!entry && !secrets.length) continue;
             const net = ownChangeOf(slice, head);
             out[npc.id] = {
@@ -296,18 +301,19 @@ export function createEditorPart(session, deps) {
         const entries = sliceEntries() ?? [];
         const out = [];
         let people = 0;
-        const open = worldSecretsOn?.() ? offeredSecrets(npcs, entries) : null;
+        const owners = ownersNow();
+        const open = worldSecretsOn?.() ? offeredSecrets(npcs, entries, owners) : null;
         for (const npc of npcs) {
             if (people >= EVENT_WATCH_NPCS) break;
             if (!npc?.id || !npc.present || npc.archived) continue;
-            const slice = entryFor(entries, npc);
+            const slice = entryFor(entries, npc, owners);
             const done = new Set([...(slice?.unlocked ?? []), ...(slice?.held ?? [])]);
             const notes = normalizeSecrets(npc.secrets).filter(note => !done.has(note.id));
             const events = notes.filter(note => note.when).slice(0, EVENT_WATCH_EACH).map(note => ({ note, event: note.when }));
             // A pack secret whose gate is open (world-events switch) may come out: the same watch, so the model can write its `~ reveal` line.
             // Only the one the tail offers ("(may come out)": the first open one a person, two in all), so the watch never lists the others (final review M2).
             const offered = open?.get(npc.id);
-            if (offered && events.length < EVENT_WATCH_EACH) events.push({ note: offered, event: `the secret "${offered.text.slice(0, 60)}" comes out` });
+            if (offered && events.length < EVENT_WATCH_EACH) events.push({ note: offered, event: secretWatchEvent(offered.text) });
             if (!events.length) continue;
             people += 1;
             for (const { note, event } of events) out.push({ key: `s${out.length + 1}`, id: npc.id, name: npc.name, note: note.id, event });
@@ -316,17 +322,17 @@ export function createEditorPart(session, deps) {
     }
 
     // The open pack secret of each present person the narrator is offered: the first open one in the pack's order, people by id, two in all → Map(id → note).
-    function offeredSecrets(npcs, entries) {
+    function offeredSecrets(npcs, entries, owners) {
         const byId = new Map(part.defs().map(def => [def.id, def]));
         const out = new Map();
         const here = npcs.filter(npc => npc?.id && npc.present && !npc.archived).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
         for (const npc of here) {
             if (out.size >= READY_IN_ALL) break;
-            const slice = entryFor(entries, npc);
+            const slice = entryFor(entries, npc, owners);
             const done = new Set([...(slice?.unlocked ?? []), ...(slice?.held ?? [])]);
             const gated = normalizeSecrets(npc.secrets).filter(note => note.gate && !done.has(note.id));
             if (!gated.length) continue;
-            const inputs = gateInputs(npc.name);
+            const inputs = gateInputs(npc.id);
             const first = gated.find(note => gateOpen(note, slice ?? {}, byId, inputs));
             if (first) out.set(npc.id, first);
         }

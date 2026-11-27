@@ -232,7 +232,17 @@ branch from the swipe picker; see persist.js.) Readers accept either shape: repl
   keeps the later replies' writes, laid on the initial value (a later `replace` of a key the deleted reply had added is an add,
   rule c). A block of removes alone makes nothing, and a chat whose replies never write the domain holds no slice of it, live or
   replayed. A deferred domain's `initial()` must hold every container a later reply writes into (the `people` slice: `bonds`
-  with `npcs` and `problems`); a leaf under something only the deleted reply made (a person's own record) still fails its block.
+  with `npcs` and `problems`); a leaf under something only the deleted reply made fails its block, unless it is a keyed holder's entry (rule i).
+  (i) A domain may name maps of keyed holders (`holders: { 'bonds/npcs': make(key, slice) }`, a path of plain keys inside the
+  domain): every entry of such a map is made whole by the first reply that writes it, and later replies write leaves under it (the
+  people's per-person meter records). On replay (never for a live command), an `add` or `replace` strictly under an entry that is not
+  there, in a map that is, and that no earlier op of the block wrote whole, first finds the entry as `make(key, slice)` (`slice` the
+  domain before the block; a maker reads nothing but it, so a replay never depends on the settings); a maker that gives no object
+  leaves the block as written, and it fails as before. Every replayed op inside an entry that is there (or was remade) is then fitted
+  as a scratch field's is: the objects on the way are made (a list for an append `/-`), a `replace` of something not there becomes an
+  `add` (a counted one adds its change alone), and a `remove` of something not there is passed over; an op marked `within` a thing
+  is left to rule (d), and an op inside a list applies as written. Ops that fit are replayed exactly as stored. So deleting the reply
+  that first wrote a person's meters keeps the later replies' changes for them (`rules:i`).
 * **Head state** = state at the last carrier. Actions taken after reply N are appended to reply N's `ops`
   (so deleting or swiping reply N takes them back too).
 * Story Block caches the head state and the most recent checkpoint in memory and rebuilds on chat change,
@@ -629,7 +639,7 @@ One hidden block at the end of the reply:
   past `perReply` too (`LIMITED`, the first ones kept, counted over the whole reply: a Continue's lines
   count after the ones it already shows); a line of a feature that is off is a quiet `FEATURE_OFF`, and its
   hidden comment marks that kind `off:`, so turning the feature on later does not show what the reader was
-  told was not used; a Re-read reads it again and marks every comment of the reply as it found them. Story Block's two: `? choice Text` (4 a reply; the narrator is asked for 80 code points, a longer one is kept whole up to 160 and the button wraps; buttons under the latest reply
+  told was not used; a Re-read reads it again and marks every comment of the reply as it found them. Story Block's two: `? choice Text` (4 a reply; the narrator is asked for 80 code points, a longer one is kept whole up to 400 and the button wraps; buttons under the latest reply
   that only fill the message box) and `~ chatter Name: thought` (3 a reply, 40 + 240 code points; not drawn
   under replies: next to each person on Story Director's World → Now, `chatter.head`, or on Story Block's
   Scene screen without it, `scene.chatter`; never sent back unless the reader's `chatterInPrompt` setting
@@ -832,6 +842,10 @@ sdk.registerModule({
     feature to its own `default` clears the stored choice instead of writing it, so a later change of the default still reaches the reader
     (except where an older Story Block setting still speaks for that feature).
     Packs do not suggest feature defaults.
+  * A feature may carry `replaces: ['story-block.rpg']` (at most four feature ids). Switching it on switches those features off in
+    the same action, and switching one of them on switches off every feature that replaces it (the store's `set`; the stored choices
+    of both change). A module with a settings `section` title and a schema that is not a built-in gets its own page under Settings ›
+    Rules, named by that title, while one of its features is on.
   * The settings overlay shows a "Features" subsection at the top of each module's fold (a switch, the
     label, the description) and one "Features" overview of every module's; a feature that changes the
     static part says "Changes the fixed prompt once (one slower reply)."
@@ -919,7 +933,7 @@ named in `with:` are present. Exception: an Assist place on a reply with the `as
 people present, and explicit departures take precedence over its `with:` names (MODULES §F123). On a reply with the `placeFromMap`
 mark a move's `with:` companions who have a dossier (not party members, not the dead) get the new place as their dossier `location` (`people.fields`),
 unless its stored place already is that place or a place inside it (or the place it is inside; read from the store, since `people.list` hides the old place of someone the scene has here), so a companion left behind later keeps where they were left (modules/scene/place-follow.js). Queries `scene.place`, `scene.present` and `scene.moved` (true while the head
-reply's receipts moved the place; MODULES §F119). Query `reply.changes({ index? })` answers `{ lines: [{ glyph, line, detail, applied }], refused, stateThen: { place, weather } }` for one reply (the head by default; `{ asOf, index }` for an earlier one), built from that reply's receipts only (items, net coin, a move, who arrived or left; the reader's own `ui` edits are left out), or null when it has none. `refused` is always `[]`: a refused line is told once by the turn and is not stored.
+reply's receipts moved the place; MODULES §F119). Query `reply.changes({ index? })` answers `{ lines: [{ glyph, line, detail, applied }], refused, stateThen: { place, weather } }` for one reply (the head by default; `{ asOf, index }` for an earlier one), built from that reply's receipts only (items, net coin, a move, who arrived or left, and any receipt whose `data.card` is `{ line, detail?, refused? }`: that line is shown, as not applied with `detail` behind Why when `refused`; the reader's own `ui` edits are left out), or null when it has none. `refused` is always `[]`: a line the turn refuses is told by the turn and is not stored (a module that wants a refusal on the card returns a receipt that changes nothing, with `data.card.refused`, as Text RPG's `~ rest` does).
 Capture kind `weather` (`~ weather cold drizzle, low fog`, feature `story-block.weather`, on; MODULES §F120):
 the text flattened, without markup, cut at 60 code points; `rev` the `meta.rev` of the receipt that wrote it;
 the same text again changes nothing. Descriptive only: no mechanic reads it. `weather` is a `scratch` field
@@ -948,13 +962,16 @@ an earlier reply was deleted passes over a change to a mount that is no longer t
 `mounts` is a `scratch` field (§2.2), so a mount added after the reply that first wrote the field was deleted still lands.
 Older chats have no `mounts` and read as none. Names match as other story names do (case and spaces do not matter).
 Capture kind `mount`: `+ mount Grey Mare | kind: horse | count: 1 | pace: 35 | where: ridden by Wessel` (a mount the
-party already has is updated by what the line gives), `~ mount Burr | condition: lame | where: stabled at the Stray Oar`
+party already has is updated by what the line gives; the grammar asks for one line per animal or vehicle, named for what tells it apart, and `count` only for
+a string of pack animals that is never split), `~ mount Burr | condition: lame | where: stabled at the Stray Oar`
 (only what it names changes; an empty label clears), `- mount Burr`. A missing `pace` takes the kind's usual one: horse 35,
 pony 30, camel 30, mule 25, donkey 20, ox 15, cart 18, wagon 18, else 30 (km a day); a count or pace out of range is held
-to it and said as a Problem; a seventh row, a `~` or `-` of a mount the party has not, and text that is not a number where
+to it and said as a Problem; a thirteenth row (a seventh on a reply without the rule mark `mountRiders`, so a Re-read of an older reply keeps six), a `~` or `-` of a mount the party has not, and text that is not a number where
 a number belongs are refused with a plain Problem. Command `mounts.edit({ mount, name?, kind?, count?, pace?, condition?,
 where? })` (the reader's pencil, `ui` only, on the latest reply; `mount` names the row to change). The narrator's tail line,
-only while there is a mount: `Mounts: Grey Mare (horse, 35 km/day, ridden by Wessel); Guild remounts ×4 (horse, 35 km/day)`.
+only while there is a mount: `Mounts: Grey Mare (horse, 35 km/day, ridden by Wessel); Burr (mule, 25 km/day, tired, led)`. Rows of one kind and pace that are
+with the party and say no more than who rides (an empty `where`, `with the party`, `ridden by …` or a list of members only) are said once,
+`horse ×5 (35 km/day) with the party (Wessel): Grey Mare, Guild remounts ×4`, as are rows left at one same `where`; a row with a condition keeps its own entry.
 Queries (read by Story Director's trip line; each null while the feature is off): `mounts.list` →
 `[{ name, kind, count, pace, condition, where }]`, copies in story order (`[]` with none); `mounts.pace` →
 `{ pace, mounts, riders, short, slowest }` or `null` with no mount: `pace` the slowest row's pace, `mounts` the sum of
@@ -965,7 +982,7 @@ Home draws a Mounts card beside Save points while there is a mount.
 ### inventory
 ```js
 {
-  defs:   { [defId]: { id, name, kind: 'goods'|'material'|'consumable'|'equipment'|'quest'|'money',
+  defs:   { [defId]: { id, name, kind: 'goods'|'material'|'consumable'|'equipment'|'quest'|'money'|'supply',
                        rarity: 'common'|'uncommon'|'rare'|'epic'|'legendary', value: 0 /* smallest unit */,
                        stack: true, slot: null, stats: {}, effect: {}, tags: [], note: '' } },
   stacks: { [stackId]: { id, def, qty, owner: 'ac_…' /* actor */ | 'party', equipped: null | slot,

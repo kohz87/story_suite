@@ -10,6 +10,7 @@ import { clearLook } from './you-look.js';
 import { knownPlace, knownPlaces } from './place-known.js';
 import { told } from './shared.js';
 import { followPlace, leavePlace } from './place-follow.js';
+import { filedInside } from './place-inside.js';
 
 function field(ctx, value, what) {
     if (value === undefined || value === null) return null;
@@ -38,8 +39,13 @@ function packPlaceKind(ctx, name) {
 export function setPlace(ctx, { name, kind, region, with: along }, { keepPresent = false, departed = [], fromMap = false } = {}) {
     const scene = ctx.draft('scene');
     const fromPlace = scene.place.name;
-    const placeName = field(ctx, name, 'name');
-    if (!placeName) ctx.fail('INVALID', 'A place needs a name.');
+    const written = field(ctx, name, 'name');
+    if (!written) ctx.fail('INVALID', 'A place needs a name.');
+    const given = { kind: field(ctx, kind, 'kind'), region: field(ctx, region, 'region') };
+    // A new spot named in town, with no travel, is in that town and is no settlement itself (place-inside.js; a reply marked `placeInside`).
+    const inside = ctx.carrier?.rules?.includes('placeInside') ? filedInside(ctx, scene.place, { name: written, ...given }) : null;
+    const placeName = inside?.name ?? written;
+    if (inside) given.kind = inside.kind;
     const moved = placeName.toLowerCase() !== scene.place.name.toLowerCase();
     const came = companions(ctx, along).filter(person => !keepPresent || !departed.includes(person.toLowerCase()));
     // A move leaves the passing look behind (only a reply marked `youLook`: an older one keeps its look on Re-read).
@@ -49,7 +55,6 @@ export function setPlace(ctx, { name, kind, region, with: along }, { keepPresent
     // A marked reply's move takes a kind and region the line leaves out from the map (or a pack) when it knows the place; an explicit label wins.
     const known = fromMap && moved ? knownPlace(ctx, placeName) : null;
     const fromKnown = what => (typeof known?.[what] === 'string' && known[what].trim() ? field(ctx, known[what], what) : null);
-    const given = { kind: field(ctx, kind, 'kind'), region: field(ctx, region, 'region') };
     const filled = [given.kind === null && fromKnown('kind') ? 'kind' : '', given.region === null && fromKnown('region') ? 'region' : ''].filter(Boolean);
     scene.place = {
         name: placeName,
@@ -69,9 +74,10 @@ export function setPlace(ctx, { name, kind, region, with: along }, { keepPresent
     // (S2PA B12) Who stayed behind is where the scene left them: their dossier's place is the place it moved away from.
     if (moved && left.length && fromPlace && ctx.carrier?.rules?.includes('placeFromMap')) leavePlace(ctx, left, fromPlace);
     const withWho = came.length ? ` with ${came.join(', ')}` : '';
+    const filedIn = inside?.town ? ` (filed inside ${inside.town} as a ${inside.kind})` : '';
     const fromTheMap = filled.length ? ` (${filled.map(what => (filled.length > 1 ? '' : `${what} `) + scene.place[what]).join(', ')}, from the map)` : '';
     return {
-        summary: moved ? `The scene moves to ${placeName}${fromTheMap}${withWho}.` : `${placeName} is described anew.`,
+        summary: moved ? `The scene moves to ${placeName}${fromTheMap}${filedIn}${withWho}.` : `${placeName} is described anew${inside?.replaced ? filedIn : ''}.`,
         data: { ...scene.place, moved, present: [...scene.present], left },
         narrate: told(ctx),
     };

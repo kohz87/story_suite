@@ -62,4 +62,30 @@ export const RULE_LINES = Object.freeze({
     itemIds: () => false,
     // A story `- item X | used: yes` for a consumable restores a pool on the sheet (lean-rpg/board/overrides.js rpg.useItem, asked from domains/inventory/story.js). Static per chat: only a reply's first live capture is marked; an older reply keeps the plain take-away.
     consumableRecovery: () => false,
+    // A new `~ place` the story names while the party is in a settlement, with no travel, is filed inside it ("Town / Spot") and is no settlement itself (domains/scene/place-inside.js). Static per chat: only a reply's first live capture is marked; an older reply keeps the place as written.
+    placeInside: () => false,
+    // `+ item` and `~ item … qty` are held to the carry limit counted with every member's own room and without that of anyone who left (domains/inventory/story-parts/item.js
+    // storyCarry). A reply with no mark is judged by the count from before (`gear.carry { legacy }`). A `- item` line adds nothing.
+    carryRoster: line => line?.kind === 'item' && line.op !== '-',
+    // `~ rest` is refused only while a fight is still on (foes this reply touched, or touched within 60 story minutes; with no clock, this reply or the one before), not for any foes
+    // left standing (Text RPG module-parts/kinds/rest.js); a `? try` `against:` a named group is such a touch. A reply with no mark is refused while any group stands, with no receipt.
+    restCurrent: line => line?.kind === 'rest',
+    // A later `+ xp` in a reply that names another standing group counts that group's foes down and pays nothing (Text RPG module-parts/kinds/xp.js).
+    // A reply with no mark refuses every `+ xp` after the first.
+    xpCountsDown: line => line?.kind === 'xp',
+    // `~ reveal Name | opened: <id>` may open a person's next pack secret not yet told though its gate is closed, and `<id>` may be the pack's own id
+    // (NPC State meters/npc-lines-parts/secret.js). A reply with no mark opens a gated secret only while its gate is open, by its sec_ id.
+    revealNext: line => line?.kind === 'reveal',
+    // `~ npc Name | toward:` writes who the reader is to them (the dossier's "Who you are to them"). A reply with no mark keeps the label unused, as an unknown one.
+    npcToward: line => line?.kind === 'npc' && Object.keys(line.labels ?? {}).some(label => label.trim().toLowerCase() === 'toward'),
+    // `+ item` and `~ item … qty` are held to a carry limit that counts a mount whose `where` names the reader's character or a party member ("Rav, Torka") as with the party
+    // (domains/inventory/gear/carry-parts/mount-travel.js; for a story line the names are those held in state, never the live persona name). A reply with no mark reads mounts without those names (`gear.carry { riders: false }`). Same item lines as `carryRoster`.
+    // Also `+ mount`: the party keeps up to 12 mount rows (scene/mounts-parts/apply.js). A reply with no mark still refuses a seventh.
+    mountRiders: line => (line?.kind === 'item' && line.op !== '-') || (line?.kind === 'mount' && line.op === '+'),
+    // `+ item … | kind: supply` makes a new item of the inventory kind `supply`, with Gear on or off (inventory stacks-parts/def-build.js). A reply with no mark builds the item as it did.
+    supplyKind: line => line?.kind === 'item' && line.op === '+',
+    // A narrator condition (`world … | conditions:`) may name a place by its pack file id (daily/geo.js, conditions/known-refs.js). Static per
+    // chat: only a reply's first live capture is marked; a Re-read of an older reply still refuses such a ref. The day step takes no mark:
+    // it, like the marked line, reads file ids only for a world pack that opted in (`"placeIds": true`).
+    packPlaceIds: () => false,
 });

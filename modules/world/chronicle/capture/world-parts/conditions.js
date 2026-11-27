@@ -3,7 +3,7 @@
 
 import { cleanName, keyOf } from '../../domain.js';
 import { asText } from '../text.js';
-import { conditionTarget } from './condition-check.js';
+import { conditionTarget, said } from './condition-check.js';
 
 const MAX_TOKENS = 6;
 const MAX_CLAIMS = 32;
@@ -61,12 +61,12 @@ export function applyConditions(ctx, items, { place, region, realm = '', why }) 
         const known = Array.isArray(declared) ? declared.find(entry => keyOf(entry?.name) === keyOf(name)) : null;
         if (!known) { notes.push(`"${name}" is not a condition the world lists`); continue; }
         // Asked first (condition-check.js): a refused sub-command would fail the whole line on the host.
-        const { ref, refusal } = conditionTarget(ctx, known, { place, region, realm, explicit }, clear);
+        const { ref, refusal } = conditionTarget(ctx, known, { place, region, realm, explicit, written: name }, clear);
         if (refusal) { notes.push(refusal); continue; }
         const failed = clear
             ? attempt(ctx, 'chronicle.condition.clear', { name: known.name, ref, why, by: 'narrator' })
             : attempt(ctx, 'chronicle.condition.set', { name: known.name, scope: known.scope, ref, why, by: 'narrator' });
-        if (failed) notes.push(`"${known.name}": ${failed}`);
+        if (failed) notes.push(said(name, known.name, failed));
         else done.push(`${clear ? '-' : '+'}${known.name} (${ref})`);
     }
     return { done, notes };

@@ -3,6 +3,8 @@
 import { WORLD_EVENTS_FEATURE } from '../conditions/feature.js';
 import { setup } from '../queries-parts/env.js';
 import { knownAnchors } from './learned.js';
+import { unheldFacts } from './holding-facts.js';
+import { toolsQuery } from '../queries-parts/shared-ask.js';
 
 /** The query (feature-tagged: null while the switch is off). */
-export const anchorsQuery = Object.assign((state, _args, tools) => [...knownAnchors(setup(state, tools).chronicle)].sort(), { feature: WORLD_EVENTS_FEATURE });
+export const anchorsQuery = Object.assign((state, _args, tools) => [...knownAnchors(setup(state, tools).chronicle, unheldFacts(toolsQuery(tools)))].sort(), { feature: WORLD_EVENTS_FEATURE });

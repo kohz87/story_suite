@@ -3,7 +3,7 @@
 import { selectCard } from './card.js';
 import { selectNow } from './now.js';
 import { selectReplyMenu } from './chat.js';
-import { selectParty } from './party.js';
+import { screenOf, selectParty } from './party.js';
 import { selectBag } from './bag.js';
 import { selectLoot } from './loot.js';
 import { selectPeople } from './people.js';
@@ -18,6 +18,7 @@ import { selectPrompts } from './prompts.js';
 import { selectScene, selectFightScene, fightNeeds as needsOf, FIGHT_KIND } from './interaction.js';
 import { selectHold } from './hold.js';
 import { gather, optsOf, gearOf, partyPortraits } from './gather.js';
+import { partyKeepsakes } from './party-keepsakes.js';
 import { offerRows } from './offers.js';
 import { pinnedFeed } from './pinned.js';
 import { PARTY_ACTIVE } from './party-max.js';
@@ -53,6 +54,7 @@ const arcStatus = () => { try { return arcController().status(); } catch { retur
 
 const openScene = answer => { const view = selectScene(answer); return view && view.kindId !== FIGHT_KIND ? view : null; };
 
+const pluginValuesOf = sdk => Object.fromEntries((sdk?.modules?.() ?? []).filter(m => m.settingsPage).map(m => [m.id, sdk?.settings?.(m.id) ?? null]));
 const directorAnswers = (sdk, ctx) => ({ sceneShown: ctx()?.chatMetadata?.[PREFS_KEY]?.scene === true, values: Object.fromEntries(['story-director', 'npc-state-delta'].map(id => [id, sdk?.settings?.(id) ?? null])), features: sdk?.features?.() ?? [] });
 // One engine query for the Packs page; a build without it (or a query that throws) gives an empty page.
 const ask = (sdk, name) => { try { return sdk?.query?.(name, {}); } catch { return null; } };
@@ -102,9 +104,11 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
     },
     party: read => {
       const actors = read('party.actors', {});
-      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors) });
+      const screen = screenOf(read('party.newCharacter', {}));
+      const vm = selectParty({ actors, pc: read('party.pc', {}), levels: read('party.levels', {}), gear: gearOf(read, actors), sheet: awayShown(read('rpg.sheet', {}), sdk?.settings?.('story-block')), portraits: partyPortraits(read, ctx, actors), keepsakes: partyKeepsakes(read, actors, read('party.pc', {})?.id), newCharacter: screen, labels: read('gear.statLabels', {}) });
       // (the RPG on and no You: the tab offers New character, ui/wizard; the old Party tab's rule)
-      return wizard.needsYou() ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true } : vm;
+      // (a plug-in sheet's own empty party, `party.newCharacter` naming its screen, offers it too: the roster is empty, so the view-model above is null)
+      return wizard.needsYou() || screen ? { pcId: null, max: PARTY_ACTIVE, canInvite: false, members: [], characters: wizard.characters(), ...vm, newCharacter: true, ...(screen ? { newCharacterScreen: screen } : {}) } : vm;
     },
     bag: read => {
       const actors = read('party.actors', {});
@@ -114,7 +118,7 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const loot = selectLoot(read('inventory.loot', {}));
       const bag = selectBag({
         rpg: Array.isArray(actors) && actors.length > 0, items: read('inventory.items', {}), counts: read('inventory.counts', {}), gear: pc?.id ? view : null, carriers: view?.carriers,
-        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), pcId: pc?.id ?? null,
+        wallet: read('inventory.wallet', {}), currency: read('inventory.currency', {}), mounts: read('mounts.list', {}), pace: read('mounts.pace', {}), changes: read('reply.changes', {}), encumbrance: read('inventory.encumbrance', {}), pcId: pc?.id ?? null, labels: read('gear.statLabels', {}),
       });
       // every reply's loot not taken yet (the Bag's To pick up)
       return bag && loot.length ? { ...bag, loot } : bag;
@@ -137,10 +141,11 @@ export function buildSelectors(ctx = () => null, sdk = null, tools = null, hold 
       const view = read('interaction.view', {});
       const scene = openScene(view);
       const actors = read('party.actors', {});
-      return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou(), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
+      // (a plug-in sheet's `party.newCharacter` naming its screen shows the tab too: its party is empty until the reader's character exists)
+      return { rpg: (Array.isArray(actors) && actors.length > 0) || wizard.needsYou() || Boolean(screenOf(read('party.newCharacter', {}))), fightOpen: Boolean(fightOf((name, args) => (name === 'interaction.view' ? view : read(name, args)))), sceneOpen: Boolean(scene), sceneTitle: scene?.title ?? '' };
     },
     settings: () => selectSettings({
-      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, rollsHeld: rpgHasCharacter(sdk), packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup'), pairing: ask(sdk, 'packs.pairing'), own: ask(sdk, 'packs.own'), lorebook: liveLorebookRows(ask(sdk, 'packs.list')) },
+      host: sdk?.settings?.() ?? {}, defaults: sdk?.settings?.defaults ?? {}, schema: sdk?.settings?.schema ?? {}, features: sdk?.features?.() ?? [], modules: sdk?.modules?.() ?? null, pluginValues: pluginValuesOf(sdk), people: sdk?.settings?.('npc-state-delta') ?? {}, director: sdk?.settings?.('story-director') ?? {}, directorCalls: ask(sdk, 'chronicle.directorCalls')?.count ?? 0, directorPage: directorAnswers(sdk, ctx), money: sdk?.settings?.('story-block') ?? {}, extras: sdk?.settings?.('story-block') ?? {}, profiles: listProfiles(), calls: callsOf(ctx), rpg: sdk?.settings?.('story-block') ?? {}, rollsHeld: rpgHasCharacter(sdk), packsAnswers: { list: ask(sdk, 'packs.list'), setup: ask(sdk, 'dataModules.setup'), pairing: ask(sdk, 'packs.pairing'), own: ask(sdk, 'packs.own'), lorebook: liveLorebookRows(ask(sdk, 'packs.list')) },
       subtitle: 'this chat', tools: tools ? { sent: tools.sent(), ...problemsNow() } : null, staticTokens: tools?.staticTokens,
       peoplePresets: packPresets(sdk),
     }),

@@ -1,27 +1,46 @@
 // Builds and edits one NPC's record: who a change is about, a new entry, problems, meter changes, stages, notes and impact tiers.
 import { RELATIONSHIP_KEYS, applyRelationshipDelta, normalizeRelationshipCaps } from '../../core/core-mechanics.js';
-import { CUSTOM_RANGE, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, NAME_MAX, clamp, clean, intOr, isInt, isObject, slug } from '../npc-meters-config.js';
+import { CUSTOM_RANGE, MAX_NPCS, MAX_PROBLEMS, MAX_UNLOCKED, NAME_MAX, clamp, clean, intOr, isInt, isObject, npcKey, slug } from '../npc-meters-config.js';
 import { makeNpcId } from '../../core/core-identity.js';
 
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
-import { findNpcKey, meterValue, settle } from '../npc-meters-slice.js';
+import { meterValue, settle } from '../npc-meters-slice.js';
+import { ownersOf } from './owners.js';
 
 /** The record helpers of one npc part, built on its hook readers. */
 export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
-    // Who a change is about: the entry key, the name it shows, the dossier's labels and numbers.
-    function identify(npcs, label) {
+    // The person a label names. A stored id is that dossier. A stored dossier's name is that dossier (dead and archived too): the live lookup (`resolve`,
+    // which skips the dead) counts only when it answers someone of that name, never a person who merely has it as an alias.
+    function personOf(npcs, asked, owners) {
+        const live = resolve(asked);
+        const held = owners.record(asked);
+        if (held) return live?.id === asked ? live : held;
+        if (live && npcKey(live.name) === npcKey(asked)) return live;
+        const namesakes = owners.named(asked);
+        return namesakes.find(item => Object.hasOwn(npcs, item.id)) ?? namesakes[0] ?? live;
+    }
+
+    // Who a change is about: the entry key, the name it shows, the dossier's labels and numbers. `owners`: ownersOf(the stored dossiers of the state
+    // the caller works on); every caller passes it.
+    function identify(npcs, label, owners = ownersOf(null)) {
         const asked = clean(label, NAME_MAX);
         if (!asked) return null;
-        const dossier = resolve(asked);
+        const dossier = personOf(npcs, asked, owners);
+        // An npc_ id that is nobody's (a dossier deleted or merged while a command waited) names no one: never an entry called by the id.
+        if (!dossier && PEOPLE_ID.test(asked) && !Object.hasOwn(npcs, asked)) return null;
         const name = clean(dossier?.name ?? asked, NAME_MAX);
-        const labels = [name, asked, ...(Array.isArray(dossier?.aliases) ? dossier.aliases : [])].map(item => clean(item, NAME_MAX)).filter(Boolean);
-        // The key is the person's npc_ id: the dossier's own when Delta has one (an entry already under it first, then one found by name, as before), else an
+        // The key is the person's npc_ id: the dossier's own when there is one (an entry already under it first, then an older one found by name), else an
         // entry found by name, else a new id made as Delta makes dossier ids (so the dossier Delta makes later for that name has the same id).
         const id = typeof dossier?.id === 'string' && PEOPLE_ID.test(dossier.id) ? dossier.id : null;
-        const key = (id && Object.hasOwn(npcs, id) ? id : null) ?? findNpcKey(npcs, labels) ?? id ?? makeNpcId(name, Object.keys(npcs));
+        const person = { id, name, aliases: (Array.isArray(dossier?.aliases) ? dossier.aliases : []).map(item => clean(item, NAME_MAX)) };
+        const labels = owners.labels(person, [asked]);
+        const key = owners.entryKey(npcs, person, [asked]) ?? id ?? makeNpcId(name, [...Object.keys(npcs), ...owners.ids()]);
         if (!key || !PEOPLE_ID.test(key)) return null;
-        return { key, name, labels, seed: isObject(dossier?.relationship) ? dossier.relationship : null };
+        return { key, name, labels, seed: isObject(dossier?.relationship) ? dossier.relationship : null, owners };
     }
+
+    // `identify` for a command or change line: the owners are the dossiers of the reply's own state.
+    const identifyIn = (ctx, npcs, label) => identify(npcs, label, ownersOf(ctx.read('people')?.npcs));
 
     function ensure(ctx, npcs, who, defs, seed) {
         if (Object.hasOwn(npcs, who.key)) return false;
@@ -58,11 +77,12 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
         return changes;
     }
 
-    // Stages, ladder and notes of one record, with this NPC's own setup.
-    const settleRecord = (record, labels, settings, defs, tick = false) => {
-        const setup = setupFor(record.name, labels);
+    // Stages, ladder and notes of one record, with this NPC's own setup. `asked`: owners.asking() for the record's entry.
+    // No meter opens a note of a dead or archived person (`asked.gone`: settled with no note rules); a story event or the reader's hand still can.
+    const settleRecord = (record, asked, settings, defs, tick = false) => {
+        const setup = setupFor(asked.name, asked.labels);
         return settle(record, {
-            defs, stages: settings.stages, rules: rulesFor(record.name, labels), name: record.name,
+            defs, stages: settings.stages, rules: asked.gone ? [] : rulesFor(asked.name, asked.labels), name: record.name,
             rungs: rungsFor(settings, setup), conflictAt: settings.conflictAt, demoteAfter: settings.demoteAfter, tick,
         });
     };
@@ -131,5 +151,5 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
         return out;
     }
 
-    return { identify, ensure, note, changesFrom, settleRecord, openCloseNotes, tiered };
+    return { identify, identifyIn, ensure, note, changesFrom, settleRecord, openCloseNotes, tiered };
 }

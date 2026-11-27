@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { labelRank, planLabels, planRegions } from '../../../../ui/tabs/world/map-labels.js';
 import { fitView, openBox } from '../../../../ui/tabs/world/map-view.js';
+import { groupPlaces } from '../../../../ui/tabs/world/map-groups.js';
 
 const pack = JSON.parse(readFileSync(new URL('../../../../examples/packs/ersveil/pack.json', import.meta.url), 'utf8'));
 const ERSVEIL = pack.content.places.map(p => ({ id: p.id, name: p.name, kind: p.kind, region: p.region, x: p.x, y: -p.y, visited: false, here: p.id === 'bluewatch-village' }));
@@ -34,8 +35,11 @@ test('on the 320-place sample world no two shown labels overlap or leave the map
 test('the opening view labels more of the places in it than the old fit-all did', () => {
   const W = 818;
   const open = openBox(ERSVEIL, { ratio: 560 / W, px: W });
-  const inView = ERSVEIL.filter(p => p.x >= open.x && p.x <= open.x + open.w && p.y >= open.y && p.y <= open.y + open.h);
-  const { labels } = planLabels(ERSVEIL, open, W / open.w, {});
+  // (as the map draws them: a place folded into its town, such as a ward or a Depths band, is not a dot of its own)
+  const { parent } = groupPlaces(ERSVEIL);
+  const shown = ERSVEIL.filter(p => !parent.has(p.id));
+  const inView = shown.filter(p => p.x >= open.x && p.x <= open.x + open.w && p.y >= open.y && p.y <= open.y + open.h);
+  const { labels } = planLabels(shown, open, W / open.w, {});
   assert.ok(inView.length >= 8, 'the opening view holds a neighbourhood');
   assert.ok(labels.size >= inView.length / 2, `${labels.size} of ${inView.length} labelled`);
 });

@@ -9,7 +9,13 @@ import { behaviour, meters, stages } from './cast-ladder.js';
 import { secrets } from './cast-secrets.js';
 import { checkBirthday } from './cast-birthday.js';
 
-const TEXTS = { name: 80, role: 120, species: 60, gender: 40, age: 40, apparentAge: 40, look: 600, wears: 300, voice: 300, personality: 600, history: 1200, homeBase: 80, withYou: 320, status: 200, goal: 200 };
+// look, voice, personality and the start routine take what NPC State keeps and sends of them.
+const TEXTS = { name: 80, role: 120, species: 60, gender: 40, age: 40, apparentAge: 40, look: 800, wears: 600, voice: 600, personality: 900, history: 1200, homeBase: 80, withYou: 320, status: 200, goal: 200, join: 400 };
+
+// The stored appearance is "<look>; <wears>"; together they stay within the 1200 characters the narrator and NPC State's prompts show.
+const LOOK_AND_WEARS = 1195;
+
+const startMax = key => (key === 'routine' ? 300 : 200);
 
 // Format 4 adds `birthday` and says where a retired format 3 field went; format 3 keeps its own list and wording.
 function oneEntry(record, say, v4) {
@@ -25,6 +31,7 @@ function oneEntry(record, say, v4) {
         if (!plain(record[field], max)) say(field, `${field} must be plain text of 1 to ${max} characters (no < > { }).`);
         else out[field] = oneLine(record[field]);
     }
+    if (out.look && out.wears && [...out.look].length + [...out.wears].length > LOOK_AND_WEARS) say('look', `look and wears together must be at most ${LOOK_AND_WEARS} characters.`);
     if (record.aliases !== undefined) {
         if (!Array.isArray(record.aliases) || record.aliases.length > WORLD_CAST_LIMITS.aliases) say('aliases', `aliases must be a list of at most ${WORLD_CAST_LIMITS.aliases} other names.`);
         else if (record.aliases.some(alias => !plain(alias, 80))) say('aliases', 'every alias must be plain text of 1 to 80 characters.');
@@ -43,8 +50,8 @@ function oneEntry(record, say, v4) {
         if (!isObject(record.start)) say('start', 'start must be { "place", "goal", "routine" } (not a plain string; status is top level).');
         else {
             for (const key of Object.keys(record.start)) if (!CAST_START_FIELDS.includes(key)) say(`start.${key}`, `"${key}" is not a start field (expected ${CAST_START_FIELDS.join(', ')}).`, 'UNKNOWN_FIELD');
-            for (const key of CAST_START_FIELDS) if (record.start[key] !== undefined && !plain(record.start[key], 200)) say(`start.${key}`, `start.${key} must be plain text of 1 to 200 characters.`);
-            out.start = Object.fromEntries(CAST_START_FIELDS.filter(key => plain(record.start[key], 200)).map(key => [key, oneLine(record.start[key])]));
+            for (const key of CAST_START_FIELDS) if (record.start[key] !== undefined && !plain(record.start[key], startMax(key))) say(`start.${key}`, `start.${key} must be plain text of 1 to ${startMax(key)} characters.`);
+            out.start = Object.fromEntries(CAST_START_FIELDS.filter(key => plain(record.start[key], startMax(key))).map(key => [key, oneLine(record.start[key])]));
         }
     }
     if (v4 && record.birthday !== undefined) { const birthday = checkBirthday(record.birthday, say); if (birthday) out.birthday = birthday; }

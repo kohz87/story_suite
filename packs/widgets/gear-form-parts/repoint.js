@@ -1,7 +1,7 @@
 // Gear form: the point-moving stat boxes of the Edit of an unbound piece that is not a gear-form piece.
 
 import { STRINGS } from '../../../core/strings.js';
-import { GEAR } from '../../../modules/inventory/gear.js';
+import { GEAR, statsOf as gearStatsOf } from '../../../modules/inventory/gear.js';
 import { statOptions } from './shared-options.js';
 
 const F = STRINGS.inventory.gear.form;
@@ -16,7 +16,7 @@ export function repointControls(doc, p, h) {
     const rp = p?.gear?.row?.repoint;
     if (!rp || !Number.isSafeInteger(rp.budget) || rp.budget < 1 || (typeof p.gear.bound === 'string' && p.gear.bound)) return null;
     const unit = rp.budget === 1 ? 'point' : 'points';
-    const listed = Object.entries(rp.stats && typeof rp.stats === 'object' ? rp.stats : {}).slice(0, GEAR.maxStats);
+    const listed = Object.entries(gearStatsOf(rp.stats && typeof rp.stats === 'object' ? rp.stats : {})).slice(0, GEAR.maxStats);
     const rows = [], boxes = [];
     for (const at of [1, 2]) {
         const select = h(doc, 'select', 'ss-select'), points = h(doc, 'input', 'ss-input');

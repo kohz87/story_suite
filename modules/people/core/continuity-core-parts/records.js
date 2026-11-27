@@ -62,7 +62,7 @@ export function applyNpcStateCommand(state, command, options = {}) {
     const prior = (state?.npcs || []).filter(isTerminalNpcDeath).map(normalizeNpcRecord);
     const result = mechanics.applyNpcStateCommand(state, command, options);
     result.state.npcs = (result.state.npcs || []).map(npc => {
-        const protectedNpc = mechanics.matchingNpcRecords(npc, prior)[0];
+        const protectedNpc = mechanics.ownNpcRecords(npc, prior)[0];
         return protectedNpc ? protectTerminalNpc(protectedNpc, applyModel(npc)) : applyModel(npc);
     });
     if (['restored', 'exists'].includes(result.report?.status) && prior.some(npc => String(npc.id) === String(result.report.npcId))) result.report.status = 'terminal-death';

@@ -69,7 +69,7 @@ test('a refused answer gets one retry with the errors; a second refusal or a fai
             assert.ok(chronicle(host).conditions['unrest@Highmark'], 'the fallback\'s own effect keys');
             assert.equal(dailyOf(host).standings['power:crown'], 50, 'nothing the Director picked');
         }
-        assert.ok(host.turn.problems().some(item => /open template/.test(item.message)), `${mode}: shown in Problems`);
+        assert.ok(host.turn.problems().some(item => /A happening at /.test(item.message)), `${mode}: shown in Problems`);
         host.done();
     }
 });
@@ -99,7 +99,8 @@ test('two slots of one day are answered in one batched call', async () => {
     await step(host, 'Hours pass.', '! time +1h');
     assert.equal(host.model.calls, 1, 'one call for both');
     assert.equal(host.model.prompts[0].match(/^Slot /gm).length, 2);
-    assert.match(host.model.prompts[0], /Happening: border-incident/);
+    assert.match(host.model.prompts[0], /Happening: A border-incident near Highmark\./);
+    assert.doesNotMatch(host.model.prompts[0], /Happening: (border-incident|night-watch)/, 'never the template\'s id');
     assert.equal(host.model.requests[0].role, 'quick', 'on the Quick profile');
     await step(host, 'More hours.', '! time +1h');
     assert.deepEqual(slotRows(host).map(row => row.outcome), ['ok', 'ok']);

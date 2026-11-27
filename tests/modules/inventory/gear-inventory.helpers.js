@@ -39,3 +39,5 @@ export const gearCore = () => createCoreModule({ hooks: () => [], settings: () =
 
 export const staticOf = host => host.st.promptLog.filter(entry => entry.key === 'story_suite_static' && entry.value).at(-1)?.value ?? '';
 export const ITEM_LINE = '+ item Name | qty: 1 | note: short detail (- item Name | qty: 1 when used up or lost; ~ item Name | note: … when it changes)';
+// What ends the item line, after any gear words.
+export const SUPPLY_WORDS = '. Supplies run down: add kind: supply for food, bandages, herbs, oil, torches, fodder and the like (a potion or draught that heals stays a consumable), with a note of how much is left (e.g. "4 days of food"), and write the change when days pass or the party eats, camps, treats wounds or burns light.';

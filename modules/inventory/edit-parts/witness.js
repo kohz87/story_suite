@@ -1,13 +1,17 @@
 // What a reader edit witnesses for replay: the target stack, its pieces, and the add and rename decisions.
 
 import { cleanName, trimText, resolveDef, slugify } from '../../scene/names.js';
+import { clone } from '../../scene/domains/common.js';
 import { condOf, MAX_NOTE } from '../state.js';
 import { looseMatch, stacksOf, freeId } from '../stacks.js';
 
 export const editStack = stack => ({ id: stack.id, def: stack.def, owner: stack.owner });
-export const editPieces = (inventory, target) => Object.values(inventory?.stacks ?? {})
-    .filter(stack => stack.def === target.def && stack.owner === target.owner)
-    .map(stack => ({ id: stack.id, equipped: stack.equipped }));
+// `everyOwner` (a slot Edit, which changes the shared definition): every piece of the definition, with who it is bound to, in ID order.
+export const editPieces = (inventory, target, everyOwner = false) => {
+    const pieces = Object.values(inventory?.stacks ?? {}).filter(stack => stack.def === target.def && (everyOwner || stack.owner === target.owner));
+    if (!everyOwner) return pieces.map(stack => ({ id: stack.id, equipped: stack.equipped }));
+    return pieces.map(stack => ({ id: stack.id, owner: stack.owner, equipped: stack.equipped, bound: stack.bound ?? null })).sort((a, b) => (a.id < b.id ? -1 : 1));
+};
 
 // Saved ops cannot choose a different stack on replay. Witness the same name lookup and
 // compatibility decision made when the reader added or renamed an item, without including
@@ -42,7 +46,7 @@ export function renameDecision(inv, stack, payload, withStory = false) {
     if (name === original.name) return { resolution: found, original: { name: original.name, stack: original.stack } };
     const shared = Object.values(inv.stacks).some(other => other.id !== stack.id && other.def === original.id);
     if (shared || original.id.startsWith('pack.')) {
-        return { resolution: found, original, shared, newDef: freeId(inv, `story/${slugify(name)}`) };
+        return { resolution: found, original: clone(original), shared, newDef: freeId(inv, `story/${slugify(name)}`) };
     }
     const aliases = Object.keys(inv.aliases).filter(key => inv.aliases[key] === original.id).sort();
     return { resolution: found, original: { name: original.name, stack: original.stack }, shared, aliases };

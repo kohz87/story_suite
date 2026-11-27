@@ -6,8 +6,10 @@ import { LOOT_OFFER_SHAPE } from './loot.js';
 const ITEM = {
   stack: T.STRING,
   name: T.STRING,
-  kind: { $enum: ['gear', 'use', 'goods', 'material', 'quest'] },
+  kind: { $enum: ['gear', 'use', 'supply', 'goods', 'material', 'quest'] },
   glyph: T.STRING,
+  // A supply only: the kind the Edit can put it back to.
+  wasKind: { $optional: T.STRING },
   rarity: { $enum: ['common', 'uncommon', 'rare', 'epic'] },
   qty: T.NUMBER,
   wornBy: { $nullable: T.STRING },
@@ -22,6 +24,8 @@ const ITEM = {
   note: { $optional: T.STRING },
   hand: { $optional: T.BOOLEAN },
   slot: { $optional: { $nullable: T.STRING } },
+  // The reader may change a gear piece's slot (the story's and a pack's too; not a cast member's): the Edit form's Slot.
+  slotEdit: { $optional: T.BOOLEAN },
   // The most soak the piece's slot lets it give (body and off-hand 2, head 1, the rest 0): the Edit form's Soak field.
   soakMax: { $optional: T.NUMBER },
   // What the piece adds to stats, as gear.view words it ("STR +1 · DEX +1"); '' for none.
@@ -31,7 +35,7 @@ const ITEM = {
   realRarity: { $optional: { $nullable: T.STRING } },
   count: { $optional: { $nullable: T.NUMBER } },
   // A gear piece whose points the reader may move (gear.view's repoint): the total that stays and where it sits now ({ DEX: 1, AGI: 1 }); a cast member's piece is `bound`.
-  repoint: { $optional: { budget: T.NUMBER, stats: T.ANY } },
+  repoint: { $optional: { budget: T.NUMBER, stats: T.ANY, labels: { $optional: T.ANY } } },
   bound: { $optional: T.BOOLEAN },
   // What the item adds to carrying (gear on): the Edit form's Carries, read-only with the engine's reason `carryWhy` ('' when the reader may set it).
   carry: { $optional: T.NUMBER },
@@ -39,6 +43,8 @@ const ITEM = {
   // It can be carried as a bag (Carry as bag…), and it is someone's bag now.
   bagLike: { $optional: T.BOOLEAN },
   isBag: { $optional: T.BOOLEAN },
+  // Whoever holds it left the party (their name): Take back.
+  gone: { $optional: T.STRING },
 };
 
 const ASSET = {
@@ -63,8 +69,8 @@ const ASSET = {
 export const BAG_SHAPE = {
   rpg: T.BOOLEAN,
   // Gear in fights is on, and the starting kit is open (the + Add form's Rarity and Stats).
-  gear: { $optional: { on: T.BOOLEAN, kit: T.BOOLEAN } },
-  filters: [{ key: { $enum: ['all', 'worn', 'gear', 'use', 'goods', 'material', 'quest'] }, count: T.NUMBER }],
+  gear: { $optional: { on: T.BOOLEAN, kit: T.BOOLEAN, labels: { $optional: T.ANY } } },
+  filters: [{ key: { $enum: ['all', 'worn', 'gear', 'use', 'supply', 'goods', 'material', 'quest'] }, count: T.NUMBER }],
   items: [ITEM],
   purse: {
     coins: { $nullable: { gold: T.NUMBER, silver: T.NUMBER, copper: T.NUMBER } },
@@ -78,6 +84,11 @@ export const BAG_SHAPE = {
       limit: T.NUMBER,
       level: { $enum: ['light', 'heavy', 'over'] },
       breakdown: [{ label: T.STRING, value: T.NUMBER, text: T.STRING, dim: T.BOOLEAN }],
+      // The members who hold things or a bag of their own: each one's load against their own limit. Someone who left and still holds things has `left` and
+      // no limit (0); `unnamed` when no name is known for them.
+      people: { $optional: [{ id: T.STRING, name: T.STRING, value: T.NUMBER, limit: T.NUMBER, level: { $enum: ['light', 'heavy', 'over'] }, left: { $optional: T.BOOLEAN }, unnamed: { $optional: T.BOOLEAN } }] },
+      // Encumbered is off: the narrator is told nothing, so no note says it is.
+      untold: { $optional: T.BOOLEAN },
     },
   },
   pace: { kmDay: T.NUMBER, by: T.STRING, slowed: T.BOOLEAN, why: T.STRING, alt: T.STRING },

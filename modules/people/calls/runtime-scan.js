@@ -22,6 +22,7 @@ import { seedNewAdmissions, notifyStaleCleanup, notifyGenderConflicts } from './
 import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from '../runtime/runtime-narration.js';
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from '../memory/memory-fact-scan.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
+import { followFoldedTies, settleScanRows } from '../core/core-merge-namesakes.js';
 export function createScanPart(rt, deps) {
     const { attachGeneratedSecrets, awayScanOptions, beginScanOperation, castList, noteChatLineage, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scannerPromptOptions, scanOperationCurrent, scanScenePresent, setChatState, adapterMeters, takeNarrationCapture, updateInjection } = deps;
     // Events per story day while Delta works alone (the pass counts them on the dossier). The day is Story Director's clock, which
@@ -170,7 +171,11 @@ export function createScanPart(rt, deps) {
             // (1.2.11) A scan of one reply tags its evidence with that reply, so a habit seen again in a
             // later reply counts as a second sighting (a manual or full-window scan reads many replies).
             const singleReply = !manual && !fullWindowScan && Number.isInteger(messageId);
-            const resolvedParsed = resolveInterimIdentityPromotions(singleReply ? tagScanEvidence(parsed, skippedWindow?.readThrough ?? messageId) : parsed, state.npcs, state.candidates);
+            // (namesakes: settled here, while the records still carry who was present; the merge's base below clears it. The journal keeps the settled
+            // rows, so a replay, which never asks the scene, reads them as live did. A replay of an entry without the `namesakes` mark keeps its rows as they are.)
+            const keepNamesakeRows = Boolean(replayScope() && !journaled?.namesakes);
+            const named = settleScanRows(state.npcs, parsed, replayScope() ? [] : scanScenePresent(messageId) ?? [], keepNamesakeRows);
+            const resolvedParsed = resolveInterimIdentityPromotions(singleReply ? tagScanEvidence(named.scanResult, skippedWindow?.readThrough ?? messageId) : named.scanResult, state.npcs, state.candidates);
             if (capture || (fallback && hostedOnePass())) capCaptureAdmissions(resolvedParsed, state.npcs);
             profileUpdateCount = Array.isArray(resolvedParsed.profileUpdates) ? resolvedParsed.profileUpdates.length : (Array.isArray(resolvedParsed.profile_updates) ? resolvedParsed.profile_updates.length : 0);
             // Relationship-edge extraction is a separate channel from ordinary NPC delta admission.
@@ -268,9 +273,12 @@ export function createScanPart(rt, deps) {
                 // (people/away/away-hold.js); the reader's own "Scan now" is deliberate and writes them.
                 ...(manual ? {} : awayScanOptions(mergeBaseState)),
                 historicalRead: Boolean(replayScope() && !journaled), // (ONEPASSCAPR2-1) only a reply read before the journal existed keeps the old reading
+                keepNamesakeRows,
                 memoryFacts: factOpt,
             });
-            merged.state = phraseMerged(merged.state, memoryAsk.handles, parsed, getContext().chat || []);
+            merged.report.skipped.push(...named.skipped);
+            const kept = rows => followFoldedTies(rows, merged.report.deduplicated);   // the rows as the runtime reads them after the merge; the journal keeps them unfolded
+            merged.state = phraseMerged(merged.state, memoryAsk.handles, named.scanResult, getContext().chat || []);
             if (earlierOnly) {
                 // Presence is the latest scene's: an earlier-only window leaves each person as last confirmed.
                 const before = new Map((state.npcs || []).map(npc => [npc.id, npc]));
@@ -374,13 +382,13 @@ export function createScanPart(rt, deps) {
                 readAhead: settled.readAhead,
                 scanCount: Number(state.scanCount || 0) + 1,
             };
-            if (capture && !replayScope()) recordAcceptedCapture(nextState, ctx.chat || [], targetMessageId, capture);
-            else if (!replayScope() && !manual) { const mark = recordReadMark(nextState, ctx.chat || [], targetMessageId); if (fallback && hostedOnePass() && mark) mark.fallbackParsed = structuredClone(parsed); }
+            if (capture && !replayScope()) recordAcceptedCapture(nextState, ctx.chat || [], targetMessageId, { ...capture, parsed: named.scanResult });
+            else if (!replayScope() && !manual) { const mark = recordReadMark(nextState, ctx.chat || [], targetMessageId); if (fallback && hostedOnePass() && mark) Object.assign(mark, { namesakes: 1, fallbackParsed: structuredClone(named.scanResult) }); }
             const catchUpChats = replayScope()?.catchUp ?? rt.catchUpChats;
             if (skippedWindow && !skippedWindow.latest) catchUpChats.add(scanChatKey); else catchUpChats.delete(scanChatKey);
             if (!manual) queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed, targetMessageId, currentTranscript });
             // (v2 hidden notes) The layered notes for the dossiers this scan built.
-            if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, parsed);
+            if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, kept(parsedForMerge), kept(resolvedParsed), kept(named.scanResult));
             if (hostedNotes && newlyAdmittedIds.length) seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, adapterMeters });
             // Who the merged state says is here: the one-pass catch-up refreshes the people the reply put in the scene.
             const presentIds = merged.state.npcs.filter(npc => !npc.archived && npc.present && !npc.minor).map(npc => npc.id);
@@ -392,8 +400,8 @@ export function createScanPart(rt, deps) {
             setChatState(chatKey, nextState);
             // ONEPASSMISS-1: this notice describes a completed fallback, never a stale or failed scan.
             rt.lastCaptureFallback = fallback ? { chatKey, messageId } : null;   // the notice follows the latest committed scan only
-            forwardRelationshipChangesToHost(state.npcs, nextState.npcs, targetMessageId, operation.chatHead, resolvedParsed?.profileUpdates, resolvedParsed?.npcs, Boolean(capture));
-            if (eventWatch.length) forwardSecretEventsToHost(eventWatch, secretEventsShown(resolvedParsed?.secretEvents ? resolvedParsed : parsed, transcript), operation.chatHead);
+            forwardRelationshipChangesToHost(state.npcs, nextState.npcs, targetMessageId, operation.chatHead, kept(resolvedParsed)?.profileUpdates, kept(resolvedParsed)?.npcs, Boolean(capture));
+            if (eventWatch.length) forwardSecretEventsToHost(eventWatch, secretEventsShown(resolvedParsed?.secretEvents ? resolvedParsed : named.scanResult, transcript), operation.chatHead);
             persist();
             renderDossier();
             updateInjection();

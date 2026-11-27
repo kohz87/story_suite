@@ -1,14 +1,14 @@
 {
   "name": "story-suite",
   "private": true,
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "scripts": {
     "test": "npm run test:scripts && npm run test:core && npm run test:ui && npm run test:modules && npm run test:people && npm run test:suite",
     "test:scripts": "node --test \"tests/scripts/**/*.test.js\"",
     "test:core": "node --test \"tests/core/**/*.test.js\"",
     "test:ui": "node --test \"tests/ui/**/*.test.js\" \"tests/ui-gaps/*.test.js\"",
-    "test:modules": "NODE_OPTIONS=\"--max-old-space-size=4096 $NODE_OPTIONS\" node --test \"tests/modules/**/*.test.js\" \"tests/packs/**/*.test.js\" \"tests/matrix/**/*.test.js\" \"tests/bench/*.test.js\" \"tests/authoring-kit/*.test.js\" \"examples/fishing/tests/*.test.js\" \"tests/director/**/*.test.js\" \"tests/testkit/*.test.js\"",
+    "test:modules": "NODE_OPTIONS=\"--max-old-space-size=4096 $NODE_OPTIONS\" node --test \"tests/modules/**/*.test.js\" \"tests/packs/**/*.test.js\" \"tests/matrix/**/*.test.js\" \"tests/bench/*.test.js\" \"tests/authoring-kit/*.test.js\" \"examples/fishing/tests/*.test.js\" \"examples/text-rpg/tests/*.test.js\" \"tests/director/**/*.test.js\" \"tests/testkit/*.test.js\"",
     "test:people": "node --max-old-space-size=4096 --import ./tests/people/active-runtime-test-setup.mjs --test \"tests/people/**/*.test.js\"",
     "test:suite": "bash scripts/ci/suite-tests.sh",
     "check": "node scripts/checks/no-tracked-deps.mjs && node scripts/checks/one-manifest.mjs && node scripts/checks/changelog-lines.mjs && node scripts/checks/css-imports.mjs && node scripts/checks/removed-exports.mjs && node scripts/checks/core-module-refs.mjs && node scripts/checks/globals-gate.mjs && node scripts/checks/run-size-check.mjs && node scripts/codemap/cli.mjs --check && node scripts/ai-readme/build.mjs --check && node scripts/help/faq-data.mjs --check && node scripts/core/check.mjs && node scripts/director/check.mjs",

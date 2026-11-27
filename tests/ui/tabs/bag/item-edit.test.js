@@ -24,8 +24,8 @@ test('Edit is in the header and opens a form for name, count and note (RPG off: 
   assert.equal(el.querySelector('.dh .bhact .btn2.edit').textContent, 'Edit');
   el.querySelector('.btn2.edit').click();
   const labels = el.querySelectorAll('.iedit .ef').map(l => l.childNodes[0].textContent ?? l.textContent.slice(0, 5));
-  assert.equal(el.querySelectorAll('.iedit .ef').length, 3, `Name, Count, Your note only (${labels})`);
-  assert.equal(el.querySelector('.iedit select'), null);
+  assert.equal(el.querySelectorAll('.iedit .ef').length, 4, `Name, Kind, Count, Your note only (${labels})`);
+  assert.deepEqual(el.querySelectorAll('.iedit select').map(select => select.dataset.field), ['kind'], 'Kind (to mark a supply), no gear fields');
 });
 
 test('RPG on: a hand-made piece adds Rarity and Slot; a story piece does not', () => {
@@ -133,9 +133,9 @@ test('RPG on: every item shows Weight each and armour shows Soak (up to its slot
   const [sword] = open(find('Steel longsword'), true);
   assert.equal(sword.querySelectorAll('.iedit .ef').length, 4, 'a weapon has a weight and no soak');
   const [draught] = open(find('Healing draught'), true);
-  assert.equal(draught.querySelectorAll('.iedit .ef').length, 5, 'a potion has a weight, no soak, and Carries (any item but a slotted piece can carry)');
+  assert.equal(draught.querySelectorAll('.iedit .ef').length, 6, 'a potion has Kind, a weight, no soak, and Carries (any item but a slotted piece can carry)');
   const [off] = open(find('Tower shield', false), false);
-  assert.equal(off.querySelectorAll('.iedit .ef').length, 3, 'RPG off: Name, Count, Your note only');
+  assert.equal(off.querySelectorAll('.iedit .ef').length, 3, 'RPG off, gear: Name, Count, Your note only');
 });
 
 test('Save sends the changed weight and soak, the way the command takes them, with nothing else; the same values send nothing', async () => {
@@ -161,4 +161,20 @@ test('the engine\'s refusal of a soak above the cap shows inline', async () => {
   el.querySelector('.btn2.save').click();
   await tick();
   assert.equal(el.querySelector('.iedit .err').textContent, 'Tower shield can soak at most 2 here.');
+});
+
+test('RPG on: a story piece with slotEdit shows Slot and no Rarity, and Save sends the slot alone (None as \'\')', async () => {
+  installFakeDom();
+  const item = { ...find('Steel longsword'), slot: 'off-hand', slotEdit: true };
+  const [el, ctx] = open(item, true, () => Promise.resolve({ ok: true }));
+  assert.equal(el.querySelectorAll('.iedit select').length, 1);
+  const slot = el.querySelector('.iedit select[data-field="slot"]');
+  assert.equal(slot.value, 'off-hand');
+  slot.value = '';
+  el.querySelector('.btn2.save').click();
+  await tick();
+  assert.deepEqual(ctx.sent[0], ['inventory.edit', { stack: item.stack, slot: '' }]);
+  const note = { name: item.name, qty: '1', note: item.note ?? '' };
+  assert.equal(itemPatch(item, { ...note, slot: 'off-hand' }, true), null, 'an unchanged slot is not sent');
+  assert.equal(itemPatch(item, { ...note, slot: 'weapon' }, false), null, 'RPG off: not sent');
 });

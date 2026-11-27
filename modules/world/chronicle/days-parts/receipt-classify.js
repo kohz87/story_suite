@@ -8,10 +8,10 @@ import { isInt, isRecord, text } from './shared-values.js';
 // as a settle is only a checkpoint there; no module calls it that way (tests/v2/time/advance-callers.test.js pins it).
 const CLOCK_TYPES = new Set(['capture.time', 'director.seed', 'director.clock', 'time.settle', 'director.advance']);
 // Receipts that are the code's own bookkeeping, never an event of the day (neither picked nor counted under "happened"): Story Block's
-// field edits, timer ticks and reply-end settles (`dm.set`, `dm.tick`, `dm.settle`), the Director's own initiative pick and world pulse, the story-time settle and the cast's
+// field edits, timer ticks and reply-end settles (`dm.set`, `dm.tick`, `dm.settle`, a freed holding post), the Director's own initiative pick and world pulse, the story-time settle and the cast's
 // "nothing changed". Practice lines and add-xp are the reader's progress and stay.
 export const BOOKKEEPING_TYPES = new Set([
-    'dm.set', 'dm.tick', 'dm.settle', 'director.initiative', 'director.pulse', 'time.settle', 'cast.advance', 'people.write',
+    'dm.set', 'dm.tick', 'dm.settle', 'dm.vacate', 'director.initiative', 'director.pulse', 'time.settle', 'cast.advance', 'people.write',
 ]);
 // NPC State's per-reply upkeep lines ("Oswin Marle: meters started", "...: nothing moved"): the meters' own bookkeeping, not an event.
 const UPKEEP_SUMMARY = /^[^:]{1,80}: (?:nothing moved|meters started|nothing changed)\b/i;

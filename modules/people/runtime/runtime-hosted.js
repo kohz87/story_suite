@@ -3,12 +3,13 @@
    relationship changes, secret events and hidden-note options Delta sends back, and the words for why no one shows as present. Built by runtime-entry.js once per module instance with the shared
    runtime state and the controller functions it calls. Bodies are moved from runtime-entry.js without change. */
 
+import { sceneTargets } from '../core/core-merge-namesakes.js';
 import { chatContext as getContext, markStands, refusedLooks, worth, relationshipChanges, replayScope, scanMoodNumbers, scopedAdapter } from '../calls/runtime-scan-helpers.js';
 import { replyScanned } from '../calls/scan-context.js';
 import { tieDayAt } from '../transcript/transcript.js';
 import { normalizeRelationshipBaseline, isTerminalNpcDeath, npcMatchesLabel, storyMinuteText } from '../core/core.js';
 import { storyBlockIsV2 } from '../npc-api/host-probe.js';
-import { resolveDossierTarget } from '../npc-api/dossier-target.js';
+import { ownerTargets } from '../npc-api/dossier-target.js';
 import { castView, findCastPerson, normalizeCast } from '../dossier/cast-dossier.js';
 import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
@@ -100,7 +101,8 @@ export function createHostedPart(rt, deps) {
         let names = null;
         try { names = adapter.scenePresent?.(); } catch { names = null; }
         if (!Array.isArray(names)) return npcs;
-        const here = new Set(names.map(name => resolveDossierTarget(npcs, name)).filter(Boolean));
+        const named = sceneTargets(npcs, names);   // (namesakes: ../core/core-merge-namesakes.js)
+        const here = new Set([...named.ids, ...named.rest.map(ownerTargets(npcs)).filter(Boolean)].map(String));
         let changed = false;
         const out = npcs.map(npc => {
             // (C-1) The scene cannot bring a confirmed-dead NPC back on stage.
@@ -198,7 +200,8 @@ export function createHostedPart(rt, deps) {
         // A meeting the host refused ("waiting: a native change is finishing", run 3) is owed and sent again with the next scan of that person; so is a
         // person this scan touched whose slice entry is still missing (a meeting lost with the page). Only people a scan returns; the rest are left as they are.
         const entries = typeof adapter.meterEntries === 'function' ? adapter.meterEntries() : null;
-        const hasEntry = npc => !Array.isArray(entries) || Boolean(adapter.meters?.(npc.name));
+        let holds = null;   // (built once, on the first person asked about)
+        const hasEntry = npc => !Array.isArray(entries) || Boolean((holds ??= adapter.meterHolders?.() ?? (held => adapter.meters?.(held.name)))(npc));
         const touched = npc => prior.get(npc.id)?.updatedAt !== npc.updatedAt;
         const owed = npc => touched(npc) && (meetOwed.has(`${getChatKey()}|${npc.id}`) || (!hasEntry(npc) && !meetTried.has(`${getChatKey()}|${npc.id}`)));
         const met = typeof adapter.meet === 'function' ? (after || []).filter(npc => npc?.id && !npc.archived && worth(npc) && (!prior.has(npc.id) || owed(npc))) : [];
@@ -209,7 +212,7 @@ export function createHostedPart(rt, deps) {
         const moods = typeof adapter.mood === 'function' ? (after || []).filter(npc => npc?.id && !npc.archived && worth(npc) && moodOf(npc) && (moodOf(npc) !== moodOf(prior.get(npc.id)) || (touched(npc) && !moodTried.has(`${getChatKey()}|${npc.id}`)))) : [];
         // (drive growth) The before and after of a person who already had a dossier: the adapter reads what is new in them (memories, behavior,
         // mannerisms, the relationship reason) and the slice reads it for drive cues; a person the scan only just made has no earlier reply to count against.
-        const grown = typeof adapter.drives === 'function' ? (after || []).filter(npc => npc?.id && !npc.archived && prior.has(npc.id)).map(npc => ({ name: npc.name, before: prior.get(npc.id), after: npc })) : [];
+        const grown = typeof adapter.drives === 'function' ? (after || []).filter(npc => npc?.id && !npc.archived && prior.has(npc.id)).map(npc => ({ id: npc.id, name: npc.name, before: prior.get(npc.id), after: npc })) : [];
         if (!changes.length && !looks.length && !refused.length && !met.length && !moods.length && !grown.length) return;
         void (async () => {
             // The slice entry comes first (adjust, else meet): a look flag never makes one, so a new person's look lock needs it.
@@ -220,7 +223,7 @@ export function createHostedPart(rt, deps) {
             for (const npc of met) {
                 if (!chatHeadUnchanged(head)) return dropped();
                 const key = `${getChatKey()}|${npc.id}`;
-                const out = await adapter.meet({ name: npc.name, personality: npc.personality, about: npc.background, reply: messageId, guard: () => markStands(head) });
+                const out = await adapter.meet({ id: npc.id, name: npc.name, personality: npc.personality, about: npc.background, reply: messageId, guard: () => markStands(head) });
                 meetTried.add(key);
                 // Owed again when the host did not keep it (not REFUSED: nothing to add); taken, or no answer (no host), clears it.
                 if (out?.ok === false && out.code !== 'REFUSED' && out.code !== 'NOT_FOUND') meetOwed.add(key);
@@ -229,13 +232,13 @@ export function createHostedPart(rt, deps) {
             for (const npc of moods) {
                 if (!chatHeadUnchanged(head)) return dropped();
                 moodTried.add(`${getChatKey()}|${npc.id}`);
-                await adapter.mood({ name: npc.name, word: moodOf(npc), vad: vadOf(npc), reason: reasonOf(npc), reply: messageId, again: moodOf(npc) === moodOf(prior.get(npc.id)), personality: npc.personality, about: npc.background, guard: () => markStands(head) });
+                await adapter.mood({ id: npc.id, name: npc.name, word: moodOf(npc), vad: vadOf(npc), reason: reasonOf(npc), reply: messageId, again: moodOf(npc) === moodOf(prior.get(npc.id)), personality: npc.personality, about: npc.background, guard: () => markStands(head) });
             }
             for (const item of grown) {
                 if (!chatHeadUnchanged(head)) return dropped();
-                await adapter.drives({ name: item.name, before: item.before, after: item.after, reply: messageId, guard: () => markStands(head) });
+                await adapter.drives({ id: item.id, name: item.name, before: item.before, after: item.after, reply: messageId, guard: () => markStands(head) });
             }
-            for (const flag of [...looks.map(npc => ({ name: npc.name, lock: true })), ...refused.map(item => (item.text ? { name: item.name, text: item.text } : { name: item.name, drift: { before: item.before, incoming: item.incoming, ...(item.swaps ? { swaps: item.swaps } : {}) } }))]) {
+            for (const flag of [...looks.map(npc => ({ id: npc.id, name: npc.name, lock: true })), ...refused.map(item => (item.text ? { id: item.id, name: item.name, text: item.text } : { id: item.id, name: item.name, drift: { before: item.before, incoming: item.incoming, ...(item.swaps ? { swaps: item.swaps } : {}) } }))]) {
                 if (!chatHeadUnchanged(head)) return dropped();
                 await adapter.flag?.({ ...flag, reply: messageId, guard: () => markStands(head) });
             }
@@ -275,16 +278,18 @@ export function createHostedPart(rt, deps) {
             return;
         }
         const keys = new Set(answered.map(item => String(item ?? '')));
-        const byName = new Map();
+        const people = new Map();   // by dossier id: two namesakes' notes are never merged
         for (const item of watched) {
             if (!keys.has(item.key)) continue;
-            byName.set(item.name, [...(byName.get(item.name) || []), item.note]);
+            const who = item.id || item.name;
+            const had = people.get(who) ?? { id: item.id, name: item.name, ids: [] };
+            people.set(who, { ...had, ids: [...had.ids, item.note] });
         }
-        if (!byName.size) return;
+        if (!people.size) return;
         void (async () => {
-            for (const [name, ids] of byName) {
+            for (const person of people.values()) {
                 if (!chatHeadUnchanged(head)) return;
-                await adapter.openByEvent({ name, ids });
+                await adapter.openByEvent(person);
             }
         })();
     }
@@ -301,7 +306,7 @@ export function createHostedPart(rt, deps) {
             const npc = state.npcs.find(item => item?.id === id && !item.archived);
             if (!npc || (Array.isArray(npc.secrets) && npc.secrets.length)) continue;
             const row = rows.find(item => Array.isArray(item?.secrets) && item.secrets.length
-                && (String(item.id || '') === npc.id || npcMatchesLabel(npc, String(item.name || ''))));
+                && (item.settledId ? item.settledId === npc.id : String(item.id || '') === npc.id || npcMatchesLabel(npc, String(item.name || ''))));
             let made = [];
             try { made = row ? adapter.generatedSecrets(row.secrets) : []; } catch { made = []; }
             if (!made.length) continue;

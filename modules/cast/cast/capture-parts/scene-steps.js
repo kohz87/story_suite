@@ -29,7 +29,7 @@ export function meet(ctx, payload = {}) {
 
 // ---- cast.rumor --------------------------------------------------------------------------------------------------------------
 
-/** `cast.rumor` (cause `system`): a sought person who is elsewhere is told of without a name, once. */
+/** `cast.rumor` (cause `system`): a sought person who is elsewhere is told of, once (the narrator by name, the card without). */
 export function rumor(ctx, payload = {}) {
     only(ctx, 'Whom people here have heard of');
     if (!isRecord(payload) || Object.keys(payload).some(field => !['at', 'who', 'names'].includes(field)) || !isInt(payload.at) || payload.at < 0 || !Array.isArray(payload.who) || !payload.who.length || payload.who.length > 2) {

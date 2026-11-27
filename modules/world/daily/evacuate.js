@@ -11,6 +11,7 @@ import { groupOf } from './geo-scope.js';
 import { masked } from './placement.js';
 import { placeOf } from './cast-where.js';
 import { displace } from './cast.js';
+import { titleOf } from './event-title.js';
 
 /** Evacuate the group of `ref` (a place) for the placeStatus `condition` set by `source` on `day`. */
 export function evacuate(ws, ref, condition, source, day) {
@@ -25,16 +26,20 @@ export function evacuate(ws, ref, condition, source, day) {
     const to = near(others.filter(place => place.klass !== 'none' && !masked(ws, place, day))) ?? near(others);
     if (!to) return;
     const until = `cleared:${condition}@${here.name}`;
+    const shown = place => resolveRef(ws.geo, place)?.name ?? place;
     for (const person of residents) {
         const from = placeOf(ws, person.id);
-        if (person.protected && source.kind !== 'event') { ws.warnings.push(`${person.id} is protected and stays at ${from} (a template cannot move them).`); continue; }
+        if (person.protected && source.kind !== 'event') { ws.warnings.push(`${person.name} is protected and stays at ${shown(from)} (a happening cannot move them).`); continue; }
         // Placed (or, with You, deferred) by a named move of this same event (ruling 39): the named move decides, not the evacuation.
         if (source.kind === 'event' && (ws.cast[person.id]?.displaced?.by === source.id || ws.cast[person.id]?.deferred?.by === source.id)) continue;
         if (ws.withYou.has(person.id)) {
             ws.cast[person.id] = { ...(ws.cast[person.id] ?? {}), deferred: { to: to.name, by: source.id, until, title: source.title ?? source.id } };
-            ws.journal.push({ day, text: `${person.name} stays with You — ${source.title ?? source.id}`, by: source.id, withYou: true });
+            const why = titleOf(source.title, source.id);
+            ws.journal.push({ day, text: why ? `${person.name} stays with You — ${why}` : `${person.name} stays with You`, by: source.id, withYou: true });
             continue;
         }
-        displace(ws, person, to.name, { until, title: condition, line: `${person.name} fled ${from} for ${to.name} (${condition}).` }, day, source.id);
+        // The condition in words: the Journal line and the routine ("staying at … because …") are read by the reader.
+        const word = condition.replace(/[-_]+/g, ' ');
+        displace(ws, person, to.name, { until, title: word, line: `${person.name} fled ${shown(from)} for ${to.name} (${word}).` }, day, source.id);
     }
 }

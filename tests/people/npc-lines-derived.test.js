@@ -60,6 +60,7 @@ test('the fill-in rules: its own call, no wait, one attempt (the request layer\'
     const state = {};
     queueFills(state, [{ id: 'npc_wiz', name: 'Wiz' }, { id: 'npc_chris', name: 'Chris' }], 4, queueNpcBackfillInState);
     assert.deepEqual(state.pendingBackfills.map(item => [item.reason, item.npcId, item.requestedMessageId]), [[FILL_REASON, 'npc_wiz', 4], [FILL_REASON, 'npc_chris', 4]]);
+    assert.ok(state.pendingBackfills.every(item => item.preserveLiveState === true), 'a fill-in keeps the live state (presence, place, mood, status, goal)');
     for (const item of state.pendingBackfills) assert.ok(normalizeAutomaticBackfillRequest(item), 'the saved queue keeps it');
     assert.equal(automaticBackfillStillRelevant(state.pendingBackfills[0], { id: 'npc_wiz', name: 'Wiz' }, [{ id: 'npc_wiz', name: 'Wiz' }], ''), true);
 });
@@ -79,5 +80,5 @@ test('the one-pass builder carries the approved NSD6 and NSD7 texts', () => {
     assert.match(rules, /New people: the first time a named person appears who is not in the list above, write \+ npc Name \| role \| look\./);
     assert.match(rules, /at most 100 characters; leave it out for someone from the character card\./);
     assert.match(rules, /A title alone \(the guard\) is not a person until the story gives a name\./);
-    assert.match(rules, /Write only what changed in this reply\. Never write "keep", an empty value, a summary of the relationship, or a field again with the same value\. Match people by the names in the list above; a person already listed with only a title who now has a name is the same person: use the listed name\./);
+    assert.match(rules, /Write only what changed in this reply\. Never write "keep", an empty value, a summary of the relationship \(except toward: when it changes\), or a field again with the same value\. Match people by the names in the list above; a person already listed with only a title who now has a name is the same person: use the listed name\./);
 });

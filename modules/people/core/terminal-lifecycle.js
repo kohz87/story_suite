@@ -1,6 +1,7 @@
 /* NPC State terminal lifecycle helpers. */
 import { normalizeLifeState } from './core-identity.js';
 import { TERMINAL_FROZEN_FIELDS } from '../fields/registry.js';
+import { takeSummarySource } from './relationship-summary-source.js';
 
 export function isTerminalNpcDeath(npc = {}) {
     return normalizeLifeState(npc?.lifeState) === 'deceased'
@@ -32,6 +33,7 @@ export function protectTerminalNpc(previous = {}, candidate = {}) {
     for (const field of TERMINAL_FROZEN_FIELDS) {
         if (Object.prototype.hasOwnProperty.call(previous, field)) next[field] = structuredClone(previous[field]);
     }
+    if (Object.prototype.hasOwnProperty.call(previous, 'relationshipSummary')) takeSummarySource(next, previous);   // (the frozen summary keeps its own mark)
     return normalizeTerminalNpc(next);
 }
 

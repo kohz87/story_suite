@@ -15,7 +15,7 @@ const G = S.gear;
 export const KIND_TITLES = S.kinds;
 
 const KIND_ICONS = Object.freeze({
-    quest: 'fa-scroll', equipment: 'fa-shield-halved', consumable: 'fa-flask',
+    quest: 'fa-scroll', equipment: 'fa-shield-halved', consumable: 'fa-flask', supply: 'fa-wheat-awn',
     material: 'fa-cubes', goods: 'fa-box', money: 'fa-gem',
 });
 
@@ -152,7 +152,7 @@ const WORN = `<section class="worn-sec" data-if="q.gx != null && ${anyKind('equi
   </section>`;
 
 // With Gear in fights on, the sections come in this order (equipment first); the kinds it does not name follow, so nothing is hidden.
-const GEAR_ORDER = Object.freeze(['equipment', 'consumable', 'goods', 'quest', 'material', 'money']);
+const GEAR_ORDER = Object.freeze(['equipment', 'consumable', 'supply', 'goods', 'quest', 'material', 'money']);
 
 const CARRY = `<section class="carry-sec" data-if="q.gx != null">
     <h4 class="ss-section-label"><i class="fa-solid fa-weight-hanging" aria-hidden="true"></i> ${html(G.carry)}</h4>

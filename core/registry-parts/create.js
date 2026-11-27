@@ -11,7 +11,8 @@ import { createRegistration } from '../registry/registration.js';
 // (Only in-memory keys read this: memos, the head cache and the prefix memo, all emptied by a reload; a chat file's checkpoint is not keyed on it. It stays as a convention for later rules.)
 // g: a deferred domain's later writes seed it when its first writer was deleted.
 // h: an anchored set (ctx.anchored) replays at its offset from the value before it; Story Director's clock faces and skips are the first to use it.
-const REPLAY_RULES = 'rules:h';
+// i: a domain's keyed holder (`holders`) is remade when a later write goes under an entry its deleted first writer made; NPC State's meter records are the first.
+const REPLAY_RULES = 'rules:i';
 
 export function createRegistry({ hostVersion = null, warn = message => console.warn(`[Story Suite] ${message}`), featureValue = () => undefined } = {}) {
     const defs = new Map();
@@ -32,7 +33,7 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
     const life = createLifecycle({ defs });
     const { lifecycle, held, setEnabled, restore, restoreEpoch, setRestore, peers } = life;
     const featureLookups = createFeatureLookups({ defs, declared, owners, fallbacks, canonical, featureValue, held, steadyHeld: life.steadyHeld, lifecycle });
-    const { featureDecl, needsOf, featureOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
+    const { featureDecl, needsOf, featureOn, featureOrReplacementOn, withFeatures, hypothetical, off, offShown, offQuery } = featureLookups;
     const commandLookups = createCommandLookups({ defs, owners, canonical, held, lifecycle, nameOf: life.nameOf, off, warn });
     const { refusal, contextOf, captureEntry, commandFeature, command, isInternal, isPrelude, commandOwner, initialState, deferredInitial } = commandLookups;
     const { interaction, interactionIds, markerWords } = createInteractionLookups({ defs, held, featureOn });
@@ -53,7 +54,8 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
         rulesSignature: () => [...owners.domain].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([name, id]) => {
             const def = defs.get(id)?.domains?.[name] ?? {};
             const list = value => (Array.isArray(value) ? value.join('+') : '');
-            return `${name}@${id}@${defs.get(id)?.version ?? ''}:${typeof def.validate === 'function' ? 'v' : ''}:${list(def.scratch)}:${list(def.counters)}`;
+            const held = def.holders && typeof def.holders === 'object' ? Object.keys(def.holders).sort().join('+') : '';
+            return `${name}@${id}@${defs.get(id)?.version ?? ''}:${typeof def.validate === 'function' ? 'v' : ''}:${list(def.scratch)}:${list(def.counters)}:${held}`;
         }).join(';') + `;${REPLAY_RULES}`,
         commandOwner,
         /** The interaction kind a full id `<module>/<kind>` names (its KindDef), or null. */
@@ -86,6 +88,12 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
             const owner = owners.domain.get(name);
             const list = owner ? defs.get(owner).domains[name].scratch : null;
             return Array.isArray(list) ? [...list] : [];
+        },
+        /** A domain's keyed holders ({ 'map/path': make(key, slice) }, ops/holders.js rule i), null when none. */
+        holders(name) {
+            const owner = owners.domain.get(name);
+            const map = owner ? defs.get(owner).domains[name].holders : null;
+            return map && typeof map === 'object' ? { ...map } : null;
         },
         /** A deferred domain's initial() slice (a copy): what an absent one replays as (ops.js rebaseOps); null for any other domain. */
         deferredInitial,
@@ -151,9 +159,9 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
         hooks: name => sorted().filter(def => !held(def.id)).map(def => def.hooks?.[name]).filter(hook => typeof hook === 'function' && !off(hook)),
         /** Same, with the module each comes from: [{ moduleId, fn }]. */
         hookEntries: name => sorted().filter(def => !held(def.id) && typeof def.hooks?.[name] === 'function' && !off(def.hooks[name])).map(def => ({ moduleId: def.id, fn: def.hooks[name] })),
-        /** [{ moduleId, id: "<module>/<card>", fn }] for the cards under replies (reply-cards.js), in module-id order; a card off is left out. */
+        /** [{ moduleId, id: "<module>/<card>", fn, rows }] (`rows`: the card's own row limit, 5–8, as it declared it) for the cards under replies (reply-cards.js), in module-id order; a card off is left out. */
         cardEntries: () => sorted().filter(def => !held(def.id)).flatMap(def => Object.entries(def.cards ?? {}).filter(([, card]) => typeof card?.for === 'function' && !off(card))
-            .map(([id, card]) => ({ moduleId: def.id, id: `${def.id}/${id}`, fn: card.for }))),
+            .map(([id, card]) => ({ moduleId: def.id, id: `${def.id}/${id}`, fn: card.for, rows: card.rows }))),
         /** [{ moduleId, key: "<module>/<id>", id, label, icon, query, command, args, payload }]: each module's one game view header toggle, module-id order; off, held back or its feature off: left out. */
         headerControls: () => sorted().filter(def => !held(def.id)).flatMap(def => (Array.isArray(def.headerControls) ? def.headerControls : []).filter(control => !off(control))
             .map(control => ({ moduleId: def.id, key: `${def.id}/${control.id}`, id: control.id, label: control.label, icon: control.icon, query: control.query, command: control.command, args: control.args ?? {}, payload: control.payload ?? {} }))),
@@ -185,6 +193,8 @@ export function createRegistry({ hostVersion = null, warn = message => console.w
         feature: featureDecl,
         /** Whether feature `id` is on (the reader's choice, else its default); false for an id no module declares. */
         featureOn,
+        /** Whether feature `id` is on, or any feature that lists it in `replaces` is. */
+        featureOrReplacementOn,
         withFeatures,
         hypothetical,
         /** The feature command `type` belongs to, or null; the bus refuses it with FEATURE_OFF while that is off. */

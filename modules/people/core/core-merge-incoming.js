@@ -8,6 +8,7 @@ import { identityLabelsRelated, inferNpcIdentityKind, isInterimNpcLabel } from '
 import { durableTextAccepted, incomingCustomFields, incomingKeyRelationships, mergeLists } from './core-record.js';
 import { applyNpcMemories, firstMeetingCandidates, scanFactCandidates } from '../memory/memory-fact-apply.js';
 import { TEXT_FIELDS } from '../fields/registry.js';
+import { copiesLineSummary, lineSummary, takeSummarySource } from './relationship-summary-source.js';
 import { durableRefinementCandidateGrounded, filterSafeMannerismRefinements, groundedAppearanceChange, groundedAppearanceCorrection, isExplicitRecurringMannerism, isSafeIdentityTextRefinement, isSafeSpeechRefinement, isSafeUnmarkedDurableFieldReplacement, isSafeUnmarkedDurableRefinement, mergeDurableTextRefinement, normalizeMannerisms, presentationContinuationEvidence, speechSeedVetoed, speechSupportContext } from './core-durable.js';
 import { groundedBehaviorProfile, mergeBehaviorProfileRefinements, reconcileBehaviorProfileWithPersonality } from './core-behavior.js';
 import { isTerminalNpcDeath } from './terminal-lifecycle.js';
@@ -364,10 +365,12 @@ export function applyIncoming(existing, incoming, turn, relationshipCaps = DEFAU
         const mayUpdate = relationshipNarrativeAdvance
             && proposedSummary
             && relationshipSummaryConsistent(proposedSummary, merged.relationship, lifecycleOptions.developmentContext, merged.relationshipMilestones);
-        if (mayInitialize || mayUpdate) merged.relationshipSummary = calibrateRelationshipSummary(proposedSummary, merged.relationship);
-        else merged.relationshipSummary = calibrateRelationshipSummary(existing.relationshipSummary || merged.relationshipSummary, merged.relationship);
+        if ((mayInitialize || mayUpdate) && !copiesLineSummary(proposedSummary, existing)) {
+            merged.relationshipSummary = calibrateRelationshipSummary(proposedSummary, merged.relationship);
+            takeSummarySource(merged);
+        } else merged.relationshipSummary = lineSummary(existing) || calibrateRelationshipSummary(existing.relationshipSummary || merged.relationshipSummary, merged.relationship);
     } else {
-        merged.relationshipSummary = calibrateRelationshipSummary(existing.relationshipSummary, merged.relationship);
+        merged.relationshipSummary = lineSummary(existing) || calibrateRelationshipSummary(existing.relationshipSummary, merged.relationship);
     }
     const autoArchiveDeaths = lifecycleOptions.autoArchiveDeaths !== false;
     const confirmedDeath = incoming.lifeState === 'deceased' && incoming.lifeStateCertainty === 'explicit';

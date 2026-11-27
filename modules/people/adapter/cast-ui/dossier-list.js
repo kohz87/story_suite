@@ -5,7 +5,7 @@ import { normalizeSecrets } from '../../meters/npc-meters.js';
 import { elementOf, meterBarNode } from './dom.js';
 
 export function createDossierListPart(session, deps) {
-    const { dossierOf, headReply, npcList, part, presentList, runtime, warn } = deps;
+    const { dossierOf, headReply, npcList, ownersNow, part, presentList, runtime, warn } = deps;
     let rowsCache = { key: null, rows: [] };
 
     // Every dossier as a row, kept until Delta's state changes (dossierRevision): plain rows from the dossiers' names, or a
@@ -86,9 +86,10 @@ export function createDossierListPart(session, deps) {
         }
         if (!Array.isArray(cast) || !cast.length) return rows;
         const byKey = Object.fromEntries(cast.map(entry => [entry.key, entry]));
+        const owners = ownersNow();
         return rows.map(row => {
-            const who = part.identify(byKey, row.name);
-            const entry = who && Object.hasOwn(byKey, who.key) ? byKey[who.key] : null;
+            const key = owners.entryKey(byKey, row);
+            const entry = key && Object.hasOwn(byKey, key) ? byKey[key] : null;
             return entry ? { ...row, stage: entry.rank || '', bars: entry.bars ?? [] } : row;
         });
     }
@@ -125,22 +126,23 @@ export function createDossierListPart(session, deps) {
         if (!Array.isArray(cast) || !cast.length) return null;
         const byKey = Object.fromEntries(cast.map(entry => [entry.key, entry]));
         const shown = [];
+        const owners = ownersNow();
         for (const npc of presentList()) {
-            const who = part.identify(byKey, npc.name);
-            const entry = who && Object.hasOwn(byKey, who.key) ? byKey[who.key] : null;
+            const key = owners.entryKey(byKey, npc);
+            const entry = key && Object.hasOwn(byKey, key) ? byKey[key] : null;
             if (entry && !shown.includes(entry)) shown.push(entry);
         }
         let scene = null;
         try {
             const list = session.sdkRef.query('scene.present');
-            scene = Array.isArray(list) ? list.map(name => part.identify(byKey, String(name ?? ''))?.key).filter(Boolean) : null;
+            scene = Array.isArray(list) ? list.map(name => part.identify(byKey, String(name ?? ''), owners)?.key).filter(Boolean) : null;
         } catch { scene = null; }
         for (const entry of cast) {
             if (shown.includes(entry) || dossierOf(entry.name)) continue;
             if (scene && !scene.includes(entry.key)) continue;
             shown.push(entry);
         }
-        return { shown, byKey, cast };
+        return { shown, byKey, cast, owners };
     }
     const barNodesOf = (doc, entry, defs) => entry.bars.map(bar => meterBarNode(doc, defs.find(def => def.id === bar.id) ?? bar, bar.value, bar.stage, bar));
     // The notes and the next-stage line of one NPC (text only). A card shows its stage on its name line, so it leaves the rank out.

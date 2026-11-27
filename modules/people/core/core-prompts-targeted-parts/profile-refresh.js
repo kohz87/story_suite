@@ -40,7 +40,7 @@ export function buildProfileRefreshPrompt({
         homeBase: cleanText(npc.homeBase, 300),
         age: cleanText(npc.age, 80),
         apparentAge: cleanText(npc.apparentAge, 80),
-        appearance: cleanWords(npc.appearance, 900),
+        appearance: cleanWords(npc.appearance, npc.castFrom ? 1200 : 900),
         personality: cleanWords(npc.personality, 600),
         speech: cleanWords(npc.speech, 500),
         behaviorProfile: normalizeBehaviorProfile(npc.behaviorProfile),

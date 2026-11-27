@@ -12,6 +12,7 @@ import { checkAnswer } from './arc-plan.js';
 import { startArc } from './arc-day.js';
 import { BATCH, PENDING_DAYS, slotKey } from './open-slot.js';
 import { textPlace } from './shown-place.js';
+import { fillSummary } from './event-title.js';
 
 const KEEP = 48;
 
@@ -33,11 +34,16 @@ function fixed(ws, def, slot, day, outcome, why) {
     const source = { kind: 'template', id: def.id, title: def.id, held: false };
     if (def.fallback && (def.fallback.sets.length || def.fallback.clears.length)) {
         applyEffects(ws, { clear: def.fallback.clears, set: def.fallback.sets }, source, day, bind);
-        const text = String(def.summary).replace(/\{place\}/g, textPlace(ws.geo, slot.place, slot.regionName || slot.region)).replace(/\{region\}/g, slot.regionName || slot.region).replace(/\{realm\}/g, slot.realm);
+        // With no authored summary the line is '' (never the id) and is shown nowhere.
+        const text = def.summary === def.id ? '' : fillSummary(def.summary, { place: textPlace(ws.geo, slot.place, slot.regionName || slot.region), regionName: slot.regionName || slot.region, realm: slot.realm });
         ws.journal.push({ day, text, by: `template:${def.id}`, place: slot.place, reach: def.reach });
         record(ws, slot, { resolved: day, outcome });
     } else record(ws, slot, { resolved: day, outcome: 'nothing' });
-    ws.warnings.push(`The open template "${def.id}" at ${slot.place}: ${why}; ${def.fallback ? 'its fallback was applied' : 'it did nothing'}.`);
+    // A reason in brackets quotes a check's error (the pack's ids): Problems keeps it, the card goes without it.
+    const end = `; ${def.fallback ? 'its fallback was applied' : 'it did nothing'}.`;
+    const text = `A happening at ${slot.place}: ${why}${end}`;
+    ws.warnings.push(text);
+    (ws.card ??= {})[text] = `A happening at ${slot.place}: ${why.replace(/ \(.*\)$/s, '')}${end}`;
 }
 
 /** Resolve a slot with its stored `result` ({ outcome, answer? }) or none (the fallback), on `day`. */
@@ -54,7 +60,7 @@ function resolveSlot(ws, def, slot, result, day, why = 'the Director did not ans
     applyEffects(ws, checked.block, { kind: 'template', id: def.id, title: checked.name, held: false, open: true }, day, bind);
     ws.journal.push({ day, text: checked.summary, title: checked.name, by: `template:${def.id}`, place: slot.place, reach: def.reach });
     record(ws, slot, { resolved: day, outcome: result.outcome === 'retry' ? 'retry' : 'ok', name: checked.name, summary: checked.summary, people: checked.people });
-    if (result.outcome === 'retry') ws.warnings.push(`The open template "${def.id}" at ${slot.place}: the first answer was refused; the retry was used.`);
+    if (result.outcome === 'retry') ws.warnings.push(`A happening at ${slot.place}: the first answer was refused; the retry was used.`);
 }
 
 /** A slot rolled on `day` at `place`: applied from its stored result, to its fallback (beyond the batch), or left waiting. */

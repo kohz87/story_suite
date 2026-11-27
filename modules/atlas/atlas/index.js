@@ -8,7 +8,7 @@
 
 import { applyLandmarkLine, applyRouteLine, edit, focus, visit } from './capture.js';
 import { initialAtlas, validateAtlas } from './domain.js';
-import { GRAMMAR, STATIC_TEXT, TAIL_BUDGET, TRIP_TAIL_BUDGET, atlasTail, tripTail } from './note.js';
+import { GRAMMAR, PLACES_TAIL_BUDGET, STATIC_TEXT, TAIL_BUDGET, TRIP_TAIL_BUDGET, atlasTail, tripTail } from './note.js';
 import { beforeGenerate, queries as atlasQueries } from './queries.js';
 import { commands as policyCommands, queries as policyQueries } from './policy.js';
 import { mapScreen } from './screen.js';
@@ -54,7 +54,7 @@ export const part = {
     context: {
         static: () => STATIC_TEXT,
         tail: view => atlasTail(view),
-        budget: TAIL_BUDGET + TRIP_TAIL_BUDGET,
+        budget: TAIL_BUDGET + PLACES_TAIL_BUDGET + TRIP_TAIL_BUDGET,
         parts: [{ feature: TRIP_FEATURE, tail: tripTail }],
     },
     hooks: { beforeGenerate },

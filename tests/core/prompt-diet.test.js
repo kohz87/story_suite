@@ -63,6 +63,6 @@ test('Carried leaves out where a thing was found; the rest of the note stays; th
     const state = { domains: { inventory: { defs: { 'story/rope': { id: 'story/rope', name: 'Rope', kind: 'misc', tags: [] }, 'story/lamp': { id: 'story/lamp', name: 'Lamp', kind: 'misc', tags: [] } },
         stacks: { it_a: { stack: 'it_a', def: 'story/rope', qty: 1, owner: 'party', equipped: null, note: 'found at the drain' }, it_b: { stack: 'it_b', def: 'story/lamp', qty: 1, owner: 'party', equipped: null, note: 'brass, found at the drain' } }, wallets: {}, nextId: 3 } } };
     const { lines } = inventoryTail(state, { currency: { name: 'gold', plural: 'gold', short: '' }, chars: 800, optionalChars: 400 });
-    assert.ok(lines.includes('Carried: Lamp (brass), Rope'), lines.join('|'));
+    assert.ok(lines.includes('Supplies: Lamp (brass)') && lines.includes('Carried: Rope'), lines.join('|'));
     assert.equal(state.domains.inventory.stacks.it_a.note, 'found at the drain');
 });

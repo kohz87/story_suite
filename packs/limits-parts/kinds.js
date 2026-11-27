@@ -2,7 +2,7 @@
 
 export const PACK_KINDS = Object.freeze(['world', 'game']);
 // Top-level fields of a format 4 pack.json (the same for both kinds). `currency`, `economy`, `calendar`, `weather` and `start` live under `content`.
-export const PACK_FIELDS_V4 = Object.freeze(['id', 'format', 'kind', 'version', 'name', 'author', 'description', 'requires', 'recommends', 'content']);
+export const PACK_FIELDS_V4 = Object.freeze(['id', 'format', 'kind', 'version', 'name', 'author', 'description', 'requires', 'recommends', 'placeIds', 'content']);
 // The `content` keys each kind may hold. A key in neither list is unknown; a key in the other kind's list gets a pointer.
 export const CONTENT_KEYS = Object.freeze({
     world: Object.freeze(['lore', 'placeKinds', 'routeKinds', 'places', 'routes', 'regions', 'realms', 'markets', 'cast', 'powers', 'scores', 'conditions', 'worldEvents', 'templates', 'start', 'foes', 'items']),

@@ -3,6 +3,7 @@ import { svgEl } from './dom.js';
 
 export const FEELING_KEYS = Object.freeze(['trust', 'affection', 'desire', 'tension']);
 const MAX_SWEEP = 90;
+const MIN_SWEEP = 3;
 
 function point(r, deg) {
   const a = (deg * Math.PI) / 180;
@@ -33,7 +34,8 @@ export function feelingsRing(meters = {}, { width = 6, pad = 1, ticks = false } 
   FEELING_KEYS.forEach((key, quarter) => {
     const value = Number(meters?.[key]);
     if (!Number.isFinite(value) || value === 0) return;
-    const sweep = Math.sqrt(Math.min(Math.abs(value), 100) / 100) * MAX_SWEEP;
+    // Linear, so +38 fills 38% of its quarter (owner 26 Nov: the old square-root scale drew +38 past half); a small non-zero value keeps a visible sliver.
+    const sweep = Math.max(MIN_SWEEP, (Math.min(Math.abs(value), 100) / 100) * MAX_SWEEP);
     const start = quarter * 90;
     svg.appendChild(svgEl('path', {
       d: arcPath(r, start, start + sweep),

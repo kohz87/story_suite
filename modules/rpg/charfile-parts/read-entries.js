@@ -1,7 +1,7 @@
 // Reads one skill and one item entry of a character file into clean copies.
 
 import { KINDS, RARITIES } from '../../inventory/index.js';
-import { GEAR, slotWordOf } from '../../inventory/gear.js';
+import { GEAR, gearStatKey, slotWordOf } from '../../inventory/gear.js';
 import { CREATION, STATS_V1, USES } from '../names.js';
 import { typeKey } from '../../../core/runtime/skill-slots.js';
 import { FILE_LIMITS } from './limits.js';
@@ -27,8 +27,12 @@ export function readItem(entry) {
     // A piece set up by hand (Equipment) also keeps its slot and its bonus (at most the stats a piece may give, each a whole number), so it comes back as it was.
     const kind = KINDS.includes(entry.kind) ? entry.kind : null;
     const slot = kind === 'equipment' && typeof entry.slot === 'string' ? slotWordOf(entry.slot) : null;
-    const given = kind === 'equipment' && isRecord(entry.stats) ? Object.entries(entry.stats) : [];
-    const stats = given.length && given.length <= GEAR.maxStats && given.every(([key, value]) => GEAR.stats.includes(key) && whole(value, 1, 6)) ? Object.fromEntries(given) : null;
+    // (a file from before gear's sixth stat was WIS names it LUK: read as WIS, a LUK and a WIS beside each other adding up)
+    const given = kind === 'equipment' && isRecord(entry.stats) ? Object.entries(entry.stats).map(([key, value]) => [gearStatKey(key) === 'WIS' && key !== 'WIS' ? 'WIS' : key, value]) : [];
+    const sound = given.length && given.every(([key, value]) => GEAR.stats.includes(key) && whole(value, 1, 6));
+    const summed = sound ? given.reduce((out, [key, value]) => ({ ...out, [key]: (out[key] ?? 0) + value }), {}) : null;
+    // (a LUK and a WIS that add up past 6 are held to 6, not dropped)
+    const stats = summed && Object.keys(summed).length <= GEAR.maxStats ? Object.fromEntries(Object.entries(summed).map(([key, value]) => [key, Math.min(6, value)])) : null;
     // The carry the reader set on it: a whole 1..500, else left out (an older file has none).
     return { name, qty: entry.qty, ...(note ? { note } : {}), ...(kind ? { kind } : {}), ...(RARITIES.includes(entry.rarity) ? { rarity: entry.rarity } : {}),
         ...(slot ? { slot } : {}), ...(stats ? { stats } : {}), ...(whole(entry.carry, 1, FILE_LIMITS.carry) ? { carry: entry.carry } : {}) };

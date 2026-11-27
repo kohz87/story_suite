@@ -37,7 +37,7 @@ test('mounts.add: the kind\'s usual pace, a count, where; mounts.remove takes it
     steady(host, 'after add and remove');
 });
 
-test('the refusals: a name in use, no name, no such mount, a seventh row, and nothing but the reader', async t => {
+test('the refusals: a name in use, no name, no such mount, a thirteenth row, and nothing but the reader', async t => {
     const host = await fresh(t);
     await host.send('Yard.', block('The yard.', ['+ mount Burr | kind: mule']));
     for (const [type, payload, pattern] of [
@@ -53,8 +53,8 @@ test('the refusals: a name in use, no name, no such mount, a seventh row, and no
         assert.match(out.message, pattern);
     }
     assert.deepEqual(rows(host), [['Burr', 'mule', 1, 25, '']], 'a refusal changes nothing');
-    for (const n of [2, 3, 4, 5, 6]) await ok(host, 'mounts.add', { name: `Pony ${n}`, kind: 'pony' });
-    assert.match((await host.sdk.command('mounts.add', { name: 'Pony 7', kind: 'pony' })).message, /at most 6 mounts/);
+    for (const n of [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]) await ok(host, 'mounts.add', { name: `Pony ${n}`, kind: 'pony' });
+    assert.match((await host.sdk.command('mounts.add', { name: 'Pony 13', kind: 'pony' })).message, /at most 12 mounts/);
     // A story line or a module's nested call cannot use them (the story has its own + mount / - mount lines).
     const failed = [];
     const ctx = cause => ({ cause, caller: cause === 'ui' ? 'zz-quest' : null, fail: (code, message) => { failed.push(message); throw new Error(message); } });

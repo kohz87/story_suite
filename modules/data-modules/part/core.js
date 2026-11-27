@@ -8,9 +8,10 @@ import { hashJson } from '../../../core/replay.js';
 import { isReader as isPersona } from '../../../core/interaction/player.js';
 import { B, draftOf, pairKey } from './shared.js';
 import { replayInputs } from './views.js';
+import { withPeople } from '../holding/person.js';
 import { settleReserve } from './timing.js';
 
-export function createCore({ packs, state: head = () => null, lifecycle = () => null, restore = () => ({ state: 'idle' }), settings = () => ({}), persona = () => '', boardOn = () => false } = {}) {
+export function createCore({ packs, state: head = () => null, lifecycle = () => null, restore = () => ({ state: 'idle' }), settings = () => ({}), persona = () => '', boardOn = () => false, rpgReplaced = () => false } = {}) {
     // The runtime's late-bound readers may not exist yet while the definition registers: read as "no state" until they do.
     const state = () => { try { return head(); } catch { return null; } };
     // Whether a name is the reader's own (the persona's): the Party tab shows that character as You.
@@ -39,15 +40,16 @@ export function createCore({ packs, state: head = () => null, lifecycle = () => 
         if (ctx.cause !== 'ui' || ctx.caller !== null) refuse('REFUSED', '', 'Only a direct reader action in Setup may pin, attach or migrate.');
         if (restore()?.state === 'pending') refuse('RESTORE_PENDING', '', 'A restore is pending.');
     }
-    function guard(ctx, prefix, { kind, module, hash, generation, subject = 'chat', reads = [], imports = [], actor = false, decision = {}, pin = null, bound = false, localOnly = false, clock = false, party = false, bench = '' }) {
+    function guard(ctx, prefix, { kind, module, hash, generation, subject = 'chat', reads = [], imports = [], actor = false, decision = {}, pin = null, bound = false, localOnly = false, clock = false, party = false, bench = '', posted = null }) {
         const predicate = { kind, module, hash, generation, subject };
         const adapters = pin?.definition.imports ?? activeDefinition(prefix, module)?.imports ?? {};
         const available = localOnly ? [] : Object.keys(adapters).filter(alias => adapters[alias].query === 'dataModules.public');
-        const selector = { module, subject, reads, imports, actor, ...(clock ? { clock: true } : {}), ...(party ? { party } : {}), ...(bench ? { bench } : {}), ...(available.length ? { available } : {}),
+        const selector = { module, subject, reads, imports, actor, ...(clock ? { clock: true } : {}), ...(party ? { party } : {}), ...(bench ? { bench } : {}), ...(posted ? { posted } : {}), ...(available.length ? { available } : {}),
             ...(pin ? { adapters, subjects: decision.subjects ?? [] } : {}) };
         const source = copy(ctx.source);
         if (!source) refuse('DM_SCHEMA', '', 'A reply must hold this data module action.');
-        const witness = replayInputs(prefix, selector);
+        // (a post's witness matches names in NPC State's and the cast's records, as the guard's own query reads them)
+        const witness = replayInputs(posted ? withPeople(ctx, prefix) : prefix, selector);
         const recorded = { source, selector, decision, ...(pin ? { pin } : {}) };
         ctx.replayGuard({ owner: 'story-block', version: 2, epoch: ctx.epoch, rulesHash: localOnly ? null : prefix.domains.rules?.rulesHash ?? null,
             predicate, inputHash: hashJson({ source, witness, predicate, decision }), ...(bound ? { replyBound: true } : {}) }, recorded);
@@ -96,5 +98,5 @@ export function createCore({ packs, state: head = () => null, lifecycle = () => 
             return ctx.fail(error.code, `${label}: ${reason}; nothing applied.`.slice(0, 280));
         }
     };
-    return { packs, lifecycle, restore, settings, boardOn, state, isReader, offers, dependency, reader, guard, finish, wrap };
+    return { packs, lifecycle, restore, settings, boardOn, rpgReplaced, state, isReader, offers, dependency, reader, guard, finish, wrap };
 }

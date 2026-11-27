@@ -13,6 +13,7 @@ import { impactDayProblems } from '../../relationship/relationship-pacing.js';
 import { normalizeCustomFields } from '../core-record-custom-fields.js';
 import { BUILT_IN_LIMITS, normalizeStoryList } from './built-in-fields.js';
 import { storedLevel } from './stored-level.js';
+import { lineSummary, takeSummarySource } from '../relationship-summary-source.js';
 
 const ALIAS_KEYS = ['sex', 'race', 'ancestry', 'speciesRace', 'species_race', 'home_base', 'usualLocation', 'usual_location', 'whereToFind', 'where_to_find', 'identity_kind',
     'portrait_prompt_positive', 'portrait_prompt_negative', 'portrait_prompt_replace', 'portrait_seed', 'behavior_profile', 'key_relationships', 'innerCircle', 'inner_circle',
@@ -78,7 +79,10 @@ export function normalizeNpcRecord(rawInput = {}) {
     npc.background = locked.has('background') || packWords('background', 1200)
         ? cleanText(raw.background, 1200)
         : compactDurableText(raw.background, DURABLE_PROFILE_LIMITS.background, 8);
-    npc.relationshipSummary = compactDurableText(raw.relationshipSummary, DURABLE_PROFILE_LIMITS.relationshipSummary, 6);
+    // (a `toward:` sentence is kept as written: relationship-summary-source.js)
+    const toward = lineSummary(raw);
+    npc.relationshipSummary = toward || compactDurableText(raw.relationshipSummary, DURABLE_PROFILE_LIMITS.relationshipSummary, 6);
+    takeSummarySource(npc, raw);
     npc.mood = cleanText(raw.mood, 300);
     npc.location = cleanText(raw.location, 300);
     npc.goal = cleanText(raw.goal, 500);
@@ -133,7 +137,7 @@ export function normalizeNpcRecord(rawInput = {}) {
     else delete npc.impactDay;
     npc.relationshipMilestones = normalizeRelationshipMilestones(raw.relationshipMilestones ?? raw.relationship_milestones, npc.relationship);
     npc.relationshipEventHistory = normalizeRelationshipEventHistory(raw.relationshipEventHistory ?? raw.relationship_event_history);
-    npc.relationshipSummary = calibrateRelationshipSummary(npc.relationshipSummary, npc.relationship);
+    if (!toward) npc.relationshipSummary = calibrateRelationshipSummary(npc.relationshipSummary, npc.relationship);
     const lastChange = raw.lastRelationshipChange && typeof raw.lastRelationshipChange === 'object' ? raw.lastRelationshipChange : {};
     const normalizedAuditDelta = normalizeRelationshipAuditDelta(lastChange.delta ?? {});
     const auditHasDelta = RELATIONSHIP_KEYS.some(key => normalizedAuditDelta[key] !== 0);

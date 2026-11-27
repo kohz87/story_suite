@@ -111,7 +111,7 @@ function choiceAt(exchanges, number, autoRun, setup, offset = 0) {
 }
 
 /**
- * Play a whole fight. `sheet` holds the party and foes; `setup` holds `dice` (the port's `dice(seed, offset)`; offset = `start.offset`, 0 for a first segment: see dice.js), optional `maxExchanges`, optional `flee`, optional `fleeIdle` (true: combat/exchange.js defers an idle member's stance in a flee exchange), optional `speedFull` (true: a Speed stance adds its full mastery to evasion)
+ * Play a whole fight. `sheet` holds the party and foes; `setup` holds `dice` (the port's `dice(seed, offset)`; offset = `start.offset`, 0 for a first segment: see dice.js), optional `maxExchanges`, optional `flee`, optional `fleeIdle` (true: combat/exchange.js defers an idle member's stance in a flee exchange), optional `speedFull` (true: a Speed stance adds its full mastery to evasion), optional `soakWhole` (true: soak takes off only whole points, damage.js takeHit)
  * overrides and an optional scripted `random()` for tests. Passing `exchanges` plays exactly those choices (an object
  * keyed by hero id/label or an array per exchange); omitting it uses the automatic whole-fight policy through the cap.
  * `setup.horde` (combat/horde.js hordeOf) plays a horde: its reserve refills emptied slots, and `start.horde` carries its moving state into a later segment.
@@ -150,7 +150,7 @@ export function playBoard(input, setup = {}, exchanges = undefined) {
     const room = Math.max(0, cap - offset), limit = autoRun ? room : Math.min(exchanges.length, room);
     for (let at = offset + 1; at <= offset + limit; at += 1) {
         const choices = choiceAt(exchanges, at, autoRun, setup, offset);
-        const done = playExchange(state, choices, { order, roll: rollsOf(setup, at, offset), number: at, rotation, ...(setup.fleeIdle === true ? { fleeIdle: true } : {}), ...(setup.speedFull === true ? { speedFull: true } : {}), ...(horde ? { horde: { setup: horde, state: moving } } : {}) });
+        const done = playExchange(state, choices, { order, roll: rollsOf(setup, at, offset), number: at, rotation, ...(setup.fleeIdle === true ? { fleeIdle: true } : {}), ...(setup.speedFull === true ? { speedFull: true } : {}), ...(setup.soakWhole === true ? { soakWhole: true } : {}), ...(horde ? { horde: { setup: horde, state: moving } } : {}) });
         lines.push(...done.lines); moves.push(...done.moves); rounds.push(done.lines);
         state.party = done.sheet.party; state.foes = done.sheet.foes; rotation = done.rotation; played = at;
         if (horde) { order = done.order; moving = done.horde; end = done.end ?? null; }

@@ -7,4 +7,4 @@ export { LABELS, PARTS, DATE_PARTS, KIND_ORDER } from './shared-parts/schema.js'
 export { SHOWN, RESERVED_KEYS } from './shared-parts/guards.js';
 export { THINK_BLOCK, THINK_CLOSE, PLAN_OPEN, PLAN_CLOSE } from './shared-parts/blocks.js';
 export { DECORATION, LABEL_LINE, FENCE } from './shared-parts/lines.js';
-export { flat, part } from './shared-parts/text.js';
+export { flat, part, barless } from './shared-parts/text.js';

@@ -57,3 +57,36 @@ test('one-pass off: no one-pass part even when hosted', () => {
     assert.deepEqual(preview().parts.map(part => part.label), ['Live dossier']);
     settings.narrationCapture = true;
 });
+
+test('hosted: the context ends with the reminder naming who is here and who the player\'s message calls; the dead never', () => {
+    const settings = getSettings();
+    Object.assign(settings, { enabled: true, inject: true, narrationCapture: true, fullScanEveryTurn: false });
+    const extra = [normalizeNpcRecord({ id: 'npc_oren', name: 'Oren', present: false, role: 'Smith' }), normalizeNpcRecord({ id: 'npc_tam', name: 'Tam', present: false, lifeState: 'deceased', lifeStateCertainty: 'explicit' }), normalizeNpcRecord({ id: 'npc_lio', name: 'Lio', present: false })];
+    state.npcs.push(...extra);
+    globalThis.__npcMock.context.chat = [{ is_user: true, mes: 'I ask Mira to fetch Oren and Tam from the forge.' }];
+    try {
+        const { rt, injection } = rig({ hosted: true });
+        rt.narrationCaptureArmed = 'chat';
+        injection.updateInjection();
+        const context = sent.get(KEYS.CAPTURE_PROMPT_KEY);
+        assert.ok(context.endsWith('\nPeople in this scene: Mira, Oren. For each person in this reply (anyone who arrives too) who did or saw something that mattered, write their memory:, and status: and goal: if they changed (someone who arrives is always doing something new). If what happened changed how they feel about Astra, write that meter line too.'), context);
+    } finally {
+        state.npcs.splice(1);
+        globalThis.__npcMock.context.chat = [];
+    }
+});
+
+test('hosted: the rules\' {{user}} is shown as the reader\'s name, as SillyTavern sends it', t => {
+    const settings = getSettings();
+    Object.assign(settings, { enabled: true, inject: true, narrationCapture: true, fullScanEveryTurn: false });
+    const named = text => String(text).replace(/\{\{user\}\}/gi, 'Ari');
+    globalThis.__npcMock.context.substituteParams = named;
+    t.after(() => { delete globalThis.__npcMock.context.substituteParams; });
+    const { rt, injection, preview } = rig({ hosted: true });
+    rt.narrationCaptureArmed = 'chat';
+    injection.updateInjection();
+    const shown = preview().parts.find(part => part.label === 'One-pass rules (system prompt)').text;
+    assert.equal(shown, named(sent.get(KEYS.CAPTURE_RULES_KEY)));
+    assert.match(shown, /How they see Ari: when this reply changes what a person thinks of Ari /);
+    assert.doesNotMatch(shown, /\{\{user\}\}/);
+});

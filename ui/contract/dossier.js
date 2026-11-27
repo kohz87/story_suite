@@ -14,6 +14,10 @@ export const DOSSIER_SHAPE = {
   genderUnknown: T.BOOLEAN,
   following: T.BOOLEAN,
   inParty: T.BOOLEAN,
+  // For the dossier library: here now, "not seen lately", and when last seen (an ordering number, never shown; left out when unknown).
+  here: { $optional: T.BOOLEAN },
+  dormant: { $optional: T.BOOLEAN },
+  seenTurn: { $optional: T.NUMBER },
   // The "Add to party" join card (the engine's rpg.partyAdd), or null when this person may not join (not RPG, You, dead, in the party, no room).
   partyAdd: {
     $optional: {

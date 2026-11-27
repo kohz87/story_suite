@@ -56,13 +56,13 @@ export const timers = {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {},
 };
 
-export async function host({ settings = {}, delta = fakeDelta(), headReply = () => null, features = null, answers = {} } = {}) {
+export async function host({ settings = {}, delta = fakeDelta(), headReply = () => null, features = null, answers = {}, linesMode = false, publicPaths = null, commandFeatures = false } = {}) {
     const chat = [{ is_user: false, name: 'Narrator', mes: 'The forge is warm.', swipe_id: 0, swipes: ['The forge is warm.'], swipe_info: [{ extra: {} }], extra: {} }];
     chat[0].swipe_info[0].extra = chat[0].extra;
-    const registry = createRegistry();
+    const registry = createRegistry(commandFeatures ? { featureValue: id => features?.[id] } : {});   // (commandFeatures: commands see the switches too)
     // The host's people domain (Story Block's core part): NPC State keeps its meters in its `bonds`.
     registry.register({ id: 'story-block', name: 'Story Block', ...createPeoplePart() });
-    const store = createStore({ chat: () => chat, save: async () => {}, seed: name => registry.deferredInitial(name) });
+    const store = createStore({ chat: () => chat, save: async () => {}, seed: name => registry.deferredInitial(name), holders: name => registry.holders(name) });
     const moduleSettings = { [MODULE_ID]: structuredClone(settings) };
     const settingsOf = id => ({ ...(registry.module(id)?.settings?.defaults ?? {}), ...structuredClone(moduleSettings[id] ?? {}) });
     const bus = createCommandBus({ store, registry, settings: settingsOf });
@@ -86,12 +86,14 @@ export async function host({ settings = {}, delta = fakeDelta(), headReply = () 
         query: (name, args) => (Object.hasOwn(answers, name) ? structuredClone(answers[name]) : runQuery(name, args)),
         settings: id => settingsOf(id),
         ...(features ? { feature: id => features[id] } : {}),
+        ...(publicPaths ? { registerPublicPaths: def => { publicPaths.push(def); return () => {}; } } : {}),
     };
     const box = { host: { ready: Promise.resolve(sdk), sdk } };
     const warnings = [];
     const adapter = createPeopleAdapter({
         suiteApi: delta.suiteApi, delta: () => delta.api, version: 'test', host: () => box.host, headReply,
         doc: fakeDoc(), timers, logger: { warn: (...args) => warnings.push(args) }, loadEmptyCast: async () => null,
+        linesMode: () => linesMode,   // (production passes `() => true`: runtime-entry-startup.js)
     });
     adapter.start();
     assert.equal(await adapter.settled(), true, 'the adapter registers with the host');
@@ -108,6 +110,7 @@ export async function host({ settings = {}, delta = fakeDelta(), headReply = () 
             if (!entry) { problems.push({ line: line.raw, code: 'UNKNOWN_KIND' }); continue; }
             const result = bus.run(`${CAPTURE_PREFIX}${entry.kind}`, { ...line, kind: entry.kind, word: line.kind }, {
                 cause: 'story', capture: entry, carrier: { index, swipe: chat[index].swipe_id ?? 0, sid: store.carrierSid(index) },
+                chat: { lastUser: chat[index - 1]?.mes ?? '', reply: chat[index].mes },
             });
             if (result.ok) store.append({ ops: result.ops, receipt: result.receipt });
             else problems.push({ line: line.raw, code: result.code, message: result.message });

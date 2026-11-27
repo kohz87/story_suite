@@ -1,6 +1,8 @@
 // Resolves the dossier id openDossier(value) should open from an id, name or alias.
 import { plainText } from './text.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
+import { ownersOf } from '../meters/npc-meters-parts/owners.js';
+import { namesakes } from '../meters/npc-meters-parts/namesakes.js';
 // P6: no archive flag; a confirmed-dead person is out of reach exactly as an archived (death-archived) one was.
 const gone = npc => Boolean(npc?.archived) || isTerminalNpcDeath(npc);
 function nameKey(value) {
@@ -29,4 +31,30 @@ export function resolveDossierTarget(npcs, value) {
     } catch {
         return '';
     }
+}
+
+/** The id `value` is, when it is the id of a dead or archived dossier in `npcs` (their own hidden notes are still read by it), else ''. */
+export function goneTarget(npcs, value) {
+    return (Array.isArray(npcs) ? npcs : []).some(npc => npc?.id === value && gone(npc)) ? value : '';
+}
+
+/**
+ * For paths that show or mark a person (portrait, presence, injection): `value => id or ''` over one list. As resolveDossierTarget, but a name
+ * that is some dossier's own (a dead or archived one's too) never answers with a different person who has it as an alias.
+ */
+export function ownerTargets(npcs) {
+    let owners = null;   // (made once for the list, and only when a name or alias found someone)
+    let shared = null;
+    return value => {
+        const id = resolveDossierTarget(npcs, value);
+        // `Name "Nickname"`, as the people list shows a namesake.
+        if (!id && /["“]/.test(String(value ?? ''))) {
+            const hit = (shared ??= namesakes(Array.isArray(npcs) ? npcs.filter(Boolean) : [])).asForm(value)?.one;
+            return hit && !gone(hit.record) ? hit.id : '';
+        }
+        if (!id || id === plainText(value)) return id;
+        owners ??= ownersOf(Array.isArray(npcs) ? npcs.filter(Boolean) : []);
+        const named = owners.named(value);
+        return named.length && !named.some(npc => npc.id === id) ? '' : id;
+    };
 }

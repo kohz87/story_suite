@@ -4,6 +4,7 @@ import { keyOf } from '../domain.js';
 import { placeLine } from '../parent.js';
 import { iconFor, label } from './icons.js';
 import { mapSettings } from '../../places-parts/settings.js';
+import { roadScale } from '../where.js';
 
 const layerKey = (type, name) => `${type}:${keyOf(name)}`;
 
@@ -20,21 +21,6 @@ export const viewLayerOf = place => (place.layer ? layerKey('plane', place.layer
  *   first, each by name; `layer`: the one to open on (the current place's, else '' for all);
  * - kinds: the legend `{ kind: { label, icon? } }`; orient: `{ north, east }` from the map settings.
  */
-// A pack gives each road its length in km but no map scale: the median of km ÷ straight distance, less the road factor (roads wind), is the
-// map's km per unit; null with fewer than three measured roads.
-function scaleFromRoads(world, roadFactor = 1.25) {
-    const byId = new Map(world.places.map(place => [place.id, place]));
-    const ratios = [];
-    for (const route of world.routes) {
-        const a = byId.get(route.from), b = byId.get(route.to);
-        const d = a && b && Number.isFinite(a.x) && Number.isFinite(b.x) ? Math.hypot(a.x - b.x, a.y - b.y) : 0;
-        if (d > 0 && Number(route.km) > 0) ratios.push(Number(route.km) / d);
-    }
-    if (ratios.length < 3) return null;
-    ratios.sort((x, y) => x - y);
-    return Math.round((ratios[ratios.length >> 1] / (roadFactor > 0 ? roadFactor : 1)) * 100) / 100;
-}
-
 export function atlasView(world, current = '', { map = {} } = {}) {
     const here = current ? world.find(current) : null;
     const drawn = world.places.filter(place => !place.hidden || place.id === here?.id);
@@ -75,6 +61,6 @@ export function atlasView(world, current = '', { map = {} } = {}) {
         tidy: drawn.filter(place => place.source === 'atlas' && place.discovered && place.x === null).length,
         orient: { north: map?.north === 'down' ? 'down' : 'up', east: map?.east === 'left' ? 'left' : 'right' },
         // (how far one map unit is, so the page can say how far a district lies from its town's centre: the reader's own setting, else read from the pack's road lengths)
-        kmPerUnit: Number(map?.kmPerUnit) > 0 ? mapSettings(map).kmPerUnit : (scaleFromRoads(world, mapSettings(map).roadFactor) ?? mapSettings(map).kmPerUnit),
+        kmPerUnit: Number(map?.kmPerUnit) > 0 ? mapSettings(map).kmPerUnit : (roadScale(world, mapSettings(map).roadFactor) ?? mapSettings(map).kmPerUnit),
     };
 }

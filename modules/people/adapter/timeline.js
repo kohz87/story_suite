@@ -5,11 +5,13 @@
 // A part of the adapter closure: createTimelinePart(session, deps) gets the adapter's shared state (session) and the adapter's options,
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. No SillyTavern import.
 
-import { resolveDossierTarget } from '../npc-api/dossier-target.js';
+import { ownersOf } from '../meters/npc-meters-parts/owners.js';
 import { FEATURE_STAGES, MILESTONE_KIND, NPC_KIND } from '../meters/npc-meters.js';
 import { metersCardScreen } from '../meters/npc-meters-screen.js';
 import { createPublicPathsDefinition } from '../public-paths.js';
 import { createIdentity } from './identity.js';
+import { hideJoinLines } from '../core/core-injection-parts-parts/join-line.js';
+import { hideSecretWatch } from '../core/core-prompts-capture-parts/secret-watch.js';
 import { pageHandles } from '../runtime/handles.js';
 
 const EVENTS = Object.freeze({
@@ -228,7 +230,7 @@ export function createTimelinePart(session, deps) {
         // (a host that does not call it shows the raw text; SillyTavern's own prompt view always does).
         // canGenerate: sending waits while the dossiers catch up after a fallback (history-replay.js).
         // afterCapture: a person the reply's `+ present` brought in gets a record in the reply's own step (meters/npc-lines-parts/present.js).
-        hooks: Object.freeze({ diagnostics: () => diagnosticsLines(), ownPrompt: () => ownPrompt(), redactSent: text => part.redact(text), canGenerate: () => true, afterCapture: (view, info) => (enabled() ? part.afterCapture(view, info) : undefined) }),
+        hooks: Object.freeze({ diagnostics: () => diagnosticsLines(), ownPrompt: () => ownPrompt(), redactSent: text => part.redact(hideJoinLines(hideSecretWatch(text))), canGenerate: () => true, afterCapture: (view, info) => (enabled() ? part.afterCapture(view, info) : undefined) }),
         screens: [metersCardScreen, castScreen],
         widgets: { [CAST_WIDGET]: castWidget },
         tabs: [{
@@ -335,9 +337,8 @@ export function createTimelinePart(session, deps) {
         const shown = defs.filter(def => def.show !== false);
         const hiddenMeters = defs.filter(def => def.show === false).map(def => def.id);
         const list = npcList();   // once: the list already carries names, aliases, presence and archived
+        const owners = ownersOf(list);   // whose row is whose: NPC State's ownership rule, never a match through another person's alias
         const fold = value => String(value ?? '').normalize('NFKC').toLocaleLowerCase().replace(/\s+/g, ' ').trim();
-        const labelsOf = npc => [npc.name, ...(Array.isArray(npc.aliases) ? npc.aliases : [])].map(fold).filter(Boolean);
-        const archived = new Set(list.filter(npc => npc.archived === true).flatMap(labelsOf));
         const here = new Set(list.filter(npc => npc.present === true && npc.archived !== true).map(npc => fold(npc.name)));
         // Mood and the seed numbers are read without copying the dossier (portraits and notes stay where they are).
         const fieldsOf = entry => {
@@ -349,27 +350,38 @@ export function createTimelinePart(session, deps) {
                 return full && typeof full === 'object' ? { mood: typeof full.mood === 'string' ? full.mood : null, relationship: full.relationship } : null;
             } catch { return null; }
         };
-        const entryOf = name => {
-            const id = resolveDossierTarget(list, name);
-            return id ? list.find(npc => String(npc.id ?? '') === String(id)) ?? null : null;
+        const byKey = Object.fromEntries(rows.map(row => [row.key, row]));
+        // Each row with its owner and the name it goes out under: the owner's, when the row's old name is now another dossier's or no longer one of theirs.
+        const paired = rows.map(row => {
+            const owner = owners.ownerOf(byKey, row.key);
+            const moved = owner && !owners.sameName(owner.name, row.name)
+                && (owners.named(row.name).length > 0 || !owners.aliased(row.name).some(npc => npc.id === owner.id));
+            return { row, owner, name: moved ? owner.name : row.name };
+        });
+        const owned = new Set(paired.filter(item => item.owner && item.owner.archived !== true).map(item => fold(item.name)));
+        // An entry that is nobody's (left over after a merge) is present when the one dossier that has its name as an alias is.
+        const aliasHere = name => {
+            if (owners.named(name).length) return false;
+            const holders = owners.aliased(name).filter(npc => npc.archived !== true);
+            return holders.length === 1 && holders[0].present === true;
         };
         const people = [];
         const taken = new Set();
-        for (const row of rows) {
-            if (archived.has(fold(row.name))) continue;
-            const entry = entryOf(row.name);
-            const fields = fieldsOf(entry);
+        const shownIds = new Set();
+        for (const { row, owner, name } of paired) {
+            if (owner ? owner.archived === true : owned.has(fold(name)) || owners.named(name).some(npc => npc.archived === true)) continue;
+            const fields = fieldsOf(owner);
             const meters = {};
             for (const def of shown) if (Number.isFinite(row.meters?.[def.id])) meters[def.id] = row.meters[def.id];
             people.push({
-                name: row.name, meters, hiddenMeters, present: here.has(fold(entry?.name ?? row.name)),
+                name, meters, hiddenMeters, present: owner ? owner.present === true : here.has(fold(name)) || aliasHere(name),
                 ...(typeof fields?.mood === 'string' ? { mood: fields.mood } : {}),
             });
-            taken.add(fold(row.name));
-            for (const label of entry ? labelsOf(entry) : []) taken.add(label);
+            taken.add(fold(name));
+            if (owner) shownIds.add(owner.id);
         }
         for (const npc of list) {
-            if (npc.archived === true || labelsOf(npc).some(label => taken.has(label))) continue;
+            if (npc.archived === true || shownIds.has(npc.id) || taken.has(fold(npc.name))) continue;
             const fields = fieldsOf(npc);
             const given = fields?.relationship && typeof fields.relationship === 'object' ? fields.relationship : {};
             const meters = {};

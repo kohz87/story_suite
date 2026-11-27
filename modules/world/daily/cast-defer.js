@@ -6,14 +6,14 @@
 
 import { displace } from './cast.js';
 import { inGroup, placeOf } from './cast-where.js';
-import { entryActive } from './holds-read.js';
+import { refActive } from './anchor-ref.js';
 
 const DAY = 1440;
 
 function stillHolds(ws, deferred, minute) {
     if (deferred.until === 'permanent') return true;
     if (deferred.until === 'end') return ws.events[deferred.by]?.state === 'active';
-    if (deferred.until.startsWith('cleared:')) return entryActive(ws.table[deferred.until.slice('cleared:'.length)], minute);
+    if (deferred.until.startsWith('cleared:')) return refActive(ws, deferred.until.slice('cleared:'.length), minute);
     return false;
 }
 

@@ -5,7 +5,7 @@ import { staticText, GRAMMAR } from '../../../../modules/time/tracker/note.js';
 import { createHost } from '../../../../testkit/host.js';
 import { createModule } from '../../../../modules/director/module.js';
 
-// Frozen baseline of the non-quest prompt bytes (re-frozen for the lean diet, 3 Nov; before it: main 43c9768): also available in shallow and lone CI clones.
+// Frozen baseline of the non-quest prompt bytes (re-frozen for the pacing rule and the grammar's "something new"; before: the lean diet, 3 Nov): also available in shallow and lone CI clones.
 const main = JSON.parse(readFileSync(new URL('./fixtures/non-quest-prompt.json', import.meta.url), 'utf8'));
 for (const fights of [false, true]) test(`non-quest prompt bytes equal main (fights ${fights}), also after reload and rebuild`, async t => {
     const h = await createHost({ modules: [createModule()] }); t.after(() => h.close());

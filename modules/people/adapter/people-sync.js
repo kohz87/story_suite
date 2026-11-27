@@ -11,7 +11,21 @@
 // The scan marker lives in the store (people.scan = [lastSid, swipeKey, since], written with each commit, never part of the people hash): a hydrate, and a head
 // that moved back or to the same place (a swipe, swipe back, delete, regenerate), set NPC State's marker from it (`mark`), so a swipe back to a read swipe is not
 // read again and a reply that replaced one is. An unknown sid (its reply was deleted) means "read the latest"; with no marker stored the old rules hold (rescan, clamp).
+// A write that makes a new namesake gives the nicknames in that same write (../meters/npc-meters-parts/nickname.js), and the cache takes them once it is stored.
 // The people hash compared is `people.hash { dossiers: true }`: the meters (`bonds`, written by the reply's own change lines) and the marker are not the cache's.
+
+import { newNicknames } from '../meters/npc-meters-parts/nickname.js';
+
+// The nicknames this write gives (set on `built`): only for people it adds to a store that already holds some (a chat's first people are stored as they are).
+function nicknamesIn(api, built, slice) {
+    const had = slice?.npcs ?? {};
+    if (!Object.keys(had).length) return [];
+    let here = '';
+    try { here = api.query('scene.place', {})?.name ?? ''; } catch { here = ''; }
+    const given = newNicknames(built, (built.order ?? []).filter(id => !Object.hasOwn(had, id)), (one, isNew) => one.location || (isNew ? here : ''));
+    for (const item of given) built.npcs[item.id] = { ...built.npcs[item.id], aliases: item.aliases };
+    return given;
+}
 
 /**
  * { sdk() → host sdk | null, view(state) → people view | null, restore(view) → people keys | null, hash(value) → string,
@@ -19,10 +33,11 @@
  *   chatKey() → the open chat's key, rescan() (the head's reply replaced one: read it again), carry(keys, state) → keys (the cache's work the store lacks, added),
  *   mark(index | null, since?) (sets the scan marker: the last reply read, by its index in the history),
  *   afterHydrate({ index, sid, swipeKey }) (called once the cache stands on the head's reply: the fill-in of the new people it holds),
+ *   setRecord(record) → boolean (sets one person's record in the cache, in place),
  *   keep(built, slice) → built (a step on the view before it is written: lines mode keeps a stored empty memory container; the default is the identity) }
  * → { commit(state) → Promise<{ sent, skipped?, stale?, owed? }>, hydrate() → Promise<{ hydrated, source? }>, sync() → Promise<{ hydrated }>, source() → the cache's reply }.
  */
-export function createPeopleSync({ sdk, view, restore, hash, readState = () => null, install = () => false, ready = () => true, warn = () => {}, chatKey = () => '', rescan = () => {}, afterHydrate = () => {}, carry = keys => keys, mark = () => false, keep = built => built }) {
+export function createPeopleSync({ sdk, view, restore, hash, readState = () => null, install = () => false, ready = () => true, warn = () => {}, chatKey = () => '', rescan = () => {}, afterHydrate = () => {}, carry = keys => keys, mark = () => false, keep = built => built, setRecord = () => false }) {
     let cache = null;      // { sid, swipeKey } the cache stands on, or null (no reply yet / not hydrated)
     let at = null;         // the reply's place in the story (its index in the host's history) the cache stands on
     let hydrated = false;
@@ -160,6 +175,9 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
         const built = view(state, { warn });
         if (!built) return { sent: false };
         try { keep(built, sliceOf(api)); } catch { /* the view is written as it is */ }
+        const before = sliceOf(api);
+        const given = nicknamesIn(api, built, before);
+        const named = given.map(item => item.id).filter(id => Object.hasOwn(before?.npcs ?? {}, id));
         // The marker is the runtime's as it is now (a remark above, or a snapshot handed in by a death, must not store an older one).
         const scan = await scanFor(api, readState() ?? state);
         const scanSame = scan === undefined || JSON.stringify(scanOf(api)) === JSON.stringify(scan);
@@ -167,7 +185,7 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
         // No people slice in the store yet (the domain is deferred) and nobody to store: nothing is written, so a chat that never has people keeps its bytes.
         if (stored(api) === null && !built.order.length && !built.candidates.length && !built.dismissed.length && !built.userDismissedGroups.length) { known = null; return { sent: false, skipped: true }; }
         let out;
-        try { out = await api.command('people.write', { v: 1, source: { sid: cache.sid, swipeKey: cache.swipeKey }, view: built, ...(scan && !scanSame ? { scan } : {}) }, { background: true }); } catch (error) { out = { ok: false, code: 'FAILED', message: String(error?.message ?? error) }; }
+        try { out = await api.command('people.write', { v: 1, source: { sid: cache.sid, swipeKey: cache.swipeKey }, view: built, ...(scan && !scanSame ? { scan } : {}), ...(named.length ? { named } : {}) }, { background: true }); } catch (error) { out = { ok: false, code: 'FAILED', message: String(error?.message ?? error) }; }
         if (out?.ok === false) {
             if (out.code === 'STALE' || out.code === 'RESTORE_PENDING') {
                 hydrated = false;   // the cache stands on a reply that is gone: the next head look (here, or on the host's next event) hydrates again
@@ -178,6 +196,10 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
             return { sent: false };
         }
         known = stored(api);
+        for (const { id, aliases } of given) {
+            const record = readState()?.npcs?.find(item => item?.id === id);
+            if (record) setRecord({ ...record, aliases: [...new Set([...(record.aliases ?? []), aliases.at(-1)])] });
+        }
         return { sent: true };
     }
 

@@ -4,7 +4,7 @@ import { button } from '../../kit/controls.js';
 import { gearAddFields } from './item-add-gear.js';
 import { carryField } from './carry-field.js';
 
-const KINDS = [['equipment', 'Gear'], ['consumable', 'Use'], ['goods', 'Goods'], ['material', 'Materials'], ['quest', 'Quest']];
+const KINDS = [['equipment', 'Gear'], ['consumable', 'Use'], ['supply', 'Supplies'], ['goods', 'Goods'], ['material', 'Materials'], ['quest', 'Quest']];
 
 const field = (label, control) => h('label', { class: 'ef' }, label, control);
 
@@ -17,7 +17,7 @@ export function addPayload({ name = '', kind = 'goods', qty = '1', note = '' } =
 }
 
 /**
- * Builds the form; `onSave(payload, repoint, carry)` returns the engine's result (`{ ok: false, message }` shows inline) and `onCancel()` closes it. `gear` = { on, kit }:
+ * Builds the form; `onSave(payload, repoint, carry)` returns the engine's result (`{ ok: false, message }` shows inline) and `onCancel()` closes it. `gear` = { on, kit, labels? (the names the gear's stats show under) }:
  * with Gear in fights on, Kind = Equipment shows Slot, Rarity and Stats (`repoint`: stats to move onto the new piece after the add, when the starting kit is closed), and
  * every kind shows Carries (`carry`: what the new item adds, set after the add by inventory.carry; null for none).
  */
@@ -27,7 +27,7 @@ export function itemAddForm({ onSave, onCancel, gear = null } = {}) {
   kind.value = 'goods';
   const qty = h('input', { type: 'number', min: '1', step: '1', value: '1' });
   const note = h('textarea', { rows: 2, placeholder: 'No note' });
-  const gearBox = gear?.on ? gearAddFields({ kit: gear.kit === true, nameOf: () => name.value }) : null;
+  const gearBox = gear?.on ? gearAddFields({ kit: gear.kit === true, labels: gear.labels, nameOf: () => name.value }) : null;
   const gearOn = () => Boolean(gearBox) && kind.value === 'equipment';
   const carries = gear?.on ? carryField({ value: 0 }) : null;
   const showGear = () => { if (gearBox) gearBox.el.hidden = !gearOn(); };

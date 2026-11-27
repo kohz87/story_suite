@@ -14,7 +14,7 @@ test('a choice is text: markup stays text, invisible characters go, it is cut by
     assert.deepEqual(readChoice({ raw: '? choice <img src=x onerror=alert(1)> **now**' }).value, { text: '<img src=x onerror=alert(1)> now' });
     assert.deepEqual(readChoice({ raw: '- ? choice: Climb​ the‮ wall\n' }).value, { text: 'Climb the wall' });
     // A letter outside the BMP (a surrogate pair in UTF-16).
-    const long = `? choice ${'𐐷'.repeat(200)}`;
+    const long = `? choice ${'𐐷'.repeat(500)}`;
     const text = readChoice({ raw: long }).value.text;
     assert.equal(Array.from(text).length, CHOICE_KEEP, 'at most the kept length, in code points');
     assert.ok(text.endsWith('…'));
@@ -22,9 +22,9 @@ test('a choice is text: markup stays text, invisible characters go, it is cut by
     assert.match(readChoice({ raw: '? choice ...' }).error, /no text/);
 });
 
-test('a choice longer than the narrator is asked for (80) is kept whole up to 160, so a click sends all of it', () => {
+test('a choice longer than the narrator is asked for (80) is kept whole up to 400, so a click sends all of it', () => {
     assert.equal(CHOICE_CHARS, 80);
-    assert.equal(CHOICE_KEEP, 160);
+    assert.equal(CHOICE_KEEP, 400);
     const long = 'Pay Sister Temiwa two silver, strip off the bloodied shirt and ask her to stitch it before the lye-wash';
     assert.ok(Array.from(long).length > CHOICE_CHARS && Array.from(long).length <= CHOICE_KEEP);
     assert.equal(readChoice({ raw: `? choice ${long}` }).value.text, long);
@@ -101,7 +101,7 @@ test('display lines change no state: no receipt, no op, no meta.rev for them', a
     assert.deepEqual(extrasOf(host), { choice: [{ text: 'Wait' }, { text: 'Leave' }], chatter: [{ name: 'Minke', text: '…dull' }] });
 });
 
-test('a long choice (over 80, up to 160) shows whole after the reply, a reload and a Re-read', async t => {
+test('a long choice (over 80, up to 400) shows whole after the reply, a reload and a Re-read', async t => {
     const host = await fresh(t);
     const long = 'Pay Sister Temiwa two silver, strip off the bloodied shirt and ask her to stitch it before the lye-wash';
     await host.send('Hello.', block('The wash-house.', [`? choice ${long}`, '? choice Leave']));

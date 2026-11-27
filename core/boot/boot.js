@@ -24,6 +24,7 @@ import { startHostParts } from './host-parts.js';
 import { startToolsParts } from './tools-parts.js';
 import { startRpgLive } from '../../modules/rpg/live/sync.js';
 import { createToolsHandle } from '../../ui/port/tools-handle.js';
+import { createScreenSource } from './screen-source.js';
 import { createCardSource } from '../../ui/port/reply-cards.js';
 
 const LOG = '[Story Block v2]';
@@ -60,6 +61,7 @@ export async function boot({ late = [] } = {}) {
     // `writes` is for the Story Suite view only (the Models page); the public sdk reads settings but has no setter.
     globalThis.StoryBlock = Object.freeze({ apiVersion: 2, version: HOST_VERSION, ready: sdk.ready, sdk, api, writes: runtime.writes, tools: createToolsHandle({ runtime, toolsParts: () => tools, savePoints: () => parts?.savePoints ?? null }),
         // the view's cards under replies (ui/port/reply-cards.js)
+        screens: createScreenSource({ registry: runtime.registry }),
         cards: createCardSource({ registry: runtime.registry, store: runtime.store, initial: runtime.initial, ctx: () => globalThis.SillyTavern?.getContext?.() ?? ctx }) });
 
     turn.install({ globalName: INTERCEPTOR_NAME });

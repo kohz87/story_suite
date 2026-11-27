@@ -8,7 +8,7 @@ export const TAIL_BUDGET = 120;
  */
 export const GRAMMAR = Object.freeze({
     world: '+ world Name — what is changing in the wider world | state: looming|ongoing|resolved | place | factions (~ world Name — what changed; - world Name — how it ended). Write + world when anyone reports or shows news from beyond the scene (war, raids, monsters moving, trade cut off, disaster, law or price change); ~ world when news moves an existing event on. A hook is a lead to follow; news can be both.',
-    faction: '+ faction Name — who they are, what they want | area | stance: toward {{user}} (~ faction Name to change it; - faction Name when gone). Write + faction when a group with its own aims acts or is named as acting and is not yet known; ~ faction when its stance toward {{user}} changes after what {{user}} did, or its aims or area change; - faction when it is gone or broken up.',
+    faction: '+ faction Name — who they are, what they want | area | stance: toward {{user}} (~ faction Name to change it; - faction Name when gone). Write + faction when a group with its own aims acts or is named as acting and is not yet known; ~ faction when its stance toward {{user}} changes after what {{user}} did, or its aims or area change; - faction when it is gone or broken up (wiped out, disbanded), never ~.',
 });
 
 /** The chronicle's part of the static prompt (only while the story keeps world events or factions): no names, counts, times or dice. */

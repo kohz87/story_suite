@@ -2,7 +2,7 @@
 // effects a rule may write (effects). Pure: no state is read. check.js keeps the public path of each export.
 
 import { E, array, entries, named, same, shape, sized } from './shape.js';
-import { compatible, expressionType, fieldType, pathType } from '../expressions.js';
+import { compatible, conditionType, expressionType, fieldType, pathType } from '../expressions.js';
 import { DM_DESCRIPTORS as D, DM_ENTRY_EFFECTS, DM_LIMITS as L, dmInt, dmObject, dmOwn, dmSlug } from '../schema.js';
 import { STRINGS } from '../../../core/strings.js';
 
@@ -68,6 +68,9 @@ export function effects(list, env, path, add, { timer = false, reward = false, p
             else entryEffect(effect, env, at, add);
             return;
         }
+        if (effect.when !== undefined) conditionType(effect.when, env, `${at}.when`, add);
+        // (never defaulted: a definition without it keeps its hash, and refuses a line that leaves the label out, as before)
+        if (effect.skipUnset !== undefined && !(effect.skipUnset === true && ((Array.isArray(effect.value) && effect.value[0] === 'arg') || (dmObject(effect.value) && typeof effect.value.arg === 'string')))) add('DM_SCHEMA', `${at}.skipUnset`, 'skipUnset is true, on a set whose value is a label of the line.');
         if (['set', 'add', 'clamp'].includes(effect.op)) {
             const target = pathType(effect.path, { ...env, writing: true }, `${at}.path`, add, (v, p) => expressionType(v, env, p, add));
             if (effect.op === 'clamp') {

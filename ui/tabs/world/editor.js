@@ -24,6 +24,22 @@ export function editPayload(kind, id, values, current) {
   return Object.keys(patch).length ? { [spec.idKey]: id, ...patch } : null;
 }
 
+// The way out of the record: a faction is removed (asked twice), an open world news item is marked ended. A dated happening (`thread`) has
+// no chronicle entry, and ended news has nothing to end.
+function wayOut(target, done) {
+  if (target.kind === 'faction') {
+    let sure = false;
+    const out = button({ label: 'Remove', tone: 'danger', className: 'remove', onClick: () => {
+      if (sure) return done({ id: target.id }, 'chronicle.remove');
+      sure = true;
+      out.textContent = 'Tap again to remove';
+    } });
+    return out;
+  }
+  if (target.kind !== 'news' || target.thread || target.current?.state === 'resolved') return null;
+  return button({ label: 'Mark ended', className: 'ended', onClick: () => done({ id: target.id, state: 'resolved' }) });
+}
+
 function control(key, kind, value) {
   if (kind === 'state') {
     const select = h('select', null, STATES.map(s => h('option', { value: s, selected: s === value }, s)));
@@ -35,7 +51,8 @@ function control(key, kind, value) {
 
 /**
  * Opens the editor for `target` = { kind: 'news' | 'faction' | 'place', id, current: { field: text } }; ctx = { port | command, doc, backStack, refresh }.
- * Save sends only what changed (nothing is sent when nothing did). Returns the sheet handle, or null for an unknown kind.
+ * Save sends only what changed (nothing is sent when nothing did). A faction also has Remove (chronicle.remove, on the second tap) and an
+ * open world news item Mark ended (not one with `target.thread`). Returns the sheet handle, or null for an unknown kind.
  */
 export function openWorldEditor(ctx = {}, target) {
   const spec = KINDS[target?.kind];
@@ -46,8 +63,8 @@ export function openWorldEditor(ctx = {}, target) {
   const inputs = Object.fromEntries(spec.fields.map(([key, , kind]) => [key, control(key, kind, current[key])]));
   // A refused edit (a name already taken, an entry the command cannot change) keeps the sheet open with the engine's reason.
   const refusal = h('p', { class: 'fine err', role: 'alert', hidden: true });
-  const done = async payload => {
-    const answer = payload ? await send(spec.command, payload) : null;
+  const done = async (payload, command = spec.command) => {
+    const answer = payload ? await send(command, payload) : null;
     if (answer?.ok === false) {
       refusal.textContent = String(answer.message ?? 'That change was not kept.');
       refusal.removeAttribute('hidden');
@@ -63,6 +80,7 @@ export function openWorldEditor(ctx = {}, target) {
     refusal,
     h('div', { class: 'brow' },
       button({ label: 'Save', tone: 'primary', className: 'save', onClick: () => done(editPayload(target.kind, target.id, Object.fromEntries(spec.fields.map(([k]) => [k, inputs[k].value])), current)) }),
-      button({ label: 'Cancel', className: 'cancel', onClick: () => sheet.close() }))));
+      button({ label: 'Cancel', className: 'cancel', onClick: () => sheet.close() }),
+      wayOut(target, done))));
   return sheet;
 }

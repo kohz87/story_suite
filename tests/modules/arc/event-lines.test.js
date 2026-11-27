@@ -43,8 +43,8 @@ test('left out: no known cause, no place, a place the map does not know, a third
 
 test('the world check: causes from the brief, the Journal and the threads; places through the atlas; none without a brief', () => {
     const query = (name, args) => (name === 'chronicle.events' ? [{ name: 'Bread Riots' }, { name: 'Lie', judge: 'refused' }, { name: 'Maybe', judge: 'pending' }] : name === 'atlas.place' && args.name === 'highmark' ? { name: 'Highmark' } : null);
-    const world = eventWorld({ brief: { threads: [{ key: 'The succession' }], toCome: ['The vote'], conditions: ['unrest@Highmark: Crowds.'] }, query, threads: [{ key: 'Letter' }] });
-    assert.deepEqual(world.causes, ['The succession', 'The vote', 'unrest@Highmark', 'unrest', 'Bread Riots', 'Letter'], 'a refused or still-waiting Journal entry is no cause');
+    const world = eventWorld({ brief: { threads: [{ key: 'The succession' }], toCome: ['The vote'], conditions: ['unrest at Highmark: Crowds.'] }, query, threads: [{ key: 'Letter' }] });
+    assert.deepEqual(world.causes, ['The succession', 'The vote', 'unrest at Highmark', 'unrest', 'Bread Riots', 'Letter'], 'a refused or still-waiting Journal entry is no cause');
     assert.equal(world.place('highmark'), 'Highmark');
     assert.equal(world.place('nowhere'), null);
     assert.equal(eventWorld({ brief: null, query }), null);
@@ -67,4 +67,25 @@ test('on the host: the planner is taught EVENT with the switch on; its EVENT lin
             } else assert.ok(!lines.some(line => /Vigil/.test(line)), 'off: the EVENT line is not read');
         } finally { t.done(); }
     }
+});
+
+test('a cause with a comma of its own is cited only on word boundaries, never from inside other words', () => {
+    const world = { ...WORLD, causes: ['Storm, Rain'] };
+    const read = because => readPlan(plan([`EVENT: Flood — the river rises | where: Highmark | because: ${because}`]), { world });
+    assert.deepEqual(read('Brainstorm, Rainmaker').items, []);
+    assert.deepEqual(read('Brainstorm, Rain').items, []);
+    for (const said of ['Storm, Rain', 'storm, rain over the bay', 'Brainstorm, Rainmaker; Storm, Rain']) {
+        assert.deepEqual(read(said).items.map(item => item.desc), ['the river rises (because: Storm, Rain)'], said);
+    }
+});
+
+test('a letter outside the basic plane beside a cause is a letter: no citation from inside that word', () => {
+    const world = { ...WORLD, causes: ['Storm, Rain'] };
+    const read = because => readPlan(plan([`EVENT: Flood — the river rises | where: Highmark | because: ${because}`]), { world }).items;
+    for (const said of ['𐐀Storm, Rain', '𐐀Storm']) assert.deepEqual(read(said), [], said);
+    assert.equal(read('𐐀 Storm, Rain').length, 1);
+    // the letter after it: with a second "Storm …" cause, "Storm" alone cites neither, so only the whole name can
+    world.causes.push('Storm Front');
+    assert.deepEqual(read('Storm, Rain𐐀'), []);
+    assert.equal(read('Storm, Rain 𐐀').length, 1);
 });

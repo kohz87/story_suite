@@ -1,0 +1,11 @@
+{
+  "display_name": "Story Suite Text RPG",
+  "loading_order": 31,
+  "requires": [],
+  "optional": [],
+  "dependencies": ["third-party/story_suite"],
+  "js": "index.js",
+  "author": "kohz87",
+  "version": "0.1.0",
+  "homePage": "https://github.com/kohz87/story-suite-text-rpg"
+}

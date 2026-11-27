@@ -58,7 +58,7 @@ export function turnOn({ doc, base, ctx, StoryBlock }) {
   const port = createSbPort({ sdk: StoryBlock.sdk, writes: StoryBlock.writes, tools: StoryBlock.tools, packs: PACKS_HANDLE, hold, selectors: buildSelectors(ctx, StoryBlock.sdk, StoryBlock.tools, hold, StoryBlock.cards), rpgValues: () => StoryBlock.sdk?.settings?.('story-block'), prefs, offer: liveOffer, screens: { open: (...args) => wizard?.open(...args) ?? false }, onError: (tab, error) => console.warn(`[Story Suite] the ${tab} view could not be built`, error) });
   const suite = mountSuite({ port, doc, host: doc.body, storage: deviceStorage(doc), theme: 'follow', look: () => StoryBlock.sdk?.settings?.() });
   // The New character wizard and the first-send hold (the port's `open` reaches it first: the old host's window never opens too).
-  const wizard = attachWizard({ doc, ctx, sdk: StoryBlock.sdk, suite });
+  const wizard = attachWizard({ doc, ctx, sdk: StoryBlock.sdk, suite, screens: StoryBlock.screens });
   const entry = addMenuEntry(doc, { label: 'Story Suite', onClick: () => suite.open('now') });
   const offScreens = showScreens(doc, id => { if (id !== FIGHT_SCREEN) return false; suite.open(port.view('fight') ? 'fight' : 'now'); return true; });
   const chatEl = () => doc.querySelector('#chat');

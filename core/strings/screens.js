@@ -4,7 +4,7 @@ export const SCREEN_STRINGS = {
     inventory: {
         title: 'Inventory',
         kinds: {
-            quest: 'Quest items', equipment: 'Equipment', consumable: 'Consumables',
+            quest: 'Quest items', equipment: 'Equipment', consumable: 'Consumables', supply: 'Supplies',
             material: 'Materials', goods: 'Goods', money: 'Valuables',
         },
         rarities: {
@@ -59,7 +59,7 @@ export const SCREEN_STRINGS = {
         lootTakeTitle: 'Put the things you ticked in the party\'s bag',
         // Gear in fights is on (Settings -> RPG): the Carry card, the sections' order, the rows' chips and the item Edit's two choices.
         gear: {
-            carry: 'Carry', carries: 'carries', withParty: '(with the party)', heavy: 'Heavy load', over: 'Encumbered: AGI and DEX \u2212{n}', carryLabel: 'Carried',
+            carry: 'Carry', carries: 'carries', someoneLeft: 'Someone who left', someoneHolding: 'A party member', withParty: '(with the party)', heavy: 'Heavy load', over: 'Encumbered: AGI and DEX \u2212{n}', carryLabel: 'Carried',
             equippedBy: 'Equipped \u00b7 {name}', equippedByTitle: 'Worn by {name}', slotTitle: 'The slot it is worn in',
             words: { good: 'Good', worn: 'Worn', torn: 'Torn', broken: 'Broken' }, noBonus: 'no bonus', brokenNoBonus: '\u2014 no bonus',
             condTitle: 'Condition: Good, Worn, Torn or Broken. A broken piece gives no bonus.',
@@ -83,7 +83,7 @@ export const SCREEN_STRINGS = {
                 repointHint: "Move this piece's {n} {points} between stats", repointLine: '{n} of {max} {points} placed', repointTitle: 'Stat {at}',
                 laterTitle: 'Fixed after your first message',
                 points: '{n} of {max} points for {a} {rarity} piece', pointsNone: 'A common piece has no bonus',
-                kinds: { equipment: 'Equipment', consumable: 'Consumables', goods: 'Goods', quest: 'Quest items', material: 'Materials' },
+                kinds: { equipment: 'Equipment', consumable: 'Consumables', supply: 'Supplies', goods: 'Goods', quest: 'Quest items', material: 'Materials' },
             },
             // A cast member's signature piece (bound): the chip, its title and the line under a locked Edit.
             bound: 'Bound', boundBy: 'Bound \u00b7 {name}', boundTitle: 'Bound to {name}: it cannot be unequipped, given away, sold or dropped',

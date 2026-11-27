@@ -3,6 +3,9 @@
 import { isInt } from '../domain-parts/shared-basics.js';
 import { clockOf } from '../capture/text.js';
 import { pointerOf } from './key.js';
+import { readWorld } from '../world-daily/read-world.js';
+import { fadedWords } from '../world-daily/summary.js';
+import { buildGeo } from '../../daily/geo.js';
 import { WORLD_EVENTS_FEATURE, worldEventsOn } from './feature.js';
 
 export const CONDITIONS_SETTLE = 'chronicle.conditions.settle';
@@ -17,9 +20,10 @@ function settleCommand(ctx) {
     const chronicle = ctx.draft('chronicle');
     const keys = dueKeys(chronicle.conditions, now);
     const gone = [];
+    const geo = keys.length ? buildGeo(readWorld((name, args) => ctx.query?.(name, args))) : null;
     for (const key of keys) {
         if (typeof ctx.ifThere === 'function') ctx.ifThere('chronicle', pointerOf(key));
-        gone.push(`${chronicle.conditions[key].name} on ${chronicle.conditions[key].ref}`);
+        gone.push(fadedWords(chronicle.conditions[key].name, chronicle.conditions[key].ref, geo));
         delete chronicle.conditions[key];
     }
     return { summary: gone.length ? `Faded: ${gone.join(', ')}.` : '', narrate: false, data: { faded: keys } };

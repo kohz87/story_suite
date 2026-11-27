@@ -1,12 +1,18 @@
 // What a member's gear gives: the pieces and load worked out from the inventory's answers, and the guard's check that a record still matches the state.
 import { readSheet } from '../read.js';
 import { actorIdOf } from '../roster.js';
-import { gearAnswer } from '../../inventory/gear.js';
+import { gearAnswer, travelsWith } from '../../inventory/gear.js';
 import { condOf, defCarry, ENCUMBERED_PENALTY } from '../../inventory/index.js';
 import { mountRows } from '../../scene/mounts.js';
 import { ENCUMBERED } from './shared-marks.js';
 import { ITEMS_MAX, NAME_MAX } from './shared-caps.js';
 import { isObject, lower } from './shared-helpers.js';
+
+/**
+ * The load rule a gear record is made by (its `rule`): 2 = owner `party` is the whole party's load and capacity, each member counted once (the Bag's bar).
+ * A record without it was made by the shared bag alone, and is judged by that rule.
+ */
+export const LOAD_RULE = 2;
 
 /**
  * What the owners `own` of one member give: { add?, enc?, items? } from the inventory's answers (`answerOf(owner)`; `party` is the shared bag's, which also
@@ -35,12 +41,15 @@ export function dressOf(own, party, answerOf) {
 export function gearMatches(state, gear, hash) {
     try {
         const stats = { condOf, carryOf: defCarry, penalty: ENCUMBERED_PENALTY };
-        const withMounts = [[], mountRows(state)];
+        // (a mount named by who rides it counts too: a row that names a member the state knows is read as with the party)
+        const rows = mountRows(state);
+        const crew = [...readSheet(state).characters.map(character => character.who), ...Object.values(state?.domains?.party?.actors ?? {}).map(actor => actor?.name).filter(Boolean)];
+        const withMounts = [[], rows, rows.map(row => (travelsWith(row.where, state?.domains?.scene?.place?.name ?? '', crew) ? { ...row, where: '' } : row))];
         // (whose the pieces were: an owner that is a Character block's actor must be the actor of the block the entry is for; the owners of a roster of another make cannot be told here)
         const mine = new Map(readSheet(state).characters.map(character => [actorIdOf(character.module), character.key]));
         const owned = (key, entry) => (entry?.own ?? []).every(owner => !mine.has(owner) || mine.get(owner) === key);
         return Object.entries(gear?.who ?? {}).every(([key, entry]) => owned(key, entry) && withMounts.some(mounts => {
-            const answerOf = owner => gearAnswer(state, { owner }, { ...stats, mounts });
+            const answerOf = owner => gearAnswer(state, { owner }, { ...stats, mounts, legacy: gear.rule !== LOAD_RULE });
             const now = dressOf(entry.own, answerOf('party'), answerOf);
             return hash({ add: now.add ?? null, enc: now.enc ?? null, items: now.items ?? null }) === hash({ add: entry.add ?? null, enc: entry.enc ?? null, items: entry.items ?? null });
         }));

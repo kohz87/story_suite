@@ -2,10 +2,10 @@
   "id": "ersveil",
   "format": 4,
   "kind": "world",
-  "version": "4.1.0",
+  "version": "4.3.0",
   "name": "Ersveil (open world)",
   "author": "Story Suite examples",
-  "description": "The world of Ersveil as an open world pack: lore, a map of 320 places joined by routes, 31 people (12 companions and 19 world figures), 22 realms, 15 powers and 4 world scores, 31 conditions, the world events of eleven threads and the templates the Director may draw on. It lists no items, shops, prices or foes: the story makes them up from the lore. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611.",
+  "description": "The world of Ersveil as an open world pack: lore, a map of 323 places joined by routes, 31 people (12 companions and 19 world figures), 22 realms, 15 powers and 4 world scores, 31 conditions, the world events of eleven threads and the templates the Director may draw on. It lists no items, shops, prices or foes: the story makes them up from the lore. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611.",
   "requires": {
     "suite": "^0.1",
     "capabilities": [
@@ -17,7 +17,7 @@
     "game": {
       "id": "ersveil-game",
       "version": "^1.0",
-      "name": "Ersveil rules"
+      "name": "Frontier rules"
     }
   },
   "content": {
@@ -3573,7 +3573,55 @@
         "tags": [
           "clear-f"
         ],
-        "note": "Largest known leyline megadungeon under Auvoth; recorded parties only. Clearance F-SSS (band 1 F-E, band 2 D); permits 2-4 silver a day for band 1, 6-12 for band 2; the Guild takes a tenth of salvage."
+        "note": "The largest known leyline: a sealed descent of stacked worlds under Auvoth, each band its own land with its own light, weather, seasons, prey and predators; recorded parties only. Clearance F-SSS (band 1 F-E, band 2 D); permits 2-4 silver a day for band 1, 6-12 for band 2; the Guild takes a tenth of salvage."
+      },
+      {
+        "id": "auvoth-depths-lanternwood",
+        "name": "Auvoth Depths / The Lanternwood",
+        "aliases": [
+          "The Lanternwood"
+        ],
+        "region": "auvoth-compact",
+        "kind": "dungeon",
+        "layer": "underground",
+        "x": 58.8,
+        "y": 110.2,
+        "tags": [
+          "clear-f"
+        ],
+        "note": "Band 1 (clearance F-E): a forest lit by glowing mana veins in a stone sky, with its own day of brightening and dimming; the most worked band, full of salvage camps."
+      },
+      {
+        "id": "auvoth-depths-underbright-sea",
+        "name": "Auvoth Depths / The Underbright Sea",
+        "aliases": [
+          "The Underbright Sea"
+        ],
+        "region": "auvoth-compact",
+        "kind": "dungeon",
+        "layer": "underground",
+        "x": 58.8,
+        "y": 110.2,
+        "tags": [
+          "clear-d"
+        ],
+        "note": "Band 2 (clearance D): a lightless salt sea under a sky of drifting mana motes; islands, the wrecks of earlier parties, things that hunt by sound."
+      },
+      {
+        "id": "auvoth-depths-deep-bands",
+        "name": "Auvoth Depths / The Deep Bands",
+        "aliases": [
+          "The Deep Bands"
+        ],
+        "region": "auvoth-compact",
+        "kind": "dungeon",
+        "layer": "underground",
+        "x": 58.8,
+        "y": 110.2,
+        "tags": [
+          "clear-d"
+        ],
+        "note": "Band 3 and below (clearance unknown): known only from broken records and survivors who will not talk about them."
       },
       {
         "id": "rimeglass-galleries",
@@ -6517,7 +6565,7 @@
           "Temiwa",
           "Last Candle"
         ],
-        "role": "Bluewatch's healer-sealer",
+        "role": "Bluewatch's healer",
         "species": "dogfolk",
         "gender": "female",
         "age": 21,
@@ -6530,7 +6578,7 @@
         "personality": "Shy and withdrawn, but her care outweighs her fear: she will stitch a man who spat at her. Her faith is cracked, not dead; her dry sarcasm is for the Church, never for people. Chaste and easily flustered. She goes very still when the Inquest is named, and is afraid above all of being used again.",
         "behaviour": [
           "Mercy: high - stitches gently, even those who don't deserve it",
-          "Care: high - fiercely protective of the dead",
+          "Care: high - fiercely protective of the wounded",
           "Loyalty: high - warm and steady once someone matters",
           "Independence: high - will not be anyone's tool again",
           "Expression: low - says little; cares with her hands",
@@ -6542,12 +6590,12 @@
           "Runs a scarred fingertip along a fresh stitch to check it holds",
           "Keeps her body between her reliquary candle and anyone who reaches for it"
         ],
-        "history": "Church orphan from Aurelion and the first beastfolk saintess candidate in a century; the cloister sneered \"Last Candle\". Cast out over an unnamed incident before her training was done, she was posted to Bluewatch a year ago. No priest lives this far north: she heals by day and, unordained, completes the dead.",
+        "history": "Church orphan from Aurelion and the first beastfolk saintess candidate in a century; the cloister sneered \"Last Candle\". Cast out over an unnamed incident before her training was done, she was posted to Bluewatch a year ago. No priest lives this far north: unordained, she is the only trained healer on the frontier, and she buries the dead the Watch brings in.",
         "homeBase": "Bluewatch Village",
         "start": {
           "place": "bluewatch-village",
-          "goal": "Serve out the posting; keep the frontier dead at rest.",
-          "routine": "Watchhouse infirmary by day; the salt-and-ash yard at night."
+          "goal": "Serve out the posting; keep the frontier alive.",
+          "routine": "Watchhouse infirmary by day; the burial yard at night."
         },
         "status": "Tending the sick at the Watchhouse infirmary.",
         "ties": [
@@ -6571,7 +6619,7 @@
           },
           {
             "id": "edda-rorke",
-            "text": "Bluewatch's captain, who needs a sealer and asks no questions."
+            "text": "Bluewatch's captain, who needs a healer and asks no questions."
           },
           {
             "id": "severa",
@@ -6639,7 +6687,7 @@
         "drawnTo": [
           "the Ashen Veil",
           "Church Inquest agents",
-          "the uncompleted dead",
+          "the wounded nobody else will treat",
           "anyone hurt and alone"
         ],
         "tastes": [
@@ -6699,7 +6747,7 @@
           {
             "id": "three-children",
             "gate": "meter trust >= 90",
-            "text": "At 19 she hid three Veil children in the cloister. Severa made her kill and complete them with her own hands, the price of her candidacy; she was cast out anyway when the archive came to light."
+            "text": "At 19 she hid three Veil children in the cloister. Severa made her kill them with her own hands, the price of her candidacy; she was cast out anyway when the archive came to light."
           }
         ],
         "abilities": [
@@ -7139,7 +7187,7 @@
         "apparentAge": "~22",
         "level": 5,
         "portrait": "rika.webp",
-        "look": "Human woman, about 150 cm: petite and curvy. Very long, wild white hair, white since her power woke. Sharp yellow eyes and freckles across her nose and cheeks. Branching spell-burn scars, like frozen lightning, along both forearms.",
+        "look": "Human woman, about 150 cm: short, curvy and full-figured, with a large, heavy bust that looks out of scale on her short frame. Very long, wild white hair, white since her power woke. Sharp yellow eyes and freckles across her nose and cheeks. Branching spell-burn scars, like frozen lightning, along both forearms.",
         "wears": "White hair in a high messy ponytail with red cord. Patched, oversized hooded Startrace travelling coat, insignia torn off; ruffled blouse, red sash, ragged layered skirts. Fingerless gloves; a tasselled red knotted cord at her throat; a star-stamped book at her hip; a small glowing vial.",
         "voice": "Fast, sharp and defensive; insults first, thanks (if ever) muttered while looking away. \"It's not like I wanted your help.\"",
         "personality": "Proud and prickly. Underneath sit guilt and terror of what her power cost, and a hunger she will not name; she keeps it down to a trickle, afraid of what notices. She hides that she cannot read, picks fights with the Tower-trained, and goes pale when inquisitors ask questions.",
@@ -7816,7 +7864,7 @@
           }
         ],
         "drawnTo": [
-          "healers and lay sealers outside the Church",
+          "healers outside the Church",
           "old poetry",
           "anyone who watches Crown Keep too closely"
         ],
@@ -7867,7 +7915,7 @@
           {
             "id": "the-confession",
             "gate": "meter trust >= 90",
-            "text": "He seeks someone outside the Church to complete the dead Emperor quietly, before the Inquest or Corvin finds out. Then he means to confess it all himself and die as the traitor, so Wendhild stays clean."
+            "text": "He seeks someone outside the Church to break the Veil's hold on the dead Emperor quietly, before the Inquest or Corvin finds out. Then he means to confess it all himself and die as the traitor, so Wendhild stays clean."
           }
         ],
         "abilities": [
@@ -9257,7 +9305,7 @@
         "keyRelationships": [
           {
             "id": "temiwa",
-            "text": "Bluewatch's unordained sealer, whom she needs and asks no questions."
+            "text": "Bluewatch's unordained healer, whom she needs and asks no questions."
           }
         ],
         "secrets": [
@@ -9284,12 +9332,12 @@
         "species": "human",
         "wears": "Simple white Flamecaller vestments with ash-marked hems; a small smokeless flame often cupped in her hands.",
         "voice": "Soft and clear; graveyards go quiet for it. \"Rest. No one will use you now.\"",
-        "personality": "Serene, kind and a little uncanny; she believes in the rite more than the Church that owns it. Lately she sings it alone first, as if checking it still works.",
+        "personality": "Serene, kind and a little uncanny; she believes in healing more than the Church that owns it. Lately she sings her healing prayer alone first, as if checking it still works.",
         "look": "Young human woman of about nineteen: slight and pale, with calm, unsettling eyes and bare, callused feet.",
         "start": {
           "place": "holy-city-of-aurelion-pilgrim-courts",
-          "goal": "The dead at peace, without being used.",
-          "routine": "Walks barefoot among the pilgrims and calms graveyards with her rites."
+          "goal": "The sick healed, and the dead left unused.",
+          "routine": "Walks barefoot among the pilgrims, healing the sick, and lays the risen dead to rest where they gather."
         },
         "ties": [
           {
@@ -9307,7 +9355,7 @@
           {
             "id": "the-old-cadence",
             "gate": "meter trust >= 70 or learned:temiwa/the-order-of-the-last-rite",
-            "text": "Her completion rites calm whole graveyards because she sings them in an old cadence the College struck out two centuries ago. She found it scratched into a cloister wall, beside the Order of the Last Rite's mark, and knows now that the Church's rite and the Veil's grew from one root.",
+            "text": "Her healing mends what other healers cannot because she sings her prayers in an old cadence the College struck out two centuries ago. She found it scratched into a cloister wall, beside the Order of the Last Rite's mark, and knows now that the Church's healing and the Veil's necromancy grew from one root.",
             "writes_fact": "last-rite-proof"
           }
         ],
@@ -9347,7 +9395,7 @@
           {
             "id": "the-open-file",
             "gate": "meter trust >= 70 or learned:temiwa/three-children",
-            "text": "She made Temiwa complete three Veil children with her own hands as the price of her candidacy, then let the archive bury her anyway. She has kept the girl's file open since: a sealer who reads Veil-script is either the Church's best weapon or its worst heresy, and Severa has not decided which."
+            "text": "She made Temiwa kill three Veil children with her own hands as the price of her candidacy, then let the archive bury her anyway. She has kept the girl's file open since: a healer who reads Veil-script is either the Church's best weapon or its worst heresy, and Severa has not decided which."
           }
         ],
         "protected": true,
@@ -9682,7 +9730,7 @@
         "species": "human",
         "wears": "A Guild coat over an old brigandine, reading glasses she hates, a contract always in hand.",
         "voice": "Dry and fast. \"Last line first. That's where they hide the teeth.\"",
-        "personality": "Shrewd, unimpressed and fiercely protective of the Guild's independence. She hires sealers she doesn't strictly need and won't say why.",
+        "personality": "Shrewd, unimpressed and fiercely protective of the Guild's independence. She hires healers and Sealwarden veterans she doesn't strictly need and won't say why.",
         "look": "Stocky human woman of about fifty-five: grey-haired, broad-handed, old scars across her knuckles from her own adventuring years.",
         "start": {
           "place": "auvoth",
@@ -9695,7 +9743,7 @@
           {
             "id": "routine",
             "gate": "meter trust >= 50 or fired:auv-second-surge",
-            "text": "In August 611 the Depths gates surged, and she signed it off as routine to keep the Guild's contracts in the city. She has been quietly hiring every sealer she can find since, out of her own purse."
+            "text": "In August 611 the Depths gates surged, and she signed it off as routine to keep the Guild's contracts in the city. She has been quietly hiring every healer and Sealwarden veteran she can find since, out of her own purse."
           }
         ],
         "protected": false,
@@ -9899,14 +9947,14 @@
         "protected": true
       },
       {
-        "title": "Death and Completion",
+        "title": "Death and the Dead",
         "keys": [
           "funeral",
-          "completion",
-          "complete the dead",
-          "burial"
+          "burial",
+          "undead",
+          "the dead rise"
         ],
-        "text": "At death the soul unravels and its mana is released (the release). The person ends completely; only name, deeds and debts remain. Resurrection is impossible; Life Crystals heal only the living.\nAn uncompleted body in death-frequency mana can rise as undead: a pattern, never the person. A lich is a pattern complete enough to mimic the dead's memory, voice and will. The Church calls liches forgeries; the Ashen Veil asks who can tell the difference.\nCompletion breaks the body's pattern by flame, salt-and-iron burial or stone sealing, within a day (longer in deep winter). The release fades within hours regardless; completion only disperses the remainder. Sold separately:\n- Safe disposal: anyone competent: a lay sealer, or the common pyre and public shame.\n- Honored rites: Church completion: consecrated flame, a grave in sacred ground, a name in the parish register (required by Highmark and Ashmere courts to settle inheritance). Families go into debt for honor, not safety; debt drives many into bondage.\nIf a household cannot or will not complete its dead, the parish, lord or town watch must burn the body on the public pyre and bill the household. The Church refuses honored rites to debtors and heretics, never disposal. Failing to complete one's dead is a crime.\nThe dead still rise where this fails: remote villages without a sealer; winters without fuel, with frozen ground; fraudulent or cut salts; families hiding their dead to dodge the bill; plagues and battles outrunning every pyre; bodies lost in the wild.",
+        "text": "At death the soul unravels and its mana is released (the release). The person ends completely; only name, deeds and debts remain. Resurrection is impossible; healing works only on the living.\nThe dead do not rise on their own. Undead form only where death piles up in dense mana: dungeons and the deep bands, old battlefields, plague pits, mass graves, the Wildzone. There death-frequency mana soaks a body until it matches its pattern and animates it: a pattern, never the person. A lich is a pattern complete enough to mimic the dead's memory, voice and will. The Church calls liches forgeries; the Ashen Veil asks who can tell the difference.\nFunerals are custom, not safety: each people buries, burns or stone-seals its dead its own way. A Church funeral (a flame rite, sacred ground, a name in the parish register, which Highmark and Ashmere courts require to settle inheritance) costs money, and families go into debt for honour.\nWhere the dead do rise they are cleared like any dungeon threat: Church knights, Guild contracts, fire. Bodies left where death already gathers (a battlefield, a dungeon mouth) feed it, which is why armies burn their fallen and the Guild pays for bodies brought up from the Depths.",
         "protected": true
       },
       {
@@ -9917,7 +9965,7 @@
           "magic tradition",
           "spell grammar"
         ],
-        "text": "Magic is organized by tradition, not universal schools; each belongs to an institution or culture and has its own price. Techniques are created in play and kept once named. Training in one tradition grants no other.\n- Reinforcement breathing (Physical Affinity): armies, knightly orders, martial schools. Price: bodies wear out early.\n- Spell grammar (Mana Affinity): projected spells and wards. Startrace, private tutors. Price: years, fees, burns for those who rush.\n- Flamecraft (Mana Affinity, ritual): consecrated fire and completion. The Church. Price: obedience and service.\n- Listening: hears attribute and death frequencies. Church Inquest, Startrace, hunters. Price: the hum.\n- Healing (life): temples, hospices, Verdantleaf. Price: exhausts the healer; never restores the dead or lost limbs.\n- Runecraft (fixed patterns, slave collars among them): Ironanvil, artificer workshops. Price: materials, time.\n- Pactcraft (spirit contracts): Domain of Oren, Verdantleaf, witches. Price: the spirit's terms.\n- Living craft (elven): Verdantleaf. Price: centuries.\n- Binding (spirits forced into objects): Highmark workshops, black markets. Illegal in Ardelia.\n- Deathcraft (death frequency): Ashen Veil. Capital crime almost everywhere."
+        "text": "Magic is organized by tradition, not universal schools; each belongs to an institution or culture and has its own price. Techniques are created in play and kept once named. Training in one tradition grants no other.\n- Reinforcement breathing (Physical Affinity): armies, knightly orders, martial schools. Price: bodies wear out early.\n- Spell grammar (Mana Affinity): projected spells and wards. Startrace, private tutors. Price: years, fees, burns for those who rush.\n- Flamecraft (Mana Affinity, ritual): consecrated fire and healing. The Church. Price: obedience and service.\n- Listening: hears attribute and death frequencies. Church Inquest, Startrace, hunters. Price: the hum.\n- Healing (life): temples, hospices, Verdantleaf. Price: exhausts the healer; never restores the dead or lost limbs.\n- Runecraft (fixed patterns, slave collars among them): Ironanvil, artificer workshops. Price: materials, time.\n- Pactcraft (spirit contracts): Domain of Oren, Verdantleaf, witches. Price: the spirit's terms.\n- Living craft (elven): Verdantleaf. Price: centuries.\n- Binding (spirits forced into objects): Highmark workshops, black markets. Illegal in Ardelia.\n- Deathcraft (death frequency): Ashen Veil. Capital crime almost everywhere."
       },
       {
         "title": "Magic Access and Education",
@@ -9937,7 +9985,7 @@
           "Quiet Choir",
           "Retort Guild"
         ],
-        "text": "Startrace is the most prestigious academy, not the only one. Each institution guards a tradition.\n- College of Flame Theologians (Holy City): flamecraft, completion rites, doctrine; graduates owe the Church service.\n- The Quiet Choir (Silent Cloisters, Holy City): the Inquest's Listener school, rival of Startrace's Listening masters; many students break under the hum.\n- Retort Guild (Ledgerford): licenses Confederacy alchemists and sells completion salts, quietly worse ones to anyone who pays.\n- Pact Houses of Oren (Ardelia): spiritfolk pactcraft; hunt binders posing as pact-workers.\n- Rune Halls of Oathvault (Ironanvil): dwarven runecraft, rune-collars included; rich and ashamed in equal measure.\n- Grove Schools of Elenvar and Verdantleaf: living craft and healing over decades, rarely to non-elves.\n- Mirror Seminary (Ashkar): priest-surveyors who read the Glass Crown's will in fused glass.\n- Hedge traditions: unlicensed wise-women and village healers everywhere; cheap, sometimes brilliant, often hanged."
+        "text": "Startrace is the most prestigious academy, not the only one. Each institution guards a tradition.\n- College of Flame Theologians (Holy City): flamecraft, healing, doctrine; graduates owe the Church service.\n- The Quiet Choir (Silent Cloisters, Holy City): the Inquest's Listener school, rival of Startrace's Listening masters; many students break under the hum.\n- Retort Guild (Ledgerford): licenses Confederacy alchemists and sells healing draughts, quietly worse ones to anyone who pays.\n- Pact Houses of Oren (Ardelia): spiritfolk pactcraft; hunt binders posing as pact-workers.\n- Rune Halls of Oathvault (Ironanvil): dwarven runecraft, rune-collars included; rich and ashamed in equal measure.\n- Grove Schools of Elenvar and Verdantleaf: living craft and healing over decades, rarely to non-elves.\n- Mirror Seminary (Ashkar): priest-surveyors who read the Glass Crown's will in fused glass.\n- Hedge traditions: unlicensed wise-women and village healers everywhere; cheap, sometimes brilliant, often hanged."
       },
       {
         "title": "Limits of Magic",
@@ -10072,7 +10120,7 @@
           "shared root",
           "Last Rite"
         ],
-        "text": "Early in the Age of Kingdoms' Rise, one order studied the release and the death frequency: the Order of the Last Rite. Its death-keepers, studying how to raise the dead, found completion as a by-product: knowledge that holds a dead pattern together can also break it. The Order split into those who complete death (the Church of the Eternal Flame) and those who keep it (the Ashen Veil).\nThe Church erased this. Its oldest liturgy is still partly in Veil-script; almost no priest knows why. A handful of senior clergy and the oldest Veil cells know the truth. The Church teaches that the Flamebearer revealed completion through the First Brazier, a sacred rite only consecrated hands may perform with honor. The Order's records show it was a technique invented by the very death-keepers whose heirs became the Ashen Veil, and that the Church's first saints learned it from them and practiced both for a century before the split. Proof would be catastrophic: if completion is craft, not revelation, a lay sealer's work is as holy as a priest's, and the Church's monopoly on honored rites, its fees and its power to refuse them all collapse. The oldest Veil cells would use the proof to break it.",
+        "text": "Early in the Age of Kingdoms' Rise, one order studied the line between life and death: the Order of the Last Rite. Its menders learned to read a body's pattern and hold it together, the root of all healing magic. Some found the same craft could hold a dead pattern together after the soul had gone. The Order split into those who mend the living (the Church of the Eternal Flame) and those who mend the dead (the Ashen Veil).\nThe Church erased this. Its oldest healing liturgy is still partly in Veil-script; almost no priest knows why. A handful of senior clergy and the oldest Veil cells know the truth. The Church teaches that the Flamebearer revealed healing through the First Brazier, a grace only consecrated hands may channel in full. The Order's records show it was a craft, invented by the very menders whose heirs became the Ashen Veil, and that the Church's first saints practised both for a century before the split. Proof would be catastrophic: if healing is craft, not grace, any trained hand heals as holily as a priest, and the Church's hold on the hospitals, its licences and its power to refuse healing to heretics all collapse. Worse, every Church healer would learn their craft is the Veil's own.",
         "protected": true,
         "hidden": true,
         "id": "shared-root",
@@ -10171,6 +10219,18 @@
         "text": "Fairies are tiny sapient people with translucent insect wings and Flower-Speech magic. Each is mystically bound to a personal flower; harming the flower harms the fairy. Their tongue sounds like silver bells. They live in the Fairy Court under the Queen of Flowers, protected but not ruled by Verdantleaf.\nAn adult people with their own law and long memories, never pets or children. Collectors buy them, binders hunt them, and the Fairy Court remembers every one taken."
       },
       {
+        "title": "Mixed Heritage",
+        "keys": [
+          "mixed heritage",
+          "crossblood",
+          "half-elf",
+          "half-orc",
+          "dwelf",
+          "mixed blood"
+        ],
+        "text": "Children of two peoples are born where the peoples of flesh live side by side: humans, elves, dwarves, halflings, beastfolk, orcs and goblins. Spiritfolk and fairies have no children with other peoples, and the Sea Folk forbid marriage with the Sheathless and cast out any Atlantean who breaks the rule. A child of two peoples usually takes one parent's build and carries marks of the other (pointed ears, a dwarf's breadth, a beastfolk tail or eyes, an orc's tusks), with a lifespan somewhere between the two. The soul awakens and grows by the same rules as anyone's.\nTreatment follows the border. In Ardelia, where marriage across peoples is ordinary, the civic registry writes such a child as a citizen of both peoples. Highmark law counts them as whichever parent ranks lower, so a half-orc can carry an orc's bounty in the provinces that still pay one. The Confederacy cares about the contract, not the blood. Dwarven clans carve a child on the ancestor stone only if a clan claims them; elves remember both lines, and both grudges; beastfolk clans judge by deed, as they judge everyone. Slave markets price the rarity.\nWords: \"crossblood\" is the polite Confederacy word; Highmark says half-elf or half-orc; blunter slang (\"dwelf\" for a dwarf-elf child) is common in the Northern Belt and rude to the face."
+      },
+      {
         "title": "Sea Folk (Atlanteans)",
         "keys": [
           "Atlantean",
@@ -10266,7 +10326,7 @@
           "slums",
           "upper town"
         ],
-        "text": "Cities are built in rings of privilege: citadel or palace and noble houses on the high ground; temples, guild halls and markets in the center; craft quarters and docks below; the poor outside the walls in suburbs that burn first in any war. Foreign quarters keep foreign law and food. Every city keeps its completion yard, pyre ground or sealing vaults at the edge, downwind.\nGates close at dusk. Watchmen are paid by district: rich districts are safe, poor ones are not. Water, fire and plague decide which neighborhoods survive. Slaves and bondfolk live where their owners keep them."
+        "text": "Cities are built in rings of privilege: citadel or palace and noble houses on the high ground; temples, guild halls and markets in the center; craft quarters and docks below; the poor outside the walls in suburbs that burn first in any war. Foreign quarters keep foreign law and food. Every city keeps its burial ground, pyre yard or sealing vaults at the edge, downwind.\nGates close at dusk. Watchmen are paid by district: rich districts are safe, poor ones are not. Water, fire and plague decide which neighborhoods survive. Slaves and bondfolk live where their owners keep them."
       },
       {
         "title": "Hospitality and the Road-Right",
@@ -10325,7 +10385,7 @@
           "ash mark",
           "fasting day"
         ],
-        "text": "The Flame Lands are pious and funerary. Pilgrims crowd the roads; candles burn in every window on the dead days; ash marks foreheads after a completion. Fasting days, relic processions, hospital towns and saint festivals fill the year. White and ember colors; plain dress for commoners, rich vestments for clergy. People speak carefully of the dead and very carefully of heresy. Charity is real; so is the Inquest."
+        "text": "The Flame Lands are pious and funerary. Pilgrims crowd the roads; candles burn in every window on the dead days; ash marks foreheads after a funeral. Fasting days, relic processions, hospital towns and saint festivals fill the year. White and ember colors; plain dress for commoners, rich vestments for clergy. People speak carefully of the dead and very carefully of heresy. Charity is real; so is the Inquest."
       },
       {
         "title": "Culture: The Frontier North and the Border",
@@ -10355,7 +10415,7 @@
           "religions",
           "worship"
         ],
-        "text": "No gods exist, but faith is everywhere. The Church of the Eternal Flame dominates the human Northern Belt; other peoples and regions keep their own traditions, and ordinary people mix them freely: in one week a Highmark farmer may light a Church candle, keep a household shrine to an Exalted and leave milk for the hearth-mote. Clergy argue about this; villagers do not.\nMajor traditions: the Church of the Eternal Flame; the dwarves' Stone Witness; the elves' Long Memory; the Spirit Speakers (beastfolk, orcs, the Frostbound, the White-Horn Clans); the Sea God (Sea Folk, Tidebound sailors); folk shrines to the Exalted; Ashkaran's Glass Crown cult; the Fairy Court's flower-rites.\nEvery tradition has its own way to complete the dead, because every people learned the same lesson: bodies left alone rise."
+        "text": "No gods exist, but faith is everywhere. The Church of the Eternal Flame dominates the human Northern Belt; other peoples and regions keep their own traditions, and ordinary people mix them freely: in one week a Highmark farmer may light a Church candle, keep a household shrine to an Exalted and leave milk for the hearth-mote. Clergy argue about this; villagers do not.\nMajor traditions: the Church of the Eternal Flame; the dwarves' Stone Witness; the elves' Long Memory; the Spirit Speakers (beastfolk, orcs, the Frostbound, the White-Horn Clans); the Sea God (Sea Folk, Tidebound sailors); folk shrines to the Exalted; Ashkaran's Glass Crown cult; the Fairy Court's flower-rites.\nEvery tradition has its own funerals and its own healers; only the Church claims healing as grace."
       },
       {
         "title": "The Stone Witness and the Long Memory",
@@ -10365,7 +10425,7 @@
           "ancestor stones",
           "Hall of Names"
         ],
-        "text": "- The Stone Witness (dwarves): no gods, only stone and ancestors. Every dwarf's name is carved on an ancestor stone in their hold's Hall of Names; to be carved is to be remembered, and to be struck off is the worst punishment there is. The dead are completed by stone sealing in the deep vaults. Oaths are sworn with a hand on the ancestor stones; breaking one is a crime against the dead. \"Stone remembers\" is prayer as well as motto.\n- The Long Memory (elves): elves pray to no one; they keep memory. Memory-keepers recite the names and deeds of the dead at seasonal rites; the Elder Root holds memories older than the elves' own. The dead are completed by return to the roots, where dense life mana takes the body within days. To be forgotten is the elven damnation."
+        "text": "- The Stone Witness (dwarves): no gods, only stone and ancestors. Every dwarf's name is carved on an ancestor stone in their hold's Hall of Names; to be carved is to be remembered, and to be struck off is the worst punishment there is. The dead are sealed in stone in the deep vaults. Oaths are sworn with a hand on the ancestor stones; breaking one is a crime against the dead. \"Stone remembers\" is prayer as well as motto.\n- The Long Memory (elves): elves pray to no one; they keep memory. Memory-keepers recite the names and deeds of the dead at seasonal rites; the Elder Root holds memories older than the elves' own. The dead are completed by return to the roots, where dense life mana takes the body within days. To be forgotten is the elven damnation."
       },
       {
         "title": "Spirit Speakers and the Sea God",
@@ -10405,7 +10465,7 @@
           "planting",
           "campaign season"
         ],
-        "text": "- Spring (March to May): planting, tax assessment and the thaw, when winter's uncompleted dead can rise.\n- Summer (June to August): campaign season; armies march, raiders ride, monsters migrate.\n- Autumn (September to November): harvest and levy musters.\n- The Turning (as winter sets in, from December): stampede season; Wildzone herds, the mammoth above all, migrate south ahead of the deep cold, and frontier villages watch their signal towers.\n- Winter (December to February): hunger, Wildzone pressure, bodies that freeze before they can be completed. Debts come due at the year's end, in December.\nThese are civil seasons; local climate decides actual weather. Ordinary weather stays plausible; mana-dense sites can break the patterns locally."
+        "text": "- Spring (March to May): planting, tax assessment and the thaw, when winter's dead can at last be buried.\n- Summer (June to August): campaign season; armies march, raiders ride, monsters migrate.\n- Autumn (September to November): harvest and levy musters.\n- The Turning (as winter sets in, from December): stampede season; Wildzone herds, the mammoth above all, migrate south ahead of the deep cold, and frontier villages watch their signal towers.\n- Winter (December to February): hunger, Wildzone pressure, bodies that freeze before they can be completed. Debts come due at the year's end, in December.\nThese are civil seasons; local climate decides actual weather. Ordinary weather stays plausible; mana-dense sites can break the patterns locally."
       },
       {
         "title": "Prices: Property and Rent",
@@ -10567,7 +10627,7 @@
           "fever",
           "plague"
         ],
-        "text": "Disease kills more people than monsters do.\n- Common: fevers, flux, winter cough, pox, wound rot, childbed fever. Most children in poor villages die young; childbirth is dangerous everywhere.\n- Mana sickness: from overchanneling, deep dungeon bands or dense-mana sites; nausea, bleeding, collapse. Otherworlders often die of it soon after arriving.\n- Death-blight: spread by uncompleted corpses in death-frequency mana; the reason the dead are completed quickly.\n- Plagues: outbreaks close cities. The Silver Mark enforces cordons, Church clergy burn the dead, and the poor are walled in first.\nMedicine: herbs, surgery, cautery, prayer and, for those who can pay, healing magic, which closes wounds and purges poison but often fails against disease and can worsen fevers. Barber-surgeons and wise-women serve villages; physicians serve the rich."
+        "text": "Disease kills more people than monsters do.\n- Common: fevers, flux, winter cough, pox, wound rot, childbed fever. Most children in poor villages die young; childbirth is dangerous everywhere.\n- Mana sickness: from overchanneling, deep dungeon bands or dense-mana sites; nausea, bleeding, collapse. Otherworlders often die of it soon after arriving.\n- Death-blight: spread by corpses left in death-frequency mana (battlefields, plague pits, dungeon mouths); the reason armies and plague towns burn their dead quickly.\n- Plagues: outbreaks close cities. The Silver Mark enforces cordons, Church clergy burn the dead, and the poor are walled in first.\nMedicine: herbs, surgery, cautery, prayer and, for those who can pay, healing magic, which closes wounds and purges poison but often fails against disease and can worsen fevers. Barber-surgeons and wise-women serve villages; physicians serve the rich."
       },
       {
         "title": "Alchemy",
@@ -10577,7 +10637,7 @@
           "alchemists",
           "alchemical"
         ],
-        "text": "Alchemy is a craft, not spellcasting: it turns monster parts, plants, minerals and mana stones into remedies, poisons and preparations. Completion salts, salt-and-iron mixtures that seal the dead, are Ersveil's most important alchemical product; corpse-salts, their Veil inversion, preserve the dead for raising.\nIt needs a workshop, glassware, heat, time, clean reagents and skill; mistakes poison or burn the alchemist. Alchemist's fire burns; it propels nothing. Startrace, Ledgerford's alchemist guild and the Church's hospitals train alchemists. Aurelion licenses completion salts and hangs anyone selling corpse-salts. Poisons are legal to own almost nowhere and sold almost everywhere."
+        "text": "Alchemy is a craft, not spellcasting: it turns monster parts, plants, minerals and mana stones into remedies, poisons and preparations. Healing draughts and wound salves are its most important products; corpse-salts, a Veil preparation, keep the dead fresh for raising.\nIt needs a workshop, glassware, heat, time, clean reagents and skill; mistakes poison or burn the alchemist. Alchemist's fire burns; it propels nothing. Startrace, Ledgerford's alchemist guild and the Church's hospitals train alchemists. Aurelion licenses healing draughts and hangs anyone selling corpse-salts. Poisons are legal to own almost nowhere and sold almost everywhere."
       },
       {
         "title": "Technology and Artifice",
@@ -10647,7 +10707,7 @@
           "River Council",
           "Thousand Sails"
         ],
-        "text": "The River Confederacy is a river civilization of trade, contract law, canal engineering and merchant autonomy. Motto: \"Water carries coin farther than banners.\"\nRule: the River Council of city delegates, guild magnates, river admirals, lockmasters, toll judges, chartered merchant houses and recognized territorial rulers. No one holds permanent command; emergency powers are negotiated, usually late. Thousand Sails is the principal council seat, Ledgerford the banking city; Coinwater mints the coin.\nMembers include the semi-autonomous Duchy of Shornmarch. Bluewatch is Council territory under a Watch-Captain, not a member.\nBleeds for: open rivers and honored contracts. Red line: a blockade of the locks. Needs: peace on the rivers. Fears: a Highmark default, since it holds a mountain of Highmark debt.\nLaw: chattel slavery is illegal on paper; debt bondage is legal, called contract labor. Halflings hold real guild power here. Licensed completion salts are a Confederacy monopoly in all but name, and the Council taxes every sack."
+        "text": "The River Confederacy is a river civilization of trade, contract law, canal engineering and merchant autonomy. Motto: \"Water carries coin farther than banners.\"\nRule: the River Council of city delegates, guild magnates, river admirals, lockmasters, toll judges, chartered merchant houses and recognized territorial rulers. No one holds permanent command; emergency powers are negotiated, usually late. Thousand Sails is the principal council seat, Ledgerford the banking city; Coinwater mints the coin.\nMembers include the semi-autonomous Duchy of Shornmarch. Bluewatch is Council territory under a Watch-Captain, not a member.\nBleeds for: open rivers and honored contracts. Red line: a blockade of the locks. Needs: peace on the rivers. Fears: a Highmark default, since it holds a mountain of Highmark debt.\nLaw: chattel slavery is illegal on paper; debt bondage is legal, called contract labor. Halflings hold real guild power here. Licensed healing draughts are a Confederacy monopoly in all but name, and the Council taxes every sack."
       },
       {
         "title": "Duchy of Shornmarch",
@@ -10667,7 +10727,7 @@
           "Holy City",
           "First Brazier"
         ],
-        "text": "The Holy Dominion of Aurelion is the territorial state of the Church of the Eternal Flame, built around the Holy City and the First Brazier lit by the Flamebearer. Motto: \"Let nothing rise.\"\nRule: the High Pontiff, supreme spiritual leader of the Church and temporal sovereign of the Dominion, rules with the Conclave of Embers and a Dominion Chancellor who runs taxes, courts and granaries.\nStrength: legitimacy. It crowns kings, completes the dead, names heretics and refuses rites. Its electoral vote through Varden gives it a voice in Ardelia.\nBleeds for: completing the dead. Red line: open necromancy. Needs: kings who enforce burial law. Fears: lay sealers and heretics who say completion needs no priest.\nFactions: Restorationists fear the Tide cycle and oppose expansion; Expansionists bless the Reopening."
+        "text": "The Holy Dominion of Aurelion is the territorial state of the Church of the Eternal Flame, built around the Holy City and the First Brazier lit by the Flamebearer. Motto: \"Let nothing rise.\"\nRule: the High Pontiff, supreme spiritual leader of the Church and temporal sovereign of the Dominion, rules with the Conclave of Embers and a Dominion Chancellor who runs taxes, courts and granaries.\nStrength: legitimacy. It crowns kings, sends or withholds healers, names heretics and refuses rites. Its electoral vote through Varden gives it a voice in Ardelia.\nBleeds for: its hospitals. Red line: open necromancy. Needs: kings who let only its healers practise. Fears: lay healers and heretics who say healing needs no priest.\nFactions: Restorationists fear the Tide cycle and oppose expansion; Expansionists bless the Reopening."
       },
       {
         "title": "Church of the Eternal Flame",
@@ -10677,7 +10737,7 @@
           "Eternal Flame",
           "clergy"
         ],
-        "text": "The Church of the Eternal Flame is the Northern Belt's most powerful organized faith. Doctrine: the Flame is the order the Exalted set; life is a borrowed spark; death must be completed by rite, burial or flame. Mana is neutral; restless dead are bodies denied completion.\nAbsolute in Aurelion, decisive in Ashmere, strong in Highmark, elsewhere dependent on faith and treaty. It blesses rulers, denies funeral rites, names saints, declares heresy and calls crusades.\nThe Church Inquest hunts necromancers, Veil cells and otherworlders. Doctrine calls the small share of the release everyone takes grace, and taking all of it theft from the Flame, so the Inquest hunts anyone who absorbs too well, otherworlders above all. The real fear is older: Veyr was an otherworlder, and the High Pontiff of CY 384 died in the Crownless Winter; the Church will not let power grow outside its reach again. It wants otherworlders alive: captives go to the Silent Cloisters and few are seen again; what is done to them there is whispered, never admitted.\nOutside Aurelion, Ashmere and Highmark the Inquest is investigative only: it questions, watches, hires Listeners and pays informers. It cannot arrest, seize or punish in the River Confederacy, Auvoth or elsewhere; it must persuade local authority, buy cooperation, or wait for its quarry to cross into a realm where it can act.\nThe Church is not universal: other peoples and many villages keep their own rites, and ordinary people mix household custom with Church practice."
+        "text": "The Church of the Eternal Flame is the Northern Belt's most powerful organized faith, because it heals. Doctrine: the Flame is the order the Exalted set; life is a borrowed spark and healing tends it; the dead are done, and keeping them is theft from the Flame.\nIts hospitals, infirmaries and hospital towns hold the best healers anywhere, and most trained healers are its clergy or owe it service. Every king needs it for his wounded and every city for its plagues. That is its power: it can send healers or withhold them, from rulers, from towns and from heretics.\nAbsolute in Aurelion, decisive in Ashmere, strong in Highmark, elsewhere dependent on faith and treaty. It blesses rulers, names saints, declares heresy and calls crusades.\nThe Church Inquest hunts necromancers, Veil cells and otherworlders. Doctrine calls the small share of the release everyone takes grace, and taking all of it theft from the Flame, so the Inquest hunts anyone who absorbs too well, otherworlders above all. The real fear is older: Veyr was an otherworlder, and the High Pontiff of CY 384 died in the Crownless Winter; the Church will not let power grow outside its reach again. It wants otherworlders alive: captives go to the Silent Cloisters and few are seen again; what is done to them there is whispered, never admitted.\nOutside Aurelion, Ashmere and Highmark the Inquest is investigative only: it questions, watches, hires Listeners and pays informers. It cannot arrest, seize or punish in the River Confederacy, Auvoth or elsewhere; it must persuade local authority, buy cooperation, or wait for its quarry to cross into a realm where it can act.\nThe Church is not universal: other peoples keep their own healers and rites, and village herbwives and lay healers work everywhere. The Church tolerates them, licenses some, and watches any who heal too well."
       },
       {
         "title": "Kingdom of Ashmere",
@@ -10906,7 +10966,7 @@
           "thieves' guild",
           "Nightingale King"
         ],
-        "text": "Nightingale: artist-like thieves' network. Creed: \"Wealth only gains meaning when it is in motion.\" Members call themselves redistributors and couriers of secrets, and despise crude robbery and needless murder.\nA secret Nightingale King or Queen leads core specialists (theft, locks, disguise, infiltration, intelligence), with contacts in every city for fencing, safe lodging and information. Its hidden sanctum, the Nest, is compartmentalized; its center is believed to be in Vargate, with old roots in Shackles.\nThree Non-Thefts: do not steal from the destitute; do not kill innocents except in extreme danger; do not prey on fellow thieves. Traitors are stripped, exiled and marked across every cooperating black market.\nOldest rule: never rob the uncompleted dead; grave-goods are the one theft its fences will not touch."
+        "text": "Nightingale: artist-like thieves' network. Creed: \"Wealth only gains meaning when it is in motion.\" Members call themselves redistributors and couriers of secrets, and despise crude robbery and needless murder.\nA secret Nightingale King or Queen leads core specialists (theft, locks, disguise, infiltration, intelligence), with contacts in every city for fencing, safe lodging and information. Its hidden sanctum, the Nest, is compartmentalized; its center is believed to be in Vargate, with old roots in Shackles.\nThree Non-Thefts: do not steal from the destitute; do not kill innocents except in extreme danger; do not prey on fellow thieves. Traitors are stripped, exiled and marked across every cooperating black market.\nOldest rule: never rob the dead; grave-goods are the one theft its fences will not touch."
       },
       {
         "title": "Hand of Oblivion",
@@ -10926,7 +10986,7 @@
           "Veilgrave",
           "Black Prayer Hollow"
         ],
-        "text": "Ashen Veil: loose network of heretical cells, corpse smugglers, necromancers and plague scavengers; no state, no single ruler.\nBelief: death should be kept, questioned, weaponized or bargained with, not completed. Cells disagree violently whether a lich is the person who died. They worship otherworlders as souls that devour the release.\nTrade: forbidden texts, stolen remains, Grudge Crystals, corpse-salts, poisons, false burial papers, curse foci. Buys corpses from Shackles and Vargate; keeps a tolerated temple ward in Vargate.\nThe oldest cells claim to hold something that would break Aurelion; the Church calls it a heretic's lie. They hate the Grey Walker, which stills the dead wherever it passes."
+        "text": "Ashen Veil: loose network of heretical cells, necromancers, corpse smugglers and plague scavengers; no state, no single ruler.\nBelief: the menders' craft should not stop at death. Their necromancy is healing turned on the dead: it holds a body's pattern together after the soul has gone, so the dead walk, serve and seem to remember. Cells disagree violently whether a lich is the person who died. They worship otherworlders as souls that devour the release.\nTrade: forbidden texts, stolen remains, Grudge Crystals, corpse-salts, poisons, false burial papers, curse foci, and healing the Church refuses, at a price no one should pay. Buys corpses from Shackles and Vargate; keeps a tolerated temple ward in Vargate.\nThe oldest cells claim to hold something that would break Aurelion; the Church calls it a heretic's lie. They hate the Grey Walker, which stills the dead wherever it passes."
       },
       {
         "title": "Broken Chain",
@@ -11100,7 +11160,7 @@
           "Watch-Captain Rorke",
           "Edda Rorke"
         ],
-        "text": "Bluewatch: fortified River Confederacy watch village on the frontier road east of Auvoth, at the end of the Bluewatch Branch river route; the northernmost ordinary village in the known world. North of it lies nothing settled, only Wildzone and apex country.\nWork: river inspection, convoy support, signal posts, ferries, storehouses, evacuation, frontier warning. People: tired, practical, armed, always listening for the signal horn.\nRule: a Watch-Captain answering to the River Council; not governed by Auvoth, Highmark or Shornmarch.\nPlaces: the Watchhouse and its signal tower; a Guild branch desk in the Watchhouse, where newcomers register and read the job board; the inspection quay at the river-gate; storehouses; the Stray Oar (inn for convoy crews); the salt-and-ash yard, where a lay sealer completes the dead because no priest will live this far north.\nVisitors notice: wet stone, smoke from the signal braziers, everyone looking north. Locals complain: late pay, Auvoth prices, Confederacy clerks who have never seen a stampede.\nIn August 611 low Wildzone beasts reached the Bluewatch road and the Border marches a season early."
+        "text": "Bluewatch: fortified River Confederacy watch village on the frontier road east of Auvoth, at the end of the Bluewatch Branch river route; the northernmost ordinary village in the known world. North of it lies nothing settled, only Wildzone and apex country.\nWork: river inspection, convoy support, signal posts, ferries, storehouses, evacuation, frontier warning. People: tired, practical, armed, always listening for the signal horn.\nRule: a Watch-Captain answering to the River Council; not governed by Auvoth, Highmark or Shornmarch.\nPlaces: the Watchhouse and its signal tower; a Guild branch desk in the Watchhouse, where newcomers register and read the job board; the inspection quay at the river-gate; storehouses; the Stray Oar (inn for convoy crews); the burial yard behind the Watchhouse, where the frontier's dead are burned or buried; no priest will live this far north, so Sister Temiwa heals and buries both.\nVisitors notice: wet stone, smoke from the signal braziers, everyone looking north. Locals complain: late pay, Auvoth prices, Confederacy clerks who have never seen a stampede.\nIn August 611 low Wildzone beasts reached the Bluewatch road and the Border marches a season early."
       },
       {
         "title": "Auvoth",
@@ -12682,7 +12742,7 @@
         "name": "inquest-active",
         "scope": "region",
         "fades": "60 days",
-        "means": "The Church Inquest is here; lay sealers are questioned, informers are paid, and people watch their words."
+        "means": "The Church Inquest is here; lay healers are questioned, informers are paid, and people watch their words."
       },
       {
         "name": "plague",
@@ -12701,7 +12761,7 @@
         "name": "dead-uncompleted",
         "scope": "region",
         "fades": "30 days",
-        "means": "Too many dead lie without completion; graves stir, and nobody walks the fields at night."
+        "means": "The dead are rising here: death has gathered past what the land can hold; graves stir, and nobody walks the fields at night."
       },
       {
         "name": "roads-closed",
@@ -14103,7 +14163,7 @@
                   "location": "shorn",
                   "from": "bluewatch-village",
                   "until": "cleared:evacuated@bluewatch-village",
-                  "routine": "tends the refugee camps and completes their dead"
+                  "routine": "heals the refugee camps"
                 },
                 {
                   "who": "torka",
@@ -15787,7 +15847,7 @@
               "location": "bluewatch-village",
               "from": "anywhere",
               "until": "end",
-              "routine": "questions lay sealers and pays informers"
+              "routine": "questions lay healers and pays informers"
             }
           ],
           "set": [
@@ -15825,7 +15885,7 @@
               "location": "thornkeep",
               "from": "anywhere",
               "until": "end",
-              "routine": "walks the frontier graveyards and completes the dead"
+              "routine": "walks the frontier healing the sick and laying the risen to rest"
             }
           ],
           "clear": [

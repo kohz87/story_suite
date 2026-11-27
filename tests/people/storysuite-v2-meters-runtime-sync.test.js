@@ -23,7 +23,7 @@ test('hosted: a scan\'s relationship change goes to the slice as npc.adjust; the
         assert.ok(await waitFor(() => mockState.sdk.sent.length >= 1), 'a command was sent');
         const sent = mockState.sdk.sent.filter(item => item.type === 'npc.adjust');
         assert.equal(sent.length, 1, JSON.stringify(mockState.sdk.sent));
-        assert.equal(sent[0].payload.name, 'Yunyun');
+        assert.equal(sent[0].payload.name, 'npc_yunyun', 'the held dossier\'s id');
         assert.deepEqual(sent[0].payload.meters, { trust: relationship.trust });
         assert.deepEqual(sent[0].payload.start, { trust: 0, affection: 0, desire: 0, tension: 0 });
         assert.equal(sent[0].payload.reply, id);
@@ -129,12 +129,12 @@ test('hosted: a meeting the host did not keep (a native change finishing) is hel
         mockState.quietResponder = async () => JSON.stringify({ npcs: [{ ...harek, mood: 'Bored and watchful', moodV: 1, moodA: -2, moodD: '2' }] });
         await turn('Harek shrugs and spits into the dust beside the wagon.');
         await sleep(1500);   // the held retry (1 s) has gone out by now
-        console.log('RESULT ' + JSON.stringify({ total: mockState.sdk.sent.filter(item => item.type === 'npc.meet' && item.payload.name === 'Harek').length, moods: mockState.sdk.sent.filter(item => item.type === 'npc.mood').map(item => item.payload), names: api.getState().npcs.map(npc => npc.name) }));
+        console.log('RESULT ' + JSON.stringify({ total: mockState.sdk.sent.filter(item => item.type === 'npc.meet' && item.payload.name === 'npc_harek').length, moods: mockState.sdk.sent.filter(item => item.type === 'npc.mood').map(item => item.payload), names: api.getState().npcs.map(npc => npc.name) }));
     });
     const result = scenarioOutput(output);
     assert.equal(result.total, 2, 'the meeting the host did not keep was held and sent again once it settled, and once kept never again');
     // each mood word the scan wrote for Harek goes to the slice as npc.mood (its numbers are read there from the fixed word list), once per change
-    assert.deepEqual(result.moods.map(item => [item.name, item.word]), [['Harek', 'Cynical and indifferent'], ['Harek', 'Bored and watchful']]);
+    assert.deepEqual(result.moods.map(item => [item.name, item.word]), [['npc_harek', 'Cynical and indifferent'], ['npc_harek', 'Bored and watchful']]);
     // the three numbers the scan gave with a word travel with it (whole, -3..3); a scan that gave none sends none (the word list reads it)
     assert.deepEqual(result.moods.map(item => item.vad), [undefined, { v: 1, a: -2, d: 2 }]);
 });
@@ -178,7 +178,7 @@ function heldScenario(name, takeBack) {
 test('hosted: a meeting and a mood refused while a native change finishes are held in order and sent once it settles', () => {
     const result = heldScenario('meters-held-order', false);
     assert.equal(result.heldAfterScan, 0, 'nothing was kept while the host was refusing');
-    assert.deepEqual(result.kept, ['npc.meet:Brant', 'npc.mood:Brant'], 'the meeting first, then the mood, each once');
+    assert.deepEqual(result.kept, ['npc.meet:npc_brant', 'npc.mood:npc_brant'], 'the meeting first, then the mood, each once');
     assert.equal(result.sent.filter(type => type === 'npc.meet').length, 2, 'asked, refused, asked again: the meeting reached the host twice and was applied once');
     assert.equal(result.sent.filter(type => type === 'npc.mood').length, 1, 'the mood waited behind the meeting and was asked once');
 });

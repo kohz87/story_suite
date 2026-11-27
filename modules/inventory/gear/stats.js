@@ -2,7 +2,7 @@
 // gear.js re-exports every public name). gearDefine updates the supplied item definition in place.
 // Public face: re-exports its parts.
 
-export { GEAR } from './stats-parts/constants.js';
+export { GEAR, gearStatKey } from './stats-parts/constants.js';
 export { slotWordOf, placeOf, gearSlotOf } from './stats-parts/slots.js';
 export { gearRarityOf } from './stats-parts/rarity.js';
 export { statsOf, withinBudget, packBonus, gearBudget } from './stats-parts/budget.js';

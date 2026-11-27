@@ -47,6 +47,8 @@ import { fill } from '../strings-parts/text.js';
  * @param {(domain: string) => string[]} [options.scratch]  a domain's per-reply scratch fields (ops.js)
  * @param {(domain: string) => object|null} [options.seed]  a deferred domain's initial slice, null for any other: a replayed block
  *   that writes under an absent deferred domain finds it there as that slice (ops.js rebaseOps, REPLAY.md "Deferred domains")
+ * @param {(domain: string) => object|null} [options.holders]  a domain's keyed holders ({ 'map/path': make(key, slice) }), null for none:
+ *   a replayed block that writes under an entry that is not there finds it remade (ops/holders.js, REPLAY.md "Keyed holders")
  * @param {{ window?: number, step?: number }} [options.sealing]  the replies kept step by step and the step the older ones are sealed in (50 / 25)
  * @param {() => object|null} [options.metadata]  the open chat's metadata, saved with the chat: the archive of deleted
  *   source-map ids lives in `storySuite.sourceArchive` (without it the archive is kept in memory only)
@@ -58,7 +60,7 @@ import { fill } from '../strings-parts/text.js';
 export function createStore({
     chat, save, now = null, apply = applyOps, onSaveError = null, timers = globalThis,
     checkpointEvery = CHECKPOINT_EVERY, checkpointBytes = CHECKPOINT_BYTES, recordId = newRecordId, validate = null,
-    chatId = () => undefined, place = () => null, rescue = null, scratch = null, seed = null, receiptKeep = RECEIPT_KEEP,
+    chatId = () => undefined, place = () => null, rescue = null, scratch = null, seed = null, holders = null, receiptKeep = RECEIPT_KEEP,
     confirm = null, memo = null, metadata = () => null, marked = () => false, replayEnv = () => '', witnessPrefixMax = null,
     sealing: sealOptions = {},
 } = {}) {
@@ -276,7 +278,7 @@ export function createStore({
     // The walk and replay parts (store/walk.js, store/replay-blocks.js) call each other: createWalk is given the replay functions it
     // calls as wrappers that look them up when they run, because createReplayBlocks is wired right after it and is given the real ones.
     const { stamp, advanced, walkSuffix, keeps, settleAll, settleBehind, checkpointState, step, chain, problemText, rawSidAt, packProblems, unpackProblems } = createWalk(s, {
-        apply, receiptKeep, scratch, seed, validate, list, current: (...args) => current(...args), headProblems: (...args) => headProblems(...args), blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash,
+        apply, receiptKeep, scratch, seed, holders, validate, list, current: (...args) => current(...args), headProblems: (...args) => headProblems(...args), blocksBefore, markNow, seeGuards, chainHash, spineBefore, spineStep, windowHash,
         replay: (...args) => replay(...args), replayBlocks: (...args) => replayBlocks(...args), appliedOf: (...args) => appliedOf(...args),
         proofBefore: (...args) => proofBefore(...args), packOwners: (...args) => packOwners(...args), listProofs: (...args) => listProofs(...args), usableBase,
     });

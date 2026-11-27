@@ -34,6 +34,7 @@ export function createCommandBus({ store, registry, settings = () => ({}), onCom
     }
 
     const featureOn = id => typeof registry.featureOn === 'function' && registry.featureOn(id) === true;
+    const featureOrReplacementOn = id => (typeof registry.featureOrReplacementOn === 'function' ? registry.featureOrReplacementOn(id) === true : featureOn(id));
     function featureOff(type, feature) {
         const label = registry.feature?.(feature)?.label ?? feature;
         fail('FEATURE_OFF', `"${type}" is part of ${label}, which is turned off in the Features settings.`);
@@ -78,7 +79,7 @@ export function createCommandBus({ store, registry, settings = () => ({}), onCom
     const { guardHook, replayGuardCheck, guardMark } = createGuards({ registry, findQuery });
     if (typeof store.attachGuard === 'function') store.attachGuard(replayGuardCheck, guardMark);
     const { makeCtx, invoke } = createCtxTools({
-        registry, settings, resolve, featureOn, internal, internalMessage, findQuery, guardHook,
+        registry, settings, resolve, featureOn, featureOrReplacementOn, internal, internalMessage, findQuery, guardHook,
         sourceOf, cursorOf, currentState, queryTools, readOf, draftOf, metaOf, giveProof,
     });
     const transact = createTransact({ store, registry, resolve, internal, internalMessage, featureOff, invoke, currentState, sourceOf, originOf });

@@ -67,7 +67,7 @@ export NPC_STATE_DELTA_PATH="$suite_root/npc_state_delta"
 export NODE_OPTIONS="--max-old-space-size=4096 --import ./tests/people/active-runtime-test-setup.mjs ${NODE_OPTIONS:-}"
 
 # The same folders as npm run test:modules (without tests/director), plus the cross-package tests (tests/suite, tests/people) that need the siblings present.
-globs=("tests/modules/**/*.test.js" "tests/packs/**/*.test.js" "tests/matrix/**/*.test.js" "tests/bench/*.test.js" "tests/authoring-kit/*.test.js" "examples/fishing/tests/*.test.js" "tests/testkit/*.test.js" "tests/suite/**/*.test.js" "tests/people/**/*.test.js")
+globs=("tests/modules/**/*.test.js" "tests/packs/**/*.test.js" "tests/matrix/**/*.test.js" "tests/bench/*.test.js" "tests/authoring-kit/*.test.js" "examples/fishing/tests/*.test.js" "examples/text-rpg/tests/*.test.js" "tests/testkit/*.test.js" "tests/suite/**/*.test.js" "tests/people/**/*.test.js")
 
 set +e
 # --test-timeout fails a hung test after 15 minutes instead of holding the job (the job has its own timeout too).

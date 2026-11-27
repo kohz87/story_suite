@@ -5,9 +5,10 @@
    a scan's merge does (core-merge-incoming.js): present, last seen at this turn, seen once more; someone who arrives has their old "away" place cleared
    (unless the reader locked it). The cache's change is then stored for that reply by NPC State's own people.write, as a scan's is. */
 
-import { resolveDossierTarget } from '../npc-api/dossier-target.js';
+import { ownerTargets } from '../npc-api/dossier-target.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { storyBlockIsV2 } from '../npc-api/host-probe.js';
+import { sceneTargets } from '../core/core-merge-namesakes.js';
 
 const locked = npc => Array.isArray(npc?.manualProfileFields) && npc.manualProfileFields.includes('location');
 
@@ -21,7 +22,8 @@ export function sceneNames(adapter) {
 export function stampScenePresence(state, names) {
     const npcs = Array.isArray(state?.npcs) ? state.npcs : [];
     if (!Array.isArray(names)) return null;
-    const here = new Set(names.map(name => resolveDossierTarget(npcs, name)).filter(Boolean).map(String));
+    const named = sceneTargets(npcs, names);   // (namesakes: ../core/core-merge-namesakes.js)
+    const here = new Set([...named.ids, ...named.rest.map(ownerTargets(npcs)).filter(Boolean)].map(String));
     const turn = Number(state.turn || 0);
     const ids = [];
     for (const npc of npcs) {

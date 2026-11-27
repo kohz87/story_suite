@@ -8,7 +8,7 @@ import { pacedTier, spendFlatEvent } from '../../relationship/relationship-pacin
 import { askedOf, cutToTier, dayRuleFor, movesOf, nextEvent, pacingNote, withEvidence } from '../npc-meters-pacing.js';
 
 /** The change runner of one npc part, built on its readers and record helpers. */
-export function createNpcRun({ normalized, defsFrom, identify, ensure, setupFor, timeMinutes, tierAllowance, clockDay, clockMinutes, dateOf, featureOn, tiered, tierCaps, limitsFor, rulesFor, openCloseNotes, settleRecord, note }) {
+export function createNpcRun({ normalized, defsFrom, identifyIn, ensure, setupFor, timeMinutes, tierAllowance, clockDay, clockMinutes, dateOf, featureOn, tiered, tierCaps, limitsFor, rulesFor, openCloseNotes, settleRecord, note }) {
     // `milestone`: { add: [{ key, name }], remove: [key] } (the reader's or a story line's).
     function run(ctx, { label, changes, problems, limit, reply, at = null, seed, disposition, allowEmpty = false, milestone = null, notes = null, impact = null, story = false, yieldToStory = false, scanTier = null, scanWhy = '', via = null, reason = '', leaf = null, evidence = null, key = null }) {
         const settings = normalized(ctx.settings(), ctx);
@@ -19,14 +19,15 @@ export function createNpcRun({ normalized, defsFrom, identify, ensure, setupFor,
         const slice = ctx.draft(NPC_DOMAIN);
         if (!isObject(slice.npcs)) slice.npcs = {};
         if (!Array.isArray(slice.problems)) slice.problems = [];
-        const who = identify(slice.npcs, label);
+        const who = identifyIn(ctx, slice.npcs, label);
         if (!who) ctx.fail('INVALID', 'The change does not name anyone.');
         if (key && !Object.hasOwn(slice.npcs, key)) who.key = key;   // (a new person from a stub: the id the stub's dossier was made under)
         const created = ensure(ctx, slice.npcs, who, defs, seed ?? who.seed);
         const record = slice.npcs[who.key];
         if (!isObject(record.stages)) record.stages = {};
         if (!Array.isArray(record.unlocked)) record.unlocked = [];
-        const setup = setupFor(record.name, who.labels);
+        const askedFor = who.owners.asking(slice.npcs, who.key, who.labels);   // (the entry's owner, never the name it still shows)
+        const setup = setupFor(askedFor.name, askedFor.labels);
         // Delta's scan of a reply whose story line already moved a meter leaves that meter to the line (one move, not two).
         const left = yieldToStory && limit && record.turn && sameReply(record.turn, reply) && Array.isArray(record.turn.story) ? record.turn.story : [];
         let mine = left.length ? changes.filter(change => !left.includes(change.meter)) : changes;
@@ -93,8 +94,8 @@ export function createNpcRun({ normalized, defsFrom, identify, ensure, setupFor,
             marked = added.length === 1 ? added[0] : null;
         }
         // Notes opened or shut by hand or by a story event, before the meters are looked at again.
-        const handled = notes ? openCloseNotes(record, rulesFor(record.name, who.labels), notes) : null;
-        const settled = settleRecord(record, who.labels, settings, defs);
+        const handled = notes ? openCloseNotes(record, rulesFor(askedFor.name, askedFor.labels), notes) : null;
+        const settled = settleRecord(record, askedFor, settings, defs);
         if (handled?.opened.length) settled.unlocked.unshift(...handled.opened);
         if (notes && !handled.changed && !settled.stages.length && !settled.ranks.length && !settled.unlocked.length) {
             ctx.fail('REFUSED', 'Nothing to update.');

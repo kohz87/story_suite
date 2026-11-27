@@ -15,7 +15,7 @@ test('Inventory, gear on: Carry first, then Equipment (in the bag), the wearer\'
     const host = await gearHost(t);
     const { el, view, problems } = draw(host);
     assert.deepEqual([view.warnings, problems], [[], []]);
-    assert.deepEqual(headings(el).filter(Boolean).slice(0, 5), ['Carry', 'Equipment \u00b7 in the bag', 'You', 'Consumables', 'Goods']);
+    assert.deepEqual(headings(el).filter(Boolean).slice(0, 6), ['Carry', 'Equipment \u00b7 in the bag', 'You', 'Consumables', 'Supplies', 'Goods']);
     assert.ok(el.querySelector('.inv').classList.contains('gear'));
     const sections = el.querySelectorAll('section.group, section.carry-sec');
     assert.equal(sections[0].classList.contains('carry-sec'), true, 'Carry is the first section');
@@ -32,9 +32,9 @@ test('Inventory, gear on: Carry first, then Equipment (in the bag), the wearer\'
 });
 
 test('the Carry card\'s colour bands: normal under 80 %, yellow Heavy load from 80 % to below 100 %, red Encumbered from 100 %', async t => {
-    // Capacity 30 (10 + 2 × STR 10). The base state weighs 17 (Healing Salve counts 2; the gear by its slot's default weight).
+    // Capacity 30 (10 + 2 × STR 10). The base state weighs 16 (Healing Salve counts 2, the Sealed Letter is paperwork: 0; the gear by its slot's default weight).
     const at = async load => {
-        const host = await gearHost(t, { wear: [], extra: [`+ item Brick | qty: ${load - 17}`] });
+        const host = await gearHost(t, { wear: [], extra: [`+ item Brick | qty: ${load - 16}`] });
         const { el } = draw(host);
         const card = el.querySelector('.carry-card');
         return { numbers: text(card.querySelector('.carry-num')), classes: card.classes().filter(name => ['heavy', 'over'].includes(name)), state: card.querySelector('.carry-state') ? text(card.querySelector('.carry-state')) : '' };
@@ -102,7 +102,7 @@ test('gear.view: the persona is the main wearer, members follow; the breakdown, 
     const h = createHarness([module], { state });
     const view = h.query('gear.view', {});
     assert.deepEqual(view.owners, [{ value: 'party', label: 'Astra' }, { value: 'ac_ren00001', label: 'Ren' }]);
-    assert.equal(view.carry.breakdown, 'Carries 30');
+    assert.equal(view.carry.breakdown, 'Carries 30 \u00b7 Ren carries 30');
     assert.deepEqual(view.carry.away, ['Skiff +100 \u00b7 moored at Eel Wharf, not with you']);
     assert.equal(view.rows.it_dagg0001.by, 'Ren');
     assert.equal(view.rows.it_sword001.by, '');

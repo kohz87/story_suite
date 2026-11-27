@@ -98,11 +98,14 @@ export function validateNpcSlice(slice) {
     return errors;
 }
 
-/** The entry key for `labels` (an npc_ id, or a name then aliases matched to an entry's name, in that order) in `npcs`, or null. */
-export function findNpcKey(npcs, labels = []) {
+/**
+ * The entry key for `labels` (an npc_ id, or a name then aliases matched to an entry's name, in that order) in `npcs`, or null. `taken` (a Set, optional):
+ * keys that are other people's own dossier ids; a name or alias never lands on one (an alias that is another person's name is not that person).
+ */
+export function findNpcKey(npcs, labels = [], taken = null) {
     if (!isObject(npcs)) return null;
     for (const label of labels) if (typeof label === 'string' && PEOPLE_ID.test(label) && Object.hasOwn(npcs, label)) return label;
     const wanted = labels.map(npcKey).filter(Boolean);
-    for (const key of wanted) for (const [id, record] of Object.entries(npcs)) if (npcKey(record?.name) === key) return id;
+    for (const key of wanted) for (const [id, record] of Object.entries(npcs)) if (npcKey(record?.name) === key && !taken?.has(id)) return id;
     return null;
 }

@@ -172,6 +172,7 @@ export function createTargetedPart(rt, deps) {
                 preservePresence: true,
                 skipRelationshipUpdate: true,
                 historicalRead: Boolean(replayScope() && !journaled),
+                keepNamesakeRows: Boolean(replayScope() && !journaled?.namesakeFills?.includes(`${job.captureKind || 'fills'}:${id}`)),
                 ...job.mergeOptions,
             });
             // (I-17) One NPC only: social-edge and alias machinery may run inside the merge, but every other

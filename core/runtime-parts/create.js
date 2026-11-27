@@ -1,6 +1,7 @@
 // Builds Story Block v2's runtime once: registry, settings, store, command bus, sdk, turn and the public API wired together (createRuntime).
 
 import { createCommandBus as realBus } from '../commands.js';
+import { personaPortrait } from '../persona-portrait.js';
 import { CORE_MODULE_ID, createCoreModule } from '../../modules/scene/domains/index.js';
 import { SETTING as ASSIST_SETTING, TIMEOUT_MS as ASSIST_TIMEOUT_MS, createAssistPart } from '../../modules/assist/index.js';
 import { CORE_FEATURE, GEAR_FEATURE, createFeatureStore } from '../features.js';
@@ -125,12 +126,12 @@ export function createRuntime({
             // The chatter the reader may send back to the story (its setting): the replies and how to read one.
             // The head reply's index too, for `scene.moved` (the store is made below; asked only later).
             // Whether Story Director's World screen is there (it shows the chatter; else Scene does: `scene.chatter`).
-            extras: { chatId: () => (typeof ctx.getCurrentChatId === 'function' ? ctx.getCurrentChatId() : ctx.chatId) ?? '', interaction: () => sdk?.interaction ?? null, promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), repliesChat: () => ({ chat: ctx.chat, faded: chatterReaders.head.faded() }), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), receipts: () => store.receipts?.() ?? [], readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
+            extras: { chatId: () => (typeof ctx.getCurrentChatId === 'function' ? ctx.getCurrentChatId() : ctx.chatId) ?? '', interaction: () => sdk?.interaction ?? null, promptChat: () => chatterReaders.prompt.messages(ctx.chat), headChat: () => chatterReaders.head.messages(ctx.chat), repliesChat: () => ({ chat: ctx.chat, faded: chatterReaders.head.faded() }), sceneChat: () => chatterReaders.scene.messages(ctx.chat), display, headIndex: () => store.headIndex(), proofs: () => store.proofs(), receipts: () => store.receipts?.() ?? [], readers: () => readersOf(), greetingOnly: () => greetingOnlyOf(), chatEmpty: () => Array.isArray(ctx.chat) && ctx.chat.length === 0, rpgOn: () => registry.featureOn(CORE_FEATURE.leanRpg), gearOn: () => registry.featureOn('story-block.gear') && registry.featureOrReplacementOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } }, portrait: () => personaPortrait(live() ?? ctx), worldShown: () => registry.screens().some(screen => screen.id === DEFAULT_HIDDEN[SCENE_SCREEN_ID]) },
             version: HOST_VERSION,
             interaction: kindId => registry.interaction(kindId),
             flagOn: name => flagOn(() => ctx.extensionSettings, name),
             timeline: () => timeline,
-            dataModules: { state: () => store.head(), lifecycle: id => registry.lifecycle(id), restore: () => registry.restore(), boardOn: () => registry.featureOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } } },
+            dataModules: { state: () => store.head(), lifecycle: id => registry.lifecycle(id), restore: () => registry.restore(), boardOn: () => registry.featureOn(CORE_FEATURE.leanRpg), rpgReplaced: () => !registry.featureOn(CORE_FEATURE.leanRpg) && registry.featureOrReplacementOn(CORE_FEATURE.leanRpg), persona: () => { try { return (live() ?? ctx)?.name1 ?? ''; } catch { return ctx?.name1 ?? ''; } } },
             // The RPG's hooks read the chat and its metadata; no model is asked for rolls.
             leanRpg: { callModel: (prompt, options = {}) => assistCall(prompt, options), chat: () => ctx.chat, metadata: () => { try { return (live() ?? ctx)?.chatMetadata ?? null; } catch { return ctx?.chatMetadata ?? null; } }, onPlanning: working => events?.emit('head', { index: store.headIndex(), reason: working ? 'fight-start' : 'fight-start-done' }) },
             packs: packPart,
@@ -199,7 +200,7 @@ export function createRuntime({
         }
     });
     const saving = storeSaving({ ctx, live, fetch, onSaveError, storage: pageStorage(page) });
-    const store = createStore({ ...saving, validate, scratch: name => registry.scratch(name), seed: name => registry.deferredInitial(name), replayEnv: () => registry.features().map(feature => `${feature.id}${registry.featureOn(feature.id) ? '+' : '-'}`).join(',') + '|' + registry.rulesSignature(), marked: () => { try { return registry.featureOn('story-block.gear') && registry.featureOn(CORE_FEATURE.leanRpg); } catch { return false; } } });
+    const store = createStore({ ...saving, validate, scratch: name => registry.scratch(name), seed: name => registry.deferredInitial(name), holders: name => registry.holders(name), replayEnv: () => registry.features().map(feature => `${feature.id}${registry.featureOn(feature.id) ? '+' : '-'}`).join(',') + '|' + registry.rulesSignature(), marked: () => { try { return registry.featureOn('story-block.gear') && registry.featureOrReplacementOn(CORE_FEATURE.leanRpg); } catch { return false; } } });
     saveOnUnload(store, page, { fits: saving.keepaliveFits });
     bus = createCommandBus({ store, registry, settings });
     // `turn` is built after the events: a module listener's failure is reported through it when it is called.

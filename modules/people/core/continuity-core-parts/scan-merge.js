@@ -5,6 +5,7 @@ import { APPEARANCE_MODEL_VERSION, carryOmittedPhysicalTraits, completeFormWithS
 import { isTerminalNpcDeath, normalizeTerminalNpc, protectTerminalNpc } from '../terminal-lifecycle.js';
 import { lockedAppearance, applyModel, mergeAppearanceKnowledge } from './appearance-model.js';
 import { normalizeNpcRecord } from './records.js';
+import { followFoldedTies } from '../core-merge-namesakes.js';
 
 // (stage 73) A scan row's text fields lose the message citations the model appended ("... [m1, m2]") before anything reads them.
 function stripScanCitations(scanResult) {
@@ -22,13 +23,14 @@ export function mergeScanResult(state, rawScanResult, options = {}) {
     // output, with or without a source message, cannot make the NPC alive or present again. Only
     // the reader's own correction (manual Restore / life state in the editor) and owned rollback can.
     const result = mechanics.mergeScanResult(state, scanResult, options);
-    const ordinary = Array.isArray(scanResult?.npcs) ? scanResult.npcs : [];
-    const profiles = Array.isArray(scanResult?.profileUpdates)
-        ? scanResult.profileUpdates
-        : (Array.isArray(scanResult?.profile_updates) ? scanResult.profile_updates : []);
+    const rows = followFoldedTies(scanResult, result.report.deduplicated);
+    const ordinary = Array.isArray(rows?.npcs) ? rows.npcs : [];
+    const profiles = Array.isArray(rows?.profileUpdates)
+        ? rows.profileUpdates
+        : (Array.isArray(rows?.profile_updates) ? rows.profile_updates : []);
 
     result.state.npcs = (result.state.npcs || []).map(rawNpc => {
-        const sources = mechanics.matchingNpcRecords(rawNpc, previous);
+        const sources = mechanics.ownNpcRecords(rawNpc, previous, result.report.deduplicated);
         let ordinaryUpdate = ordinary.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc));
         let profileUpdate = profiles.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc));
         const rawForms = ordinaryUpdate && (ordinaryUpdate.appearanceForms ?? ordinaryUpdate.appearance_forms);

@@ -19,8 +19,10 @@ export function fillFailureNote(label) {
     return `NPC State: the profile for ${label} could not be filled in. The name, role and look from the story stay; use Scan dossier to try again.`;
 }
 
-/** Queues one fill-in for each person a stub made in the reply at `messageId` (`stubs`: [{ id, name }]); `queue` is queueNpcBackfillInState. Returns the state. */
+/** Queues one fill-in for each person a stub made in the reply at `messageId` (`stubs`: [{ id, name }]); `queue` is queueNpcBackfillInState. Returns the state.
+ *  The fill-in keeps the person's live state (present, place, mood, status, goal: the scene and the reply's own lines decide them), as the other repairs do;
+ *  only the profile is the fill-in's (owner, 22 Nov: Nolven, met at the inn on the way, showed as present at the Guild office, his mood "shrewd" turned "unmoved"). */
 export function queueFills(state, stubs, messageId, queue) {
-    for (const { id, name } of Array.isArray(stubs) ? stubs : []) queue(state, id, name, messageId, { reason: FILL_REASON });
+    for (const { id, name } of Array.isArray(stubs) ? stubs : []) queue(state, id, name, messageId, { reason: FILL_REASON, preserveLiveState: true });
     return state;
 }

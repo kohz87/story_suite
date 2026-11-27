@@ -12,6 +12,8 @@ import { peopleStub } from './stub.js';
 import { peopleDied } from './died.js';
 import { peopleMemory } from './memory.js';
 import { peopleQueries } from './queries.js';
+import { remakeBond } from './bond-holder.js';
+import { peopleStamp } from './change-stamp.js';
 
 export const PEOPLE_DOMAIN = 'people';
 
@@ -35,7 +37,8 @@ function dossierHash(slice) {
 
 export function createPeoplePart() {
     return {
-        domains: { [PEOPLE_DOMAIN]: { initial: initialPeople, deferred: true, snapshot: 'when-present', validate: validatePeople } },
+        // `holders`: a person's meter record a deleted first reply made is remade when a later reply writes under it (replay rule i, ./bond-holder.js).
+        domains: { [PEOPLE_DOMAIN]: { initial: initialPeople, deferred: true, snapshot: 'when-present', validate: validatePeople, holders: { 'bonds/npcs': remakeBond } } },
         commands: {
             // Replaces the dossier keys of the people draft with the view, for the reply the view belongs to (`source`: { sid, swipeKey }); the store diffs it
             // into leaf ops. `bonds` stays as stored. `scan` ({ lastSid, swipeKey, since }), when given, replaces the stored scan marker; absent, it stays.
@@ -54,6 +57,9 @@ export function createPeoplePart() {
                     }
                     const draft = ctx.draft(PEOPLE_DOMAIN);
                     if (draft.v === undefined) Object.assign(draft, initialPeople());   // (the first write of a chat: the deferred domain starts here)
+                    // `named`: people already stored whom this write gives a nickname because it adds a namesake. Their changes go with their record (replay
+                    // rule d): when the reply that made them is deleted, the rest of this write, the new person too, still applies.
+                    for (const id of Array.isArray(payload.named) ? payload.named : []) if (typeof id === 'string' && Object.hasOwn(draft.npcs, id)) ctx.ifThere(PEOPLE_DOMAIN, `/npcs/${id}`);
                     const kept = Object.fromEntries(OWN_KEYS.filter(key => draft[key] !== undefined).map(key => [key, draft[key]]));
                     for (const key of Object.keys(draft)) delete draft[key];
                     Object.assign(draft, clone(view), kept);
@@ -81,6 +87,7 @@ export function createPeoplePart() {
             ...peopleStub(PEOPLE_DOMAIN, { initial: initialPeople, validate: validatePeople }),
             ...peopleDied(PEOPLE_DOMAIN),
             ...peopleMemory(PEOPLE_DOMAIN),
+            ...peopleStamp(PEOPLE_DOMAIN),
         },
         queries: {
             ...peopleQueries(PEOPLE_DOMAIN),

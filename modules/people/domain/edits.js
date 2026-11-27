@@ -6,6 +6,8 @@
 
 import { BUILT_IN_LIMITS, normalizeLevel, normalizeStoryList } from '../core/core-record-parts/built-in-fields.js';
 import { storedLevel } from '../core/core-record-parts/stored-level.js';
+import { DURABLE_PROFILE_LIMITS } from '../core/core-relationship-model-parts/profile-defaults.js';
+import { stampChanged } from './change-stamp.js';
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -24,9 +26,11 @@ const edited = (summary, data) => ({ summary, data: { ...data, edit: true }, nar
 
 // people.fields { id, fields }: the dossier fields a story change line states (NPC State's `~ npc` labels); only a module's own command may send it, and only
 // these fields, as short text (null removes one). It is a story change, not a reader edit: the reply card does not list it as one.
-const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level', 'learns', 'keepsake', 'aka', 'mood']);
+const LINE_FIELDS = new Set(['goal', 'status', 'location', 'appearance', 'gender', 'age', 'birthday', 'level', 'learns', 'keepsake', 'aka', 'mood', 'relationshipSummary']);
 const ALIASES_MAX = 8;   // (npc-lines-parts/aka.js has already refused a name that is someone else's)
 const LINE_TEXT_MAX = 300;
+// (who the reader is to them keeps the dossier's own longer limit; counted in characters, as npc-lines-parts/toward.js clips it)
+const fits = (name, text) => (name === 'relationshipSummary' ? [...text].length <= DURABLE_PROFILE_LIMITS.relationshipSummary : text.length <= LINE_TEXT_MAX);
 
 // `level` is the built-in whole Level (1-99), written as a number text and never lowered. `learns` adds one ability and `keepsake` adds ("+ Name — line") or removes
 // ("- Name") one keepsake, on the built-in lists (names unique without regard to case, at most 16 and 12); the narrator's line reader has already checked the lists.
@@ -63,8 +67,9 @@ export function peopleEdits(domain) {
                 if (typeof ctx.caller !== 'string' || !ctx.caller || ctx.caller.startsWith('event:')) return ctx.fail('REFUSED', 'Only a module\'s own command may write a person\'s story fields.');
                 const fields = payload?.fields;
                 const names = isObject(fields) ? Object.keys(fields) : [];
-                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fields[name].length <= LINE_TEXT_MAX)))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, mood, appearance, gender, age, birthday, level, learns, keepsake or aka as short text (or null).');
+                if (!names.length || names.some(name => !LINE_FIELDS.has(name) || !(fields[name] === null || (typeof fields[name] === 'string' && fits(name, fields[name]))))) return ctx.fail('INVALID', 'people.fields takes { id, fields } of goal, status, location, mood, appearance, gender, age, birthday, level, learns, keepsake, aka or relationshipSummary as short text (or null).');
                 const record = recordOf(ctx, domain, payload.id);
+                const before = clone(record);
                 for (const name of names) {
                     if (name === 'level') { if (/^\d+$/.test(fields.level ?? '')) writeLevel(record, fields.level); continue; }
                     if (name === 'learns') { if (fields.learns) writeList(record, 'abilities', BUILT_IN_LIMITS.abilities, [fields.learns]); continue; }
@@ -72,7 +77,13 @@ export function peopleEdits(domain) {
                     if (name === 'aka') { if (fields.aka) writeAlias(record, fields.aka); continue; }
                     if (fields[name] === null || fields[name] === '') delete record[name];
                     else record[name] = fields[name];
+                    // (only a `toward:` line writes the summary here: the same write marks it as the story's own sentence)
+                    if (name === 'relationshipSummary') {
+                        if (record.relationshipSummary) record.relationshipSummarySource = 'line';
+                        else delete record.relationshipSummarySource;
+                    }
                 }
+                stampChanged(ctx, { domain, id: payload.id, record, before }, names);   // (the dossier's last change is this reply)
                 return { summary: `${nameOf(record)}: ${names.join(', ')}.`, data: { id: payload.id, fields: names }, narrate: false };
             },
         },
@@ -88,6 +99,7 @@ export function peopleEdits(domain) {
                     if (value === undefined || value === null) delete record[name];
                     else record[name] = clone(value);
                 }
+                if (names.includes('relationshipSummary') && !names.includes('relationshipSummarySource')) delete record.relationshipSummarySource;
                 return edited(`Edited ${nameOf(record)}: ${names.join(', ')}.`, { id: payload.id, fields: names });
             },
         },

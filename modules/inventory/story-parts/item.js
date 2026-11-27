@@ -3,7 +3,7 @@
 import { labelOf } from '../../scene/domains/common.js';
 import { cleanName, trimText, aliasKey } from '../../scene/names.js';
 import { isCurrencyName, countedMoney } from '../money.js';
-import { GEAR, slotWordOf, placeOf } from '../gear.js';
+import { GEAR, gearStatKey, slotWordOf, placeOf } from '../gear.js';
 import { featureOn, FEATURE, MAX_NOTE, gearOn, MAX_NAME } from '../state.js';
 import { itemText, baseSlot } from '../validate.js';
 import {
@@ -19,7 +19,10 @@ import { marked } from './shared-marked.js';
 // encumbered (derived from the load: inventory.encumbrance), so `true` comes back; with the feature
 // off the line is refused with the module's reason, as F39 has it. No module answering: no limit.
 function storyCarry(ctx, def, qty, owner) {
-    const fits = carryFits(ctx, [{ defId: def.id, qty }], owner);
+    // (a reply captured before the roster counted has no mark: a Re-read judges its lines as its first run did)
+    // A mount's riders are judged by the names held in state, never the live persona name: a rename leaves a Re-read as it was.
+    const how = { stored: true, ...(marked(ctx, 'carryRoster') ? {} : { legacy: true }), ...(marked(ctx, 'mountRiders') ? {} : { riders: false }) };
+    const fits = carryFits(ctx, [{ defId: def.id, qty }], owner, false, how);
     if (!fits || fits.ok) return false;
     if (!featureOn(ctx, FEATURE.encumbrance)) ctx.fail('REFUSED', fits.message);
     return true;
@@ -31,11 +34,13 @@ const ENCUMBERED_NOTE = ' The party now carries more than it can and is encumber
 function statWords(line, written = false) {
     const out = {};
     // `written` (the `gearOrder` rule mark, new replies): the order the line wrote them in, so a line over the budget keeps its first-written stats.
-    const order = written ? Object.keys(line?.labels ?? {}).map(key => key.toUpperCase()).filter(stat => GEAR.stats.includes(stat)) : GEAR.stats;
+    // (a line that still says LUK, gear's sixth stat before it was WIS, is read as WIS)
+    const order = written ? [...new Set(Object.keys(line?.labels ?? {}).map(gearStatKey).filter(stat => GEAR.stats.includes(stat)))] : GEAR.stats;
+    const valueOf = said => (said === null ? NaN : Number(/^\s*\+?(\d{1,3})\s*$/.exec(said)?.[1]));
     for (const stat of order) {
-        const said = labelOf(line, stat.toLowerCase());
-        const n = said === null ? NaN : Number(/^\s*\+?(\d{1,3})\s*$/.exec(said)?.[1]);
-        if (Number.isSafeInteger(n) && n > 0) out[stat] = n;
+        // (WIS and an old LUK on one line add up)
+        const parts = [labelOf(line, stat.toLowerCase()), stat === 'WIS' ? labelOf(line, 'luk') : null].map(valueOf).filter(n => Number.isSafeInteger(n) && n > 0);
+        if (parts.length) out[stat] = parts.reduce((sum, n) => sum + n, 0);
     }
     return out;
 }
@@ -76,7 +81,7 @@ export function captureItem(ctx, line, env) {
         const qty = lineQty(ctx, line, 1);
         if (qty < 1) ctx.fail('INVALID', 'A gained item needs a quantity of at least 1.');
         const note = trimText(labelOf(line, 'note') ?? text, MAX_NOTE);
-        const { def, created } = defineByName(ctx, inv, name, env, { note, owner: 'party', words: { kind: labelOf(line, 'kind'), slot: labelOf(line, 'slot') ?? labelOf(line, 'equipped', 'equip', 'worn'), rarity: labelOf(line, 'rarity', 'quality'), soak: labelOf(line, 'soak'), stats: statWords(line, marked(ctx, 'gearOrder')), ordered: marked(ctx, 'gearOrder'), finesse: marked(ctx, 'gearFinesse') } });
+        const { def, created } = defineByName(ctx, inv, name, env, { note, owner: 'party', supplyKind: marked(ctx, 'supplyKind'), words: { kind: labelOf(line, 'kind'), slot: labelOf(line, 'slot') ?? labelOf(line, 'equipped', 'equip', 'worn'), rarity: labelOf(line, 'rarity', 'quality'), soak: labelOf(line, 'soak'), stats: statWords(line, marked(ctx, 'gearOrder')), ordered: marked(ctx, 'gearOrder'), finesse: marked(ctx, 'gearFinesse') } });
         const held = storyItems(def, qty);
         // Asked before the stacks change: `add` is weight on top of what is carried now.
         const heavy = storyCarry(ctx, def, held.qty, 'party');

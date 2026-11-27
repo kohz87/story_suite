@@ -29,6 +29,12 @@
 :is(.bag-tab,.bag-sheet) .load.over .lbar b{background:var(--su-bad)}
 :is(.bag-tab,.bag-sheet) .hvy,:is(.bag-tab,.bag-sheet) .ovr{font:700 12.5px/1.35 var(--su-font);color:var(--su-warn-t);margin-bottom:8px}
 :is(.bag-tab,.bag-sheet) .ovr{background:rgba(242,180,90,.1);border:1px solid rgba(242,180,90,.35);border-radius:12px;padding:7px 10px}
+:is(.bag-tab,.bag-sheet) .mloads{margin-bottom:8px}
+:is(.bag-tab,.bag-sheet) .mload{display:flex;gap:4px 10px;justify-content:space-between;align-items:baseline;font:700 12.5px var(--su-font);color:var(--su-muted);padding:2px 0}
+:is(.bag-tab,.bag-sheet) .mload b{color:var(--su-text);white-space:nowrap}
+:is(.bag-tab,.bag-sheet) .mload.heavy,:is(.bag-tab,.bag-sheet) .mload.heavy b{color:var(--su-warn-t)}
+:is(.bag-tab,.bag-sheet) .mload.over,:is(.bag-tab,.bag-sheet) .mload.over b{color:var(--su-bad)}
+[data-scheme="light"] :is(.bag-tab,.bag-sheet) .mload.over,[data-scheme="light"] :is(.bag-tab,.bag-sheet) .mload.over b{color:#b3261e}
 :is(.bag-tab,.bag-sheet) .srcs{display:flex;flex-wrap:wrap;gap:6px}
 :is(.bag-tab,.bag-sheet) .src.dim{opacity:.75}
 :is(.bag-tab,.bag-sheet) .rates{display:flex;flex-direction:column}

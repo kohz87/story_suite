@@ -6,6 +6,7 @@ import { escapeKey, parsePath, valueAt } from './paths.js';
 import { clone, equal, isPlainObject } from './json.js';
 import { apply } from './apply.js';
 import { anchoredMove, isAnchored } from './anchored.js';
+import { remakeHolders } from './holders.js';
 
 // ---------- per-reply scratch ----------
 //
@@ -139,12 +140,16 @@ const UNIQUE_BEFORE_MARK = '/domains/scene/present';
  * `seed`: a domain name → its initial slice when it is deferred, else null) an add or replace under a deferred domain that is not
  * there finds it as its initial slice (seedDeferred, below).
  * And (rule h) an anchored set (`period`, `roll`, maybe `to`: commands/transact.js `ctx.anchored`) lands where its offset in whole
- * periods from `was` puts it on the value now there (ops/anchored.js). Ops are not changed in place.
+ * periods from `was` puts it on the value now there (ops/anchored.js). And (rule i, replayed, with `holders`: a domain name → its
+ * `holders` map, or null) a write under a keyed holder's entry that is not there finds the entry remade (ops/holders.js).
+ * Ops are not changed in place.
  */
-export function rebaseOps(state, ops, { scratch = null, replayed = false, seed = null } = {}) {
-    // Rule (g) goes first, so the scratch fitting and rules (a)-(e) see the slice the block is laid on.
+export function rebaseOps(state, ops, { scratch = null, replayed = false, seed = null, holders = null } = {}) {
+    // Rule (g) goes first, so the scratch fitting and rules (a)-(e) see the slice the block is laid on; rule (i) next, on that slice.
     const seeded = typeof seed === 'function' ? seedDeferred(state, ops, seed) : [];
     if (seeded.length) state = apply(state, seeded);
+    const remade = replayed && typeof holders === 'function' ? remakeHolders(state, ops, holders) : { made: [], ops };
+    if (remade.made.length) state = apply(state, remade.made);
     const rebased = new Set();
     const moved = path => {
         const keys = parsePath(path);
@@ -156,8 +161,8 @@ export function rebaseOps(state, ops, { scratch = null, replayed = false, seed =
     // The number an earlier counted op of this list left at a path: a second counted change of that count starts from it, not from `state`
     // (5 → 10 then 10 → 15 on a stack now holding 10 is 15 then 20; the second one stood as made and ended at 15).
     const ran = new Map();
-    const out = [...seeded];
-    for (const op of scratch ? scratchOps(state, ops, scratch) : ops) {
+    const out = [...seeded, ...remade.made];
+    for (const op of scratch ? scratchOps(state, remade.ops, scratch) : remade.ops) {
         // Rule (d): an op marked `within` a thing (ctx.ifThere) whose thing is gone is passed over.
         if (replayed && goneHolder(op)) continue;
         // Rule (e): an append marked `unique` of an item the list holds already is passed over.

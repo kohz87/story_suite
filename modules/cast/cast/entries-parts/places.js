@@ -2,6 +2,8 @@
 
 import { MAX_PLACE, cutPoints, flat } from '../domain.js';
 import { ask } from './query.js';
+import { sharesWord } from '../../../scene/place-inside.js';
+import { isSettlementKind } from '../../../scene/settlement-kind.js';
 
 const MIN_NAME = 3;
 
@@ -44,15 +46,40 @@ const UP_MAX = 3;
  */
 export function locator(query) {
     const memo = new Map();
+    // The packs' own settlements (a story-made one is never read as the town of another place), read once.
+    let packs = null;
+    const packTowns = () => {
+        if (!packs) {
+            const rows = ask(query, 'packs.content', { kind: 'places' }, []);
+            packs = (Array.isArray(rows) ? rows : []).filter(row => typeof row?.name === 'string').map(row => ({ name: row.name, town: isSettlementKind(row.kind), names: [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])].map(normalize) }));
+        }
+        return packs;
+    };
+    // The pack's own places, visited or not (the atlas keeps a visited pack place as its own record, so its source says nothing).
+    const inPack = name => packTowns().some(own => own.names.includes(normalize(name)));
+    // A "settlement" the story made (saved with that very kind, no road to it; the atlas records no trip per place, so a place the party walked to
+    // under another settlement word, "village", is never tied) whose name starts with a pack settlement's own name, or its one distinctive word, is a spot inside
+    // that settlement: an old chat saved "Bluewatch River-Gate Storehouse | kind: settlement" for a storehouse in the village it was already in. Else null.
+    const pack = found => {
+        const name = normalize(found.name);
+        if (String(found.kind ?? '').trim().toLowerCase() !== 'settlement' || (found.routes ?? []).length || inPack(found.name)) return null;
+        const towns = packTowns().filter(own => own.town);
+        const whole = towns.filter(town => town.names.some(own => name.startsWith(`${own} `)));
+        const word = towns.filter(town => sharesWord(name, town.name));
+        const pick = whole.length === 1 ? whole : whole.length ? [] : word;
+        return pick.length === 1 ? pick[0].name : null;
+    };
     const find = name => (name ? ask(query, 'atlas.place', { name }, null) ?? (ARTICLE.test(name) ? ask(query, 'atlas.place', { name: name.replace(ARTICLE, '') }, null) : null) : null);
     const spotOf = (name, found, chain) => {
-        const spot = { key: found?.id ? `id:${found.id}` : `name:${normalize(name).replace(ARTICLE, '')}`, name: cutPoints(flat(found?.name), MAX_PLACE) || name, open: isOpen(found?.kind), up: [] };
+        const spot = { key: found?.id ? `id:${found.id}` : `name:${normalize(name).replace(ARTICLE, '')}`, name: cutPoints(flat(found?.name), MAX_PLACE) || name, open: isOpen(found?.kind), kind: flat(found?.kind).toLowerCase(), pack: inPack(flat(found?.name) || name), tie: '', up: [] };
         if (chain.has(spot.key)) return spot;
         chain.add(spot.key);
         const saved = found?.parent ? ask(query, 'atlas.place', { id: found.parent }, null) : null;
         const written = !found?.parent && name.includes('/') ? cutPoints(flat(name.split('/')[0]), MAX_PLACE) : '';
-        const parent = saved ? spotOf(cutPoints(flat(saved.name), MAX_PLACE), saved, chain) : written ? locate(written, chain) : null;
-        if (parent && parent.key !== spot.key) spot.up = [{ key: parent.key, name: parent.name, open: parent.open }, ...parent.up.filter(up => up.key !== spot.key)].slice(0, UP_MAX);
+        const tied = !saved && !written && found ? pack(found) : null;
+        const parent = saved ? spotOf(cutPoints(flat(saved.name), MAX_PLACE), saved, chain) : written ? locate(written, chain) : tied ? locate(tied, chain) : null;
+        if (parent && parent.key !== spot.key) spot.up = [{ key: parent.key, name: parent.name, open: parent.open, kind: parent.kind, pack: parent.pack, tie: parent.tie }, ...parent.up.filter(up => up.key !== spot.key)].slice(0, UP_MAX);
+        if (tied && parent) spot.tie = parent.key;
         return spot;
     };
     const locate = (raw, chain = new Set()) => {

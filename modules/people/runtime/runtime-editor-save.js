@@ -6,6 +6,7 @@ import { EDITOR_FIELDS, editorManualMemories, editorProfileLocks, settleEditorSa
 import { DEFAULT_RELATIONSHIP, IMPORTANT_MEMORY_LIMIT, KEY_RELATIONSHIP_LIMIT, BEHAVIOR_PROFILE_LIMIT, inferNpcIdentityKind, normalizeRelationshipProgress, inferManualRelationshipMilestones, normalizeRelationshipEvidence, relationshipEventMessage, npcMatchesLabel, normalizeName, normalizeGender, normalizeNpcRecord, PORTRAIT_NPC_PROMPT_LIMIT } from '../core/core.js';
 import { applyNpcBirthdayUpdate, normalizeBirthDate } from '../birthday/birthday.js';
 import { BUILT_IN_LIMITS, normalizeLevel, parsePairLines } from '../core/core-record-parts/built-in-fields.js';
+import { lineSummary, takeSummarySource } from '../core/relationship-summary-source.js';
 import { rpgIsOn } from '../settings/runtime-settings.js';
 import { reconcileSocialState, applyManualKeyRelationshipEdit } from '../social/social.js';
 
@@ -69,12 +70,24 @@ export function createEditorSave(rt, deps, helpers) {
         const level = untouched.has('level') ? current.level : normalizeLevel(editorControl('level'));
         const pairs = (key, max) => (untouched.has(key) ? structuredClone(current[key] || []) : parsePairLines(editorControl(key), max));
         const storyFields = { level, abilities: pairs('abilities', BUILT_IN_LIMITS.abilities), keepsakes: pairs('keepsakes', BUILT_IN_LIMITS.keepsakes) };
-        const nameCollision = state.npcs.some((item, i) => i !== index && npcMatchesLabel(item, stableInputs.name));
+        // Only what this save ADDS is checked: a person's unchanged name never blocks it, whoever else has that name (namesakes are allowed).
+        const others = state.npcs.filter((item, i) => i !== index);
+        // (the old own name is not "had": a rename that also types it as a nickname adds it; kept unrenamed, it is dropped below as the name itself)
+        const had = new Set((current.aliases || []).map(normalizeName));
+        const nameCollision = normalizeName(stableInputs.name) !== normalizeName(current.name) && others.some(item => npcMatchesLabel(item, stableInputs.name));
         if (nameCollision) {
             globalThis.toastr?.warning?.(`NPC State: another dossier already matches ${stableInputs.name}.`);
             return false;
         }
-        if (stableInputs.name !== current.name && current.name) {
+        // A new nickname that is another person's own name (living or dead) would make the next scan fold the two into one record.
+        const anothersName = label => others.some(item => normalizeName(item.name) === normalizeName(label));
+        const taken = stableInputs.aliases.find(alias => !had.has(normalizeName(alias)) && normalizeName(alias) !== normalizeName(stableInputs.name) && anothersName(alias));
+        if (taken) {
+            globalThis.toastr?.warning?.(`NPC State: ${taken} is another person's name; pick a nickname only this person has.`);
+            return false;
+        }
+        // (the old name is kept as a nickname, unless a namesake still goes by it)
+        if (stableInputs.name !== current.name && current.name && !anothersName(current.name)) {
             stableInputs.aliases = [...new Set([...stableInputs.aliases, current.name])].slice(0, 8);
         }
         stableInputs.aliases = stableInputs.aliases.filter(alias => normalizeName(alias) !== normalizeName(stableInputs.name));
@@ -108,6 +121,7 @@ export function createEditorSave(rt, deps, helpers) {
         next.portraitPromptReplace = Boolean(document.getElementById('people_edit_portrait_replace')?.checked);
         if (stableInputs.name !== current.name) next.identityKind = inferNpcIdentityKind(stableInputs.name);
         next.relationshipSummary = editorText('relationshipSummary');
+        if (next.relationshipSummary !== String(current.relationshipSummary ?? '')) takeSummarySource(next);
         next.mood = editorText('mood');
         next.location = editorText('location');
         next.goal = editorText('goal');
@@ -174,7 +188,7 @@ export function createEditorSave(rt, deps, helpers) {
         // A changed relationship recalibrates the Player Dynamic even when its text was not edited.
         const relationshipMoved = Object.values(relationshipDelta).some(value => value !== 0);
         const shortened = settleEditorSave(state.npcs[index], current, next, untouched, {
-            keepVerbatim: key => key !== 'relationshipSummary' || !relationshipMoved,
+            keepVerbatim: key => key !== 'relationshipSummary' || !relationshipMoved || Boolean(lineSummary(next)),
         });
         const manualMemories = editorManualMemories(current, state.npcs[index], untouched);
         if (manualMemories.length) state.npcs[index].manualMemories = manualMemories;
@@ -203,8 +217,8 @@ export function createEditorSave(rt, deps, helpers) {
             return false;
         }
         if (hostedMeters && (meterEdits || v2Edits)) {
-            if (meterEdits) await hostedMeters.setMeters({ name: current.name, meters: meterEdits });
-            if (v2Edits) await hostedMeters.applyEditor(savedName, v2Edits);
+            if (meterEdits) await hostedMeters.setMeters({ id: current.id, name: current.name, meters: meterEdits });
+            if (v2Edits) await hostedMeters.applyEditor({ id: current.id, name: savedName }, v2Edits);
             // The notes opened or shut by hand change the dossier's Secrets section: draw it from the slice as it now stands.
             renderDossier();
             updateInjection();

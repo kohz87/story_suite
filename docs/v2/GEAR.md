@@ -7,7 +7,7 @@ without it, and stored state is never touched by turning it on or off.
 
 ## Gear gives stats, nothing else
 
-An equipped item gives +N to one or more of the seven stats (STR, VIT, AGI, DEX, INT, LUK, CHA); there is no separate attack or
+An equipped item gives +N to one or more of the seven stats (STR, VIT, AGI, DEX, INT, WIS, CHA; a piece or pack item that says LUK, as gear named the sixth stat before, is read as WIS); there is no separate attack or
 defence term. Every slot gives them: weapon, body (armour), off-hand (shield), head, cloak, feet and the two accessory places
 (`accessory-1`, `accessory-2`). A bag is no slot: it adds its carry while owned.
 
@@ -30,7 +30,7 @@ cloak/feet AGI, accessory CHA. The whole budget goes on the one stat.
 weapon nouns of the same name ("Cane Sword", "Estoc Dagger" → AGI), not over armour ("Rapier Shield" → VIT). Items defined by a reply captured before the mark keep the pick above.
 
 *Order (rule mark `gearOrder`, new `+ item` lines):* when a line lists more stats than its rarity's budget or `GEAR.maxStats` (2) allows, the first written keep their points
-(`| LUK: 1 | STR: 1 | DEX: 1` on an uncommon piece gives LUK and STR). A reply without the mark keeps the order of the seven stats (STR first).
+(`| WIS: 1 | STR: 1 | DEX: 1` on an uncommon piece gives WIS and STR). A reply without the mark keeps the order of the seven stats (STR first).
 
 ## What a story item gets
 
@@ -60,7 +60,7 @@ While the feature is on, a `+ item` line that makes a new item gets (before any 
 ## Queries and commands
 
 * `inventory.gear { owner }` (default `party`) answers `{ on, owner, slots, statBonus, carry }`: `slots` has the eight places,
-  each `{ name, stats, cond, broken }` or `null`; `statBonus` is `{ STR, VIT, AGI, DEX, INT, LUK, CHA }` summed over what is worn
+  each `{ name, stats, cond, broken }` or `null`; for owner `party`, `carry` is the whole party's (see "The screens"); `statBonus` is `{ STR, VIT, AGI, DEX, INT, WIS, CHA }` summed over what is worn
   (broken left out); `carry` is `{ load, capacity, encumbered, penalty, sources }` (penalty -2 while encumbered). `inventory.statBonus
   { owner }` answers the sum alone. Both answer null while the feature is off.
 * `gear.carry` answers what `items.carry` asks (`{ on, people, bag, load, capacity, bonuses }`, or `{ ok, message }` for
@@ -97,13 +97,26 @@ Off: the word does nothing.
 ## Mounts and carts carry too
 
 The party's capacity adds each Mount row's carry × count while the mount travels with the party: its `where` is empty, names the
-party's place, or says it is ridden, led or pulled; a mount left elsewhere ("stabled at …") adds nothing. The row's own `carry`
+party's place, says it is ridden, led or pulled, or names the reader's character or a current party member by full name or first name
+(`carry-parts/party-names.js`: `party.actors` or the `party` domain, and the persona); any other mount left elsewhere ("stabled at …") adds nothing. A bare list
+of names ("Rav, Torka, Vessa") also gives the row's riders: the members in it, the others left out (`ridersOf`). **Re-reads (rule mark `mountRiders`):** a `+ item` or `~ item … qty` line of a reply
+without the mark is judged without the names (`gear.carry { riders: false }`); the Bag and the Mount slot always count them. A story line's names are those held in the chat's state, never
+the live persona name (`gear.carry { stored: true }`), so a persona rename leaves a Re-read as it was. A `+ mount` line of a reply without the
+mark also keeps the old cap of six rows (SPEC §2.5: twelve otherwise). The row's own `carry`
 (the reader's pencil on Home, 1–1000, empty clears it) beats the kind's usual: pony 30, horse 40, mule/donkey/pack animal 50,
 cart/barrow/hand-cart/sledge 60, carriage/coach 80, boat 100, barge/wagon 150, other 20 (`KIND_CARRY`; computed on read, nothing stored). A story item whose name says cart, barrow, hand-cart,
 sledge, carriage, coach, barge or wagon gets that carry on its def and adds it while owned. `inventory.gear` carry also lists
 `sources: [{ name, carry }]` (each member's 10 + 2 × STR, bags, carts, mounts).
 
 ## The screens
+
+`gear.view`'s `carry` is the whole party's load and capacity (what the add check and the encumbrance rule read), with `people` the members who hold things or a bag of their own, each against their own limit. `inventory.gear { owner: 'party' }`'s `carry` is the same totals, so it is encumbered exactly when the Bag's bar is over; any other owner's is their own. Under the bar, a note says what the narrator is told (`encumbranceTail`): that it treats each member who is over their own limit as slowed, else everyone while the bar is over; no note while `story-block.encumbrance` is off. No dice apply the -2, and no travel pace changes.
+
+**Who counts (`carry-parts/members.js`).** Every member `party.actors` or the `party` domain names has room of their own from the start (their strength, plus their bags), and so does anyone who holds things when no roster is asked, so a first hand-over is checked against their own limit. The main character is not one of them: their room is in the shared bag (unless things are filed under their own id). A member who is a Character block is counted once, with the block's strength, which moves from the shared bag to them. With several blocks and no main character known, a block that holds nothing stays in the shared bag. While members are listed, the shared bag's single chip is named ("Astra carries 30").
+
+**Someone who left.** Whoever holds things but is not named by `party.actors` or the `party` domain (a Text RPG member who fell, a built-in companion with `left: true`, a deleted join) adds **no room**: neither their strength nor their bags. Their things stay in the load. `gear.view` lists them in `carry.people` with `left: true` and no capacity ("Torka (left) 21") and marks their stacks `rows[stack].gone`. The name comes from the `party` domain, `party.actors`, `party.levels` (the RPG's keeps those who left) or `party.names` (Text RPG: everyone it ever had), else "Someone who left" (`holderName`, validate-parts/party.js). Nothing can be handed to them. To get things back: **Put down** on their bag (`inventory.bag { owner, stack: null }`) and **Take back** on anything else (`inventory.transfer { to: 'party' }`; not a bound piece).
+
+**Re-reads (rule mark `carryRoster`).** A `+ item` or `~ item … qty` line of a reply without the mark is judged by the count from before the roster (`gear.carry { legacy: true }`): every holder has room, a roster adds nobody, every Character block is in the shared bag.
 
 While the feature is on (and only then; off, every screen below is as it was, byte for byte), `gear.view { owner?, who?, own? }` (null while off)
 answers everything the screens draw: `carry` (`load`, `capacity`, `level` normal | heavy | over, the breakdown line, mounts left elsewhere),
@@ -211,13 +224,18 @@ is as before; the new words are refused ("Gear in fights is not switched on.") a
   the reader holds as `stack.stats` (the def, a pack's included, is untouched), read by `statsFor(def, stack)`, so it is part of the reader-edit receipt and survives Re-read, rebuild and reload. A **bound** piece
   (a cast member's) is not re-pointed: it stays as the member has it ("Bound to Mara: ..."). `gear.view` rows carry `repoint: { budget, stats }` for such a piece; the Edit (plain form, `repointControls`, and the
   grouped form of a hand-made piece) shows the stat boxes enabled with "Move this piece's N points between stats" and a live "N of M points placed" line.
+* **Slot of story and pack gear.** `inventory.edit { stack, slot }` with `slot` alone (a place, or '' for none) on any equipment works for the story's and a pack's pieces too (`slotEdit`): kind, rarity and bonus stay as given
+  (a payload that also names one of them is refused as above). It goes on the item's definition, so every piece of that item changes; it is refused while any piece of it is a cast member's. The soak is held to the new slot's cap and
+  pieces that no longer fit are taken off. A change of slot leaves the bonus as it was: a definition that lists no stats has what it gave (read from its name or slot) written on it first, and one that gave none is marked `noBonus: true` (no budget, so no points to move), also through None and back.
+  The edit's replay guard holds every piece of the item (each owner's: id, where worn, bound), so a Re-read that changes them leaves the edit off and lists it in Problems; guards saved without that are judged as before.
+  A Save that takes the edited piece off (slot or kind) and also renames it onto another item is refused: save the slot first, then the name. A later story line never changes the slot back. A later `+ item … | equipped: <slot>` on a piece set to None still wears it where the line says. `gear.view` rows carry `slotEdit: true`.
 * **Screens:** `gear.view` rows carry `hand`, `defSlot` and `stats` for such a piece; the item Edit takes `gear.row`, `gear.kit` and `gear.def`.
   The form is `view/gear-form.js` over `ss.editable` kind `fields` (field `showWhen`, `disabled`, and the entries `note` and `points`).
 
 ## Soak, load weights and animals (Combat rules v1, not read by the fight engine yet)
 
 - **Soak per piece (per item, as the Party and Bag screens show it; rarity never sets it):** an item's soak is its definition's `soak` (default 0): a pack item's `soak` (0 to 2), a story line's `soak: N`, or the Bag Edit's Soak on any piece the reader holds that is not a cast member's, at any time, not only in the starting kit (`inventory.edit { stack, soak }`; set on the item's definition, so every piece of that item changes; a value over the slot's cap is refused with the cap named). Code holds it to the slot's cap: **body 2, off-hand 2, head 1, cloak 0, feet 0, accessory 0**, a weapon 0, so a line cannot mint soak and rings and boots give none. A piece in a worse state than Worn (cond below 40: torn, broken) gives none. `inventory.gear` slots carry `soak` and the answer `soak: { total, pieces: [{ place, name, soak }] }` (counted by the place worn); `gear.view` carries `soak` on `slots`, `bag`, `rows` and as a total. A member's soak is `soakTotal(VIT, gear total, stance)` = VIT + the pieces + a stance's extra, 1 to 50 (the Party tab's rule: Astra 11, Torka 13, Rika 8, Brann 17, or 22 with Shield wall).
-- **Load weights (per item; the Bag screen's table):** a unit of an item weighs its definition's `weight` (0 to 99): a pack item's `weight` (pack.json, validated; a `pack.` def only) or the Bag Edit's "Weight each" (`inventory.edit { stack, weight }` on any piece that is not a cast member's, any time; set on the definition, so every piece of that item changes). With none it weighs its default: equipment by slot (weapon 3, body 5, off-hand 4, head 2, cloak 2, feet 2, accessory 0, no slot 1), a quest item 0, anything else 1; coins always 0. A story line or a hook never sets or raises a weight. `gear.carry` answers `unit: 'load'` and `weights` (stack id → weight × count; `load` counts the same way, so it is the sum of the weights; the add check counts the same); `gear.view` rows carry `weight`, `soakOwn` and `soakMax` for the Edit form. Gear off: everything weighs 1 a unit as before, and the Edit is refused.
+- **Load weights (per item; the Bag screen's table):** a unit of an item weighs its definition's `weight` (0 to 99): a pack item's `weight` (pack.json, validated; a `pack.` def only) or the Bag Edit's "Weight each" (`inventory.edit { stack, weight }` on any piece that is not a cast member's, any time; set on the definition, so every piece of that item changes). With none it weighs its default: equipment by slot (weapon 3, body 5, off-hand 4, head 2, cloak 2, feet 2, accessory 0, no slot 1), a quest item 0, paperwork 0 (goods or material whose head noun is in `GEAR.paperwork`: paper, ledger, pass, permit, tally, chit, warrant, letter, note, scroll, map, contract, ...; plurals too. The head noun is the name's last word after leaving out anything in brackets and from " of " on: "Ledger of Debts" and "Warrant (Second)" count, "Map Case" does not), anything else 1; coins always 0. A story line or a hook never sets or raises a weight. `gear.carry` answers `unit: 'load'` and `weights` (stack id → weight × count; `load` counts the same way, so it is the sum of the weights; the add check counts the same); `gear.view` rows carry `weight`, `soakOwn` and `soakMax` for the Edit form. Gear off: everything weighs 1 a unit as before, and the Edit is refused.
 - **Animals:** `gear.carry` answers `animals: [{ name, carry, withParty }]`; horse 40, pony 30, cart 60 and the other kinds in the mount table (mule, carriage, boat, wagon, barge…), times count, add to the shared bag only while they travel with the party.
 - No other gear bonus is read in v1 (BATCH1 B1.5 stays closed); the stat adds above remain until the engine switch.
 
@@ -227,6 +245,10 @@ Everything is derived from the inventory slice and its condition events; a swipe
 give the same answers (tests/v2/gear-inventory.test.js).
 
 ## In the rolls (part 2)
+
+**Not in the current fights.** The code that built and checked this record (`rpg.resolve` and the earlier fight board) was removed in 0.1.0. `planGear`, `applyGear` and `gearMatches` remain, with no caller in the extension. Today's fights add worn gear's stats and soak and wear it (`board/v1-kind.js`); they apply **no** load penalty: the encumbered -2 is only told to the narrator (`encumbranceTail`) and written on the Bag.
+
+**Load rule mark.** A record made now has `rule: 2`: `enc` comes from the whole party's load for owner `party`, and each member counted once. A record without `rule` was made by the shared bag alone (and members as counted before the roster), and `gearMatches` still judges it that way.
 
 While the switch is on, the roll's payload carries only the mark, `gear: { v: 1, lead: '<reader name>' }` (`lead` is who the shared bag meant, used when no party module names the main character; a mark without it falls to the first block). `rpg.resolve` works the gear out itself from the state before the roll
 (lean-rpg/gear.js `planGear`, over the inventory's own answers) into the record `gear: { v: 1, who: { <member>: { own, add?, enc?, items? } } }`: `own` the owners
@@ -244,7 +266,7 @@ without it. A roll with no `gear` (made before) is exactly as before, and off no
   (`sameWho`, lean-rpg/read.js). An exact name wins, and a first name or alias counts only when it means exactly one Character: with "Ren Ashby" and "Ren Holt"
   a member "Ren" is neither. (`packs.castGear`, gone in pack format 4, asked the same question for "already in the party".)
 * Encumbered is at 100 % and over (load at or over the capacity; an empty load never) **only with gear on**; with gear off the limit is as it always was
-  (more than the capacity: exactly 5 of 5 is not encumbered). The roll penalty, `inventory.encumbrance`, and the Carry card
+  (more than the capacity: exactly 5 of 5 is not encumbered). A gear record's `enc` (see above: not in the current fights), `inventory.encumbrance`, and the Carry card
   (red "Encumbered" from 100 %, yellow "Heavy load" from 80 % to below 100 %).
 * Wear: a decisive hit taken wears the member's body armour (else off-hand) one step; a decisive miss of their own act wears the weapon one step
   (`gear.wear`, called by the roll, so it is in the roll's receipt and undone with it). Told rounds only; a broken or absent piece wears nothing. The result

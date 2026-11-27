@@ -54,16 +54,23 @@ const MEMBER = {
   line: T.STRING,
   level: T.NUMBER,
   xpPct: T.NUMBER,
+  xpLabel: { $optional: { $nullable: T.STRING } },
   points: T.NUMBER,
   away: { $nullable: { where: T.STRING, lastSeen: T.STRING, short: { $optional: T.STRING } } },
-  soakPct: T.NUMBER,
+  soakPct: { $nullable: T.NUMBER },
   bars: [{ kind: { $enum: ['hp', 'mp', 'sp'] }, value: T.NUMBER, max: T.NUMBER }],
   effects: [{ id: T.STRING, label: T.STRING, note: T.STRING, tone: { $enum: ['buff', 'debuff'] } }],
   stats: STATS,
   // The stats worn gear adds ({ STR: 1 }, only those above 0); the stat tiles mark them.
   bonus: { $optional: T.ANY },
+  // A plug-in sheet's own command names ({ spend?, skillEdit? }), sent instead of the RPG's.
+  commands: { $optional: T.ANY },
   slots: [SLOT],
   skills: [SKILL],
+  // A companion's keepsakes from their NPC State profile: a read-only list, never gear.
+  keepsakes: { $optional: [{ name: T.STRING, note: T.STRING }] },
+  // A companion's own load against their own limit, while they hold things or a bag of their own.
+  carrying: { $optional: { load: T.NUMBER, capacity: T.NUMBER } },
 };
 
 // What the Mount and Bag pickers list: every mount (riders from its `where`; one rider per counted mount) and every bag-like item (whose it is, whether it is their bag).
@@ -78,4 +85,6 @@ export const PARTY_SHAPE = {
   canInvite: T.BOOLEAN,
   members: [MEMBER],
   carriers: { $optional: CARRIERS },
+  // The screen a plug-in sheet opens for Create character (else Story Block's New character window).
+  newCharacterScreen: { $optional: T.STRING },
 };

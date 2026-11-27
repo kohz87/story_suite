@@ -1,6 +1,6 @@
 /* Normalization of one scanner npcs[] row into the record shape (state markers, reasons, relationship delta, custom fields). */
 import { inferNpcIdentityKind, normalizeAgeFields, normalizeBoolean, normalizeDossierSignal, normalizeGender, normalizeLifeState } from '../core-identity.js';
-import { compactDurableText, DURABLE_PROFILE_LIMITS, normalizeRelationshipAbsolutePatch, normalizeRelationshipDelta, normalizeRelationshipEvidence, normalizeScannerRelationshipImpact, RELATIONSHIP_KEYS, semanticDedupeItems } from '../core-relationship.js';
+import { compactDurableText, DURABLE_PROFILE_LIMITS, normalizeRelationshipAbsolutePatch, normalizeRelationshipDelta, normalizeRelationshipEvidence, normalizeScannerRelationshipImpact, RELATIONSHIP_KEYS, memorySimilarity, semanticDedupeItems } from '../core-relationship.js';
 import { cleanList, cleanText } from '../core-text.js';
 
 import { mergeKeyRelationshipUpdates } from '../core-keyrel.js';
@@ -103,8 +103,8 @@ export function normalizeScanNpc(rawInput = {}, options = {}) {
         goalState: String(raw.goalState ?? raw.goal_state ?? (normalizeBoolean(raw.clearGoal ?? raw.clear_goal) ? 'clear' : '')).trim().toLowerCase() === 'clear' ? 'clear' : '',
         status: cleanText(raw.status, 500),
         statusState: String(raw.statusState ?? raw.status_state ?? (normalizeBoolean(raw.clearStatus ?? raw.clear_status) ? 'clear' : '')).trim().toLowerCase() === 'clear' ? 'clear' : '',
-        memories: semanticDedupeItems(cleanList(raw.memories, Math.max(6, memoryInputLimit * 2), DURABLE_PROFILE_LIMITS.memory), { maxItems: memoryInputLimit, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58 }),
-        memoryRetention: semanticDedupeItems(cleanList(raw.memoryRetention ?? raw.memory_retention, IMPORTANT_MEMORY_LIMIT * 2, DURABLE_PROFILE_LIMITS.memory), { maxItems: IMPORTANT_MEMORY_LIMIT, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58 }),
+        memories: semanticDedupeItems(cleanList(raw.memories, Math.max(6, memoryInputLimit * 2), DURABLE_PROFILE_LIMITS.memory), { maxItems: memoryInputLimit, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58, measure: memorySimilarity }),
+        memoryRetention: semanticDedupeItems(cleanList(raw.memoryRetention ?? raw.memory_retention, IMPORTANT_MEMORY_LIMIT * 2, DURABLE_PROFILE_LIMITS.memory), { maxItems: IMPORTANT_MEMORY_LIMIT, maxChars: DURABLE_PROFILE_LIMITS.memory, similarity: 0.58, measure: memorySimilarity }),
         mannerisms: normalizeMannerisms(raw.mannerisms),
         mannerismsProvided: Object.prototype.hasOwnProperty.call(raw, 'mannerisms'),
         mannerismState: (() => {

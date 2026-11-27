@@ -198,12 +198,12 @@ function partyAddOf(answer) {
 }
 
 /**
- * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
+ * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, departed?: a dead person's row of npc.cast({ departed: true }), portrait?: npc.portrait,
  * away?: director.away.view (news and return date of someone away), party?: party.actors, join?: rpg.partyAdd, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), dates of memories without a stamp, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, away: awayView, party, join, moodTile, people, place, present, witnessed } = {}) {
+export function selectDossier({ dossier, meters, next, cast, departed, portrait, away: awayView, party, join, moodTile, people, place, present, witnessed } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
   const away = (isRecord(awayView) && Array.isArray(awayView.people) ? awayView.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
@@ -212,6 +212,8 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
   const gender = text(dossier.gender)?.toLocaleLowerCase();
   const genderUnknown = gender !== 'male' && gender !== 'female';
   const isHere = isHereIn(dossier, place, present);   // (the one rule, ./people.js)
+  const inParty = (Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key);
+  const listed = (Array.isArray(people) ? people : []).find(row => isRecord(row) && row.id === dossier.id);
   return {
     id: text(dossier.id) ?? key,
     name: String(dossier.name ?? ''),
@@ -220,9 +222,13 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
     life: presumed ? 'presumed' : dead ? 'deceased' : 'alive',
     genderUnknown,
     following: dossier.followed === true,
-    inParty: (Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key),
+    inParty,
+    // (what the dossier library orders and groups by; "not seen lately" is the People view's: never someone here or in the party)
+    here: isHere,
+    dormant: listed?.dormant === true && !dead && !isHere && !inParty,
+    ...(Number.isInteger(dossier.lastSeenTurn) ? { seenTurn: dossier.lastSeenTurn } : {}),
     // (the join card is offered to the living who are not in the party; the engine's answer holds the rest: RPG on, not You, room, a person the party does not know)
-    partyAdd: !dead && !(Array.isArray(party) ? party : []).some(row => isRecord(row) && keyOf(row.name) === key) ? partyAddOf(join) : null,
+    partyAdd: !dead && !inParty ? partyAddOf(join) : null,
     meters: metersOf(dossier),
     stage: stageOf(next, cast?.rank),
     ...(extraMetersOf(dossier, cast) ? { extraMeters: extraMetersOf(dossier, cast) } : {}),
@@ -240,7 +246,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
     scene: isHere && text(dossier.goal) ? { wants: text(dossier.goal), hiding: null } : null,
     ties: tiesOf(dossier.keyRelationships, people),
     past: pastOf(dossier.memories, dossier.memoryStamps, witnessed),
-    secrets: secretsOf(cast),
+    secrets: secretsOf(cast ?? departed),
     profile: profileOf(dossier, cast?.notes),
     death: dead ? { how: text(dossier.lifeStateReason) ?? '', when: '', where: null, certainty: presumed ? 'presumed' : 'confirmed', referenceLine: '' } : null,
   };

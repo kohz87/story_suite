@@ -32,7 +32,7 @@ async function world(t) {
         assert.equal((await host.sdk.command('dm.define', { definition: skills, after: `pack.chat/${slug}` })).ok, true);
         await host.sdk.command('dm.set', { module: `pack.chat/${slug}`, fields: { who } });
         // (the bars are the block's own: its rules work them out from the level and stats set here)
-        await host.sdk.command('dm.set', { module: `pack.chat/${slug}`, fields: { level: 10, str: 14, vit: 26, agi: 26, dex: 14 } });
+        await host.sdk.command('dm.set', { module: `pack.chat/${slug}`, fields: { level: 10, str: 14, vit: 26, agi: 30, dex: 14 } });   // (AGI 30: soak takes only whole points from 22 Nov, so the heroes dodge more to last the horde)
         await host.sdk.command('dm.set', { module: `pack.chat/${skills.slug}`, fields: { who, skill1: 'Sweeping Cleave', stat1: 'str', type1: 'area', skill2: 'Piercing Strike', stat2: 'str', type2: 'attack' } });
     }
     for (const role of ['foes', 'rules']) assert.equal((await host.sdk.command('dm.define', { definition: def(role) })).ok, true);

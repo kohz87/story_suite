@@ -1,0 +1,107 @@
+// `+ xp Party — what was overcome [| foes: N] [| group: Name]`: experience. Each foe that fell pays its kind's XP times its group's threat, up to the foes still standing in the foes record, and a battle pays no more than its cap; with no roll in the reply nothing is paid but the foes are still counted down. With nothing standing and no battle current (none yet, or the last one closed more than 60 story minutes ago; with no clock, before the reply just after its close): 10 XP when a roll succeeded this reply, else none; while the battle still stands or has just closed, nothing (its XP was paid as the foes fell). The cap is the strongest group's, scaled by the XP rate like the XP. One xp line pays a reply; a later one whose `group:` names a standing group no earlier xp line of the reply hit still counts its foes down, paying nothing (rule mark `xpCountsDown`; a reply with no mark refuses it). An old line's `size:` and `threat:` are ignored. Level and stat points follow from xp (standing.js).
+import { players } from '../members.js';
+import { labelOf } from '../line-read.js';
+import { requireActive } from '../active.js';
+import { levelOf } from '../standing.js';
+import { LEVEL, scaleXp, xpOfLevel } from '../../rules/levels.js';
+import { readRules, xpCeiling } from '../rules-now.js';
+import { groupId, standing } from '../foes-record.js';
+import { touch } from '../foes-stale.js';
+import { payParts } from '../foes-pay.js';
+import { joinable } from '../foes-fights.js';
+import { DOMAIN } from '../../domain/shape.js';
+
+const NO_RECORD = 10;
+const ONE_LINE = 'Only one xp line counts in a reply.';
+
+// How many were overcome: a whole number 1..50; a missing or bad count is one.
+const foesOf = text => (/^\d{1,2}$/.test(text) && Number(text) >= 1 && Number(text) <= 50 ? Number(text) : 1);
+
+// What fell, as [{ group, count }]: with a foes record the foes still standing (all groups, lowest threat first, or the named group) count down and no more than stand are counted; with none standing, nothing.
+function paidFoes(ctx, slice, line, asked) {
+    const groups = standing(slice, slice.dice?.[ctx.reply?.sid]?.clock);
+    const label = labelOf(line, 'group');
+    if (label) {
+        const [, group] = groups.find(([id]) => id === groupId(label)) ?? [];
+        if (!group) ctx.fail('NOT_FOUND', `No foes called ${label.slice(0, 40)} are standing.`);
+        const count = Math.min(asked, group.left);
+        group.left -= count;
+        group.fell = (group.fell ?? 0) + count;
+        if (count > 0) touch(ctx, slice, group);
+        return [{ id: groupId(label), group, count }];
+    }
+    let left = asked;
+    const paid = [];
+    for (const [id, group] of [...groups].sort((a, b) => a[1].threat - b[1].threat)) {
+        const count = Math.min(left, group.left);
+        if (count <= 0) continue;
+        group.left -= count;
+        group.fell = (group.fell ?? 0) + count;
+        touch(ctx, slice, group);
+        left -= count;
+        paid.push({ id, group, count });
+    }
+    return paid;
+}
+
+// The claim that keeps one reply from counting a group down by two xp lines.
+const countedClaim = (sid, id) => `xp-group:${sid}:${id}`;
+
+// A later xp line of the reply: it counts down the standing group it names, once a group a reply, and pays nothing; any other is refused.
+function countOnly(ctx, slice, line, sid) {
+    const id = groupId(labelOf(line, 'group'));
+    const standingNow = standing(slice, slice.dice?.[sid]?.clock).some(([gid]) => gid === id);
+    if (!standingNow || !ctx.claim(countedClaim(sid, id))) ctx.fail('LIMITED', ONE_LINE);
+    const [{ group, count }] = paidFoes(ctx, slice, line, foesOf(labelOf(line, 'foes')));
+    return { summary: `${group.name}: ${count} counted down; one xp line pays a reply.`, narrate: false, data: { amount: 0, foes: count, levels: 0, touched: [id] } };
+}
+
+export function applyXp(ctx, line) {
+    requireActive(ctx);
+    const slice = ctx.draft(DOMAIN);
+    const sid = ctx.reply?.sid;
+    const countsDown = ctx.carrier?.rules?.includes('xpCountsDown') === true;
+    if (!sid || !ctx.claim(`xp:${sid}`)) {
+        if (sid && countsDown && labelOf(line, 'group')) return countOnly(ctx, slice, line, sid);
+        ctx.fail('LIMITED', ONE_LINE);
+    }
+    const record = slice.dice[sid];
+    // The cap and rate are the reply's own, kept in its dice step's receipt: a Re-read or a replay never uses today's settings.
+    const { cap, rate } = readRules(record?.rules);
+    const hardest = record?.used > 0 ? record.hardest ?? 0 : null;
+    const fell = labelOf(line, 'group') || standing(slice, record?.clock).length ? paidFoes(ctx, slice, line, foesOf(labelOf(line, 'foes'))) : null;
+    const foes = fell ? fell.reduce((sum, part) => sum + part.count, 0) : 0;
+    let battle = null;
+    let capped = false;
+    let over = false;
+    let raw = 0;
+    if (hardest !== null && fell) ({ raw, battle, capped } = payParts(slice, fell));
+    else if (hardest !== null) {
+        // Nothing stands: a battle still current (or just closed) was paid as its foes fell; else a deed away from any fight pays 10 XP for a won roll.
+        over = joinable(slice, sid, record?.clock ?? null) !== null;
+        raw = record?.won && !over ? NO_RECORD : 0;
+    }
+    const amount = scaleXp(raw, rate);
+    // (companions earn with the party: those who play, then the companions; the fallen earn nothing. A companion's share is marked
+    // within them, so a replay with the reply they joined in deleted passes it over and keeps the rest of the block)
+    const companions = Object.values(slice.members).filter(member => member.companion && !member.fallen);
+    // (the line pays the whole party whoever it names: the reader's character and every companion)
+    const who = [...players(slice).map(p => slice.members[p.id]), ...companions];
+    const levels = [];
+    for (const member of who) {
+        const before = levelOf(member);
+        if (member.companion && typeof ctx.ifThere === 'function') ctx.ifThere(DOMAIN, `/members/${member.id}`);
+        // (a companion's xp counts from the level they joined at, so the level cap stands where it does for everyone)
+        const ceiling = xpCeiling(cap) - (member.companion ? xpOfLevel(member.companion.level) : 0);
+        member.xp = Math.min(LEVEL.xpMax, member.xp); // (an xp stored past the limit counts as the limit)
+        member.xp += Math.max(0, Math.min(amount, ceiling - member.xp));
+        if (levelOf(member) > before) levels.push(`${member.name} reaches level ${levelOf(member)}`);
+    }
+    // The groups this line hit, for `~ rest` (foes-fights.js blockingFoes).
+    const touched = (fell ?? []).filter(part => part.count > 0).map(part => part.id);
+    if (countsDown) for (const id of touched) ctx.claim(countedClaim(sid, id));
+    const told = `${line.text ? ` for ${line.text}` : ''}${foes > 1 ? ` (${foes} foes)` : ''}`;
+    // The battle's numbers are shown as granted: the XP rate scales the cap and what was paid, as it scales the XP.
+    const fight = battle ? `; ${capped ? 'battle cap reached: ' : 'battle '}${scaleXp(battle.paid, rate)} of ${scaleXp(battle.cap, rate)}` : over ? '; the battle is over; its XP was paid as the foes fell' : '';
+    return { summary: hardest === null ? `no roll this reply: no XP${told}.` : `${amount} xp${told}${fight}${levels.length ? `; ${levels.join('; ')}` : ''}.`, narrate: levels.length > 0, data: { amount, foes, levels: levels.length, ...(touched.length ? { touched } : {}), ...(battle ? { battle: { paid: scaleXp(battle.paid, rate), cap: scaleXp(battle.cap, rate) } } : {}) } };
+}

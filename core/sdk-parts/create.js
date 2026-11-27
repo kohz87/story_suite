@@ -238,8 +238,8 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
          * `domains`, `commands` and `kinds` are what the module declares; `capabilities` are the names it declares for
          * packs' requires.capabilities (a frozen list, empty when it declares none); it is available only while
          * `status` is 'ready' ('dormant': waiting for a peer; 'restore-pending': a restore holds it), and
-         * `reason` says why when it is not (null when ready). `hidden: true` is present only on a module that asks to stay out of
-         * the Add-ons installed list (the people module); every other module's entry is unchanged.
+         * `reason` says why when it is not (null when ready). `icon` (a Font Awesome class) only on a module that declares one; `hidden: true` is present only on a module that asks to stay out of
+         * the Add-ons installed list (the people module); `settingsPage: { section, schema, defaults }` only on a module whose settings carry a `section` title and a schema (the Rules page of a plug-in).
          */
         modules: () => registry.modules().map(def => {
             const life = registry.lifecycle?.(def.id);
@@ -258,6 +258,8 @@ export function createSdk({ store, bus, registry, settings, events = createEvent
                 status: life?.status ?? 'ready',
                 reason: life?.reason ?? null,
                 ...(def.hidden === true ? { hidden: true } : {}),
+                ...(typeof def.icon === 'string' && def.icon ? { icon: def.icon } : {}),
+                ...(typeof def.settings?.section === 'string' && def.settings.schema && typeof def.settings.schema === 'object' ? { settingsPage: Object.freeze({ section: def.settings.section, schema: def.settings.schema, defaults: def.settings.defaults ?? {} }) } : {}),
             });
         }),
     });

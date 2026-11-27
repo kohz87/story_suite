@@ -1,4 +1,4 @@
-// World events, open templates on the host: what the Director is told about one slot (spec §5): the template (name, summary, menu,
+// World events, open templates on the host: what the Director is told about one slot (spec §5): the template (summary, menu,
 // writes_facts), the place, region and realm with the conditions active there, the non-protected figures nearby, and the lore: the digest's
 // titles and the entries whose keys match the place. Hidden lore is never sent. Pure on `ws` and the query answers handed in.
 
@@ -8,6 +8,7 @@ import { resolveRef } from '../../daily/geo.js';
 import { regionLabel } from '../../daily/region-label.js';
 import { textPlace } from '../../daily/shown-place.js';
 import { shownMenu } from './open-menu.js';
+import { fillSummary } from '../../daily/event-title.js';
 
 const DAY = 1440;
 const MAX_FIGURES = 12;
@@ -34,8 +35,9 @@ export function slotView(ws, def, slot, world) {
             .slice(0, MAX_FIGURES).map(person => `${person.id} (${person.name}, at ${placeOf(ws, person.id)})`)
         : [];
     // The template's words are filled in as the day fills the fallback's ({place}, {region}, {realm}): the Director is never shown a bare placeholder.
-    const summary = String(def.summary ?? '').replace(/\{place\}/g, textPlace(ws.geo, slot.place, slot.regionName || slot.region)).replace(/\{region\}/g, slot.regionName || slot.region || '').replace(/\{realm\}/g, slot.realm ?? '');
-    return { name: def.id, summary, regionName: slot.region ? slot.regionName || regionLabel(ws.geo, slot.region) : '', menu: shownMenu(ws, def.open.menu, slot), facts: def.open.facts, ...(def.open.arc ? { arc: def.open.arc } : {}), conditions: conditionsAt(ws, slot, means), figures };
+    const summary = def.summary === def.id ? '' : fillSummary(def.summary, { place: textPlace(ws.geo, slot.place, slot.regionName || slot.region), regionName: slot.regionName || slot.region, realm: slot.realm });
+    // The template's id is not sent: an answer could echo it as the happening's name.
+    return { summary, regionName: slot.region ? slot.regionName || regionLabel(ws.geo, slot.region) : '', menu: shownMenu(ws, def.open.menu, slot), facts: def.open.facts, ...(def.open.arc ? { arc: def.open.arc } : {}), conditions: conditionsAt(ws, slot, means), figures };
 }
 
 /** The lore text for a batch: the digest's titles, then the matching entries for each slot, cut to a size. `ask(name, args)` is the view's query. */

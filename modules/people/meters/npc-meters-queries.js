@@ -1,7 +1,8 @@
 // Read-only NPC meter queries and screen views. A pure part of npc-meters.js (same owner, moved without change);
 // npc-meters.js re-exports every public name it exported before. Never imports npc-meters.js.
 import { MAX_STAGES_PER_METER, SECRET_TITLE_MAX, NAME_MAX, FEATURE_NOTES, isObject, isInt, isReplyId, sameReply, clean, own, bandWord, needMet, thresholdReached, stageAt, clamp, intOr, readLeaf } from './npc-meters-config.js';
-import { findNpcKey, meterValue, rungMet, conflictOn } from './npc-meters-slice.js';
+import { meterValue, rungMet, conflictOn } from './npc-meters-slice.js';
+import { ownersOf } from './npc-meters-parts/owners.js';
 import { bondsOf } from './npc-meters-parts/fold.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { eventLog, readEvent } from './npc-meters-pacing.js';
@@ -17,17 +18,28 @@ export function createNpcQueries({
 
     // The meters are the people domain's `bonds`, keyed by npc_ id (src/npc-meters-parts/fold.js).
     const sliceOf = state => bondsOf(state);
+    const ownersIn = state => ownersOf(state?.domains?.people?.npcs);
     // The store's people as the cast lists them: every dossier in the store's order that is not a confirmed death (the same people as npc.known; a record has no
     // archive flag any more), with its bonds entry, or where that entry would start.
-    const castPeople = (state, npcs, defs) => {
+    const castPeople = (state, npcs, defs, owners) => {
         const people = state?.domains?.people;
         if (!isObject(people?.npcs) || !Array.isArray(people.order)) return [];
         return people.order.map(id => people.npcs[id]).filter(person => isObject(person) && !isTerminalNpcDeath(person) && typeof person.name === 'string' && person.name).map(person => {
-            const labels = [person.id, person.name, ...(Array.isArray(person.aliases) ? person.aliases : [])].filter(label => typeof label === 'string');
-            const key = findNpcKey(npcs, labels);
+            const key = owners.entryKey(npcs, person);
             const seed = isObject(person.relationship) ? person.relationship : {};
             const record = key ? npcs[key] : { name: person.name, meters: Object.fromEntries(defs.map(def => [def.id, intOr(seed[def.id], null) === null ? def.start : clamp(intOr(seed[def.id], 0), def.min, def.max)])), stages: {}, unlocked: [] };
-            return { id: person.id, key: key ?? person.id, name: person.name, record };
+            return { id: person.id, key: key ?? person.id, name: person.name, record, asked: { name: person.id, labels: [person.id] } };
+        });
+    };
+    // The dead whose own hidden note has been opened, with those notes' rows alone: what their dossier still shows (the cast list leaves the dead out).
+    const departedNotes = (state, npcs, defs, owners) => {
+        const people = state?.domains?.people;
+        return (Array.isArray(people?.order) ? people.order : []).map(id => people.npcs?.[id]).filter(person => isObject(person) && isTerminalNpcDeath(person)).flatMap(person => {
+            const record = npcs[owners.entryKey(npcs, person)];
+            if (!record?.unlocked?.length) return [];
+            const notes = notesView(record, defs, { name: person.id, labels: [person.id], gone: true });
+            if (!notes.opened.length) return [];
+            return [{ key: person.id, name: person.name, locked: notes.locked.map(({ id, meter, at, event, opens, text }) => ({ id, ...(meter ? { meter, at } : {}), event, opens, text })), opened: notes.opened.map(({ id, title, text }) => ({ id, title, text })) }];
         });
     };
     const entryView = (key, record, defs, rungs) => ({
@@ -60,8 +72,9 @@ export function createNpcQueries({
      *         `of` replies in a row; `replies` so far), or null
      *   text  one line: "Next: Confidant — affection 40/55, milestone “saved her brother”"
      */
-    function ladderView(record, settings, defs) {
-        const setup = setupFor(record.name);
+    const byName = record => ({ name: record.name, labels: [record.name] });
+    function ladderView(record, settings, defs, asked = byName(record)) {
+        const setup = setupFor(asked.name, asked.labels);
         const rungs = rungsFor(settings, setup);
         if (!rungs.length) return null;
         const byId = new Map(defs.map(def => [def.id, def]));
@@ -94,12 +107,12 @@ export function createNpcQueries({
 
     // The notes of a dossier for screens. A locked one shows only its rule ("Opens at Trust 60", "Opens with the
     // story"), never its title, text or event wording; an opened one its title and what opened it ("Opened · Trust 20").
-    function notesView(record, defs) {
+    function notesView(record, defs, asked = byName(record)) {
         const byId = new Map(defs.map(def => [def.id, def]));
         const unlocked = new Set(Array.isArray(record.unlocked) ? record.unlocked : []);
         const locked = [];
         const opened = [];
-        for (const rule of rulesFor(record.name, [record.name])) {
+        for (const rule of rulesFor(asked.name, asked.labels)) {
             if (!rule || typeof rule.id !== 'string') continue;
             const meter = isInt(rule.at) && typeof rule.meter === 'string' && rule.meter ? `${byId.get(rule.meter)?.label ?? rule.meter} ${rule.at}` : '';
             const event = typeof rule.when === 'string' && rule.when.trim() !== '';
@@ -115,14 +128,15 @@ export function createNpcQueries({
                 opened.push({ id: rule.id, title, rule: how, text: `Opened · ${how}` });
                 continue;
             }
-            const opens = meter && event ? `Opens at ${meter} or with the story` : meter ? `Opens at ${meter}` : gated ? 'Opens when the story earns it' : 'Opens with the story';
-            locked.push({ id: rule.id, ...(meter ? { meter: rule.meter, at: rule.at } : {}), event, opens, text: `Hidden note · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}` });
+            if (asked.gone && meter && !event) continue;   // (no meter opens a note of the dead: nothing to promise)
+            const opens = meter && event && !asked.gone ? `Opens at ${meter} or with the story` : meter && !asked.gone ? `Opens at ${meter}` : gated ? 'Opens when the story earns it' : 'Opens with the story';
+            locked.push({ id: rule.id, ...(meter && !asked.gone ? { meter: rule.meter, at: rule.at } : {}), event, opens, text: `Hidden note · ${opens[0].toLocaleLowerCase()}${opens.slice(1)}` });
         }
         return { locked, opened };
     }
 
-    function bars(record, defs, settings, { headReply: head = undefined, reply = null } = {}) {
-        const setup = setupFor(record.name);
+    function bars(record, defs, settings, { headReply: head = undefined, reply = null, asked = byName(record) } = {}) {
+        const setup = setupFor(asked.name, asked.labels);
         const limits = limitsFor(settings, setup);
         const rungs = rungsFor(settings, setup);
         // A window that belongs to a reply other than the head's is not "since the last reply". The head
@@ -152,7 +166,11 @@ export function createNpcQueries({
         });
     }
     // The keys of the people present now: an entry found for the name (its dossier's id first), else the dossier's own id (someone with no meters yet).
-    const presentKeys = npcs => new Set(presentNames().map(name => identify(npcs, name)?.key).filter(Boolean));
+    // A name several dossiers carry is each of them who is present.
+    const presentKeys = (npcs, owners) => new Set(presentNames().flatMap(name => {
+        const here = owners.named(name).filter(item => item.present === true && !isTerminalNpcDeath(item));
+        return (here.length ? here.map(item => item.id) : [name]).map(label => identify(npcs, label, owners)?.key);
+    }).filter(Boolean));
 
     // The dossier's mood and pull (feature mood-pull; only a record that has them): `mood` { word, valence, energy, control, bars,
     // cause, day, rest (the resting axes it fades toward), log (the last moves of the axes, newest first: { n, date, v, a, d, why }) } and `pull` { kind, cause, since, days, level (1..3, the top item's score), inst }. Plain data: the UI escapes the text.
@@ -171,16 +189,17 @@ export function createNpcQueries({
         /**
          * npc.meters({ name }) → { key, name, meters, stages, unlocked, disposition?, reply?,
          * milestones?, rank? } | null; without a name, every entry (in key order). Meters are filled
-         * in for every meter in use.
+         * in for every meter in use. With `id` (a caller that holds the dossier: { id, name, aliases }), that person's own entry.
          */
         'npc.meters'(state, args = {}) {
             const { npcs } = sliceOf(state);
             const settings = storedSettings();
             const defs = defsFrom(settings);
-            const view = key => entryView(key, npcs[key], defs, rungsFor(settings, setupFor(npcs[key].name)));
+            const owners = ownersIn(state);
+            const view = key => { const asked = owners.asking(npcs, key); return entryView(key, npcs[key], defs, rungsFor(settings, setupFor(asked.name, asked.labels))); };
             if (args && typeof args.name === 'string') {
-                const who = identify(npcs, args.name);
-                return who && Object.hasOwn(npcs, who.key) ? view(who.key) : null;
+                const key = typeof args.id === 'string' && args.id ? owners.entryKey(npcs, args) : identify(npcs, args.name, owners)?.key;
+                return key && Object.hasOwn(npcs, key) ? view(key) : null;
             }
             return Object.keys(npcs).sort().map(view);
         },
@@ -194,19 +213,22 @@ export function createNpcQueries({
          * delta? }] (ss.meter's props; `delta` is the change of the entry's latest reply window),
          * `still`: the same without `delta`. `locked`: the hidden notes still locked, as teasers with no
          * title ({ id, meter?, at?, event, opens: "Opens at Trust 60", text: "Hidden note · opens at Trust 60" });
-         * `opened`: [{ id, title, text: "Opened · Trust 20" }].
+         * `opened`: [{ id, title, text: "Opened · Trust 20" }]. The dead are not listed; with { departed: true } the answer is instead
+         * [{ key, name, locked, opened }] of the dead who have an opened note.
          */
         'npc.cast'(state, args = {}, tools = null) {
             const { npcs } = sliceOf(state);
             const settings = storedSettings();
             const defs = defsFrom(settings);
-            const here = presentKeys(npcs);
+            const owners = ownersIn(state);
+            if (args?.departed === true) return departedNotes(state, npcs, defs, owners);
+            const here = presentKeys(npcs, owners);
             const head = isObject(args) && Object.hasOwn(args, 'headReply') ? args.headReply : undefined;
-            return castPeople(state, npcs, defs)
-                .map(({ key, name, record }) => {
-                    const list = bars(record, defs, settings, { headReply: head, reply: tools?.reply ?? null });
-                    const ladder = ladderView(record, settings, defs);
-                    const notes = notesView(record, defs);
+            return castPeople(state, npcs, defs, owners)
+                .map(({ key, name, record, asked }) => {
+                    const list = bars(record, defs, settings, { headReply: head, reply: tools?.reply ?? null, asked });
+                    const ladder = ladderView(record, settings, defs, asked);
+                    const notes = notesView(record, defs, asked);
                     return {
                         key, name, present: here.has(key), bars: list, still: list.map(({ delta, ...bar }) => bar),
                         ...(ladder?.rank ? { rank: ladder.rank } : {}),
@@ -231,13 +253,14 @@ export function createNpcQueries({
             const cast = sliceOf(state).cast;
             return isObject(cast) ? JSON.parse(JSON.stringify(cast)) : {};
         },
-        /** npc.next({ name }) → the NPC's ladder from here ({ rank, next, risk, text }), or null. */
+        /** npc.next({ name }) → the NPC's ladder from here ({ rank, next, risk, text }), or null. With `id`, as npc.meters: that person's own entry. */
         'npc.next'(state, args = {}) {
             const { npcs } = sliceOf(state);
-            const who = identify(npcs, args?.name);
-            if (!who || !Object.hasOwn(npcs, who.key)) return null;
+            const owners = ownersIn(state);
+            const key = typeof args?.id === 'string' && args.id ? owners.entryKey(npcs, args) : identify(npcs, args?.name, owners)?.key;
+            if (!key || !Object.hasOwn(npcs, key)) return null;
             const settings = storedSettings();
-            return ladderView(npcs[who.key], settings, defsFrom(settings));
+            return ladderView(npcs[key], settings, defsFrom(settings), owners.asking(npcs, key));
         },
         /**
          * npc.socialModifier({ name, skill }) → { mod, name, skill, reasons: [{ text, value }] } | null
@@ -252,7 +275,7 @@ export function createNpcQueries({
             if (!skill || !asked) return null;
             const { npcs } = sliceOf(state);
             const dossier = resolve(asked);
-            const who = identify(npcs, asked);
+            const who = identify(npcs, asked, ownersIn(state));
             const entry = who && Object.hasOwn(npcs, who.key) ? npcs[who.key] : null;
             if (!dossier && !entry) return null;
             const settings = storedSettings();
@@ -268,7 +291,8 @@ export function createNpcQueries({
                 const stage = entry ? record.stages?.[def.id] : stageAt(settings.stages[def.id], value)?.name;
                 return { def, value, stage: typeof stage === 'string' ? stage : '' };
             });
-            const rungs = rungsFor(settings, setupFor(record.name, who.labels));
+            const asks = who.owners.asking({ ...npcs, [who.key]: record }, who.key, who.labels);
+            const rungs = rungsFor(settings, setupFor(asks.name, asks.labels));
             const index = record.rank === undefined ? -1 : rungs.findIndex(step => step.key === record.rank);
             return socialModifier({
                 name: record.name, skill, meters,

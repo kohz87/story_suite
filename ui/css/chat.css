@@ -49,8 +49,10 @@ body.swipeAllMessages .mes:not(.last_mes) .ssrc:last-child{margin-bottom:34px}
 .ssrc .ch .qm{font-size:.75em;opacity:.6;margin:0 4px;vertical-align:.15em;color:var(--SmartThemeEmColor)}
 .ssrc .here{display:flex;flex-wrap:wrap;gap:6px}
 .ssrc .chs{display:flex;flex-direction:column}
-.ssrc .cho{display:flex;align-items:center;gap:8px;width:100%;min-height:36px;box-sizing:border-box;margin:0;padding:3px 0;text-align:left;border:0;border-radius:6px;background:none;color:var(--SmartThemeBodyColor);font:inherit;cursor:pointer}
-.ssrc .cho .k{font-weight:700;min-width:12px}
+/* (a long choice wraps onto more lines: a theme's button rules never keep it on one line or one row's height) */
+.ssrc .cho{display:flex;align-items:center;gap:8px;width:100%;min-height:36px;height:auto;max-height:none;overflow:visible;white-space:normal;text-wrap:wrap;box-sizing:border-box;margin:0;padding:3px 0;text-align:left;border:0;border-radius:6px;background:none;color:var(--SmartThemeBodyColor);font:inherit;cursor:pointer}
+.ssrc .cho .k{flex:none;font-weight:700;min-width:12px}
+.ssrc .cho .w{flex:1 1 auto;min-width:0;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 .ssrc .cho:hover,.ssrc .cho:focus-visible{background:color-mix(in srgb,var(--SmartThemeBodyColor) 8%,transparent)}
 /* The newest reply's action line: things to do, only when there is one (a fight open stands out). */
 .ssrc-acts{border-top:1px solid var(--SmartThemeBorderColor);background:color-mix(in srgb,var(--SmartThemeBlurTintColor) 85%,transparent)}

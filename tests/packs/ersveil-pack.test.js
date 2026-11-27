@@ -1,4 +1,4 @@
-// The shipped Ersveil in pack format 4 (job C1): the world pack examples/packs/ersveil (4.1.0) and its game pack examples/packs/ersveil-game (1.0.0), the
+// The shipped Ersveil in pack format 4 (job C1): the world pack examples/packs/ersveil (4.3.0) and its game pack examples/packs/ersveil-game (1.1.0), the
 // repo's only Ersveil sample (format 3 is obsolete; the format 3 sample is gone): both pass the checker and the install check with the capabilities their kind
 // needs; they pair with no problem; installed together they start a chat at the Guild Office on 1 October CY 611 with 40 copper. The old format 3 Ersveil (with
 // its lorebook) is a frozen test fixture, tests/fixtures/packs/ersveil-3, and the input of the converter test here.

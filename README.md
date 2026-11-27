@@ -1,4 +1,4 @@
-# Story Suite 0.1.6
+# Story Suite 0.1.7
 
 Story Suite is a SillyTavern extension that keeps track of your story for you: your items and money, the scene, the people you meet, the clock and calendar, quests, the map and fights. It puts that state in front of the narrator, and in front of you in a view of its own.
 

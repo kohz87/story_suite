@@ -14,6 +14,7 @@ import { cueLinesOf, linesOf, mergeHook, own, sectionOf, withFeature } from './m
 
 // Story Block's RPG feature: while it is on, its planner asks for the checks.
 const RPG_FEATURE = 'story-block.rpg';
+const TEXT_RPG_FEATURE = 'text-rpg.on';
 
 /**
  * The module definition for `sdk.registerModule` (SPEC §6) from `parts` ([id, part], in order;
@@ -34,12 +35,14 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
     // It starts from what fightRunner says now (a dormant fight runner is none), true where that cannot be known.
     // `chronicle`, `map`, `routes`: whether the story uses the rare kinds (world and faction lines; landmark and route lines; trip lines),
     // so their grammar is taught only then (the lean diet, 3 Nov). All start false and are learnt from the state before each reply.
-    const env = { fights: fightRunner() ?? true, rpg: false, away: false, chronicle: false, map: false, routes: false, calendarRule: '' };
+    const env = { fights: fightRunner() ?? true, rpg: false, textRpg: false, away: false, chronicle: false, map: false, routes: false, calendarRule: '' };
     const learn = view => {
         const found = fightRunner(view);
         if (typeof found === 'boolean') env.fights = found;
         // Story Block's RPG feature (off by default): while it is on its planner asks for the checks.
         if (typeof view?.feature === 'function') env.rpg = tryLive(() => view.feature(RPG_FEATURE), false) === true;
+        // A plug-in sheet module's feature (`text-rpg.on`): while it is on and Story Block's RPG is off, it teaches the one dice system (false when no module declares it).
+        if (typeof view?.feature === 'function') env.textRpg = !env.rpg && tryLive(() => view.feature(TEXT_RPG_FEATURE), false) === true;
         if (isObject(view?.state?.domains)) Object.assign(env, rareKindsUsed(view));
         // Whether someone is followed or away (people/away): the away paragraph and grammar line are taught only then, so a chat with neither
         // sends the prompt it always did. The prompt changes when the first person is followed or sent away, and when the last is neither.
@@ -104,7 +107,7 @@ export function createModule({ parts = PARTS, host = LIVE_HOST } = {}) {
             kinds[kind] = {
                 // A line may be '': the host then leaves the kind out, so a function answers (the registry takes one for a kind with no line yet).
                 get grammar() {
-                    const line = typeof grammar === 'function' ? grammar({ fights: env.fights, rpg: env.rpg, away: env.away, chronicle: env.chronicle, map: env.map, routes: env.routes }) : grammar;
+                    const line = typeof grammar === 'function' ? grammar({ fights: env.fights, rpg: env.rpg, textRpg: env.textRpg, away: env.away, chronicle: env.chronicle, map: env.map, routes: env.routes }) : grammar;
                     return line === '' ? () => '' : line;
                 },
                 ...(spec.aliases ? { aliases: spec.aliases } : {}),

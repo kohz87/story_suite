@@ -90,10 +90,11 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
         if (meters && cast) {
             const defs = part.defs();
             const used = new Set();
+            const { owners } = meters;
             for (const cell of el.querySelectorAll?.('.ppl-present-cell[data-npc-id]') ?? []) {
                 const npc = npcList().find(item => String(item.id ?? '') === String(cell.dataset?.npcId ?? ''));
-                const who = npc ? part.identify(meters.byKey, npc.name) : null;
-                const entry = who && Object.hasOwn(meters.byKey, who.key) ? meters.byKey[who.key] : null;
+                const key = npc ? owners.entryKey(meters.byKey, npc) : null;
+                const entry = key && Object.hasOwn(meters.byKey, key) ? meters.byKey[key] : null;
                 if (!entry || used.has(entry)) continue;
                 used.add(entry);
                 const text = cell.querySelector?.('.ppl-present-card-text');

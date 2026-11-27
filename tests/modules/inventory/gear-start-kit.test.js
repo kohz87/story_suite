@@ -34,7 +34,7 @@ test('a bonus names at most 2 different stats, each a whole number of at least 1
     const host = await world(t);
     const base = { name: 'Odd Ring', kind: 'equipment', slot: 'accessory-1', rarity: 'legendary' };
     await refused(add(host, { ...base, stats: { STR: 1, DEX: 1, INT: 1 } }), /at most 2 different stats/);
-    await refused(add(host, { ...base, stats: { WIS: 1 } }), /at most 2 different stats/);
+    await refused(add(host, { ...base, stats: { LCK: 1 } }), /at most 2 different stats/);
     await refused(add(host, { ...base, stats: { STR: 0 } }), /at most 2 different stats/);
     await refused(add(host, { ...base, stats: { STR: 1.5 } }), /at most 2 different stats/);
     assert.equal((await add(host, { ...base, stats: { STR: 2, INT: 2 } })).ok, true, 'a legendary piece may give 4 points over 2 stats');
@@ -141,13 +141,13 @@ test('Edit: Kind, Slot, Rarity and Bonus of a piece the reader added change whil
     const host = await world(t);
     await add(host, { name: 'Lucky Bone Ring', kind: 'equipment', slot: 'accessory-1', equip: READER });
     const stack = rowOf(host, 'Lucky Bone Ring').stack;
-    const out = await host.sdk.command('inventory.edit', { stack, group: true, rarity: 'rare', stats: { LUK: 2 }, slot: 'accessory-2' });
+    const out = await host.sdk.command('inventory.edit', { stack, group: true, rarity: 'rare', stats: { WIS: 2 }, slot: 'accessory-2' });
     assert.equal(out.ok, true, out.message);
     const def = defOf(host, 'Lucky Bone Ring');
-    assert.deepEqual([def.rarity, def.stats, def.slot], ['rare', { LUK: 2 }, 'accessory']);
-    await refused(host.sdk.command('inventory.edit', { stack, group: true, stats: { LUK: 4 } }), /^A rare piece gives at most 3 points\.$/);
+    assert.deepEqual([def.rarity, def.stats, def.slot], ['rare', { WIS: 2 }, 'accessory']);
+    await refused(host.sdk.command('inventory.edit', { stack, group: true, stats: { WIS: 4 } }), /^A rare piece gives at most 3 points\.$/);
     await refused(host.sdk.command('inventory.edit', { stack, group: true, rarity: 'common' }), /^A common piece gives at most 1 point\.$/);
-    assert.deepEqual(defOf(host, 'Lucky Bone Ring').stats, { LUK: 2 });
+    assert.deepEqual(defOf(host, 'Lucky Bone Ring').stats, { WIS: 2 });
 });
 
 test('Edit after the first message: Rarity and Bonus are read-only on a hand-added piece; Kind, Slot, name, count and note still change', { skip }, async t => {
@@ -189,9 +189,9 @@ test('kind can change on a hand-added piece; Equipment later is Common with no B
 test('kind becoming Equipment while the kit is open may take the rarity and bonus asked', { skip }, async t => {
     const host = await world(t);
     await add(host, { name: 'Trinket', kind: 'goods' });
-    const out = await host.sdk.command('inventory.edit', { stack: rowOf(host, 'Trinket').stack, group: true, kind: 'equipment', slot: 'accessory-1', rarity: 'uncommon', stats: { LUK: 1 } });
+    const out = await host.sdk.command('inventory.edit', { stack: rowOf(host, 'Trinket').stack, group: true, kind: 'equipment', slot: 'accessory-1', rarity: 'uncommon', stats: { WIS: 1 } });
     assert.equal(out.ok, true, out.message);
-    assert.deepEqual([defOf(host, 'Trinket').rarity, defOf(host, 'Trinket').stats], ['uncommon', { LUK: 1 }]);
+    assert.deepEqual([defOf(host, 'Trinket').rarity, defOf(host, 'Trinket').stats], ['uncommon', { WIS: 1 }]);
 });
 
 test('a pack item\'s and the story\'s items refuse the hand-set words with their reasons; a story piece the reader\'s name matches is the story\'s', { skip }, async t => {

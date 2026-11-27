@@ -5,7 +5,7 @@ import { SHAPE_TYPES as T } from './shapes.js';
 const SCALAR = { $oneOf: [T.STRING, T.NUMBER, T.BOOLEAN, T.NULL] };
 const MODULE_SET = { $objectOf: { on: T.BOOLEAN, subs: { $objectOf: T.BOOLEAN } } };
 
-export const SETTINGS_ROW_TYPES = ['sw', 'seg', 'num', 'multi', 'sel', 'txt', 'area', 'chips', 'btn', 'info', 'lines']; // area: several lines of text
+export const SETTINGS_ROW_TYPES = ['sw', 'seg', 'num', 'multi', 'sel', 'txt', 'area', 'chips', 'btn', 'info', 'lines', 'prompt']; // area: several lines of text; prompt: the editor for a long text, empty meaning the row's `builtin` text
 
 const ROW = {
   key: T.STRING,
@@ -19,6 +19,8 @@ const ROW = {
   unit: { $nullable: T.STRING },
   tags: [T.STRING],
   wide: T.BOOLEAN,
+  builtin: { $optional: T.STRING },
+  max: { $optional: T.NUMBER },
   list: { $optional: { items: [{ $objectOf: SCALAR }], unused: [T.NUMBER], note: { $nullable: T.STRING }, meters: { $optional: [T.STRING] } } },
 };
 
@@ -64,6 +66,7 @@ export const SETTINGS_SHAPE = {
       group: { $enum: ['Play', 'Rules', 'Setup', 'Tools'] },
       name: T.STRING,
       desc: T.STRING,
+      icon: { $optional: T.STRING },
       special: { $nullable: { $enum: ['start', 'models', 'packs', 'tools', 'help'] } },
       rows: [
         ROW,

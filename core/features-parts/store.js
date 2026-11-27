@@ -36,6 +36,12 @@ export function createFeatureStore({ root, registry, save = () => {}, legacy = C
         try { onChange?.({ id, on, prompt: registry.feature(id)?.prompt === true }); } catch (error) { console.warn('[Story Suite] a feature listener failed', error); }
         return on;
     }
+    // The features that switching `id` on turns off: the ones it replaces, and every feature that replaces it.
+    const replacedBy = id => {
+        const all = registry.features();
+        const mine = registry.feature(id)?.replaces ?? [];
+        return [...new Set([...mine, ...all.filter(feature => feature.replaces?.includes(id)).map(feature => feature.id)])].filter(other => other !== id);
+    };
     const api = {
         stored,
         on: id => registry.featureOn(id),
@@ -52,6 +58,8 @@ export function createFeatureStore({ root, registry, save = () => {}, legacy = C
             if (Boolean(on) === (decl.default !== false) && typeof old !== 'boolean') delete choices()[id];
             else choices()[id] = Boolean(on);
             save();
+            // A feature that replaces others turns them off, before any listener hears of `id`, and only when it is really on now (not held back, needs met).
+            if (on && registry.featureOn(id)) for (const other of replacedBy(id)) if (registry.featureOn(other) || stored(other) === true) api.set(other, false);
             // Told only when it is on or off now as it was not before: a feature of a module held back stays off.
             if (before !== Boolean(on) && before !== registry.featureOn(id)) tell(id);
             return Boolean(on);

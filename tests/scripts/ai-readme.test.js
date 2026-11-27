@@ -14,7 +14,7 @@ const CLI = path.join(REPO, 'scripts/ai-readme/build.mjs');
 function copyRepo() {
   const dir = tempDir('ai-readme-');
   execFileSync('git', ['init', '-q'], { cwd: dir });
-  for (const rel of ['core', 'packs', 'studio', 'modules', 'ui', 'docs/dev', 'docs/v2', 'docs/codemap.md', 'docs/codemap/jobs.json', 'authoring-kit', 'examples/packs/ersveil/pack.json', 'examples/packs/ersveil/CONVERSION-NOTES.md', 'examples/packs/ersveil-game/pack.json', 'examples/packs/ersveil.zip', 'examples/fishing/index.js', 'testkit', 'tests/modules/inventory/bag-slot.test.js', 'tests/scripts/ai-readme-examples.test.js', 'docs/history/CHANGELOG-detail.md', 'scripts', 'tests/suite/static-prompt.golden.json', 'README.md', 'CHANGELOG.md', 'package-lock.json', 'manifest.json', 'package.json']) {
+  for (const rel of ['core', 'packs', 'studio', 'modules', 'ui', 'docs/dev', 'docs/v2', 'docs/codemap.md', 'docs/codemap/jobs.json', 'authoring-kit', 'examples/packs/ersveil/pack.json', 'examples/packs/ersveil/CONVERSION-NOTES.md', 'examples/packs/ersveil-game/pack.json', 'examples/packs/ersveil.zip', 'examples/fishing/index.js', 'examples/text-rpg/tests/helpers/host.js', 'examples/text-rpg/src/module-parts/active.js', 'testkit', 'tests/modules/inventory/bag-slot.test.js', 'tests/scripts/ai-readme-examples.test.js', 'docs/history/CHANGELOG-detail.md', 'scripts', 'tests/suite/static-prompt.golden.json', 'README.md', 'CHANGELOG.md', 'package-lock.json', 'manifest.json', 'package.json']) {
     fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
     fs.cpSync(path.join(REPO, rel), path.join(dir, rel), { recursive: true, filter: src => !src.endsWith('node_modules') });
   }

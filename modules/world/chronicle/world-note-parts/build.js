@@ -6,6 +6,7 @@
 // one pinned item (`{ text, keep: true }`: kept whatever the budget while the reply's kept room lasts, 120 tokens shared; else an
 // ordinary line, still first); the news and today's line follow as ordinary lines, so a tight tail cuts them before the conditions.
 
+import { isStaleNews } from '../domain-parts/stale.js';
 import { nowFrom } from '../queries.js';
 import { scenePlaceOf } from '../pick.js';
 import { hereConditions } from './here.js';
@@ -57,7 +58,7 @@ function heardLines(view, place, now) {
     const heard = ask(view, 'world.heardHere', { place, now });
     // When it was heard here: a fact when its news came (its end's, once heard); a rumour when it was written (its courier is still to come).
     const at = entry => (isRumour(entry) ? entry.updated ?? entry.since : entry.news === 'ended' ? entry.endsAt : entry.arrivesAt) ?? entry.updated ?? 0;
-    const list = (Array.isArray(heard) ? heard : []).filter(entry => entry && typeof entry.name === 'string');
+    const list = (Array.isArray(heard) ? heard : []).filter(entry => entry && typeof entry.name === 'string' && !isStaleNews(entry, now));
     // A rumour about a happening already heard here as fact says nothing new (final review L4): it is left out, so one happening never takes both slots.
     const facts = new Set(list.filter(entry => !isRumour(entry)).map(entry => entry.name.trim().toLowerCase()));
     return list

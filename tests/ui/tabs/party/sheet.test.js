@@ -25,6 +25,22 @@ test('a companion sheet has name, ⋯, line, soak, bars, XP, doll, stats and ski
   assert.equal(el.querySelector('.awn'), null);
 });
 
+test('a companion\'s keepsakes are listed after the stats with their notes; a member with none shows nothing', () => {
+  const ctx = makeCtx();
+  const keepsakes = [{ name: 'Huge Spiked Iron Maul', note: 'her father made it' }, { name: 'Fang Charm', note: '' }];
+  const el = memberSheet({ ...member(ctx, 'torka'), keepsakes }, ctx);
+  assert.deepEqual(el.querySelectorAll('.lcol .secl').map(n => n.textContent).at(-1), 'Keepsakes');
+  const list = el.querySelector('[data-list="keepsakes"]');
+  assert.deepEqual(list.querySelectorAll('li').map(li => li.textContent), ['Huge Spiked Iron Maul — her father made it', 'Fang Charm']);
+  assert.equal(list.querySelectorAll('small').length, 1);
+  assert.equal(list.querySelectorAll('button').length, 0);
+  for (const none of [member(ctx, 'brann'), { ...member(ctx, 'brann'), keepsakes: [] }]) {
+    const plain = memberSheet(none, ctx);
+    assert.equal(plain.querySelector('.keeps'), null);
+    assert.doesNotMatch(plain.textContent, /Keepsakes/);
+  }
+});
+
 test('the player sheet skips name, bars and XP and starts at the equipment', () => {
   const ctx = makeCtx();
   const el = memberSheet(member(ctx, 'astra'), ctx, { pc: true });
@@ -109,6 +125,17 @@ test('stat sheet stages points, previews pools from Combat Rules v1, then Save s
   assert.equal(astra.stats.INT, 5);
 });
 
+test('a refused save keeps the stat sheet open and shows the reason', async () => {
+  const ctx = makeCtx();
+  ctx.port.command = async () => ({ ok: false, message: 'Astra has 1 point to spend.' });
+  statSheet({ ...member(ctx, 'astra'), stats: { STR: 8, DEX: 12, AGI: 12, VIT: 11, INT: 5, WIS: 6, CHA: 5 } }, ctx);
+  sheetEl().querySelector('[data-plus="INT"]').click();
+  sheetEl().querySelector('[data-save]').click();
+  await flush();
+  assert.notEqual(sheetEl(), null);
+  assert.equal(sheetEl().querySelector('.ps-s').textContent, 'Astra has 1 point to spend.');
+});
+
 test('stat sheet with no points says so and keeps every button off', () => {
   const ctx = makeCtx();
   statSheet(member(ctx, 'brann'), ctx);
@@ -136,4 +163,14 @@ test('the player sheet has an Export button, and it opens the Export sheet for t
   await flush();
   assert.equal(sheetEl().querySelector('.ps-n').textContent, 'Export Astra');
   assert.deepEqual(commands(ctx.port), [['party.export', { member: 'astra' }]]);
+});
+
+test('a sheetless member (a Text RPG companion: no stats) opens: a short line in place of the stat tiles, the rest of the sheet drawn', () => {
+  const ctx = makeCtx();
+  const torka = { ...member(ctx, 'brann'), id: 'torka', name: 'Torka', stats: null, bonus: {}, points: 0, skills: [], soakPct: null };
+  const el = memberSheet(torka, ctx);
+  assert.equal(el.dataset.member, 'torka');
+  assert.equal(el.querySelectorAll('.sv').length, 0);
+  assert.match(el.querySelector('[data-note="no-stats"]').textContent, /No stat sheet/);
+  assert.equal(el.querySelector('.pts'), null);
 });

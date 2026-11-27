@@ -7,8 +7,9 @@
 // is given: no SillyTavern import.
 
 import { normalizeRelationshipMilestones, normalizeRelationshipProgress } from '../core/core-relationship-model.js';
-import { resolveDossierTarget } from '../npc-api/dossier-target.js';
+import { goneTarget, ownerTargets } from '../npc-api/dossier-target.js';
 import { FEATURE_SOCIAL, SOCIAL_QUERY, createNpcPart, normalizeSecrets } from '../meters/npc-meters.js';
+import { ownersOf } from '../meters/npc-meters-parts/owners.js';
 import { normalizeLimits, presetCatalog } from '../meters/npc-meters-presets.js';
 import { RELATIONSHIP_KEYS, dossierFields, portraitUrl } from './queries-dossier.js';
 import { storyMinuteText } from '../calendar/calendar.js';
@@ -55,13 +56,21 @@ export function createQueriesPart(session, deps) {
     };
     const names = list => list.map(npc => String(npc.name ?? '').trim()).filter(Boolean);
     const presentList = () => npcList().filter(npc => npc.present === true && npc.archived !== true);
-    // Delta's own record for a name, alias or id (as npc.dossier finds it), or null.
+    // Delta's own record for a name, alias or id (as npc.dossier finds it), or null. A dossier's own name never reaches another person who has it as an alias.
     const dossierOf = name => {
-        const id = resolveDossierTarget(npcList(), name);
-        if (!id) return null;
-        const npc = runtime()?.getNpc?.(id);
+        const id = ownerTargets(npcList())(name);
+        const npc = id ? runtime()?.getNpc?.(id) : null;
         return npc && typeof npc === 'object' ? npc : null;
     };
+    // The same by name, else by the first of `labels` that finds one; for a dossier's own name (namesakes), only a dossier with that same own name.
+    const holderOf = (name, labels) => {
+        const found = dossierOf(name);
+        if (found) return found;
+        const owners = ownersOf(npcList());
+        return labels.map(dossierOf).find(owners.named(name).length ? npc => npc && owners.sameName(npc.name, name) : Boolean);
+    };
+    // The dossier a note hook is asked about: as holderOf, else the dead or archived one whose id was asked (their own notes, nobody else's).
+    const noteHolder = (name, labels = []) => holderOf(name, labels) ?? (goneTarget(npcList(), name) ? runtime()?.getNpc?.(name) : null);
     const storedSettings = () => {
         try { return session.sdkRef?.settings?.(MODULE_ID) ?? {}; } catch { return {}; }
     };
@@ -101,7 +110,7 @@ export function createQueriesPart(session, deps) {
 
     // What a pack secret's gate is read against besides the person's record: their pack stages, the anchors the world has recorded, the scene's place.
     const gateInputs = name => {
-        const npc = dossierOf(name);
+        const npc = noteHolder(name);
         let anchors = [];
         let place = '';
         try { const list = session.sdkRef?.query?.('chronicle.world.anchors', {}); anchors = Array.isArray(list) ? list : []; } catch { anchors = []; }
@@ -138,17 +147,18 @@ export function createQueriesPart(session, deps) {
         // handlers and screens; the texts go to the tail and to an unlocked note's screen line alone.
         // A pack's gated secrets (`gate`, no meter or event) are only read with the world-events switch on; with it off they are not there.
         secretRules: (name, labels = []) => {
-            const npc = dossierOf(name) ?? labels.map(dossierOf).find(Boolean);
+            const npc = noteHolder(name, labels);
             const gatedOn = worldSecretsOn();
-            return normalizeSecrets(npc?.secrets).filter(note => gatedOn || !note.gate).map(({ id, meter, at, when, title, gate }) => ({ id, ...(meter ? { meter, at } : {}), ...(when ? { when } : {}), ...(gate ? { gate } : {}), ...(title ? { title } : {}) }));
+            return normalizeSecrets(npc?.secrets).filter(note => gatedOn || !note.gate).map(({ id, meter, at, when, title, gate, packId }) => ({ id, ...(meter ? { meter, at } : {}), ...(when ? { when } : {}), ...(gate ? { gate, packId } : {}), ...(title ? { title } : {}) }));
         },
         secretTexts: (name, ids = []) => {
-            const npc = dossierOf(name);
+            const npc = noteHolder(name);
             const gatedOn = worldSecretsOn();
             return normalizeSecrets(npc?.secrets).filter(secret => ids.includes(secret.id) && (gatedOn || !secret.gate)).map(({ id, text }) => ({ id, text }));
         },
         gateInputs,
-        setup: (name, labels = []) => stageSetupOf(dossierOf(name) ?? labels.map(dossierOf).find(Boolean)),
+        sentText: () => (suiteApi?.manage?.preview?.()?.parts ?? []).map(item => item?.text ?? '').join('\n'),
+        setup: (name, labels = []) => stageSetupOf(holderOf(name, labels)),
         presets: catalog,
         feature: hostFeature,
         // The lines switch (the adapter's option; N7 wires its setting, until then it is off) and the names a stub is never made for.
@@ -170,11 +180,16 @@ export function createQueriesPart(session, deps) {
             return null;
         }
     };
-    const entryFor = (entries, npc) => {
+    // The stored dossiers at the head, dead ones too (people.list): whose entry is whose. One per call that maps people to entries.
+    const ownersNow = () => {
+        try { return ownersOf(session.sdkRef?.query?.('people.list', {})); } catch { return ownersOf(null); }
+    };
+    // The entry of a person the caller holds the dossier of ({ id?, name, aliases? }): never found through another person's alias.
+    const entryFor = (entries, npc, owners = ownersNow()) => {
         if (!entries?.length || !npc) return null;
         const byKey = Object.fromEntries(entries.map(entry => [entry.key, entry]));
-        const who = part.identify(byKey, npc.name);
-        return who && Object.hasOwn(byKey, who.key) ? byKey[who.key] : null;
+        const key = owners.entryKey(byKey, npc);
+        return key && Object.hasOwn(byKey, key) ? byKey[key] : null;
     };
     // The built-in meters of a slice entry as Delta's `relationship`.
     const relationshipOf = (entry, fallback = {}) => Object.fromEntries(RELATIONSHIP_KEYS.map(key => [key, Number.isInteger(entry?.meters?.[key]) ? entry.meters[key] : (Number(fallback?.[key]) || 0)]));
@@ -222,7 +237,7 @@ export function createQueriesPart(session, deps) {
             const list = presentList();
             if (args?.meters !== true) return names(list);
             return list.map(npc => {
-                const entry = part.queries['npc.meters'](state, { name: npc.name });
+                const entry = part.queries['npc.meters'](state, { id: npc.id, name: npc.name, aliases: npc.aliases });
                 return { name: String(npc.name ?? '').trim(), meters: entry?.meters ?? null, stages: entry?.stages ?? {} };
             }).filter(item => item.name);
         },
@@ -245,7 +260,7 @@ export function createQueriesPart(session, deps) {
                 if (!npc) return null;
                 const names = runtime()?.customFieldNames?.();
                 const out = dossierFields(npc, { customFieldNames: Array.isArray(names) ? names : undefined });
-                const entry = part.queries['npc.meters'](state, { name: npc.name });
+                const entry = part.queries['npc.meters'](state, { id: npc.id, name: npc.name, aliases: npc.aliases });
                 if (entry) {
                     out.relationship = relationshipOf(entry, out.relationship);
                     out.meters = entry.meters;
@@ -261,7 +276,7 @@ export function createQueriesPart(session, deps) {
         /** One NPC's portrait URL by name, alias or id (as npc.dossier finds them), or null (§F11). */
         'npc.portrait': (state, args) => {
             try {
-                const id = resolveDossierTarget(npcList(), args?.name);
+                const id = ownerTargets(npcList())(args?.name);
                 if (!id) return null;
                 const api = runtime();
                 const npc = api?.getNpc?.(id);
@@ -387,8 +402,9 @@ export function createQueriesPart(session, deps) {
         const entries = sliceEntries();
         if (!entries?.length) return npcs;
         let changed = false;
+        const owners = ownersNow();
         const out = npcs.map(npc => {
-            const entry = npc && typeof npc === 'object' ? entryFor(entries, npc) : null;
+            const entry = npc && typeof npc === 'object' ? entryFor(entries, npc, owners) : null;
             if (!entry) return npc;
             const relationship = relationshipOf(entry, npc.relationship);
             const holds = item => item.inferred !== true && Math.sign(relationship[item.axis]) === item.polarity && Math.abs(relationship[item.axis]) > item.threshold;
@@ -426,6 +442,6 @@ export function createQueriesPart(session, deps) {
 
     return {
         warn, storyDateText, storyDayNumber, runtime, enabled, panel, npcList, presentList, dossierOf, storedSettings, catalog, setupOf, part, sliceEntries,
-        entryFor, queries, ...director, send, sliceView, worldSecretsOn, gateInputs,
+        entryFor, ownersNow, queries, ...director, send, sliceView, worldSecretsOn, gateInputs,
     };
 }

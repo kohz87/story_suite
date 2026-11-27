@@ -79,3 +79,49 @@ test('Plan the next arc, Accept and Discard go to the page planner; a refused pl
   assert.deepEqual(await aliasCommand(null, 'arc.plan', { note: 'bad' }, arc), { ok: false, code: 'FAILED', message: 'Planning failed: no answer' });
   assert.deepEqual(calls[0], ['plan', { reason: 'manual', note: 'more Joris' }]);
 });
+
+test('Spend points sends the row\'s own spend command when the sheet names one, and the port can() it when a module registers it', async () => {
+  const sent = [];
+  const sdk = {
+    query: name => (name === 'rpg.sheet' ? [{ id: 'm1', stats: { STR: 5 }, points: 2, commands: { spend: 'textRpg.spend' } }] : null),
+    command: async (type, payload) => { sent.push([type, payload]); return { ok: true, note: 'mine' }; },
+    modules: () => [{ commands: ['textRpg.spend'] }],
+  };
+  const port = createSbPort({ sdk, selectors: {} });
+  assert.deepEqual(await port.command('rpg.stats.spend', { member: 'm1', stats: { STR: 6 } }), { ok: true, note: 'mine' });
+  assert.deepEqual(sent, [['textRpg.spend', { member: 'm1', stats: { STR: 1 } }]]);
+  assert.equal(port.can('textRpg.spend'), true);
+  assert.equal(port.can('textRpg.other'), false);
+});
+
+test('Spend points on a row without commands.spend takes the old path (no block: refused, nothing sent)', async () => {
+  const sent = [];
+  const sdk = { query: () => [{ id: 'm1', stats: { STR: 5 }, points: 2, commands: { spend: 7 } }], command: async type => { sent.push(type); return { ok: true }; } };
+  const answer = await createSbPort({ sdk, selectors: {} }).command('rpg.stats.spend', { member: 'm1', stats: { STR: 6 } });
+  assert.equal(answer.ok, false);
+  assert.deepEqual(sent, []);
+});
+
+test('a plug-in sheet\'s own spend command is called only when its name is a plain command name', async () => {
+  const { aliasCommand } = await import('../../../ui/port/aliases.js');
+  const sent = [];
+  const sdkFor = spend => ({ query: () => [{ id: 'a', stats: { str: 5 }, commands: { spend } }], command: async (type, payload) => { sent.push([type, payload]); return { ok: true }; } });
+  assert.deepEqual(await aliasCommand(sdkFor('textRpg.spend'), 'rpg.stats.spend', { member: 'a', stats: { str: 6 } }), { ok: true });
+  assert.deepEqual(sent, [['textRpg.spend', { member: 'a', stats: { str: 1 } }]]);
+  sent.length = 0;
+  for (const bad of ['bad name', '1x', 'x/y', 'a'.repeat(81)]) assert.equal((await aliasCommand(sdkFor(bad), 'rpg.stats.spend', { member: 'a', stats: {} })).ok, false, bad);
+  assert.deepEqual(sent, []);
+});
+
+test('a plug-in sheet gets the points bought, not the new totals; lowering, unknown stats and no change send nothing', async () => {
+  const { aliasCommand } = await import('../../../ui/port/aliases.js');
+  const sent = [];
+  const sdk = { query: () => [{ id: 'rav', stats: { STR: 8, DEX: 12, WIS: 6 }, points: 3, commands: { spend: 'textRpg.spend' } }], command: async (type, payload) => { sent.push([type, payload]); return { ok: true }; } };
+  assert.deepEqual(await aliasCommand(sdk, 'rpg.stats.spend', { member: 'rav', stats: { STR: 8, DEX: 14, WIS: 7 } }), { ok: true });
+  assert.deepEqual(sent, [['textRpg.spend', { member: 'rav', stats: { DEX: 2, WIS: 1 } }]]);
+  sent.length = 0;
+  assert.equal((await aliasCommand(sdk, 'rpg.stats.spend', { member: 'rav', stats: { STR: 7, DEX: 13 } })).ok, false);
+  assert.equal((await aliasCommand(sdk, 'rpg.stats.spend', { member: 'rav', stats: { LUK: 3 } })).ok, false);
+  assert.deepEqual(await aliasCommand(sdk, 'rpg.stats.spend', { member: 'rav', stats: { STR: 8, DEX: 12, WIS: 6 } }), { ok: true });
+  assert.deepEqual(sent, []);
+});

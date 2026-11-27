@@ -5,7 +5,7 @@ import { CORE_FEATURE } from '../../core/features.js';
 
 /**
  * Builds the view's handle on the cards under replies from the engine's `registry`, `store` and `initial()` (the state of a chat with no
- * record yet, so a greeting-only chat is asked too) and SillyTavern's `ctx()`. `head()` → { index, cards: [{ key, card }] } or null.
+ * record yet, so a greeting-only chat is asked too) and SillyTavern's `ctx()`. `head()` → { index, cards: [{ key, card, rows }] } or null.
  * Each card's `for(state, message, { index, head: true, chatId, query })` is asked once per call on the head reply's state, so a card is
  * a pure function of the story there: what the reader answered on it is in that reply's receipts and comes back with a swipe back, a
  * reload or a rebuild, and goes with a delete. A card that throws is left out and never stops the others; raw cards (the module's own
@@ -27,10 +27,10 @@ export function createCardSource({ registry, store, initial = null, ctx = () => 
         const query = (name, args) => (registry.query?.(name) ? runAt(name, args, state) : null);
         const own = { index, head: true, chatId: chatId(), query };
         const cards = [];
-        for (const { id, fn } of entries) {
+        for (const { id, fn, rows } of entries) {
           try {
             const card = fn(state, message, own);
-            if (card && typeof card === 'object') cards.push({ key: id, card });
+            if (card && typeof card === 'object') cards.push({ key: id, card, rows });
           } catch { /* one module's card never stops the others */ }
         }
         return { index, cards };

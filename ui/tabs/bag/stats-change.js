@@ -10,7 +10,7 @@ const say = (line, text) => {
 };
 
 /** The Stats words for a piece: its points as "+1 DEX · +1 AGI", else gear.view's bonus text, else "None". */
-export const statsText = item => statsLine(item?.repoint?.stats) || item?.bonus || 'None';
+export const statsText = item => statsLine(item?.repoint?.stats, item?.repoint?.labels) || item?.bonus || 'None';
 
 /**
  * Change for a piece that has no points to move (a cast member's piece, Gear in fights off, a budget of 0): the edit is sent with no stats so the engine's
@@ -37,7 +37,7 @@ export function changeView(item, { port, onDone, onCancel } = {}) {
   const budget = item.repoint?.budget ?? 0;
   const line = note();
   const save = h('button', { type: 'button', class: 'ps-b pri', dataset: { save: 'stats' }, onClick: () => send() }, 'Save');
-  const picker = statsPicker({ budget, stats: item.repoint?.stats ?? {}, onChange: () => { save.disabled = !picker.full(); } });
+  const picker = statsPicker({ budget, stats: item.repoint?.stats ?? {}, labels: item.repoint?.labels, onChange: () => { save.disabled = !picker.full(); } });
   save.disabled = !picker.full();
   let busy = false;
   async function send() {

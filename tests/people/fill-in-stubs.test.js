@@ -171,3 +171,24 @@ for (const [kind, expected, first] of [['not json', 2, { calls: 2, queued: 0 }],
         assert.equal(r.stays, true);
     });
 }
+
+test('a fill-in keeps who is here and the line-written place: a person met away from the scene is not made present by it', () => {
+    const r = runCalls('fill-keeps-live', true, async ({ reply, settings, mockState }) => {
+        const st = () => globalThis.NPCStateDelta.getState();
+        settings.narrationCaptureCatchUp = 0;
+        await reply('Wiz haggles at the inn.', { npcs: [{ name: 'Wiz', present: true, role: 'innkeeper', identityKind: 'proper_name', dossierSignal: 'persistent', dossierReason: 'named', directInteraction: true, relationshipImpact: 'none', relationshipDelta: ZERO }] });
+        await reply('Back at the office.', { npcs: [{ name: 'Wiz', present: false, location: 'the Stray Oar', relationshipImpact: 'none', relationshipDelta: ZERO }] });
+        const wiz = st().npcs.find(n => n.name === 'Wiz');
+        const before = { present: wiz.present, location: wiz.location };
+        globalThis.NPCStateDelta.queueFills([{ id: wiz.id, name: wiz.name }], mockState.context.chat.length - 1);
+        await reply('Quiet.', { npcs: [] });
+        const after = st().npcs.find(n => n.name === 'Wiz');
+        const calls = mockState.rawCalls.filter(call => /backfill scanner/i.test(String(call?.[0]?.systemPrompt || ''))).length;
+        return { before, present: after.present, location: after.location, calls, lastSeenTurn: after.lastSeenTurn, turn: st().turn };
+    });
+    assert.deepEqual(r.before, { present: false, location: 'the Stray Oar' }, 'the setup: Wiz is away ' + JSON.stringify(r));
+    assert.ok(r.calls >= 1, 'the fill-in ran');
+    assert.equal(r.present, false, 'the model answered present: true; the fill-in keeps the scene\'s answer');
+    assert.equal(r.location, 'the Stray Oar');
+    assert.equal(r.lastSeenTurn, r.turn, 'seen at the reply');
+});

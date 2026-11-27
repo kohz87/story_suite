@@ -47,8 +47,44 @@ test('heavy load shows the 80% note; over the limit shows the slow-down note', (
   const over = loadBlock(bagFixture({ over: true }).load);
   assert.equal(over.classList.contains('over'), true);
   assert.match(over.querySelector('.lt').textContent, /^Over the limit by 7$/);
-  assert.match(over.querySelector('.ovr').textContent, /−2 to AGI and DEX checks and travel pace −25%/);
+  assert.equal(over.querySelector('.ovr').textContent, 'Over the limit by 7. The narrator treats everyone as slowed: −2 to AGI and DEX checks. Drop something to get back under.');
   assert.equal(loadBlock({ ...base, value: 400, level: 'over' }).querySelector('.lbar b').style.getPropertyValue('width'), '100%');
+});
+
+test('a line for each member\'s own load, marked heavy or over as the bar is; none without members', () => {
+  installFakeDom();
+  const base = bagFixture().load;
+  assert.equal(loadBlock(base).querySelector('.mloads'), null);
+  const people = [
+    { id: 'a', name: 'Torka', value: 18, limit: 42, level: 'light' },
+    { id: 'b', name: 'Ren', value: 25, limit: 30, level: 'heavy' },
+    { id: 'c', name: 'Mara', value: 31, limit: 30, level: 'over' },
+  ];
+  const lines = loadBlock({ ...base, people }).querySelectorAll('.mload');
+  assert.deepEqual(lines.map(line => [line.querySelector('span').textContent, line.querySelector('b').textContent]),
+    [['Torka', '18 / 42'], ['Ren · Heavy', '25 / 30'], ['Mara · Over the limit', '31 / 30']]);
+  assert.deepEqual(lines.map(line => [line.classList.contains('heavy'), line.classList.contains('over')]), [[false, false], [true, false], [false, true]]);
+});
+
+test('the notes say what the narrator is told: the members who are over, else everyone while the bar is over; none while Encumbered is off', () => {
+  const base = bagFixture().load;
+  const people = [{ id: 'c', name: 'Mara', value: 31, limit: 30, level: 'over' }, { id: 'd', name: 'Pell', value: 25, limit: 30, level: 'heavy' }];
+  const notes = load => loadBlock(load).querySelectorAll('.ovr').map(note => note.textContent);
+  const mara = 'The narrator treats Mara as slowed: −2 to AGI and DEX checks for them until they put something down.';
+  assert.deepEqual(notes({ ...base, level: 'light', people }), [mara]);
+  assert.equal(notes({ ...base, level: 'heavy', people }).length, 1);
+  assert.deepEqual(notes({ ...base, value: base.limit + 7, level: 'over', people }), [mara], 'the tail names only who is over');
+  assert.deepEqual(notes({ ...base, value: base.limit + 7, level: 'over', people, untold: true }), []);
+  assert.deepEqual(notes({ ...base, level: 'light', people, untold: true }), []);
+});
+
+test('someone who left has their load and no limit; with no name known the line says only that', () => {
+  installFakeDom();
+  const people = [{ id: 'a', name: 'Torka', value: 21, limit: 0, level: 'light', left: true }, { id: 'b', name: 'Someone who left', value: 3, limit: 0, level: 'light', left: true, unnamed: true }];
+  const load = { ...bagFixture().load, people };
+  assert.deepEqual(checkShape({ ...bagFixture(), load }, BAG_SHAPE), []);
+  assert.deepEqual(loadBlock(load).querySelectorAll('.mload').map(line => [line.querySelector('span').textContent, line.querySelector('b').textContent]),
+    [['Torka (left)', '21'], ['Someone who left', '3']]);
 });
 
 test('Edit money opens a sheet; Save sends wallet.set with clean whole numbers', () => {

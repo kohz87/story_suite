@@ -149,7 +149,7 @@ test('on the host: a ninth condition on one place is a note on the card and the 
     await host.send('More.', reply('And more.', [`+ world More Woes — again | state: ongoing | place: Highmark | conditions: ${names.slice(5).map(n => `+${n}`).join(', ')}`]));
     assert.equal(keys(host).length, 8);
     assert.ok(Object.values(host.head().domains.chronicle.events).some(event => event.name === 'More Woes'), 'the line stands');
-    assert.match(summaries(host), /Not used: "woe-9": Highmark already carries 8 conditions/);
+    assert.match(summaries(host), /Not used: woe 9: Highmark already carries 8 conditions/);
     host.close();
 });
 
@@ -181,7 +181,7 @@ test('on the host (test 7, the world line\'s side): a clear on a day is not undo
     const clearing = host.ctx.chat.length - 1;
     await host.send('Again.', reply('Shouts again.', ['! time +30m', '+ world New Riot — shouts | state: ongoing | place: Highmark | conditions: +unrest']));
     assert.deepEqual(keys(host), ['grain-dear@The March'], 'cleared earlier today: not set again');
-    assert.match(summaries(host), /Not used: "unrest": unrest was cleared on Highmark today/);
+    assert.match(summaries(host), /Not used: unrest was cleared on Highmark today/);
     assert.deepEqual(host.head().domains.chronicle.ledger[0].tomb.keys, ['unrest@Highmark']);
     await agrees(host, 'tomb');
     const later = host.ctx.chat.length - 1;

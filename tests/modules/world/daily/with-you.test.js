@@ -76,7 +76,7 @@ test('test 108: died on someone with You is refused (Problems) without even_in_p
     run.to(1);
     assert.equal(row(run, 'temiwa').died, undefined, 'she stays alive');
     assert.equal(row(run, 'temiwa').dying, undefined, 'no cue without even_in_party');
-    assert.ok(run.warnings.some(text => /would kill temiwa, who is with You; refused/.test(text)));
+    assert.ok(run.warnings.some(text => /would kill Temiwa, who is with You; refused/.test(text)));
     assert.equal(row(run, 'oren').died, 1);
     run.withYou = [];
     run.to(10);
@@ -132,4 +132,23 @@ test('test 110: the step decides the same way on every run — the skip, the log
     again.withYou = [];
     again.to(4);
     assert.deepEqual(again.state, a.state, 'today was stepped: nothing is decided again');
+});
+
+test('an event with no title: the Journal lines and the routine go without a bracket, never with the event id (owner, 27 Nov)', () => {
+    const untitled = (id, effects) => { const def = ev(id, { effects }); delete def.title; return def; };
+    const run = runner(world({ cast, events: [untitled('raid', { cast: [{ who: 'temiwa', location: 'Fenmouth' }, { who: 'oren', died: true }] })] }));
+    run.to(1);
+    const lines = run.journal().filter(entry => !entry.rumour && !entry.fired).map(entry => entry.text);
+    assert.ok(lines.includes('Temiwa left Oakhollow for Fenmouth.'), lines.join(' | '));
+    assert.ok(lines.includes('Oren died.'), lines.join(' | '));
+    assert.ok(!run.journal().some(entry => /\braid\b/.test(entry.text)), 'the id is never shown');
+    assert.equal(run.reports.at(-1).moves.find(move => move.id === 'temiwa').routine, 'staying at Fenmouth');
+    const kept = runner(world({ cast, events: [untitled('raid', { cast: [{ who: 'temiwa', location: 'Fenmouth' }] })] }));
+    kept.withYou = ['temiwa'];
+    kept.to(1);
+    assert.ok(kept.journal().some(entry => entry.text === 'Temiwa stays with You'));
+    const sack = runner(world({ cast, events: [untitled('sack', { set: ['fallen@Oakhollow: until cleared'] })] }));
+    sack.withYou = ['temiwa'];
+    sack.to(1);
+    assert.ok(sack.journal().some(entry => entry.text === 'Temiwa stays with You'), 'the evacuation too');
 });

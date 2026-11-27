@@ -4,7 +4,7 @@
 // - `cast.sync { add?, update?, drop?, updated?, init? }`: the packs' cast joined, changed or left (apply.js).
 // - `cast.advance { from, to, moves?, died? }`: the planner's batch after a day change or a time skip (a move: `{ key, where, doing, from? }`).
 // - `cast.meet { at, who: [{ key, why, reason }] }`: the party meets someone for the first time (no dice).
-// - `cast.rumor { at, who: [{ key, where, text }] }`: the reader sought a kind of person who is elsewhere: the narrator is told of them without the name.
+// - `cast.rumor { at, who: [{ key, where, text }] }`: the reader sought a kind of person who is elsewhere: the narrator is told who they are by name (the card's `text` stays nameless).
 // - `cast.journey { start?, stop?, land? }`: a goal pulls someone who is too far: they set out, or the link went (stop), or the trip is over (land).
 // - `cast.withdraw { at, keys }`: the reply did not show a person it was told to bring in, so their meeting is taken back (after the reply).
 // - `cast.story { set?, clear?, told? }`: with world events on, the story's own moves and stays records become a person's base (after the reply).

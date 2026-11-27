@@ -16,6 +16,7 @@ import { seedCastBond } from './cast-bond.js';
 import { withMemories, memoryLine } from '../npc-lines-parts/memory.js';
 import { secretLine } from '../npc-lines-parts/secret.js';
 import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
+import { toNamesake } from '../npc-lines-parts/which.js';
 
 
 /**
@@ -28,8 +29,9 @@ import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
  *   allowance()       → the reader's events per story day { ordinary, meaningful, major, extreme } (null: no limit; relationship-pacing.js)
  *   startTime(index)  → story-clock minutes before that reply (null when unavailable)
  *   startDate(index)  → that story day as the dossier writes it ("Goldwane 13"; '' when unavailable)
- *   secretRules(name) → that dossier's notes as [{ id, meter?, at?, when?, title? }] (never their text)
+ *   secretRules(name) → that dossier's notes as [{ id, meter?, at?, when?, gate?, packId?, title? }] (never their text)
  *   secretTexts(name, ids) → [{ id, text }] for those notes (the tail and screens only)
+ *                       (`name` here, in secretRules, setup and gateInputs: the id of the entry's owner when a stored dossier owns it; owners.asking)
  *   setup(name, labels) → that dossier's meter setup { track, limits } (the editor's)
  *   presets()         → the preset catalog (presetCatalog: built-ins and packs')
  *   feature(id)       → true / false for a feature the host knows; anything else: its default
@@ -50,13 +52,13 @@ export function createNpcPart(hooks = {}) {
         ownRungs, rungsFor, limitsFor,
     } = readers;
     const records = createNpcRecords(readers);
-    const { identify, ensure, note, changesFrom, settleRecord, openCloseNotes, tiered } = records;
+    const { identify, identifyIn, ensure, note, changesFrom, settleRecord, openCloseNotes, tiered } = records;
     const { run } = createNpcRun({ ...readers, ...records });
 
     const shared = {
         call, resolve, baseline, tierCaps, rulesFor, presentNames, featureOn, catalog, normalized,
         storedSettings, tierAllowance, clockDay, clockMinutes, timeMinutes, defsFrom, readerAction, ownOrModule, headReply, commandReply, setupFor,
-        ownRungs, rungsFor, limitsFor, identify, ensure, note, changesFrom, settleRecord,
+        ownRungs, rungsFor, limitsFor, identify, identifyIn, ensure, note, changesFrom, settleRecord,
         openCloseNotes, tiered, run, hooks,
     };
     const built = createNpcCommands(shared);
@@ -76,11 +78,11 @@ export function createNpcPart(hooks = {}) {
     const castFirst = createCastFirst({ baseline, bond });
     // NPCPRESENT: a person this reply's `+ present` (or a hook's giver:) brings in with no record yet gets one in the reply's step, after its lines.
     const arrive = createArrivals({ hooks, linesMode, baseline, castFirst });
-    const captureLine = folded(withMemories(withStubs(built.captureLine, { hooks, linesMode, baseline, note, castFirst }), { linesMode, date }));
+    const captureLine = folded(withMemories(withStubs(built.captureLine, { hooks, linesMode, baseline, note, castFirst }), { linesMode, date, note }));
     // `~ memory` and `~ reveal` (NSD8, NSD12): only in lines mode; untaught until N7 (grammar '', heads only). Off, a line of either is refused and changes nothing.
     const onlyLines = (name, apply) => folded((ctx, line = {}) => (linesMode(ctx) ? apply(ctx, line) : ctx.fail('REFUSED', `${name} lines are not on.`)));
     const memoryApply = onlyLines('~ memory', (ctx, line) => memoryLine(ctx, line, { date, castFirst }));
-    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identify, rulesFor, run, call, hooks, defs: () => defsFrom(storedSettings()), castFirst }));
+    const secretApply = onlyLines('~ reveal', (ctx, line) => secretLine(ctx, line, { identifyIn, rulesFor, run, call, hooks, defs: () => defsFrom(storedSettings()), castFirst }));
     // The host sends every line of the module to the one apply of the `npc` kind: `~ memory` and `~ reveal` go to their own, the rest to the change line.
     // A death line (NSD13, `~ npc Name | died | how: …`) is its own op, in lines mode only; off, it is an ordinary `~ npc` line, byte for byte.
     const diedApply = folded((ctx, line = {}) => diedLine(ctx, line));
@@ -93,18 +95,18 @@ export function createNpcPart(hooks = {}) {
         afterCapture: arrive.afterCapture,
         queries,
         kinds: {
-            [NPC_KIND]: { grammar: '', heads: ['~ npc', '+ npc'], apply: dispatch, after: ['time', 'present', 'place'] },
-            [MILESTONE_KIND]: { grammar: '+ milestone Name — the turning point that just happened between you (once, when a bond changes for good; e.g. + milestone Person A — a promise was kept)', apply: captureLine, feature: FEATURE_STAGES, after: ['time'] },
-            ...noteKinds(captureLine),
-            memory: { grammar: '', heads: ['~ memory'], apply: memoryApply, after: ['time', 'present', 'place', 'npc', 'milestone', 'lie', 'know', 'taste', 'tie'] },
-            reveal: { grammar: '', heads: ['~ reveal'], apply: secretApply, after: ['time', 'present', 'place', 'npc'] },
+            [NPC_KIND]: { grammar: '', heads: ['~ npc', '+ npc'], apply: toNamesake(dispatch), after: ['time', 'present', 'place'] },
+            [MILESTONE_KIND]: { grammar: '+ milestone Name — the turning point that just happened between you (once, when a bond changes for good; e.g. + milestone Person A — a promise was kept)', apply: toNamesake(captureLine), feature: FEATURE_STAGES, after: ['time'] },
+            ...noteKinds(toNamesake(captureLine)),
+            memory: { grammar: '', heads: ['~ memory'], apply: toNamesake(memoryApply), after: ['time', 'present', 'place', 'npc', 'milestone', 'lie', 'know', 'taste', 'tie'] },
+            reveal: { grammar: '', heads: ['~ reveal'], apply: toNamesake(secretApply), after: ['time', 'present', 'place', 'npc'] },
         },
         context: { static: staticText, tail, budget: CONTEXT_BUDGET },
         redact,
         settings: { defaults: { ...SETTINGS_DEFAULTS }, schema: SETTINGS_SCHEMA },
         features: FEATURES,
         featureOn: id => featureOn(id),
-        identify: (npcs, label) => identify(npcs ?? {}, label),
+        identify: (npcs, label, owners) => identify(npcs ?? {}, label, owners),
         defs: () => defsFrom(storedSettings()),
         meterSettings: () => storedSettings(),
         /** True when Delta's per-reply tick has something to look at (a ladder, or a drifting meter). */
@@ -114,7 +116,7 @@ export function createNpcPart(hooks = {}) {
                 || (featureOn(FEATURE_DRIFT) && settings.custom.some(def => def.drift))
                 || featureOn(FEATURE_MOOD_PULL);
         },
-        ladder: record => (isObject(record) ? ladderView(record, storedSettings(), defsFrom(storedSettings())) : null),
-        notes: record => (isObject(record) ? notesView(record, defsFrom(storedSettings())) : { locked: [], opened: [] }),
+        ladder: (record, asked) => (isObject(record) ? ladderView(record, storedSettings(), defsFrom(storedSettings()), asked) : null),
+        notes: (record, asked) => (isObject(record) ? notesView(record, defsFrom(storedSettings()), asked) : { locked: [], opened: [] }),
     };
 }

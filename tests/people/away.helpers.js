@@ -25,8 +25,8 @@ export const director = () => ({
     },
 });
 
-export async function suite({ settings = {}, features = null, modules = [director()] } = {}) {
-    const records = {
+export async function suite({ settings = {}, features = null, modules = [director()], people = null } = {}) {
+    const records = people ?? {
         npc_ren: { id: 'npc_ren', name: 'Ren', aliases: [], present: true, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
         npc_mira: { id: 'npc_mira', name: 'Mira', aliases: [], present: true, relationship: { trust: 0, affection: 0, desire: 0, tension: 0 } },
     };

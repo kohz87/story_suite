@@ -18,6 +18,7 @@ const VARIANTS = {
     mood_word_on: { moodWord: true },
     level_on: { levelOn: true },
     people_list: { existingNpcs: [{ id: 'mira', name: 'Mira Tolk', aliases: ['Mira'], present: true }, { id: 'old', name: 'Old Tam', aliases: [], archived: true }, { id: 'gone', name: 'Gone', aliases: [], lastSeenTurn: 1 }, { id: 'dead', name: 'Dead', aliases: [], lifeState: 'deceased', lifeStateCertainty: 'confirmed' }], turn: 100, dormantAfter: 30, namedNpcIds: ['dead'] },
+    present_reminder: { existingNpcs: [{ id: 'dora', name: 'Dora Vint', aliases: [], present: true }], present: ['Dora Vint', 'Sister Temiwa', 'Dora Vint', ''] },
     event_watch: { eventWatch: [{ key: 'sec_0aaa1111', name: 'Mira', event: 'The duke is exposed as a traitor' }, { key: 'sec_0bbb2222', name: 'Oren', event: 'the seal is shown' }] },
 };
 // G2: default (anti-lever on, so `via:`), anti-lever off, caps on (the same text as default: code enforces the caps), presets with Meter rules.

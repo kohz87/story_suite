@@ -4,10 +4,10 @@ import { lockedFieldKeys } from '../../dossier/dossier-edit.js';
 import { TERMINAL_FROZEN_FIELDS } from '../../fields/registry.js';
 import { normalizeGender } from '../../core/core-identity.js';
 
-const LINE_NAME = Object.freeze({ location: 'where', appearance: 'look' });
+const LINE_NAME = Object.freeze({ location: 'where', appearance: 'look', relationshipSummary: 'toward' });
 // P6: once a person has died a STATED gender no longer changes; one never stated may still be filled in once (the reader can always edit it by hand).
 
-/** → { set, problems }: `set` without the dropped fields (keys are the dossier's own: goal, status, location, appearance, gender, age, birthday). */
+/** → { set, problems }: `set` without the dropped fields (keys are the dossier's own: goal, status, location, appearance, gender, age, birthday, relationshipSummary). */
 export function guardFields(set, dossier, name) {
     const out = {};
     const problems = [];

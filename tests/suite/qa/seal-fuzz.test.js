@@ -33,7 +33,7 @@ function cold(host, chat, metadata) {
         const errors = typeof fn === 'function' ? fn(state?.domains?.[name], state) : [];
         return Array.isArray(errors) ? errors.map(String) : [];
     });
-    const fresh = createStore({ chat: () => chat, metadata: () => metadata, save: () => {}, validate, scratch: name => registry.scratch(name), seed: name => registry.deferredInitial(name) });
+    const fresh = createStore({ chat: () => chat, metadata: () => metadata, save: () => {}, validate, scratch: name => registry.scratch(name), seed: name => registry.deferredInitial(name), holders: name => registry.holders(name) });
     createCommandBus({ store: fresh, registry, settings: id => host.sdk.settings(id) });
     fresh.ensureInitial(registry.initialState());
     return fresh;

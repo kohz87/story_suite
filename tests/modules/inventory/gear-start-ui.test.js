@@ -38,7 +38,7 @@ test('addFields: Item (Name, Count, Kind, Note) and Gear (Slot, Rarity, Bonus, p
     const open = addFields({ kit: true, owners: OWNERS });
     assert.deepEqual(open.filter(f => f.group === 'Item').map(f => f.key), ['name', 'count', 'kind', 'note']);
     assert.deepEqual(open.filter(f => f.group === 'Gear').map(f => f.key), ['slot', 'rarity', 'stat1', 'points1', 'stat2', 'points2', 'budget', 'equip']);
-    assert.deepEqual(open.find(f => f.key === 'kind').options.map(o => o.label), ['Equipment', 'Consumables', 'Goods', 'Quest items', 'Materials']);
+    assert.deepEqual(open.find(f => f.key === 'kind').options.map(o => o.label), ['Equipment', 'Consumables', 'Supplies', 'Goods', 'Quest items', 'Materials']);
     assert.deepEqual(open.find(f => f.key === 'rarity').options.map(o => o.label), ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary']);
     assert.deepEqual(open.find(f => f.key === 'slot').options.map(o => o.label), ['None', 'Head', 'Body', 'Cloak', 'Feet', 'Weapon', 'Off-hand', 'Accessory 1', 'Accessory 2']);
     assert.deepEqual(open.find(f => f.key === 'equip').options.map(o => o.label), ['None', 'Astra (you)', 'Harrak']);
@@ -61,14 +61,14 @@ test('addPlan: one inventory.add; equipment sends slot, rarity, bonus and Equip 
 });
 
 test('editFields / editPlan: the item\'s own words, then who wears it', () => {
-    const p = { value: 'Lucky Bone Ring', itemCount: 1, itemNote: '', gear: { kind: 'equipment', rarity: 'rare', stack: 'it_1', owner: 'party', by: '', place: '', def: 'story/lucky-bone-ring', kit: true, owners: OWNERS, row: { hand: true, defSlot: 'accessory-1', stats: { LUK: 2 } } } };
+    const p = { value: 'Lucky Bone Ring', itemCount: 1, itemNote: '', gear: { kind: 'equipment', rarity: 'rare', stack: 'it_1', owner: 'party', by: '', place: '', def: 'story/lucky-bone-ring', kit: true, owners: OWNERS, row: { hand: true, defSlot: 'accessory-1', stats: { WIS: 2 } } } };
     const fields = editFields(p);
-    assert.equal(fields.find(f => f.key === 'stat1').value, 'LUK');
+    assert.equal(fields.find(f => f.key === 'stat1').value, 'WIS');
     assert.equal(fields.find(f => f.key === 'points1').value, 2);
     assert.equal(fields.find(f => f.key === 'slot').value, 'accessory-1');
     assert.equal(fields.some(f => f.key === 'later'), false, 'the kit is open');
     const plan = editPlan(p);
-    const all = { name: 'Lucky Bone Ring', count: 1, note: 'carved', kind: 'equipment', slot: 'accessory-1', rarity: 'rare', stat1: 'LUK', points1: 2, stat2: '', points2: null, by: 'ac_astra001' };
+    const all = { name: 'Lucky Bone Ring', count: 1, note: 'carved', kind: 'equipment', slot: 'accessory-1', rarity: 'rare', stat1: 'WIS', points1: 2, stat2: '', points2: null, by: 'ac_astra001' };
     const steps = plan({ note: 'carved', by: 'ac_astra001' }, all).steps;
     assert.deepEqual(steps.map(step => [step.command, step.payload]), [
         ['inventory.edit', { stack: 'it_1', group: true, note: 'carved' }],
@@ -203,21 +203,21 @@ test('"+ Add item": an empty name is refused in the form; Cancel and Escape clos
 
 test('Edit of a piece the reader added, starting kit: the same groups with its values; a changed Rarity and Bonus save through inventory.edit', { skip }, async t => {
     const host = await world(t);
-    await host.sdk.command('inventory.add', { name: 'Lucky Bone Ring', qty: 1, kind: 'equipment', slot: 'accessory-1', rarity: 'uncommon', stats: { LUK: 1 } });
+    await host.sdk.command('inventory.add', { name: 'Lucky Bone Ring', qty: 1, kind: 'equipment', slot: 'accessory-1', rarity: 'uncommon', stats: { WIS: 1 } });
     const { el, calls } = draw(host);
     const row = rowOf(el, 'Lucky Bone Ring');
     row.querySelector('.ss-w-editable-pencil').click();
     assert.equal(text(row.querySelector('.ss-w-editable-intro')), 'Starting kit: rarity and bonuses can be set until your first message. Starting kit belongs to this greeting.');
     assert.deepEqual(groups(row), [{ name: 'Item', hidden: false }, { name: 'Gear', hidden: false }]);
     assert.deepEqual(['Name', 'Count', 'Kind', 'Note', 'Slot', 'Rarity', 'Equipped by'].map(name => labelled(row, name).value), ['Lucky Bone Ring', '1', 'equipment', '', 'accessory-1', 'uncommon', '']);
-    assert.equal(row.querySelectorAll('label').filter(node => node.querySelector('span')?.textContent === 'Bonus')[0].querySelector('select').value, 'LUK');
+    assert.equal(row.querySelectorAll('label').filter(node => node.querySelector('span')?.textContent === 'Bonus')[0].querySelector('select').value, 'WIS');
     change(labelled(row, 'Rarity'), 'rare');
     row.querySelectorAll('label').filter(node => node.querySelector('span')?.textContent === 'Points')[0].querySelector('input').value = '2';
     row.querySelector('.ss-w-editable-save').click();
     await settle();
-    assert.deepEqual(calls.map(([type, payload]) => [type, payload.rarity, payload.stats]), [['inventory.edit', 'rare', { LUK: 2 }]]);
+    assert.deepEqual(calls.map(([type, payload]) => [type, payload.rarity, payload.stats]), [['inventory.edit', 'rare', { WIS: 2 }]]);
     const def = Object.values(host.head().domains.inventory.defs).find(item => item.name === 'Lucky Bone Ring');
-    assert.deepEqual([def.rarity, def.stats], ['rare', { LUK: 2 }]);
+    assert.deepEqual([def.rarity, def.stats], ['rare', { WIS: 2 }]);
 });
 
 test('Edit after the first message: Rarity is disabled, the Bonus stats can be moved (hint and live points); Kind, Slot and Equipped by still save', { skip }, async t => {

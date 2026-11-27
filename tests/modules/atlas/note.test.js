@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { part } from '../../../modules/atlas/atlas/index.js';
-import { TAIL_BUDGET, TRIP_TAIL_BUDGET } from '../../../modules/atlas/atlas/note.js';
+import { PLACES_TAIL_BUDGET, TAIL_BUDGET, TRIP_TAIL_BUDGET } from '../../../modules/atlas/atlas/note.js';
 import { at, command, lines, makeState, queryFor } from './helpers/fake-ctx.js';
 
 // What the host puts in the static prompt for this part: each kind's one line, then its static.
@@ -46,7 +46,7 @@ test('the tail is one optional line: the known routes from the scene\'s place wi
     const out = part.context.tail(view(story()));
     assert.deepEqual(out.lines, []);
     assert.deepEqual(out.optional, ['Routes from Bluewatch Village: Old Weir by road, 2 h · Thunder Ruins by trail, 1.5 days · Grey Fen.']);
-    assert.equal(part.context.budget, TAIL_BUDGET + TRIP_TAIL_BUDGET, 'the trip has its own room (a context part under its feature)');
+    assert.equal(part.context.budget, TAIL_BUDGET + PLACES_TAIL_BUDGET + TRIP_TAIL_BUDGET, 'where places lie and the trip have their own room (the trip: a context part under its feature)');
     assert.equal(TAIL_BUDGET, 80);
 });
 
@@ -67,6 +67,27 @@ test('the tail uses the packs\' roads (and the reader\'s map settings) when ther
     assert.deepEqual(part.context.tail(view(at(state, ''))), { lines: [], optional: [] });
     state = { ...state, domains: { scene: state.domains.scene } };
     assert.deepEqual(part.context.tail(view(state)), { lines: [], optional: [] });
+});
+
+test('each pack road names the way it leads from the coordinates (y grows north), and follows the reader\'s map setting', () => {
+    // Owner, 22 Nov: Auvoth lies west of Bluewatch, but the narrator sent the road there "east".
+    const pack = {
+        places: [{ name: 'Bluewatch Village', x: 64, y: 110 }, { name: 'Auvoth', x: 59, y: 110 }, { name: "Hollin's Reach", x: 58, y: 104 }, { name: 'Glassdock', x: 62, y: 72 }],
+        routes: [
+            { from: 'Auvoth', to: 'Bluewatch Village', km: 70, kind: 'frontier road' },
+            { from: 'Bluewatch Village', to: "Hollin's Reach", km: 100, kind: 'frontier road' },
+            { from: 'Glassdock', to: 'Bluewatch Village', km: 440, kind: 'river' },
+        ],
+    };
+    const state = at(makeState({ place: 'Bluewatch Village' }), 'Bluewatch Village');
+    const line = part.context.tail(view(state, { pack })).optional[0];
+    assert.match(line, /Auvoth \(west\) by frontier road/);
+    assert.match(line, /Hollin's Reach \(south-west\) by frontier road/);
+    assert.match(line, /Glassdock \(south\) by river/);
+    assert.match(part.context.tail(view(at(state, 'Auvoth'), { pack })).optional[0], /Bluewatch Village \(east\)/, 'and back the other way');
+    const flipped = part.context.tail(view(state, { pack, settings: { map: { north: 'down', east: 'left' } } })).optional[0];
+    assert.match(flipped, /Auvoth \(east\)/);
+    assert.match(flipped, /Glassdock \(north\)/);
 });
 
 test('the tail line keeps within its budget (characters / 4)', () => {

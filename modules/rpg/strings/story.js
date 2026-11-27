@@ -86,11 +86,11 @@ export const STORY_STRINGS = Object.freeze({
         benchOne: '{name} · Lv {level}',
         benchNot: 'Not now',
         benchDone: '{left} left the party (benched) · {name} joined.',
-        benchAsked: 'Asked: {name} could join, but the party is full ({max} active). The reader picks who to bench on the reply\'s card.',
+        benchAsked: 'Asked: {name} could join, but the party is full ({max} active; pick who to bench on the reply\'s card).',
         benchNote: '{left} left the party (benched) to make room for {name}.',
         benchRoom: 'the party has room now; use Add to party',
         benchWhom: 'choose a member who is in the party now, and who is not you',
-        offerNote: 'Asked: {name} could join the party. The reader picks Add to party, Edit first or No on the reply\'s card.',
+        offerNote: 'Asked: {name} could join the party (Add to party, Edit first or No on the reply\'s card).',
         nameLong: 'a name is at most {max} characters',
         grammar: '+ party Mara | class: I | best: int (when someone joins the party for good: class I to IX, best one of str, vit, agi, dex, int, wis, cha), - party Mara when they leave',
         // The same line in the words of the story's own class field (turn/rule-marks.js `partyFields`): its first and last class.

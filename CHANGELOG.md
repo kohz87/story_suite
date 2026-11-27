@@ -2,6 +2,103 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
+## 0.1.7 — 27 Nov 2026
+
+- Packs: the rules pack Ersveil and Arsveil share is now called "Frontier rules" (1.2.1); nothing in it changed. Installing a world no longer lists facts that only make events likelier as "Ignored".
+- NPC State: people who share a name are told apart by their nicknames: the story names the right one, and a line that can't tell which is refused.
+- NPC State: a dead person's own secrets can still be opened by a story line that reveals one.
+- NPC State: someone whose nickname is another person's name no longer shares that person's feelings, stages or opened secrets, alive or dead.
+- NPC State: a living person no longer dies, or takes on another's looks or birth date, just because someone else shares their name or a nickname.
+- Spoiler fixes: the Inspector and the "What's sent" copy hide when someone would join and unopened secrets; the planner is not told of branches still waiting on earlier events.
+- World: cards, the World tab and the Journal now name world events and conditions in words ("grain dear", the event's own sentence), never by their code names, and lapsed branches you never reached stay off the step card.
+- World: a pack can now say when a companion would join; it stays hidden and comes through the story.
+- Arsveil: an eleventh companion, Clover Inkwell, the sweet halfling clerk at Bluewatch's Guild desk, who is a little too devoted to her adventurer.
+- Arsveil: companions show their natures more clearly (Nasai, Kel, Odile, Moonlily, Elwyn, Merisande), and Solenne's devotion grows as she comes to trust you.
+- Packs: a pack file can now be up to 2 MB (was 1 MB), and installed packs up to 4 MB together (was 2 MB).
+- Arsveil: Moonlily's moon form now hungers to seduce, and her kiss drinks a person's life force; someone stronger than her can outlast it.
+- World: Journal lines for people an event moves or kills no longer end with the event's code name in brackets ("left Kingfisher Post for Bluewatch Village.").
+- Ersveil rules 1.2.0: your own holding (off until you turn it on in Settings, Packs and trackers). Found a company, fief or trading house in the story and grow it; paid months raise loyalty.
+- Your holding has officer posts: in the story, give a companion who stays at the seat a post (steward, marshal, spymaster, healer, quartermaster or envoy) for a small bonus.
+- Arsveil keeps going after its first five years: five more years of world events follow how things ended, with new troubles, settlements and seasonal happenings.
+- Arsveil: ten people of its own, with portraits, can join your party if the story gets there; its lore has new named figures and the hamlet of Lowbell.
+- World: people written in a world pack can now have longer looks, clothes, voice, personality and daily routine.
+- Arsveil: the example world now has about five years of world events, from the Fall of Bluewatch to two empty imperial thrones, with news and scenes that wait for your party.
+- World: a world pack can now say it names places by file id, so its events using those ids work. Packs that don't say so run as before, and Ersveil is unchanged.
+- World: a world pack can now hold up to 400 world events (it was 200).
+- World: a world pack can now hold a scene until your party is in or near its region, and make events near you likelier. Packs that don't ask for this run as before.
+- Story: the narrator now lets things breathe, with calm replies after trouble is settled, a nudge to wrap up long chains of events, and Quiet scene now also holds back new threads.
+- NPC State: the narrator now knows the next secret of someone present so it won't invent another past, and a story that earns it can bring it out, even before its pack condition is met.
+- Choices: long choices show in full instead of being cut with "…" at 160 characters.
+- People: the feelings ring around a portrait is drawn to scale (+38 fills 38% of its quarter).
+- Ersveil rules 1.1.0: Guild probation ends after 3 contracts or a promotion, and Story › Trackers shows contracts and when the next exam is ready. Chats already using the Guild keep the old rules.
+- People: the dossier library puts your party and those around you first, with Around and Party filters, a name search, and ‹ › or arrow keys to go from one person to the next.
+- World: news with no word for 30 story days now shows as old news under Older, and the narrator is no longer told it is under way. New word on it brings it back.
+- World: Edit now has Remove for a faction and Mark ended for a piece of news.
+- NPC State: a person's “Who you are to them” now changes when the story changes what they think of you. Text you edited yourself stays as you wrote it.
+- Bag: a horse or cart whose "where" names you or a party member now counts as with you; with gear on it adds to the carry limit.
+- Transport: the narrator is now asked to list each horse, other animal or vehicle on its own, not a herd in one entry.
+- Transport: the party can now keep up to 12 horses, other animals and vehicles (was 6).
+- Text RPG: foes left over from a fight that ended a while ago no longer block resting.
+- Text RPG: a reply's card now says when your party rested, and why a rest was refused.
+- Text RPG: a second XP line in one reply that names another group of foes now counts those foes as fallen, without paying XP again.
+- Bag: the party's load now counts each member's strength (once), what they carry and their bags, with a line for each, and a note when the narrator is told someone is slowed.
+- Bag: someone who left no longer adds to the carry limit; their things still weigh. Put down their bag or Take back their items to get them back.
+- Bag: papers, ledgers, passes, tallies, warrants and other paperwork weigh nothing by default.
+- Bag: Edit can change the slot of gear the story gave you (its rarity and bonus stay as given).
+- Party tab: a skill's practice shows the full count toward its next rank (157/180), not only the part since its last rank (57/80).
+- A long choice on a reply's card wraps onto more lines instead of being cut off.
+- Text RPG: companions earn the same XP as you and gain a level for every 100 on top of the level they joined at; their Party sheet shows an XP bar.
+- Party tab: a companion's keepsakes (from their NPC State profile) are listed on their sheet, apart from their gear.
+- Text RPG: a companion no longer shows stat points to spend (they have no stat sheet).
+- Text RPG: Export on a character now saves its bag and its money too, and Start from a saved character brings them back.
+- Text RPG: a gear point that was LUK now raises WIS, and the Bag and Party show your Text RPG stat names (WIS, or your own) on gear.
+- Text RPG: every skill use teaches something, and a good ambush no longer costs practice.
+- Text RPG foes now come in kinds (vermin to legend): the game rates them against your level, so 24 rats no longer pay a level, and a battle's XP has a cap.
+- Text RPG fights are fairer and plainer: rolls are d20 plus skill rank, difficulty comes from the foe, foes are set up first and XP counts them down, the narrator is told who should win, and fights teach.
+- Text RPG: rolls, practice and XP work again in chats with a story clock (the training update made every roll be refused).
+- Text RPG: the narrator pays XP as foes fall (not only at the end of a fight), and a skill both used and rolled in one reply costs its stamina or mana once.
+- Text RPG: XP counts each foe overcome (6 rats at 5 each = 30); skill practice is +1 for a use or a training session, +3 for a failed roll, +5 for a success, +10 for a hard success, with ranks at 40, 100, 180, 280, 420 and 600; training for 30 story days gives up to +30.
+- Text RPG shows the rolls of a reply in one card, a row each (the roll, why it was raised, what it cost, practice); every skill use teaches.
+- In a chat that switched from the RPG to Text RPG, the RPG's own blocks (character, skills, foes, rules) stay quiet, so the narrator is taught one system; switching back finds their values.
+- Text RPG's Mana and Stamina use the RPG's formulas and grow with level; worn gear counts in them, and the Party sheet shows the gear bonus the rolls use.
+- Text RPG's New character now works like the RPG's: stats start at 5 with 10 points to place, your persona's name, a starting level, and Start from a saved character (RPG or Text RPG files); Export works for Text RPG characters.
+- Text RPG levels take 100 XP each like the RPG's, skills go up to 8 (one more every 10 levels), and its Rules page has Level cap and XP rate.
+- Switching the RPG on from the Text RPG page now shows Text RPG off on the Start page.
+- Text RPG's New character shows your persona's portrait, like the RPG's wizard; plug-in modules can ask Story Suite for it.
+- Text RPG's New character is the same wizard as the RPG's, its Rules page has an RPG switch to go back, and gear you equip counts for your character.
+- A guide for writing your own module (docs/dev/writing-a-module.md), with a short version for AI coding assistants in the AI-README.
+- Text RPG is playable: the Party tab shows Create your character, the form opens in a sheet, gear and its stat bonuses work and gear wears down on bad rolls, and you can edit the narrator's rules on its Rules page.
+- Plug-in cards and pages show their own icon; Fishing registers again.
+- Text RPG: deleting a reply that gave a level now takes back the stat points and skills it paid for, and they return when you earn the level again; skill slots keep coming every third level up to level 99.
+- Switching Text RPG on switches the RPG off (and the other way round), and Text RPG has its own page under Rules (Tone, Survival, Stat names).
+- New example module, Text RPG: an RPG told entirely in the story, with no fight board. Your stats and skills are described to the narrator in words, dice decide the turning points, and wounds, mana and stamina wear down. Install it next to Story Suite, then turn the RPG off and Text RPG on.
+- A plug-in character sheet can now show on the Party tab when the RPG is off, and only one set of dice rules is taught to the narrator.
+- A typed attack opens the fight board again when the fight check words the foes a little differently ("hound-sized" for your "hound size rats").
+- A new place the story tells the way to ("Fernhollow, a day north") is saved on the map there, so its direction stays right from then on; the narrator writes it with way: or at: on its route or landmark line.
+- Each reply now tells the narrator where places lie as the crow flies: the places your message and the last reply name, and the nearest city each way ("Auvoth about 50 km west").
+- The narrator is told which way each road out of where you are leads ("Auvoth (west) by frontier road"), so it stops sending you east to a town that lies west.
+- Armour soak now takes off only the whole points it adds up to: 6% soak no longer turns a 3-damage hit into 2 (it starts taking a point off at 17 damage). Fights already open keep the old rule.
+- Someone new you meet on the way (a shopkeeper at another spot) is no longer shown as present where the reply ends, and keeps the mood the story gave them.
+- Each reply now reminds the narrator who is in the scene (and who your message calls in, or anyone who arrives), so people in the background get their memories, what they're doing now and new goals on the dossier at once instead of waiting for a Refresh.
+- A mood the story gives someone is shown on their dossier right away, even a word the mood list doesn't rate ("shaken"), instead of waiting for a Refresh.
+- A person's dossier keeps up with the story: a goal, mood or memory a reply gives them shows as their latest change at once, and the narrator can give anyone a memory of a reply even when no feeling moved.
+- Two different events that share a phrase ("without raising a panic") are now two memories; one no longer replaces the other.
+- Someone new the story added with a + npc line now shows their latest change on the dossier too, from their next goal, mood or look.
+- A reply gives each person at most one new memory through memory: (a second is noted as a problem), and someone new added with + npc can arrive with a memory: of their own.
+- When a reply tells one event twice about someone (as the reason for a feeling and again as a memory), it is kept as one memory, not two; two different events of one reply that only share a few words or a name stay two.
+- A dossier's latest change also moves when the story gives someone a gender, a Level, an ability, a keepsake, another name or something they now know.
+- Deleting the reply where someone's feelings first moved no longer wipes out what later replies gave them: their goals, meters and memories stay.
+- The world's own people are told to the narrator anywhere in their village, town or city (any spot in it, never past its edge), so they arrive as their pack describes them, race and look included.
+- NPC State: a dead person's dossier no longer shows hidden notes or feelings that belong to a living person with the same name.
+- NPC State: among people who share a name, a scan now saves memories and looks on the one it meant, even when it writes their id a little differently.
+- Spoiler fixes: "What's sent" no longer shows an opened secret in the story events to look for, or part of when someone would join.
+- NPC State: the editor no longer refuses to save someone just because another person has their name, so people who share a name can be given nicknames.
+- NPC State: the editor now refuses a new nickname that is another person's name, which could later merge the two, even into a dead one.
+- NPC State: "Add NPC" with a dead person's name now says it matched them, instead of saying someone was created.
+- NPC State: a person written with their nickname, like Tomas "the ferryman", is no longer also listed as someone without a dossier.
+- World: cards say an event once when its news only repeats it, and a condition's reason no longer starts with "because Ended:".
+- Story: a world event the planner suggests no longer counts a cause whose name only appears inside other words.
+
 ## 0.1.6 — 21 Nov 2026
 
 - Gear the story finds gives its rarity's full stat points (uncommon 2, rare 3, epic 4), even when the narrator writes only +1.

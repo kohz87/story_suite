@@ -210,7 +210,7 @@ test('hosted: a backfill of a new dossier asks for layered notes and keeps them;
     // The fake answers s1 every time, but only the later Refresh's window holds its quote ("dragged out in chains"): the earlier one is refused.
     assert.equal(out.opened.length, refreshes.length - 1, 'only the Refresh whose window shows the quote sends the open');
     for (const sent of out.opened) {
-        assert.deepEqual(sent.payload, { name: 'Yunyun', open: [out.noteId], by: 'story' });
+        assert.deepEqual(sent.payload, { name: 'npc_yunyun', open: [out.noteId], by: 'story' });
         assert.deepEqual(sent.options, { background: true });
     }
 });

@@ -92,6 +92,19 @@ test('Install: the pack is installed from the lorebook, the portraits stored, th
     assert.equal(world.waiting(), false, 'the dot goes when the offer is answered');
 });
 
+test('Install leaves a data module that starts off for the reader, and the notice names it and says where to turn it on', async t => {
+    const pack = cardPack();
+    const [first] = pack.content.dataModules;
+    const later = { ...JSON.parse(JSON.stringify(first).replaceAll(first.slug, 'later')), slug: 'later', name: 'Later Ledger', startsOff: true };
+    pack.content.dataModules = [first, later];
+    const world = await cardWorld(t, { entries: [packEntry(pack)] });
+    await world.offer.install(world.notices()[0].id);
+    await settle();
+    assert.deepEqual(world.runtime.sdk.query('dataModules.setup').map(row => [row.definition.name, row.pinned]), [[first.name, true], ['Later Ledger', false]]);
+    assert.equal(world.notices()[0].result, 'Installed Sealcrown Blocks 1.0.0. 1 data module turned on in this chat. Later Ledger is off: turn it on when your story needs it (Settings › Packs and trackers, Data modules in this chat).');
+    assert.deepEqual(problems(world), []);
+});
+
 test('Install with the settings box unticked applies none of them and the notice does not mention them', async t => {
     const pack = cardPack();
     const world = await cardWorld(t, { entries: [packEntry(pack), settingsEntry({ 'story-block.rpg': true })] });

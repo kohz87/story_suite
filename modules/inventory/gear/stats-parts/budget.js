@@ -1,14 +1,14 @@
 // Gear's stat budgets: reading a record's stats, holding them to a budget, and the points a def or pack item may give.
 
 import { isPlainObject } from '../../../scene/domains/common.js';
-import { GEAR } from './constants.js';
+import { GEAR, gearStatKey } from './constants.js';
 
-/** The seven stats a record names with a positive whole number: { STR: 2 } (keys in any case; the rest is left out). */
+/** The seven stats a record names with a positive whole number: { STR: 2 } (keys in any case; LUK counts as WIS, added to a WIS beside it; the rest is left out). */
 export function statsOf(record) {
     const out = {};
     if (!isPlainObject(record)) return out;
     for (const key of Object.keys(record)) {
-        const stat = String(key).trim().toUpperCase();
+        const stat = gearStatKey(key);
         if (GEAR.stats.includes(stat) && Number.isSafeInteger(record[key]) && record[key] > 0) out[stat] = (out[stat] ?? 0) + record[key];
     }
     return out;
@@ -31,6 +31,8 @@ export const packBonus = (id, value) => (typeof id === 'string' && id.startsWith
 
 /** The stat points a def may give while worn and whole: the pack's explicit `bonus`, else by rarity. */
 export function gearBudget(def) {
+    // (`noBonus`: gear that gave none when the reader chose its slot, slot-edit.js; stats written on it later speak again)
+    if (def?.noBonus === true && !Object.keys(statsOf(def.stats)).length) return 0;
     const explicit = packBonus(def?.id, def?.bonus);
     if (explicit !== null) return explicit;
     return Object.hasOwn(GEAR.budget, def?.rarity) ? GEAR.budget[def.rarity] : 0;

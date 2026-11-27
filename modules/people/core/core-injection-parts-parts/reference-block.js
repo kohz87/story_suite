@@ -6,6 +6,7 @@ import { customFieldValues } from '../core-record.js';
 import { normalizeGender } from '../core-identity.js';
 import { isTerminalNpcDeath } from '../terminal-lifecycle.js';
 import { truncateInjectionText } from './truncate.js';
+import { lineSummary } from '../relationship-summary-source.js';
 
 const REFERENCE_LINE_LIMIT = 4;
 const REFERENCE_LINE_CHARS = 240;
@@ -29,7 +30,7 @@ function towardPlayer(npc) {
 }
 
 // `levelOn` (the RPG is on): a person's built-in Level is one of their facts.
-export function referenceBlock(npcs = [], text = '', castIds = new Set(), customFieldNames = [], levelOn = false) {
+export function referenceBlock(npcs = [], text = '', castIds = new Set(), customFieldNames = [], levelOn = false, shownName = npc => npc.name, shownIds = null) {
     const roster = Array.isArray(npcs) ? npcs : [];
     const haystack = normalizeName(text);
     if (!haystack) return '';
@@ -40,15 +41,20 @@ export function referenceBlock(npcs = [], text = '', castIds = new Set(), custom
     const bondOf = npc => cleanText(String(cleanList(npc.keyRelationships, 1, 160)[0] || '').split('|')[0], 90);
     const mentioned = named.filter(npc => !isTerminalNpcDeath(npc)).slice(0, REFERENCE_LINE_LIMIT).map(npc => {
         const custom = Object.entries(customFieldValues(npc, customFieldNames)).map(([name, value]) => `${name}: ${value}`).join(' · ');
+        const toward = lineSummary(npc);
         const facts = [normalizeGender(npc.gender), cleanText(npc.role, 70), npc.homeBase && `home base: ${cleanText(npc.homeBase, 60)}`,
-            custom, levelOn && Number.isInteger(npc.level) && `level: ${npc.level}`, towardPlayer(npc)].filter(Boolean);
-        return truncateInjectionText(`- ${npc.name} (${['mentioned, not present', ...facts].join('; ')})`, REFERENCE_LINE_CHARS);
+            custom, levelOn && Number.isInteger(npc.level) && `level: ${npc.level}`, !toward && towardPlayer(npc)].filter(Boolean);
+        shownIds?.add(npc.id);
+        const line = `- ${shownName(npc)} (${['mentioned, not present', ...facts].join('; ')})`;
+        if (!toward) return truncateInjectionText(line, REFERENCE_LINE_CHARS);
+        // The story's own sentence stands after the other facts' cut, whole.
+        return `${truncateInjectionText(line, REFERENCE_LINE_CHARS).replace(/\)$/, '')}; toward the player: ${toward})`;
     });
     const deceased = named.filter(npc => isTerminalNpcDeath(npc)).slice(0, Math.min(3, REFERENCE_LINE_LIMIT - mentioned.length)).map(npc => {
         const bond = bondOf(npc);
         const facts = [normalizeGender(npc.gender), cleanText(npc.role, 70), bond && `bond: ${bond}`].filter(Boolean);
         const death = cleanText(npc.lifeStateReason, 140);
-        return truncateInjectionText(`- ${npc.name} (deceased${facts.length ? `; ${facts.join('; ')}` : ''})${death ? `: ${death}` : ''}`, REFERENCE_LINE_CHARS);
+        return truncateInjectionText(`- ${shownName(npc)} (deceased${facts.length ? `; ${facts.join('; ')}` : ''})${death ? `: ${death}` : ''}`, REFERENCE_LINE_CHARS);
     });
     return [mentioned.length && MENTIONED_HEADER, ...mentioned, deceased.length && DECEASED_HEADER, ...deceased].filter(Boolean).join('\n');
 }
