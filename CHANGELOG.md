@@ -89,6 +89,15 @@ What changed in each release, in short. The full record of every change is in [t
 - A dossier's latest change also moves when the story gives someone a gender, a Level, an ability, a keepsake, another name or something they now know.
 - Deleting the reply where someone's feelings first moved no longer wipes out what later replies gave them: their goals, meters and memories stay.
 - The world's own people are told to the narrator anywhere in their village, town or city (any spot in it, never past its edge), so they arrive as their pack describes them, race and look included.
+- NPC State: a dead person's dossier no longer shows hidden notes or feelings that belong to a living person with the same name.
+- NPC State: among people who share a name, a scan now saves memories and looks on the one it meant, even when it writes their id a little differently.
+- Spoiler fixes: "What's sent" no longer shows an opened secret in the story events to look for, or part of when someone would join.
+- NPC State: the editor no longer refuses to save someone just because another person has their name, so people who share a name can be given nicknames.
+- NPC State: the editor now refuses a new nickname that is another person's name, which could later merge the two, even into a dead one.
+- NPC State: "Add NPC" with a dead person's name now says it matched them, instead of saying someone was created.
+- NPC State: a person written with their nickname, like Tomas "the ferryman", is no longer also listed as someone without a dossier.
+- World: cards say an event once when its news only repeats it, and a condition's reason no longer starts with "because Ended:".
+- Story: a world event the planner suggests no longer counts a cause whose name only appears inside other words.
 
 ## 0.1.6 — 21 Nov 2026
 
