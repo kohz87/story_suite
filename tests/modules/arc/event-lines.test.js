@@ -78,3 +78,10 @@ test('a cause with a comma of its own is cited only on word boundaries, never fr
         assert.deepEqual(read(said).items.map(item => item.desc), ['the river rises (because: Storm, Rain)'], said);
     }
 });
+
+test('a letter outside the basic plane beside a cause is a letter: no citation from inside that word', () => {
+    const world = { ...WORLD, causes: ['Storm, Rain'] };
+    const read = because => readPlan(plan([`EVENT: Flood — the river rises | where: Highmark | because: ${because}`]), { world }).items;
+    for (const said of ['𐐀Storm, Rain', 'Storm𐐀, Rain𐐀', '𐐀Storm']) assert.deepEqual(read(said), [], said);
+    assert.equal(read('𐐀 Storm, Rain').length, 1);
+});

@@ -20,11 +20,14 @@ const plain = text => text.toLowerCase().replace(/[’‘]/g, "'").replace(/\|/g
 const PIECE_POINTS = 1000;
 
 const WORD = /[\p{L}\p{N}]/u;
+// Whole characters, never half of one: a letter outside the basic plane is two code units.
+const firstOf = text => String.fromCodePoint(text.codePointAt(0) ?? 32);
+const lastOf = text => [...text.slice(-2)].at(-1) ?? '';
 /** Where `form` stands in `text` as words of its own (never from inside a longer word), else -1. */
 function standing(text, form) {
     for (let at = text.indexOf(form); at >= 0; at = text.indexOf(form, at + 1)) {
         const end = at + form.length;
-        if (!(WORD.test(form[0]) && WORD.test(text[at - 1] ?? '')) && !(WORD.test(form.at(-1)) && WORD.test(text[end] ?? ''))) return at;
+        if (!(WORD.test(firstOf(form)) && WORD.test(lastOf(text.slice(0, at)))) && !(WORD.test(lastOf(form)) && WORD.test(firstOf(text.slice(end))))) return at;
     }
     return -1;
 }
