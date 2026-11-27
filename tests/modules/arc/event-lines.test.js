@@ -68,3 +68,13 @@ test('on the host: the planner is taught EVENT with the switch on; its EVENT lin
         } finally { t.done(); }
     }
 });
+
+test('a cause with a comma of its own is cited only on word boundaries, never from inside other words', () => {
+    const world = { ...WORLD, causes: ['Storm, Rain'] };
+    const read = because => readPlan(plan([`EVENT: Flood — the river rises | where: Highmark | because: ${because}`]), { world });
+    assert.deepEqual(read('Brainstorm, Rainmaker').items, []);
+    assert.deepEqual(read('Brainstorm, Rain').items, []);
+    for (const said of ['Storm, Rain', 'storm, rain over the bay', 'Brainstorm, Rainmaker; Storm, Rain']) {
+        assert.deepEqual(read(said).items.map(item => item.desc), ['the river rises (because: Storm, Rain)'], said);
+    }
+});

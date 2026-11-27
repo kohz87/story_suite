@@ -9,7 +9,8 @@ import { regionLabel } from '../../daily/region-label.js';
 
 const plain = text => String(text ?? '').replace(/\s+/g, ' ').trim().replace(/[.!?…]+$/, '');
 const newest = (events, since) => events.find(event => event.since === since) ?? [...events].sort((a, b) => (b.since ?? 0) - (a.since ?? 0))[0];
-const wordsOf = event => plain(event?.summary) || plain(event?.name?.replace(/ · [^·]*$/, ''));
+// (a condition set when a happening ended is filed with its end line, "Ended: …")
+const wordsOf = event => plain(event?.summary).replace(/^Ended:\s*/, '') || plain(event?.name?.replace(/ · [^·]*$/, ''));
 
 const packWords = (row, id) => plain(unfiredSummary(row?.summary, id));
 const low = text => String(text ?? '').trim().toLowerCase();

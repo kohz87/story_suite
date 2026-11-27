@@ -49,3 +49,8 @@ test('a wider condition takes a template\'s happening only from inside its regio
     assert.equal(say('realm', 'Realm A', [news('Dtown'), news('Atown')]), 'Hard times come near Atown');
     assert.equal(say('realm', 'Realm A', [news('Dtown')]), '');
 });
+
+test('a condition set when a happening ended reads its end line without the "Ended:" in front', () => {
+    const ended = { by: 'event:world.toll-war', since: 1440, place: 'Highmark', summary: 'Ended: The Watch pays in grain.' };
+    assert.equal(read(entry('event:toll-war', 'toll-war'), [ended]), 'The Watch pays in grain');
+});

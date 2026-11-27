@@ -19,6 +19,16 @@ const plain = text => text.toLowerCase().replace(/[’‘]/g, "'").replace(/\|/g
 // A piece is matched whole: a name's cut could fall inside a name the piece only begins with.
 const PIECE_POINTS = 1000;
 
+const WORD = /[\p{L}\p{N}]/u;
+/** Where `form` stands in `text` as words of its own (never from inside a longer word), else -1. */
+function standing(text, form) {
+    for (let at = text.indexOf(form); at >= 0; at = text.indexOf(form, at + 1)) {
+        const end = at + form.length;
+        if (!(WORD.test(form[0]) && WORD.test(text[at - 1] ?? '')) && !(WORD.test(form.at(-1)) && WORD.test(text[end] ?? ''))) return at;
+    }
+    return -1;
+}
+
 /** The names asked for in `because:`. A known name with a comma or semicolon of its own (an event named by its summary) is taken whole. */
 function asked(because, causes) {
     const held = [];
@@ -27,7 +37,7 @@ function asked(because, causes) {
     const cut = causes.map(name => plain(flat(name, KEY_POINTS)));
     const forms = causes.flatMap((name, at) => [[name, name], ...(cut.indexOf(cut[at]) === cut.lastIndexOf(cut[at]) ? [[flat(name, KEY_POINTS), name]] : [])]).filter(([form]) => /[;,]/.test(form)).sort(([a], [b]) => b.length - a.length);
     for (const [form, name] of forms) {
-        const at = plain(said).indexOf(plain(form));
+        const at = standing(plain(said), plain(form));
         if (at < 0) continue;
         said = `${said.slice(0, at)};\u0000${held.push(name) - 1};${said.slice(at + form.length).replace(/^[^;,]*/, '')}`;
     }
