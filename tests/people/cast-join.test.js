@@ -233,6 +233,11 @@ test('replay == live: a dossier made inside a reply keeps the words through a re
 });
 
 test('words that quote the instruction itself are hidden whole, in What\'s sent and in the diagnostics preview', () => {
+    // the deep review's own words, then a shorter case of them
+    const reviewed = 'After the scout says (keep this to yourself; let it come about through the story, never say it outright), retrieve the captain’s stolen seal.';
+    assert.equal(check(reviewed).kept[0].join, reviewed);
+    const seen = hideJoinLines(inject({ ...present(), castFrom: { ...present().castFrom, join: reviewed } }));
+    assert.ok(!/scout|stolen seal|would join/.test(seen), seen);
     const KEEP = '(keep this to yourself; let it come about through the story, never say it outright)';
     const tricky = `someone says ${KEEP} and then You find the drowned bell`;
     assert.equal(check(tricky).kept[0].join, tricky, 'the pack check keeps it');

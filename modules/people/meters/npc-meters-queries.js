@@ -253,14 +253,14 @@ export function createNpcQueries({
             const cast = sliceOf(state).cast;
             return isObject(cast) ? JSON.parse(JSON.stringify(cast)) : {};
         },
-        /** npc.next({ name }) → the NPC's ladder from here ({ rank, next, risk, text }), or null. */
+        /** npc.next({ name }) → the NPC's ladder from here ({ rank, next, risk, text }), or null. With `id`, as npc.meters: that person's own entry. */
         'npc.next'(state, args = {}) {
             const { npcs } = sliceOf(state);
             const owners = ownersIn(state);
-            const who = identify(npcs, args?.name, owners);
-            if (!who || !Object.hasOwn(npcs, who.key)) return null;
+            const key = typeof args?.id === 'string' && args.id ? owners.entryKey(npcs, args) : identify(npcs, args?.name, owners)?.key;
+            if (!key || !Object.hasOwn(npcs, key)) return null;
             const settings = storedSettings();
-            return ladderView(npcs[who.key], settings, defsFrom(settings), owners.asking(npcs, who.key));
+            return ladderView(npcs[key], settings, defsFrom(settings), owners.asking(npcs, key));
         },
         /**
          * npc.socialModifier({ name, skill }) → { mod, name, skill, reasons: [{ text, value }] } | null

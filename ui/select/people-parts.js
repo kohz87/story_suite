@@ -33,8 +33,9 @@ export function dossierMap(read) {
   const byName = {};
   for (const row of Array.isArray(parts.list) ? parts.list : []) {
     const dossier = read('people.dossier', { id: row.id });
+    const who = { id: row.id, name: row.name, aliases: row.aliases };   // (by id: a namesake's page never reads the other's entry)
     const vm = selectDossier({
-      dossier, meters: read('npc.meters', { name: row.name }), next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
+      dossier, meters: read('npc.meters', who), next: read('npc.next', who), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
       portrait: dossier?.portrait,
       departed: (Array.isArray(departed) ? departed : []).find(item => isRec(item) && item.key === row.id), away: parts.away, party: parts.party, join: offered.has(row.name.trim().toLocaleLowerCase()) ? read('rpg.partyAdd', { name: row.name }) : null, people: parts.list, place: parts.place, present: parts.present, witnessed: witnessedOf(read, row.name),
     });
