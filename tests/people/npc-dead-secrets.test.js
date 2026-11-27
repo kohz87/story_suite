@@ -3,6 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { castWith, note, person } from './npc-alias-lines.helpers.js';
+import { dossierMap } from '../../ui/select/people-parts.js';
 import { STAGES } from './storysuite-v2-meters.helpers.js';
 
 const EVENT_ID = 'sec_cccccccc';
@@ -29,6 +30,19 @@ test('"~ reveal" opens a dead person\'s own story note, and only that one; their
     assert.deepEqual(h.bonds().npc_ana.stages, {}, 'no stage moves');
     assert.equal(h.runQuery('people.secretOwners')['the oar']?.id, 'npc_ana', 'their dossier holds the opened note');
     assert.equal(h.runQuery('people.secretOwners')['the ledger'], undefined);
+    // The reader's dossier, as the view builds it (ui/select) and as NPC State's own panel does.
+    const shown = dossierMap((name, args) => { try { return h.runQuery(name, args); } catch { return null; } }).npc_ana.secrets;
+    assert.deepEqual([shown.opened, shown.total], [1, 2]);
+    assert.deepEqual(shown.items.map(item => [item.open, item.title]), [[true, 'The oar'], [false, null]]);
+    const panel = h.adapter.dossierMeters([h.delta.records.npc_ana]).npc_ana.secrets;
+    assert.deepEqual(panel.map(item => [item.state, item.title ?? null]), [['open', 'The oar'], ['hidden', null]]);
+});
+
+test('a dead person with nothing opened shows on their dossier as before: no notes', async () => {
+    const h = await scene(ana(), bo());
+    await h.die('npc_ana');
+    assert.equal(dossierMap((name, args) => { try { return h.runQuery(name, args); } catch { return null; } }).npc_ana.secrets.total, 0);
+    assert.equal(h.adapter.dossierMeters([h.delta.records.npc_ana]).npc_ana, undefined);
 });
 
 test('no meter opens a dead person\'s note: not a refresh, not the per-reply step, and a meter line about them is refused', async () => {

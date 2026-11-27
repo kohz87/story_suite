@@ -198,12 +198,12 @@ function partyAddOf(answer) {
 }
 
 /**
- * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, portrait?: npc.portrait,
+ * Dossier view-model from { dossier: people.dossier, meters?: npc.meters({ name }) for its `recent` rows (no store reader for them yet), next?: npc.next, cast?: the npc.cast row, departed?: a dead person's row of npc.cast({ departed: true }), portrait?: npc.portrait,
  * away?: director.away.view (news and return date of someone away), party?: party.actors, join?: rpg.partyAdd, moodTile?: NPC State's moodTile(npc), people?: people.list, place?: the scene's place name }; null when the dossier gave no answer.
  * `dossier` is people.dossier (the store's); `following` is the store's `followed` flag; ties link to stored people and bring their portrait; `likes` is left out when the dossier has none.
  * Gaps stay empty: thought, wearing, scene.hiding (so `scene` is null), dates of memories without a stamp, secret text, death when/where/reference line.
  */
-export function selectDossier({ dossier, meters, next, cast, portrait, away: awayView, party, join, moodTile, people, place, present, witnessed } = {}) {
+export function selectDossier({ dossier, meters, next, cast, departed, portrait, away: awayView, party, join, moodTile, people, place, present, witnessed } = {}) {
   if (!isRecord(dossier)) return null;
   const key = keyOf(dossier.name);
   const away = (isRecord(awayView) && Array.isArray(awayView.people) ? awayView.people : []).find(row => isRecord(row) && keyOf(row.name) === key);
@@ -246,7 +246,7 @@ export function selectDossier({ dossier, meters, next, cast, portrait, away: awa
     scene: isHere && text(dossier.goal) ? { wants: text(dossier.goal), hiding: null } : null,
     ties: tiesOf(dossier.keyRelationships, people),
     past: pastOf(dossier.memories, dossier.memoryStamps, witnessed),
-    secrets: secretsOf(cast),
+    secrets: secretsOf(cast ?? departed),
     profile: profileOf(dossier, cast?.notes),
     death: dead ? { how: text(dossier.lifeStateReason) ?? '', when: '', where: null, certainty: presumed ? 'presumed' : 'confirmed', referenceLine: '' } : null,
   };

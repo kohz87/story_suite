@@ -175,7 +175,9 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
         const built = view(state, { warn });
         if (!built) return { sent: false };
         try { keep(built, sliceOf(api)); } catch { /* the view is written as it is */ }
-        const given = nicknamesIn(api, built, sliceOf(api));
+        const before = sliceOf(api);
+        const given = nicknamesIn(api, built, before);
+        const named = given.map(item => item.id).filter(id => Object.hasOwn(before?.npcs ?? {}, id));
         // The marker is the runtime's as it is now (a remark above, or a snapshot handed in by a death, must not store an older one).
         const scan = await scanFor(api, readState() ?? state);
         const scanSame = scan === undefined || JSON.stringify(scanOf(api)) === JSON.stringify(scan);
@@ -183,7 +185,7 @@ export function createPeopleSync({ sdk, view, restore, hash, readState = () => n
         // No people slice in the store yet (the domain is deferred) and nobody to store: nothing is written, so a chat that never has people keeps its bytes.
         if (stored(api) === null && !built.order.length && !built.candidates.length && !built.dismissed.length && !built.userDismissedGroups.length) { known = null; return { sent: false, skipped: true }; }
         let out;
-        try { out = await api.command('people.write', { v: 1, source: { sid: cache.sid, swipeKey: cache.swipeKey }, view: built, ...(scan && !scanSame ? { scan } : {}) }, { background: true }); } catch (error) { out = { ok: false, code: 'FAILED', message: String(error?.message ?? error) }; }
+        try { out = await api.command('people.write', { v: 1, source: { sid: cache.sid, swipeKey: cache.swipeKey }, view: built, ...(scan && !scanSame ? { scan } : {}), ...(named.length ? { named } : {}) }, { background: true }); } catch (error) { out = { ok: false, code: 'FAILED', message: String(error?.message ?? error) }; }
         if (out?.ok === false) {
             if (out.code === 'STALE' || out.code === 'RESTORE_PENDING') {
                 hydrated = false;   // the cache stands on a reply that is gone: the next head look (here, or on the host's next event) hydrates again

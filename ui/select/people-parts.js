@@ -26,6 +26,7 @@ const witnessedOf = (read, name) => {
 export function dossierMap(read) {
   const parts = peopleParts(read);
   const casts = read('npc.cast', {});
+  const departed = read('npc.cast', { departed: true });   // (a dead person's opened notes: the cast list leaves the dead out)
   // (Add to party only for someone the story offered as a companion and nobody has answered yet: rpg.joinsOpen; the reader never recruits on their own)
   const offered = new Set((Array.isArray(read('rpg.joinsOpen', {})) ? read('rpg.joinsOpen', {}) : []).map(item => String(item?.name ?? '').trim().toLocaleLowerCase()).filter(Boolean));
   const out = {};
@@ -34,7 +35,8 @@ export function dossierMap(read) {
     const dossier = read('people.dossier', { id: row.id });
     const vm = selectDossier({
       dossier, meters: read('npc.meters', { name: row.name }), next: read('npc.next', { name: row.name }), cast: (Array.isArray(casts) ? casts : []).find(item => isRec(item) && item.key === row.id),
-      portrait: dossier?.portrait, away: parts.away, party: parts.party, join: offered.has(row.name.trim().toLocaleLowerCase()) ? read('rpg.partyAdd', { name: row.name }) : null, people: parts.list, place: parts.place, present: parts.present, witnessed: witnessedOf(read, row.name),
+      portrait: dossier?.portrait,
+      departed: (Array.isArray(departed) ? departed : []).find(item => isRec(item) && item.key === row.id), away: parts.away, party: parts.party, join: offered.has(row.name.trim().toLocaleLowerCase()) ? read('rpg.partyAdd', { name: row.name }) : null, people: parts.list, place: parts.place, present: parts.present, witnessed: witnessedOf(read, row.name),
     });
     if (!vm) continue;
     out[row.id] = vm;

@@ -57,6 +57,9 @@ export function createPeoplePart() {
                     }
                     const draft = ctx.draft(PEOPLE_DOMAIN);
                     if (draft.v === undefined) Object.assign(draft, initialPeople());   // (the first write of a chat: the deferred domain starts here)
+                    // `named`: people already stored whom this write gives a nickname because it adds a namesake. Their changes go with their record (replay
+                    // rule d): when the reply that made them is deleted, the rest of this write, the new person too, still applies.
+                    for (const id of Array.isArray(payload.named) ? payload.named : []) if (typeof id === 'string' && Object.hasOwn(draft.npcs, id)) ctx.ifThere(PEOPLE_DOMAIN, `/npcs/${id}`);
                     const kept = Object.fromEntries(OWN_KEYS.filter(key => draft[key] !== undefined).map(key => [key, draft[key]]));
                     for (const key of Object.keys(draft)) delete draft[key];
                     Object.assign(draft, clone(view), kept);

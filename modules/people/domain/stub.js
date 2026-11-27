@@ -29,7 +29,11 @@ export function peopleStub(domain, { initial, validate }) {
                 // A new namesake's nickname (and the other's, if they had the name alone) is part of this very write.
                 let here = '';
                 try { here = ctx.query('scene.place', {})?.name ?? ''; } catch { here = ''; }
-                for (const item of newNicknames(draft, [id], (one, isNew) => one.location || (isNew ? here : ''))) draft.npcs[item.id].aliases = item.aliases;
+                for (const item of newNicknames(draft, [id], (one, isNew) => one.location || (isNew ? here : ''))) {
+                    // The other person's change goes with their record (replay rule d): a delete of the reply that made them never takes this one's block.
+                    if (item.id !== id) ctx.ifThere(domain, `/npcs/${item.id}`);
+                    draft.npcs[item.id].aliases = item.aliases;
+                }
                 return { summary: `${record.name} added.`, data: { id, stub: true }, narrate: false };
             },
         },

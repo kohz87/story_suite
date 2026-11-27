@@ -119,3 +119,25 @@ test('people.stub, the story line\'s creating write, carries both nicknames in i
     h.store.rebuild();
     assert.deepEqual(aliases(h), { npc_g1: ['the sentry'], npc_g2: ['the cook'] });
 });
+
+// The reply that made the first Guard is deleted: the newcomer's reply still applies whole (the nickname given to the other goes with that record).
+for (const how of ['people.write', 'people.stub']) {
+    test(`deleting the reply that made the first Guard keeps the second, nickname and all (${how})`, async () => {
+        const h = await cast(person('npc_mira', 'Mira'));
+        const w = await writer(h);
+        const first = await onReply(h, w, guard('npc_g1', 'sentry'));
+        if (how === 'people.write') await onReply(h, w, guard('npc_g2', 'cook'), person('npc_xan', 'Xan'));
+        else {
+            h.reply('Another.');
+            h.registry.register({ id: 'test-maker', name: 'Maker', commands: { 'test-maker.add': ctx => { ctx.call('people.stub', { id: 'npc_g2', record: stubRecord({ name: 'Guard', role: 'cook', look: '' }, 'npc_g2', {}, 4) }); return { summary: 'ok' }; } } });
+            const out = await h.sdk.command('test-maker.add', {});
+            assert.equal(out.ok, true, JSON.stringify(out));
+        }
+        h.remove(first);
+        const people = h.store.head().domains.people;
+        assert.equal(people.npcs.npc_g1, undefined);
+        assert.deepEqual(people.npcs.npc_g2?.aliases, ['the cook']);
+        assert.ok(people.order.includes('npc_g2'));
+        assert.equal(Boolean(people.npcs.npc_xan), how === 'people.write');
+    });
+}

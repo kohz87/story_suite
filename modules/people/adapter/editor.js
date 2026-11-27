@@ -4,6 +4,7 @@
 // A part of the adapter closure: createEditorPart(session, deps) gets the adapter's shared state (session) and the adapter's options,
 // constants and the parts built before it (deps), and returns what the other parts and the adapter use. No SillyTavern import.
 
+import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import {
     FEATURE_STAGES, limitsFromLines, limitsToLines, meterValue, MAX_SECRETS, normalizeSecrets, secretsFromLines, secretsToLines, wordKey,
 } from '../meters/npc-meters.js';
@@ -262,8 +263,11 @@ export function createEditorPart(session, deps) {
             const key = keys.get(npc.id);
             const entry = key && Object.hasOwn(byKey, key) ? byKey[key] : null;
             const slice = entry ? entries.find(item => item.key === entry.key) : null;
-            // Someone with notes but no meters yet still has a Secrets section (every note hidden).
-            const secrets = secretsViewOf(npc, slice);
+            // Someone with notes but no meters yet still has a Secrets section (every note hidden). The cast leaves the dead out: theirs is shown
+            // once a note of theirs has been opened, from their own meters entry.
+            const own = entry ? null : entryFor(entries, npc, owners);
+            const view = secretsViewOf(npc, slice ?? own);
+            const secrets = !entry && isTerminalNpcDeath(npc) && !view.some(note => note.state === 'open') ? [] : view;
             if (!entry && !secrets.length) continue;
             const net = ownChangeOf(slice, head);
             out[npc.id] = {

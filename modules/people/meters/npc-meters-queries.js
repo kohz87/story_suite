@@ -31,6 +31,17 @@ export function createNpcQueries({
             return { id: person.id, key: key ?? person.id, name: person.name, record, asked: { name: person.id, labels: [person.id] } };
         });
     };
+    // The dead whose own hidden note has been opened, with those notes' rows alone: what their dossier still shows (the cast list leaves the dead out).
+    const departedNotes = (state, npcs, defs, owners) => {
+        const people = state?.domains?.people;
+        return (Array.isArray(people?.order) ? people.order : []).map(id => people.npcs?.[id]).filter(person => isObject(person) && isTerminalNpcDeath(person)).flatMap(person => {
+            const record = npcs[owners.entryKey(npcs, person)];
+            if (!record?.unlocked?.length) return [];
+            const notes = notesView(record, defs, { name: person.id, labels: [person.id] });
+            if (!notes.opened.length) return [];
+            return [{ key: person.id, name: person.name, locked: notes.locked.map(({ id, meter, at, event, opens, text }) => ({ id, ...(meter ? { meter, at } : {}), event, opens, text })), opened: notes.opened.map(({ id, title, text }) => ({ id, title, text })) }];
+        });
+    };
     const entryView = (key, record, defs, rungs) => ({
         key,
         name: record.name,
@@ -201,13 +212,15 @@ export function createNpcQueries({
          * delta? }] (ss.meter's props; `delta` is the change of the entry's latest reply window),
          * `still`: the same without `delta`. `locked`: the hidden notes still locked, as teasers with no
          * title ({ id, meter?, at?, event, opens: "Opens at Trust 60", text: "Hidden note · opens at Trust 60" });
-         * `opened`: [{ id, title, text: "Opened · Trust 20" }].
+         * `opened`: [{ id, title, text: "Opened · Trust 20" }]. The dead are not listed; with { departed: true } the answer is instead
+         * [{ key, name, locked, opened }] of the dead who have an opened note.
          */
         'npc.cast'(state, args = {}, tools = null) {
             const { npcs } = sliceOf(state);
             const settings = storedSettings();
             const defs = defsFrom(settings);
             const owners = ownersIn(state);
+            if (args?.departed === true) return departedNotes(state, npcs, defs, owners);
             const here = presentKeys(npcs, owners);
             const head = isObject(args) && Object.hasOwn(args, 'headReply') ? args.headReply : undefined;
             return castPeople(state, npcs, defs, owners)
