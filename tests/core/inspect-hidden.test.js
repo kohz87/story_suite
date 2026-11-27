@@ -50,3 +50,28 @@ test('inspectReply: join words and unopened notes read "(hidden)" in the state, 
     const earlier = inspectReply({ store: { ...store, at: () => stateOf({ npc_mira: person }, []), before: () => before, opsAt: () => [] }, chat: host.ctx.chat, index: host.ctx.chat.length - 1 });
     assert.ok(!JSON.stringify(earlier).includes(OPEN));
 });
+
+test('a note id one person opened stays locked for another who has the same id', async () => {
+    const host = await createHost();
+    await host.send('Look around.', 'You find rope.\n<Changes>\n+ item Rope\n</Changes>');
+    const note = (title, when) => ({ id: 'sec_bbbbbbbb', meter: 'trust', at: 40, text: 'Keeps a second key.', title, when, from: 'pack' });
+    const npcs = {
+        npc_ana: { id: 'npc_ana', name: 'Ana', secrets: [note('The boathouse key', 'the boathouse floods')] },
+        npc_bo: { id: 'npc_bo', name: 'Bo', secrets: [note('The cellar key', 'the cellar is dug')] },
+    };
+    // Bo's record is under an older key and is found by name.
+    const state = { meta: { rev: 2 }, domains: { people: { npcs, bonds: { npcs: { npc_ana: { name: 'Ana', unlocked: ['sec_bbbbbbbb'] }, npc_old: { name: 'Bo', unlocked: [] } } } } } };
+    const ops = Object.entries(npcs).flatMap(([id, person]) => [
+        { op: 'add', path: `/domains/people/npcs/${id}`, value: person },
+        { op: 'replace', path: `/domains/people/npcs/${id}/secrets/0/title`, value: person.secrets[0].title, was: person.secrets[0].title },
+    ]);
+    const store = { at: () => state, before: () => state, opsAt: () => ops, headIndex: () => host.ctx.chat.length - 1 };
+    const view = inspectReply({ store, chat: host.ctx.chat, index: host.ctx.chat.length - 1 });
+    const all = JSON.stringify(view);
+    assert.ok(!all.includes('cellar'), 'the locked title and trigger are nowhere');
+    const shown = view.state.domains.people.npcs;
+    assert.deepEqual(shown.npc_ana.secrets, npcs.npc_ana.secrets, 'the opened note shows in its own dossier');
+    assert.deepEqual([shown.npc_bo.secrets[0].title, shown.npc_bo.secrets[0].when, shown.npc_bo.secrets[0].text], Array(3).fill('(hidden)'));
+    assert.equal(view.ops[1].value, 'The boathouse key');
+    assert.equal(view.ops[3].was, '(hidden)');
+});
