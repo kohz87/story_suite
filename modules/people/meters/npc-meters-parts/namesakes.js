@@ -56,5 +56,5 @@ export const sayWhich = group => `Several people are called ${group.name}: write
 /** The refusal of a line that writes a shared name the scene does not settle (owner-approved wording; three or more: "a, b or c"). */
 export function whichRefusal(group) {
     const all = nicks(group);
-    return `Two people are called ${group.name}; write ${all.slice(0, -1).join(', ')} or ${all.at(-1)}.`;
+    return `${all.length > 2 ? 'Several' : 'Two'} people are called ${group.name}; write ${all.slice(0, -1).join(', ')} or ${all.at(-1)}.`;
 }

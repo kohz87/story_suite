@@ -62,7 +62,7 @@ test('the nickname, and the name as the list shows it, say which one, present or
 
 test('three of them: the refusal lists all three', async () => {
     const h = await cast(tom(), gate(), person('npc_g3', 'Guard', ['Red'], { present: false }));
-    assert.equal(h.refused('~ npc Guard | trust: +1').message, 'Two people are called Guard; write Old Tom, the gate guard or Red.');
+    assert.equal(h.refused('~ npc Guard | trust: +1').message, 'Several people are called Guard; write Old Tom, the gate guard or Red.');
 });
 
 test('a nickname the scene lists settles it, before the stored presence', async () => {
