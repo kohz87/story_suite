@@ -306,7 +306,7 @@ export function createHostedPart(rt, deps) {
             const npc = state.npcs.find(item => item?.id === id && !item.archived);
             if (!npc || (Array.isArray(npc.secrets) && npc.secrets.length)) continue;
             const row = rows.find(item => Array.isArray(item?.secrets) && item.secrets.length
-                && (String(item.id || '') === npc.id || npcMatchesLabel(npc, String(item.name || ''))));
+                && (item.settledId ? item.settledId === npc.id : String(item.id || '') === npc.id || npcMatchesLabel(npc, String(item.name || ''))));
             let made = [];
             try { made = row ? adapter.generatedSecrets(row.secrets) : []; } catch { made = []; }
             if (!made.length) continue;

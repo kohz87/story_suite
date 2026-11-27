@@ -275,7 +275,7 @@ export function createScanPart(rt, deps) {
                 memoryFacts: factOpt,
             });
             merged.report.skipped.push(...named.skipped);
-            merged.state = phraseMerged(merged.state, memoryAsk.handles, parsed, getContext().chat || []);
+            merged.state = phraseMerged(merged.state, memoryAsk.handles, named.scanResult, getContext().chat || []);
             if (earlierOnly) {
                 // Presence is the latest scene's: an earlier-only window leaves each person as last confirmed.
                 const before = new Map((state.npcs || []).map(npc => [npc.id, npc]));
@@ -385,7 +385,7 @@ export function createScanPart(rt, deps) {
             if (skippedWindow && !skippedWindow.latest) catchUpChats.add(scanChatKey); else catchUpChats.delete(scanChatKey);
             if (!manual) queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed, targetMessageId, currentTranscript });
             // (v2 hidden notes) The layered notes for the dossiers this scan built.
-            if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, parsed);
+            if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, named.scanResult);
             if (hostedNotes && newlyAdmittedIds.length) seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, adapterMeters });
             // Who the merged state says is here: the one-pass catch-up refreshes the people the reply put in the scene.
             const presentIds = merged.state.npcs.filter(npc => !npc.archived && npc.present && !npc.minor).map(npc => npc.id);
@@ -398,7 +398,7 @@ export function createScanPart(rt, deps) {
             // ONEPASSMISS-1: this notice describes a completed fallback, never a stale or failed scan.
             rt.lastCaptureFallback = fallback ? { chatKey, messageId } : null;   // the notice follows the latest committed scan only
             forwardRelationshipChangesToHost(state.npcs, nextState.npcs, targetMessageId, operation.chatHead, resolvedParsed?.profileUpdates, resolvedParsed?.npcs, Boolean(capture));
-            if (eventWatch.length) forwardSecretEventsToHost(eventWatch, secretEventsShown(resolvedParsed?.secretEvents ? resolvedParsed : parsed, transcript), operation.chatHead);
+            if (eventWatch.length) forwardSecretEventsToHost(eventWatch, secretEventsShown(resolvedParsed?.secretEvents ? resolvedParsed : named.scanResult, transcript), operation.chatHead);
             persist();
             renderDossier();
             updateInjection();

@@ -23,7 +23,7 @@ function peopleList(people) {
  * → { list (every stored record), living (those not dead or archived), nickname(record) → its first alias that is no other record's name or alias, or '',
  *     groups: [{ name, members: [{ id, record, nick }] }] (every member has a nickname), group(name) → that group or null,
  *     shown(id) → 'Name "Nickname"' for a member, else null,
- *     asForm(value) → null unless `value` reads Name "Nickname" and is nobody's own name or alias: { found (the stored records of that name with that
+ *     asForm(value) → null unless `value` reads Name "Nickname", two or more stored records have that name and it is nobody's own name or alias: { found (the stored records of that name with that
  *     alias), group (that name's group or null), one: the one they mean ({ id, record, nick }; a living one before a dead one) or null },
  *     present(group, scene, isPresent?) → the members the scene has: those it lists by a label only they hold (an alias, the shown form), else, when it
  *     is empty or lists the shared name, those `isPresent` says (by default the record's own presence) }.
@@ -52,7 +52,7 @@ export function namesakes(people) {
     const asForm = value => {
         const text = String(value ?? '').trim();
         const [, name, nick] = text.match(FORM) ?? [];
-        if (!name || list.some(record => [record.name, ...aliasesOf(record)].some(own => String(own ?? '').trim().toLocaleLowerCase() === text.toLocaleLowerCase()))) return null;
+        if (!name || list.filter(record => npcKey(record.name) === npcKey(name)).length < 2 || list.some(record => [record.name, ...aliasesOf(record)].some(own => String(own ?? '').trim().toLocaleLowerCase() === text.toLocaleLowerCase()))) return null;
         const holds = record => aliasesOf(record).find(alias => bare(alias) === bare(nick));
         const found = list.filter(record => npcKey(record.name) === npcKey(name) && holds(record));
         const alive = found.filter(record => !gone(record));

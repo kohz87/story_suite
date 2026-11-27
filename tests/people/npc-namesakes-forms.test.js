@@ -6,6 +6,7 @@ import { applyScenePresence, createNpcRecord, mergeScanResult } from '../../modu
 import { applyScenePresence as sceneOnly, mergeScanResult as mergeOnly } from '../../modules/people/core/core-mechanics.js';
 import { settleScanRows } from '../../modules/people/core/core-merge-namesakes.js';
 import { stampScenePresence } from '../../modules/people/calls/hosted-presence.js';
+import { ownerTargets } from '../../modules/people/npc-api/dossier-target.js';
 import { cast, person } from './npc-alias-lines.helpers.js';
 
 const OLD = 'Guard "the gate guard"';
@@ -86,7 +87,7 @@ test('rows once settled, as the capture journal keeps them, stay with that perso
 
 test('scan rows about unique names or namesakes without nicknames are handed on untouched', () => {
     for (const npcs of [[record('npc_g1', []), record('npc_g2', [])], [record('npc_g1', ['the gate guard']), record('npc_g2', [])], [{ ...record('npc_t', ['Bull']), name: 'Tom' }]]) {
-        const scan = { npcs: [row('Guard'), row('Tom'), row('Bull', { id: 'npc_t' })] };
+        const scan = { npcs: [row('Guard'), row('Tom'), row('Tom "Bull"'), row('Bull', { id: 'npc_t' })] };
         assert.equal(settleScanRows(npcs, scan, []).scanResult, scan);
     }
 });
@@ -114,6 +115,13 @@ test('the hosted presence stamp reads the scene the same way', () => {
     assert.deepEqual(stampScenePresence(stored(), ['Guard']), ['npc_g2']);
     assert.deepEqual(stampScenePresence(stored(), [OLD]), ['npc_g1']);
     assert.deepEqual(stampScenePresence(stored([{}, {}]), ['Guard']), []);
+});
+
+// (the expected values are what the code before the namesakes work answered)
+test('a unique name written in quotes is no shown form: presence reads it as before', () => {
+    const tom = () => [{ ...record('npc_t', ['Bull']), name: 'Tom', present: true }];
+    assert.equal(ownerTargets(tom())('Tom "Bull"'), '');
+    assert.deepEqual(stampScenePresence({ npcs: tom(), turn: 1 }, ['Tom "Bull"']), []);
 });
 
 test('a scene entry that is any alias only one of them has settles the shared name', async () => {

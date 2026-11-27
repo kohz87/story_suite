@@ -16,9 +16,8 @@ function presentOf(ctx, read, group) {
 
 /** → the person `name` names ({ id, record, nick }) when it is a shared name or a shown form; null for any other name. Refuses an unsettled shared name. */
 function whom(ctx, read, name) {
-    // (a form of a name only one stored person has is left to the ordinary lookup, ./names.js)
     const exact = read.asForm(name)?.one;
-    if (exact && read.list.filter(record => labelKey(record.name) === labelKey(exact.record.name)).length > 1) return exact;
+    if (exact) return exact;
     const group = read.group(name);
     if (!group) return null;
     const here = presentOf(ctx, read, group);
