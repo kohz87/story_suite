@@ -229,7 +229,7 @@ export function createTimelinePart(session, deps) {
         // (a host that does not call it shows the raw text; SillyTavern's own prompt view always does).
         // canGenerate: sending waits while the dossiers catch up after a fallback (history-replay.js).
         // afterCapture: a person the reply's `+ present` brought in gets a record in the reply's own step (meters/npc-lines-parts/present.js).
-        hooks: Object.freeze({ diagnostics: () => diagnosticsLines(), ownPrompt: () => ownPrompt(), redactSent: text => hideJoinLines(part.redact(text)), canGenerate: () => true, afterCapture: (view, info) => (enabled() ? part.afterCapture(view, info) : undefined) }),
+        hooks: Object.freeze({ diagnostics: () => diagnosticsLines(), ownPrompt: () => ownPrompt(), redactSent: text => part.redact(hideJoinLines(text)), canGenerate: () => true, afterCapture: (view, info) => (enabled() ? part.afterCapture(view, info) : undefined) }),
         screens: [metersCardScreen, castScreen],
         widgets: { [CAST_WIDGET]: castWidget },
         tabs: [{

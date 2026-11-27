@@ -55,13 +55,20 @@ test('an event with no authored summary writes no id: its outcome alone, no "End
 test('a pack note stays in Problems; a play warning is on the card in words', () => {
     const run = runner(world({ events: [
         { id: 'broken-one' , ends_when: 'never' },
-        ev('late-muster', { summary: 'The muster is called.', requires: ['fact:never'] }),
+        ev('late-muster', { summary: 'The muster is called.', requires: ['grain-dear@Oakhollow'] }),
         ev('bad-set', { summary: 'Bells ring.', effects: { set: ['no-such@Oakhollow'] } }),
     ] })).to(3);
     assert.ok(run.warnings.some(text => /broken-one/.test(text)), 'Problems keeps the pack author\'s id');
     assert.ok(run.warnings.some(text => /^The event "Bells ring": "no-such" is not one of/.test(text)));
     assert.match(cardsOf(run), /Warning: The event "The muster is called" lapsed/);
     assert.doesNotMatch(cardsOf(run), /broken-one|no-such|bad-set|late-muster/);
+});
+
+test('a lapse of a branch that never opened names nothing, on the card or in Problems', () => {
+    const run = runner(world({ events: [ev('great-cull', { summary: 'The bounty is posted.', requires: ['fact:never'] })] })).to(3);
+    assert.deepEqual(run.warnings.filter(text => /lapsed/.test(text)), ['An event lapsed: its window closed.']);
+    assert.doesNotMatch(`${run.warnings.join(' ')} ${cardsOf(run)}`, /bounty|great-cull|lapsed.*bounty/);
+    assert.doesNotMatch(cardsOf(run), /lapsed/i);
 });
 
 test('a faded condition is said in words', () => {

@@ -1,0 +1,47 @@
+// The Inspector never shows a cast person's join words or a hidden note that is not opened (made-up words).
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createHost } from '../../testkit/index.js';
+import { inspectReply, matchPaths } from '../../packs/screens/inspect.js';
+import { normalizeSecrets } from '../../modules/people/meters/npc-meters.js';
+
+const JOIN = 'When the blue kite has flown twice.';
+const LOCKED = 'Mira keeps the tide ledger under the stair.';
+const OPEN = 'Mira once ran the ferry at night.';
+const NOTES = [
+    { text: LOCKED, when: 'the ledger is found', from: 'pack' },
+    { text: OPEN, when: 'the ferry is named', from: 'pack' },
+];
+const openId = normalizeSecrets(NOTES)[1].id;
+
+const person = { id: 'npc_mira', name: 'Mira', secrets: NOTES, castFrom: { key: 'p:mira', join: JOIN } };
+const stateOf = (npcs, unlocked) => ({ meta: { rev: 2 }, domains: { people: { npcs, bonds: { npcs: { npc_mira: { name: 'Mira', unlocked } } } } } });
+
+test('inspectReply: join words and unopened notes read "(hidden)" in the state, changes and ops; an opened note shows', async () => {
+    const host = await createHost();
+    await host.send('Look around.', 'You find rope.\n<Changes>\n+ item Rope\n</Changes>');
+    const before = stateOf({}, []);
+    const state = stateOf({ npc_mira: person }, [openId]);
+    const ops = [
+        { op: 'add', path: '/domains/people/npcs/npc_mira', value: person },
+        { op: 'replace', path: '/domains/people/npcs/npc_mira/secrets/0/text', value: LOCKED, was: LOCKED },
+        { op: 'remove', path: '/domains/people/npcs/npc_mira/castFrom/join', was: JOIN },
+    ];
+    const kept = JSON.stringify({ state, ops });
+    const store = { at: () => state, before: () => before, opsAt: () => ops, headIndex: () => host.ctx.chat.length - 1 };
+    const view = inspectReply({ store, chat: host.ctx.chat, index: host.ctx.chat.length - 1, problems: () => [{ code: 'X', message: `Refused: ${LOCKED}` }] });
+    assert.equal(view.ok, true);
+    const all = JSON.stringify(view);
+    assert.ok(!all.includes(JOIN) && !all.includes(LOCKED), 'no hidden words anywhere in the view');
+    const shown = view.state.domains.people.npcs.npc_mira;
+    assert.equal(shown.castFrom.join, '(hidden)');
+    assert.deepEqual(shown.secrets.map(note => note.text), ['(hidden)', OPEN]);
+    assert.equal(view.problems[0].message, 'Refused: (hidden)');
+    assert.equal(view.ops[2].was, '(hidden)');
+    assert.equal(matchPaths(view.state, 'tide ledger').count, 0, 'a search does not find them');
+    assert.equal(matchPaths(view.state, 'blue kite').count, 0);
+    assert.equal(JSON.stringify({ state, ops }), kept, 'the stored state is not touched');
+    // The reply before the note opened shows it hidden.
+    const earlier = inspectReply({ store: { ...store, at: () => stateOf({ npc_mira: person }, []), before: () => before, opsAt: () => [] }, chat: host.ctx.chat, index: host.ctx.chat.length - 1 });
+    assert.ok(!JSON.stringify(earlier).includes(OPEN));
+});
