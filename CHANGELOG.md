@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Arsveil: an eleventh companion, Clover Inkwell, the sweet halfling clerk at Bluewatch's Guild desk, who is a little too devoted to her adventurer.
+- Arsveil: companions show their natures more clearly (Nasai, Kel, Odile, Moonlily, Elwyn, Merisande), and Solenne's devotion grows as she comes to trust you.
 - Packs: a pack file can now be up to 2 MB (was 1 MB), and installed packs up to 4 MB together (was 2 MB).
 - Arsveil: Moonlily's moon form now hungers to seduce, and her kiss drinks a person's life force; someone stronger than her can outlast it.
 - World: Journal lines for people an event moves or kills no longer end with the event's code name in brackets ("left Kingfisher Post for Bluewatch Village.").

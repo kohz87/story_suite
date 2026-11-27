@@ -1,4 +1,4 @@
-// The shipped Arsveil cast: all ten pass the pack check and reach NPC State's cast entry with their texts and secrets whole, each has a
+// The shipped Arsveil cast: all eleven pass the pack check and reach NPC State's cast entry with their texts and secrets whole, each has a
 // portrait small enough to be kept as it is, and arsveil.zip is what the build script gives.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -14,9 +14,9 @@ import { buildArsveilZip } from '../../scripts/core/build-example-zip.mjs';
 const packs = new URL('../../examples/packs/', import.meta.url);
 const text = readFileSync(new URL('arsveil/pack.json', packs), 'utf8');
 const written = JSON.parse(text).content.cast;
-const IDS = ['nasai', 'kel', 'annet', 'arn', 'veil-saintess', 'flame-saintess', 'courier', 'heir', 'merisande', 'moonlily'];
+const IDS = ['nasai', 'kel', 'annet', 'arn', 'veil-saintess', 'flame-saintess', 'courier', 'heir', 'merisande', 'moonlily', 'clover'];
 
-test('the ten are all kept, with no cast Problem', () => {
+test('the eleven are all kept, with no cast Problem', () => {
     const result = validatePack(text);
     assert.equal(result.ok, true, JSON.stringify(result.errors));
     assert.deepEqual(result.pack.content.cast.map(person => person.id), IDS);

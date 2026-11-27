@@ -129,6 +129,8 @@ This is the detailed record of every change, kept as it was written; the short l
 
 ### Changed
 
+- **Arsveil: Clover Inkwell and the companion types (owner, 27 Nov).** An eleventh companion, `clover` (halfling Guild desk clerk at `bluewatch-village-guild-office`, level 9, yandere; portrait `clover.webp`). Personality and withYou lines sharpened for the owner's types (Nasai tsundere, Kel dandere, Odile kuudere, Moonlily deredere, Elwyn bakadere, Merisande sadodere); Solenne becomes the megadere (personality line, her fourth stage reworded, a sixth stage). Description says eleven. Tests: `tests/packs/arsveil-cast.test.js`.
+
 - Text RPG: a chat read again or rebuilt under the new rules sees new difficulties (5 to 30 in six steps, the tone default Standard), new XP (foes counted from the foes record) and new verdicts; stored dice floors keep their old index.
 
 - **One card under each story reply (REPLYCARD, owner-approved mock Version C, 19 Nov 20:16).** `ui/chat/reply-box.js` (with `reply-box-top.js`, `reply-box-tabs.js`, `reply-box-actions.js`, `here-card.js`) draws the card in the page only, never in the message text, so it is never sent. Its data is `ui/select/reply-log.js`: each reply's state asked with `sdk.query(name, { asOf: index })` (time, place, weather, `party.pc`/`rpg.sheet` pools, `scene.you` condition, `reply.changes`, `people.list` here), and the pools before it from `asOf: index - 1`, so a swipe, a middle delete, a rebuild and a reload give the same cards. A new Story Block query `choices.replies` (beside `chatter.replies`) reads each reply's `? choice` lines from its own text.

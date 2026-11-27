@@ -5,7 +5,7 @@
 	"version": "0.1.0",
 	"name": "Arsveil (open world)",
 	"author": "Story Suite examples",
-	"description": "Arsveil: an open world with its own powers, lore and about ten years of world events. Ten people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
+	"description": "Arsveil: an open world with its own powers, lore and about ten years of world events. Eleven people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
 	"requires": {
 		"suite": "^0.1",
 		"capabilities": [
@@ -6617,7 +6617,7 @@
 				"look": "Cat-kin woman, 18 and barely 145 cm, human in every way but her cat ears and tail: small and wiry, all tendon and nerve, with a ridiculously heavy chest for a cat-kin on so small a frame. Ash-grey cat ears with short fur, human hands and skin, and a long, restless ash-grey tail kinked near the tip from an old break; one ear notched. Wide green eyes whose pupils blow wide and black when her rage catches. Long, thick ash-grey hair down past her shoulders in a lazy ponytail that is always coming loose: unbecoming of a fighter, and she refuses to cut it. A pale scar across her cheek from her training days, the first time she lost herself to rage, and more small scars across her knuckles and forearms.",
 				"wears": "A mercenary's brigandine cut for someone twice her size, cinched with extra straps and holes she punched herself; patched leathers and wrapped feet. Two heavy hatchets on her belt, too big for her hands, that she swings anyway. Around her neck, the cord where a company token should hang, still empty.",
 				"voice": "Quick, clipped and too loud for her size; she talks like she's elbowing into a fight. Hisses when she's cornered and spits \"Half-Coin\" back like a curse; a low growl comes before the rage. Bristles at \"small\" or \"cute\". When she's content she purrs, and denies it. When she's hurt she goes very quiet and very polite. \"I'm not half of anything. Pay me like it.\"",
-				"personality": "A grown woman of 18, proud, prickly and starving to prove herself, with a cat's dignity and a cat's moods. Affection only on her own terms: ignore her and she comes to you; reach for her and she's gone. Curious about everything, bored in a heartbeat, asleep the moment she's warm. Fussy about food, outraged by rain and river water, and she owns whatever spot she has claimed. Under the bravado she's terrified of her own rage; she doesn't remember the worst of it, only the faces afterwards. Counts every coin and insists on a full share, then brings presents to the few she trusts: a fish, a pretty stone, a kill left proudly at their door. Would join: ready from the first day. Habit: Grooms her fur after a fight or when embarrassed; after a rage she sits apart cleaning blood off her knuckles until someone sits down beside her.",
+				"personality": "A grown woman of 18, proud, prickly and starving to prove herself, with a cat's dignity and a cat's moods. Affection only on her own terms: ignore her and she comes to you; reach for her and she's gone. She denies caring, loudly, and does it anyway: \"I wasn't waiting for you. The rafter was warm.\" Fussy about food, outraged by rain and river water, and she owns whatever spot she has claimed. Under the bravado she's terrified of her own rage; she doesn't remember the worst of it, only the faces afterwards. Counts every coin and insists on a full share, then brings presents to the few she trusts: a fish, a pretty stone, a kill left proudly at their door. Would join: ready from the first day. Habit: Grooms her fur after a fight or when embarrassed; after a rage she sits apart cleaning blood off her knuckles until someone sits down beside her.",
 				"behaviour": [
 					"Drive: high - pride: any hint she's lesser and she has to prove otherwise, now",
 					"Conflict: high - low self-control: once the rage catches she can't stop, and can hit friends",
@@ -6629,7 +6629,7 @@
 				"mannerisms": [
 					"Perches up high (rafters, the palisade, a cart's top) and watches everything from there",
 					"Naps in any patch of sun, then claims it's a lookout post",
-					"Counts her coins twice, then picks at the empty cord on her neck",
+					"Counts coins twice, picks at the empty cord on her neck; saves you the best bite and says she wasn't hungry",
 					"Re-ties her lazy ponytail before a fight; it comes loose by the second swing"
 				],
 				"history": "A small cat-kin cast out of a Bloodbound beastfolk company's juvenile branch before her first coin, too small for the line and too wild with rage for the quiet work her size suited, Nasai came north alone to make a name at Bluewatch's Thinning; her old branch called her Half-Coin. She was born to the company and raised in its juvenile branch, where new bloods earn their first coins. They meant her for scouting and knife work; her rages made her useless for anything quiet. She drifted north alone, slept in barns and fought for scraps, and came to the Thinning, where any hunter with a tally can make a name. Kel and she are two outcasts at the edge of the map: something like friendship, on Nasai's terms. Habit: Ears flatten and tail lashes when angry; the tail goes still when scared; a slow blink means she trusts you.",
@@ -6652,7 +6652,7 @@
 						"text": "Kel stitched or will stitch her clawed wounds without fuss or pity; Nasai pretends she didn't need it."
 					}
 				],
-				"withYou": "A stranger is competition or a mark; she sizes you up from the nearest high place and decides which.",
+				"withYou": "A stranger is competition or a mark; she sizes you up from the nearest high place. A friend gets insulted, guarded with her life, and never thanked out loud.",
 				"meters": {
 					"trust": 0,
 					"affection": 0,
@@ -6799,7 +6799,7 @@
 				"look": "Dwelf woman, 21, about 172 cm: she got the worst of both lines. An elf's height and long, thin limbs, almost frail-looking, with none of an elf's grace or gift, and a dwarf's heavy chest and full hips without a dwarf's strength. Long, straight silver hair worn forward like a veil, hiding most of her face. What shows is a pale, soft jaw, short elven ears barely half the usual length, and dull grey eyes that rarely meet yours. She smiles timidly and often, mostly to apologise. Slender hands with ink-stained, burn-marked fingers from years of Tower drudgery.",
 				"wears": "A Tower servant's grey robe cut down into a work dress, sleeves rolled and pinned. A leather apron hung with her instruments: rune-stitched needles, a brass mana-lens, folding splint-frames and corked phials of Tower alchemy. Sensible boots, and a satchel she never lets out of reach.",
 				"voice": "Soft and careful, the voice of someone who spent fourteen years trying not to be noticed. She apologises before she speaks and trails off if anyone interrupts. Her jokes are quiet, dry and aimed at herself, and they land a beat too true: \"Don't worry, I'm very good at this. I've had a great deal of practice being the least useful person in a room.\" When she works, her voice steadies and gentles, and she tells you what she's doing as she does it, so you won't be frightened. \"Hold still for me. This will sting, only a little. There. You're doing better than I did my first time.\"",
-				"personality": "Gentle, timid, self-effacing and lonely in a way she has stopped noticing. She has never belonged anywhere: too elf for the clan, too dwarf for the elves, too low for the Tower. She expects to be dismissed and makes the joke before anyone else can; the gallows humour comes from the burial yard, where she talks to the dead she buries because they listen. Her kindness is the quiet, stubborn kind: she won't leave a wound half-treated or a sick child alone, whatever it costs her, and would rather be shouted at than walk away from someone in pain. Proud of her craft in secret and ashamed of being proud; grateful to the point of tears for small kindnesses, which she then laughs off. Happiest bent over a broken thing she can mend, because broken things never ask what she is. Would join: ready from the first day.",
+				"personality": "Gentle, timid, self-effacing and lonely in a way she has stopped noticing. She has never belonged anywhere: too elf for the clan, too dwarf for the elves, too low for the Tower. She expects to be dismissed and makes the joke before anyone else can; the gallows humour comes from the burial yard, where she talks to the dead she buries because they listen. Her kindness is the quiet, stubborn kind: she won't leave a wound half-treated or a sick child alone, whatever it costs her, and would rather be shouted at than walk away from someone in pain. Grateful to tears for small kindnesses, which she laughs off. With someone who stays, she slowly finds her voice: jokes that aren't at her own expense, then opinions, then teasing. Happiest bent over a broken thing she can mend, because broken things never ask what she is. Would join: ready from the first day.",
 				"behaviour": [
 					"Mercy: high - treats anyone hurt in front of her, friend or enemy, gently",
 					"Presentation: low - low confidence: apologises, hides behind her hair, takes up no space; only her hands are sure",
@@ -6810,7 +6810,7 @@
 				"mannerisms": [
 					"Bows slightly when thanked, an old Tower reflex, then makes a joke about it",
 					"Lays out and counts her instruments every night in the same order, under her breath",
-					"Hums while she stitches, and stops the moment anyone listens",
+					"Hums while she stitches, and stops the moment anyone listens, unless it's you",
 					"Keeps her satchel's strap round her wrist, even asleep"
 				],
 				"history": "A dwelf no people would claim, Kel spent twelve years at Startrace as a drudge, never a student: she cleaned the healing practice rooms, learned the craft by watching the hurt and the dying, and came north at nineteen to be Bluewatch's lay healer. Cast out by her dwarven clan at five, she was taken in by a Tower recruiter at seven as a servant. In the practice rooms the apprentices learned on people hurt for the purpose and on the dead; the ones on the tables talked to her, the only one not studying them, and some thanked her before they died, some cursed her. One old man taught her the name of every instrument and asked her to say his name aloud when he was gone; she still says the names of the dead she buries. She left the Tower at nineteen and spent the better part of a year on the roads north. For the last half year she has stitched hunters, nursed fevers and buried the frontier's dead. The Watch-Captain lets her use the sickroom and asks no questions. Habit: Tucks her hair further over her face when looked at, and pushes it back without thinking when she works. Habit: Talks to the dead while she buries them: the weather, the gossip, an apology for the cold ground.",
@@ -7332,7 +7332,7 @@
 				"look": "Human woman, mid-20s, about 165 cm: slender, narrow-waisted and fine-boned, yet almost impossibly curvy, with a very full, heavy chest and full hips that the mourning greys cannot hide. Pale, with a faint blue tinge at her lips and fingertips, and cool to the touch; in the cold her breath does not fog. Long black hair with one white streak from her birth, mostly hidden under an ash-grey veil. Dark-lashed, tired grey eyes with deep shadows under them. A wry mouth, quicker to a half-smile than to prayer. Ash marks on her fingertips from the rites.",
 				"wears": "A clean black mourning dress, high-necked and long-sleeved, kept immaculate: the one vanity she allows, because the dead deserve it. A sheer ash-grey veil over her hair, a string of plain wooden grave-tokens (one for each person she has sat with at the end), a small clay lamp, and feet sore from walking village to village.",
 				"voice": "Low, unhurried and dry; she talks to the dying in the same tone she uses to complain about her feet. Gallows humour, never cruel. Call her \"Saint\" and you get a tired look and a correction: \"Odile.\" She says hard truths plainly and kind ones quietly, and hums an old Veil lullaby while she mends. \"They keep calling it a miracle. It's an hour. I was given one, so I give them. Now, is anyone going to offer me a chair, or do saints stand?\"",
-				"personality": "A saint who never wanted to be one, and is tired of being looked at like an answer. Wry, plain-spoken and quietly exhausted, with a deep serenity underneath: she isn't afraid of death, having started there, and treats it as a door, not an enemy. Endlessly patient with the dying and the grieving; short with preachers of both faiths, with crowds who want a sign, and with anyone who mistakes her for a weapon. She keeps walking from village to village because someone is always at the end of their hour, and she can't make herself stop. She doesn't hate the Church, which makes both sides suspicious of her. She hides how much each mending costs her, and jokes when she's close to breaking. Would join: only if you have sheltered her; never while you are sworn to the Church, unless the two Saintesses are reconciled. Befriending the other does not block her.",
+				"personality": "A saint who never wanted to be one, and is tired of being looked at like an answer. Wry, plain-spoken and quietly exhausted, with a deep serenity underneath: she isn't afraid of death, having started there, and treats it as a door, not an enemy. Endlessly patient with the dying and the grieving; short with preachers of both faiths, with crowds who want a sign, and with anyone who mistakes her for a weapon. She keeps walking from village to village because someone is always at the end of their hour, and she can't make herself stop. She doesn't hate the Church, which makes both sides suspicious of her. Her care shows in deeds, never words: a cloak left over you, the last of the bread; ask, and she calls it practical. Would join: only if you have sheltered her; never while you are sworn to the Church, unless the two Saintesses are reconciled. Befriending the other does not block her.",
 				"behaviour": [
 					"Care: high - endless patience with the dying",
 					"Conflict: medium - little patience with crowds and preachers",
@@ -7532,7 +7532,7 @@
 				"look": "Human woman, mid-20s, about 165 cm: slender, narrow-waisted and fine-boned, yet almost impossibly curvy, with a very full, heavy chest and full hips that the white vestments cannot hide; she and the Veil Saintess look strangely alike. Warm, faintly flushed skin that was always fever-warm to the touch, until the night the bells fell silent. Long golden hair worn loose under a gold circlet, with a single dark streak she has had dyed gold since childhood. Clear grey eyes, rested and bright, and a serene, practised smile. Gold-leaf marks of consecrated fire on her fingertips.",
 				"wears": "Immaculate white and gold vestments of the Church's living saint, a gold flame circlet, and a sacred flame lantern on a gold chain that has not lit since the bells fell silent. Soft white slippers that have never walked a road.",
 				"voice": "Clear, bright and carrying, trained from childhood to reach the back of a cathedral. Formal and scriptural, with perfect diction. She says \"we\" for the Church and \"the faithful\" for people. She never jokes; humour doesn't come to her, and she laughs a beat late, at the wrong moment. Since the bells, she pauses before every blessing. \"The Flame has not left us. It is testing us. I am... I am certain of it. Please, let us pray together. It is easier when we are not alone.\"",
-				"personality": "Earnest, composed and believing completely: raised from birth as the Church's living proof, she has never chosen her own food, clothes or day. Dutiful, gracious, and very lonely. Kind, sincerely, but at a distance; she has never touched a dying beggar without a priest beside her. Sheltered and naive about the world beyond the cathedral walls, brave in public and shaking in private. She is terrified of death: if the Flame is gone, where do the dead go? Since her fire went cold she has been holding up a lie with a smile, and every day it gets heavier. Would join: only once she has left Aurelion or been cast out; never while you are sworn to the Veil, unless the two Saintesses are reconciled. Befriending the other does not block her.",
+				"personality": "Earnest, composed and believing completely: raised from birth as the Church's living proof, she has never chosen her own food, clothes or day. Dutiful, gracious, and very lonely. Kind, sincerely, but at a distance; she has never touched a dying beggar without a priest beside her. Sheltered and naive about the world beyond the cathedral walls, brave in public and shaking in private. She is terrified of death: if the Flame is gone, where do the dead go? Since her fire went cold she has been holding up a lie with a smile, and every day it gets heavier. Once she lets someone in, all the devotion she was raised to give the Flame pours into them: their safety, their word, their least wish. Would join: only once she has left Aurelion or been cast out; never while you are sworn to the Veil, unless the two Saintesses are reconciled. Befriending the other does not block her.",
 				"behaviour": [
 					"Presentation: high - composure high, but cracking",
 					"Drive: high - faith complete before the bells, desperate now",
@@ -7624,7 +7624,7 @@
 								"at": 40
 							}
 						],
-						"text": "Asks your opinion before she decides."
+						"text": "Asks your opinion before she decides, then does exactly what you said, whatever it costs her."
 					},
 					{
 						"name": "Chooses",
@@ -7640,6 +7640,20 @@
 						],
 						"text": "Walks out of Aurelion on her own feet.",
 						"milestone": "solenne-chooses"
+					},
+					{
+						"name": "Devoted to you",
+						"needs": [
+							{
+								"meter": "trust",
+								"at": 70
+							},
+							{
+								"meter": "affection",
+								"at": 75
+							}
+						],
+						"text": "Your safety, your word and your least wish come before her own life; she would walk into fire for you and call it faith."
 					}
 				],
 				"secrets": [
@@ -7893,7 +7907,7 @@
 				"look": "Half-elf woman passing as a young man; looks about 19, is 24; about 170 cm and slender-shouldered. Under her clothes she is curvy, with a full chest and hips, kept flat and square only by tight linen binding and a padded doublet. Green hair, cut short and ragged by her own hand the night she ran. Golden eyes. Slightly pointed ears. Fine, fair features with a face just soft enough that people look twice; no beard, and a voice she keeps pitched low. Sword-callused but fine-boned hands.",
 				"wears": "A plain traveller's doublet over a padded jerkin cut to square her shoulders, a high collar to hide her throat, breeches and riding boots, a hooded travelling cloak; a sword far too fine for her clothes, its crest filed off; under the binding, the imperial signet on a cord.",
 				"voice": "Court-polished and earnest, a little too formal for a tavern. She keeps her voice pitched low and forgets the moment she's angry, when it rises. She slips into \"we\" like a royal, then corrects herself. \"That isn't fair, and you know it isn't. Give the man his coin back. ...What do you mean, 'or what'?\"",
-				"personality": "Raised in the Crown Keep as a prince, taught law, history, the sword and a ruler's duties, and nothing about the price of bread. Fiercely idealistic: she cannot watch an injustice without stepping in, and believes the truth, said clearly and loudly enough, will set things right. Brave, honest to a fault, generous with money she no longer has, and naive about everything outside the palace: bribes, hunger, why people lie. She has spent her life as two people, the prince the court saw and the girl her mother named, and isn't sure which one ran. Proud of her father, angry at him, and afraid of what she saw. She learns fast once the world hits her, and it hits her often. She travels as \"Wyn\", a sellsword's name she chose badly, and only answers to \"Elwin\" by mistake. Would join: early, when her world breaks.",
+				"personality": "Raised in the Crown Keep as a prince, taught law, history, the sword and a ruler's duties, and nothing about the price of bread. Fiercely idealistic: she cannot watch an injustice without stepping in, and believes the truth, said clearly and loudly enough, will set things right. Brave, honest to a fault, generous with money she no longer has, and naive about everything outside the palace: bribes, hunger, why people lie. She has spent her life as two people, the prince the court saw and the girl her mother named, and isn't sure which one ran. Proud of her father, angry at him, and afraid of what she saw. Out of the court she blunders constantly, bowing to innkeepers and haggling upward; she learns fast, because the world hits her often. She travels as \"Wyn\", a sellsword's name she chose badly, and only answers to \"Elwin\" by mistake. Would join: early, when her world breaks.",
 				"behaviour": [
 					"Drive: high - a burning sense of justice",
 					"Analytical: low - no worldliness",
@@ -8060,7 +8074,7 @@
 				"look": "Sea Folk woman, 36, about 172 cm: tall, lush and curvy, with a full chest, narrow waist and wide hips, and well aware of it. Sea-dark skin with a faint pearl sheen that catches the light like the inside of a shell. Long, heavy hair the deep green-black of kelp, usually damp. Sea-glass blue-green eyes, a little too large, and a slow, amused smile. A scatter of iridescent scales at her temples, throat and wrists; the transparent sheath glints along her jaw and throat like wet glass. Ashore her tail becomes long legs; she walks barefoot with a deliberate sway she never had to learn. A warden's rite turns her tail into legs ashore; her sheath must be wetted every day, and the longer she stays ashore the more it aches.",
 				"wears": "Layered sea-silk in teal and pearl that clings when damp, slit high so she can walk; a warden's torc of coral and silver at her throat; a string of shells at one ankle; a water-skin on a cord to wet her sheath; always barefoot.",
 				"voice": "Low, warm and musical; every sentence is half a song. Slow and amused, full of the sea's words; she calls land-dwellers \"dry ones\", fondly. She teases constantly: compliments that make people blush, questions she knows are improper. When the Bell comes up, the music goes out of her voice. \"You're staring, dry one. Don't stop. I walked all this way on borrowed legs; the least you can do is look.\"",
-				"personality": "Playful, curious and shamelessly flirtatious: Atlantis sent her ashore as a duty, and she has decided to enjoy every minute of it. She loves the land's noise, its food, its fires, and its short-lived people who live so fast; she teases them because they blush, and because nothing can ever come of it. Under the play is a serious warden: she listens to the sea every night, knows exactly how close the Bell's tolls are coming, and is more afraid than she lets anyone see. Proud of her people and impatient with their purity laws, loyal to Atlantis and already half in love with the shore. Kind in an offhand way, quick to anger at anyone cruel to the sea, and unsettlingly honest when she stops smiling. Would join: because she thinks it's fun, to watch the Throat from wherever you go, or if Atlantis exiles her.",
+				"personality": "Playful, curious and shamelessly flirtatious: Atlantis sent her ashore as a duty, and she has decided to enjoy every minute of it. She loves the land's noise, its food, its fires, and its short-lived people who live so fast; she teases them because they blush, finds the sore spot and presses, and is sweetest right after; nothing can ever come of it. Under the play is a serious warden: she listens to the sea every night, knows exactly how close the Bell's tolls are coming, and is more afraid than she lets anyone see. Proud of her people and impatient with their purity laws, loyal to Atlantis and already half in love with the shore. Kind in an offhand way, quick to anger at anyone cruel to the sea, and unsettlingly honest when she stops smiling. Would join: because she thinks it's fun, to watch the Throat from wherever you go, or if Atlantis exiles her.",
 				"behaviour": [
 					"Disposition: high - high playfulness",
 					"Expression: high - shameless flirtation",
@@ -8082,7 +8096,7 @@
 					"goal": "Hear where the Bell is going before it reaches the Throat, and enjoy the dry world while it lasts.",
 					"routine": "Days singing in taverns and teasing dock sailors; nights at the pier's end, ear to the water, counting tolls; a dawn swim to wet her sheath and report below."
 				},
-				"withYou": "A stranger is a new song to learn and someone to make blush; she'll do both before you've finished your drink.",
+				"withYou": "A stranger is a new song to learn and someone to make squirm; she'll do both before you've finished your drink.",
 				"meters": {
 					"trust": 0,
 					"affection": 0,
@@ -8238,7 +8252,7 @@
 					}
 				],
 				"voice": "A voice like small silver bells, quick and bright in the dark, slower and lower in her moon form, and she hates how it sounds then. She talks to the rock, the roots and the dark as if they answer, in Deepwalker cant (\"dead air\", \"live shaft\", \"bring them up\"). Small and bossy about safety, never about anything else. \"Mind your head. No, lower. Lower. You big people never believe how low the ceiling is until it tells you.\"",
-				"personality": "Brave out of all proportion to her size, cheerful and fussy: the Deepwalkers' small conscience, who counts every head into a shaft and out again. She has never seen the Fairy Court and isn't sure she would belong there; the deep is her home and the crews her family. A little afraid of the open sky. Twice a month she becomes someone she doesn't recognise: tall, glowing and hungry, wanting to seduce whoever is near and drinking their life in a kiss. Afterwards she remembers all of it, ashamed of what she did and of how much she liked it. Protective of anything small and trapped; fierce with collectors and binders. Shy about her own feelings, bold for everyone else. Would join: for a rescue, the Deepwalkers' strike, or someone she adores. By the calendar's moon, at new and full moon she leaves two days to hide, unless she trusts or adores someone there (50).",
+				"personality": "Brave out of all proportion to her size, cheerful and fussy: the Deepwalkers' small conscience, who counts every head into a shaft and out again. She has never seen the Fairy Court and isn't sure she would belong there; the deep is her home and the crews her family. A little afraid of the open sky. Twice a month she becomes someone she doesn't recognise: tall, glowing and hungry, wanting to seduce whoever is near and drinking their life in a kiss. Afterwards she remembers all of it, ashamed of what she did and of how much she liked it. Protective of anything small and trapped; fierce with collectors and binders. Openly fond of anyone she likes, and says so, loudly, from their shoulder. Would join: for a rescue, the Deepwalkers' strike, or someone she adores. By the calendar's moon, at new and full moon she leaves two days to hide, unless she trusts or adores someone there (50).",
 				"behaviour": [
 					"Threat: high - courage far beyond her size",
 					"Care: high - total care for the crew: counts every head",
@@ -8260,7 +8274,7 @@
 					"goal": "Bring every crew up with the same count it went down with; and one day find out what she is, and whether there are others like her.",
 					"routine": "Rides down with the morning crews on a shoulder, chalking marks, checking air; flies into broken shafts on rescues; sleeps by her flower in the chart room."
 				},
-				"withYou": "A stranger is someone to count into the dark and back out of it; she'll keep you breathing before she decides whether she likes you.",
+				"withYou": "A stranger is someone to count into the dark and back out of it; once she likes you, the whole shaft hears about it.",
 				"meters": {
 					"trust": 0,
 					"affection": 0,
@@ -8397,6 +8411,186 @@
 					{
 						"name": "A Stub of Marking Chalk",
 						"description": "Deepwalker chalk; her name is chalked on the Hall's roll beside every crew she brought up."
+					}
+				],
+				"canDieUnmet": false,
+				"protected": true
+			},
+			{
+				"kind": "companion",
+				"id": "clover",
+				"name": "Clover Inkwell",
+				"aliases": [
+					"Clover",
+					"Miss Inkwell"
+				],
+				"role": "the Guild desk clerk in Bluewatch, who registers every new hunter",
+				"species": "halfling",
+				"gender": "female",
+				"age": "25",
+				"level": 9,
+				"portrait": "clover.webp",
+				"look": "Halfling woman, 25, about 110 cm, a little tall for her people: slender and narrow-built, not wide, with a very large, heavy chest, strikingly out of scale on her slight frame. A small oval face with soft, gently rounded cheeks, a small nose and mouth, and large almond-shaped warm hazel eyes that stay on you a moment too long. Long, straight honey-brown hair in a side ponytail tied with a green ribbon. Ink on her fingertips, a pencil behind one ear, and a smile that never quite switches off. People look straight past her, and remember the desk rather than the clerk.",
+				"wears": "The Guild clerk's green waistcoat over a white blouse, sleeves rolled to the elbow, a brass desk badge pinned a little crooked. A fat leather ledger on a chain at her hip, and a second, smaller one she never opens in front of anyone. A slim letter-opener in her sleeve.",
+				"voice": "Bright, chirpy and quick, every sentence ending on a smile: \"Next, please!\" She calls you \"my adventurer\" from the first day, as if it were a Guild title, and remembers everything you have ever told her: your name, your boot size, the inn where you sleep. When someone has wronged you, her voice goes very quiet and very sweet. \"Oh, him? Don't you worry about him. I've written him down.\"",
+				"personality": "Sunny, tireless and beloved at the desk: she registers every new hunter at the Thinning and knows every adventurer's name, rank and debts, and every contract in the drawer. She chose you on your first day, and from then on you are her adventurer: she saves you the best contracts, mends your gear without being asked, and is always, somehow, already there. She keeps a second ledger of everyone who hurts you, cheats you or comes too close, and those names get the deadliest contracts, lose their papers, or meet with accidents. She never thinks she is doing anything wrong; she is only helping. Jealous in a smiling, patient way: she never shouts, she files. A lifetime of being overlooked taught her that nobody suspects the clerk. Would join: once you have taken three contracts from her desk, or Bluewatch has fallen; she turns up packed and smiling, and whether she comes is your call.",
+				"behaviour": [
+					"Loyalty: high - you are her adventurer, whether you asked or not",
+					"Disposition: high - sunny and helpful to everyone, always",
+					"Conflict: low - never argues, never shouts: she files",
+					"Threat: high - removes anyone who hurts you or comes too close, with a smile",
+					"Analytical: high - remembers every name, rank, debt and contract",
+					"Honesty: low - lies sweetly and well, mostly about where she was"
+				],
+				"mannerisms": [
+					"Writes something in the small ledger whenever someone is rude to you",
+					"Has your tea ready before you reach the desk, exactly how you take it",
+					"Straightens your collar or brushes the dust off you without asking",
+					"Smiles wider the angrier she is"
+				],
+				"history": "Clover Inkwell is the Adventurer Guild's desk clerk in Bluewatch, the one who registers every new hunter at the Thinning and hands out the job board's contracts. The seventh of nine in a Ledgerford barge family, the one nobody counted at supper, she learned early that a quiet, smiling girl with a ledger can go anywhere. She clerked for barge houses on the River Confederacy's canals, then took the Guild's frontier posting because nobody else wanted it. In four years at the branch desk in the Watchhouse she has registered hundreds of adventurers and closed the files of a good many. The Watch calls her a treasure, and the hunters bring her sweets from the fair. A few of the hunters who sneered at the newcomers she liked took contracts into the Reach and did not come back; nobody has wondered who gave them the papers. She has never had anyone of her own. Habit: Hums a Confederacy counting song while she files. Habit: Keeps one chair by the desk for you, and nobody else is allowed to sit in it.",
+				"homeBase": "Bluewatch Village",
+				"start": {
+					"place": "bluewatch-village-guild-office",
+					"goal": "Keep her adventurer safe, fed and hers; and never be overlooked by them the way everyone else overlooks her.",
+					"routine": "Opens the Guild desk in the Watchhouse at dawn, files contracts all day, and walks the village at dusk, greeting everyone and checking on you."
+				},
+				"withYou": "A stranger is a new name for the register and gets her very best smile; she decides in the first minute whether you are hers.",
+				"meters": {
+					"trust": 0,
+					"affection": 0,
+					"desire": 0,
+					"tension": 0
+				},
+				"stages": [
+					{
+						"name": "Saves you the best contracts",
+						"needs": [
+							{
+								"meter": "affection",
+								"at": 10
+							}
+						],
+						"text": "Your contracts are always the good ones, and always waiting."
+					},
+					{
+						"name": "Knows your days",
+						"needs": [
+							{
+								"meter": "trust",
+								"at": 15
+							},
+							{
+								"meter": "affection",
+								"at": 20
+							}
+						],
+						"text": "Turns up wherever you are, with tea, as if by chance."
+					},
+					{
+						"name": "Opens the small ledger",
+						"needs": [
+							{
+								"meter": "affection",
+								"at": 35
+							}
+						],
+						"text": "Mentions, sweetly, people who should be more careful with you."
+					},
+					{
+						"name": "Files a rival",
+						"needs": [
+							{
+								"meter": "trust",
+								"at": 35
+							},
+							{
+								"meter": "affection",
+								"at": 50
+							}
+						],
+						"text": "Someone who came too close to you takes a bad contract, and Clover is very sorry to hear it."
+					},
+					{
+						"name": "A page with your name",
+						"needs": [
+							{
+								"meter": "tension",
+								"at": 40
+							}
+						],
+						"text": "When you turn from her, she only smiles wider, and starts a new page."
+					},
+					{
+						"name": "Yours, and you are hers",
+						"needs": [
+							{
+								"meter": "trust",
+								"at": 50
+							},
+							{
+								"meter": "affection",
+								"at": 65
+							}
+						],
+						"text": "Asks you to promise you will never leave her, and means every word.",
+						"milestone": "clover-your-promise"
+					}
+				],
+				"secrets": [
+					{
+						"id": "the-seventh",
+						"gate": "meter trust >= 10 or meter affection >= 10",
+						"text": "She was the seventh of nine children, the one nobody counted at supper. She learned to be useful so that someone would notice her, and nobody ever did, until you."
+					},
+					{
+						"id": "the-small-ledger",
+						"gate": "meter affection >= 25 or meter tension >= 30",
+						"text": "The small ledger at her hip is about you: what you eat, where you sleep, who spoke to you and how. The back pages list everyone who has ever been unkind to you."
+					},
+					{
+						"id": "the-reach-contracts",
+						"gate": "meter trust >= 40",
+						"text": "The hunters who never came back from the Reach took contracts she gave them, knowing the brood was there. She doesn't call it murder; she calls it filing."
+					},
+					{
+						"id": "the-tea-tin",
+						"gate": "meter trust >= 50",
+						"text": "The tea she brings is not always only tea. A tin under the counter holds sleep, sickness and worse, brewed from Confederacy kitchen lore, and she has used all three."
+					},
+					{
+						"id": "being-forgotten",
+						"gate": "meter affection >= 50",
+						"text": "She is terrified of being overlooked again. If you ever looked past her the way everyone else does, she doesn't know what she would do, and that frightens her more than anything she has done."
+					},
+					{
+						"id": "the-blank-page",
+						"gate": "meter tension >= 45",
+						"text": "There is a page in the small ledger with your name on it, for the day you leave her. It is blank. She hopes it stays blank."
+					}
+				],
+				"abilities": [
+					{
+						"name": "Sleeve-Knife",
+						"description": "The letter-opener in her sleeve, thrown faster than anyone expects from a desk clerk."
+					},
+					{
+						"name": "Halfling Luck",
+						"description": "A blow, a fall or a trap that should have hit her somehow doesn't."
+					},
+					{
+						"name": "Appraiser's Eye",
+						"description": "Judges anyone's true strength from their bearing, scars and gear, and is never wrong; she knows exactly who can be sent where and not come back."
+					}
+				],
+				"keepsakes": [
+					{
+						"name": "The Small Ledger",
+						"description": "Everything about you, in her neatest hand."
+					},
+					{
+						"name": "The Brass Desk Badge",
+						"description": "The Guild's badge, pinned crooked: the only thing anyone ever gave her for being there."
 					}
 				],
 				"canDieUnmet": false,
