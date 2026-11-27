@@ -17,6 +17,7 @@ import { entryActive } from '../../daily/holds-read.js';
 import { readWorld } from './read-world.js';
 import { liveTable } from '../conditions/live-holds.js';
 import { eventWords } from '../../daily/event-words.js';
+import { neverOpened } from '../../daily/never-opened.js';
 import { refLabel } from '../../daily/region-label.js';
 
 export const WORLD_EVENT_THEN = 'outcome decided by the world';
@@ -39,7 +40,11 @@ export function arcBrief({ daily = null, table = {}, world = {}, place = '', min
     });
     const threads = active.filter(each => each.name).map(({ row, summary, name }) => ({ kind: 'world-event', key: name, now: row.outcome ? `${summary} (outcome: ${row.outcome})`.trim() : summary, then: WORLD_EVENT_THEN }));
     const guard = active.map(({ def, name }) => ({ id: def.id, title: name, outcomes: def.outcomes.map(each => each?.name).filter(name => typeof name === 'string') }));
-    const toCome = [...new Set(events.filter(def => (def.kind === 'chain-stage' || def.certainty === 'set-in-motion') && !DONE.has(rows[def.id]?.state) && rows[def.id]?.fired === undefined)
+    // An event whose branch has not opened is not named (it would give the branch away): its anchors, the window's included, must hold.
+    const declared = new Map((Array.isArray(world.conditions) ? world.conditions : []).map(row => [row?.name, row]));
+    const told = { anchors: daily?.anchors ?? {}, startDay: daily?.start, tempo: 1, geo, declared, table: table ?? {} };
+    const open = def => !neverOpened(told, { requires: [...def.requires, ...(def.window?.after ? [def.window.after] : [])], requiresAny: def.requiresAny }, Number.MAX_SAFE_INTEGER);
+    const toCome = [...new Set(events.filter(def => (def.kind === 'chain-stage' || def.certainty === 'set-in-motion') && !DONE.has(rows[def.id]?.state) && rows[def.id]?.fired === undefined && open(def))
         .map(def => eventWords(geo, def).label).filter(Boolean))].slice(0, MAX);
     const found = place ? resolveRef(geo, place) : null;
     const realm = found ? realmsOf(geo, [found.name])[0] ?? null : null;

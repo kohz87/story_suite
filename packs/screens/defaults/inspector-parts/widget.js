@@ -129,7 +129,7 @@ export function createInspectorWidget(source, { enabled = () => true, rebuild = 
                         row.setAttribute('data-receipt', receipt.id);
                         const item = el(doc, 'div', 'ss-listcard-item');
                         const main = el(doc, 'span', 'ss-listcard-main');
-                        main.appendChild(el(doc, 'span', 'ss-listcard-title', receipt.summary || receipt.type));
+                        main.appendChild(el(doc, 'span', 'ss-listcard-title', receipt.shown || receipt.summary || receipt.type));
                         const meta = [receipt.type, receipt.module, receipt.cause, receipt.rev !== null ? `rev ${receipt.rev}` : '', receipt.narrate ? '' : S.untold].filter(Boolean).join(' · ');
                         main.appendChild(el(doc, 'span', 'ss-listcard-sub sb-insp-meta', meta));
                         item.appendChild(main);

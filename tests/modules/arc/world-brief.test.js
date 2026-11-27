@@ -80,7 +80,33 @@ test('switch off: no brief, and the planner reads the tracker alone (the text ma
 
 test('arcBrief: an outcome is shown with the summary; Lapsed, Replaced and fired stages are not still to come', () => {
     const world = { ...SPEC, places: [{ name: 'Highmark', region: 'The March' }], events: [...SPEC.events, { ...SPEC.events[1], id: 'gone', title: 'Gone' }] };
-    const out = arcBrief({ daily: { events: { levy: { state: 'active', outcome: 'the lords split' }, gone: { state: 'lapsed' } } }, world, place: 'Highmark' });
+    const out = arcBrief({ daily: { events: { levy: { state: 'active', outcome: 'the lords split' }, gone: { state: 'lapsed' } }, anchors: { 'fired:levy': [1] } }, world, place: 'Highmark' });
     assert.equal(out.threads[0].now, 'The lord calls a levy. (outcome: the lords split)');
     assert.deepEqual(out.toCome, ['The crowning']);
+});
+
+test('arcBrief: an event of a branch that has not opened is not still to come', () => {
+    const stage = extra => ({ ...SPEC.events[1], requires: [], window: undefined, ...extra });
+    const world = { ...SPEC, events: [
+        stage({ id: 'plain', title: 'Plain' }),
+        stage({ id: 'by-fact', title: 'Cut road', requires: ['fact:price-named'] }),
+        stage({ id: 'by-any', title: 'Either way', requires_any: ['ended:plain', 'fired:plain + 90 days'] }),
+        stage({ id: 'by-window', title: 'Regency', window: { after: 'fired:plain + 30 days', within: '5 days' } }),
+    ] };
+    const toCome = anchors => arcBrief({ daily: { events: {}, anchors }, world }).toCome.sort();
+    assert.deepEqual(toCome({}), ['Plain']);
+    assert.deepEqual(toCome({ 'fact:price-named': [2] }), ['Cut road', 'Plain']);
+    assert.deepEqual(toCome({ 'fired:plain': [3] }), ['Either way', 'Plain', 'Regency'], 'an offset not yet passed still counts as open');
+});
+
+test('arcBrief: every recorded anchor kind that never happened keeps an event out of Still to come', () => {
+    const kinds = ['lapsed:plain', 'fired:plain', 'ended:plain', 'stage:plain', 'fact:price-named', 'died:mara', 'departed:mara', 'learned:mara/oath', 'arc-ended:siege@Highmark', 'set:unrest@Highmark', 'cleared:unrest'];
+    const events = kinds.map((gate, at) => ({ ...SPEC.events[1], id: `gated-${at}`, title: `Gated ${at}`, requires: [gate], window: undefined }));
+    const world = { ...SPEC, events };
+    const brief = anchors => arcBrief({ daily: { events: {}, anchors }, world }).toCome;
+    assert.deepEqual(brief({}), []);
+    for (const [at, gate] of kinds.entries()) {
+        const key = gate.replace(/^stage:/, 'fired:').replace(/@Highmark$/, match => (gate.startsWith('arc-ended') ? '@highmark' : match));
+        assert.ok(brief({ [key]: [2] }).includes(`Gated ${at}`), gate);
+    }
 });

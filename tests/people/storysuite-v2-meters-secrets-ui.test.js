@@ -4,6 +4,7 @@ import { MODULE_ID } from '../../modules/people/storysuite-v2.js';
 import { MAX_SECRETS, normalizeGeneratedSecrets, normalizeSecrets, secretId, secretsFromLines, secretsToLines } from '../../modules/people/meters/npc-meters.js';
 import { assemble } from '../../core/prompt.js';
 import { escapeHtml } from '../../modules/people/util/html.js';
+import { JOIN_LINE } from '../../modules/people/core/core-injection-parts-parts/join-line.js';
 
 import { hiddenNotePromptRules } from '../../modules/people/core/core-mechanics.js';
 import { buildScannerPrompt } from '../../modules/people/core/core.js';
@@ -49,6 +50,13 @@ test('secrets: the scanner prompt asks for layered notes and watches story event
     assert.match(watched, /CURRENT exchange/);
     assert.match(buildScannerPrompt({ ...base, layeredSecrets: true, eventWatch: [{ key: 's1', name: 'Mira', event: EVENT }] }), /\n16\. HIDDEN NOTES[^\n]*\n17\. STORY EVENTS/);
     assert.equal(hiddenNotePromptRules({ eventWatch: [{ name: 'x' }, null] }), '', 'an item with no key or event is no watch');
+});
+
+test('secrets: redactSent hides a join line whose own words hold a hidden-note marker', async () => {
+    const hide = (await host()).def.hooks.redactSent;
+    const join = 'After the lighthouse oath (hidden): ask at the pier.';
+    const shown = hide(`- Mira: IDENTITY ferry hand; ${JOIN_LINE(join)}\n- Oren: IDENTITY clerk`);
+    assert.equal(shown, '- Mira: IDENTITY ferry hand\n- Oren: IDENTITY clerk');
 });
 
 test('secrets: redactSent takes a part\'s whole multi-line text and redacts every locked line, leaving the rest as it is', async () => {

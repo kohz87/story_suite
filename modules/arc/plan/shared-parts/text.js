@@ -23,3 +23,6 @@ export function flat(value, points) {
 // A separator the change-line grammar reads (` | `, ` — `) never survives inside a part, so the text
 // form reads back as the same plan.
 export const part = (value, points) => flat(String(value ?? '').replace(/\s[|—–]\s/g, ' ').replace(/\|/g, '/'), points);
+
+/** A name or line as a model's brief prints it: "|" as "/", so a reply that copies it is not split there (the change-line separator). */
+export const barless = value => String(value ?? '').replace(/\|/g, '/');

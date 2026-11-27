@@ -10,6 +10,7 @@ import { dailyChance, rollChance } from './chance.js';
 import { closeEvent, endEvent, fireEvent } from './fire.js';
 import { scaleDays } from './durations.js';
 import { eventWords } from './event-words.js';
+import { neverOpened } from './never-opened.js';
 import { oncePerStretch, seededDay, stretchOf } from './season-chance.js';
 import { bindOf, placesFor, weightedPick } from './placement.js';
 import { modifierProduct, requiresHold } from './requires.js';
@@ -87,8 +88,15 @@ function oneEvent(ws, def, day) {
     const win = windowed(ws, def, row, day);
     if (win.lapse) {
         if (def.certainty === 'set-in-motion') {
-            const said = eventWords(ws.geo, def).label;
-            ws.warnings.push(`${said ? `The event "${said}"` : 'An event'} lapsed: its requirements did not hold on its last day.`);
+            if (neverOpened(ws, def, day)) {
+                // A branch that never opened: no words of it anywhere, and nothing on the card.
+                const quiet = 'An event lapsed: its window closed.';
+                ws.warnings.push(quiet);
+                (ws.card ??= {})[quiet] = '';
+            } else {
+                const said = eventWords(ws.geo, def).label;
+                ws.warnings.push(`${said ? `The event "${said}"` : 'An event'} lapsed: its requirements did not hold on its last day.`);
+            }
         }
         return closeEvent(ws, def, day, 'lapsed', 'its window closed');
     }

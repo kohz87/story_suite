@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Spoiler fixes: the Inspector and the "What's sent" copy hide when someone would join and unopened secrets; the planner is not told of branches still waiting on earlier events.
 - World: cards, the World tab and the Journal now name world events and conditions in words ("grain dear", the event's own sentence), never by their code names, and lapsed branches you never reached stay off the step card.
 - World: a pack can now say when a companion would join; it stays hidden and comes through the story.
 - Arsveil: an eleventh companion, Clover Inkwell, the sweet halfling clerk at Bluewatch's Guild desk, who is a little too devoted to her adventurer.

@@ -14,8 +14,8 @@ export const EVENT_CAP = 2;
 const MAX_CAUSES = 3;
 const SPLIT = /\s*[;,]\s*/;
 const HELD = /^\u0000(\d+)$/;
-// A typed apostrophe for a curly one (one for one, so places in the text stay).
-const plain = text => text.toLowerCase().replace(/[’‘]/g, "'");
+// A typed apostrophe for a curly one, and "/" for the "|" the brief prints as "/" (one for one, so places in the text stay).
+const plain = text => text.toLowerCase().replace(/[’‘]/g, "'").replace(/\|/g, '/');
 // A piece is matched whole: a name's cut could fall inside a name the piece only begins with.
 const PIECE_POINTS = 1000;
 
@@ -23,7 +23,9 @@ const PIECE_POINTS = 1000;
 function asked(because, causes) {
     const held = [];
     let said = String(because ?? '').replace(/\u0000/g, '');
-    const forms = causes.flatMap(name => [[name, name], [flat(name, KEY_POINTS), name]]).filter(([form]) => /[;,]/.test(form)).sort(([a], [b]) => b.length - a.length);
+    // A cut two names share is no way to take either whole.
+    const cut = causes.map(name => plain(flat(name, KEY_POINTS)));
+    const forms = causes.flatMap((name, at) => [[name, name], ...(cut.indexOf(cut[at]) === cut.lastIndexOf(cut[at]) ? [[flat(name, KEY_POINTS), name]] : [])]).filter(([form]) => /[;,]/.test(form)).sort(([a], [b]) => b.length - a.length);
     for (const [form, name] of forms) {
         const at = plain(said).indexOf(plain(form));
         if (at < 0) continue;
