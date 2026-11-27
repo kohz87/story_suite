@@ -78,12 +78,11 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
     }
 
     // Stages, ladder and notes of one record, with this NPC's own setup. `asked`: owners.asking() for the record's entry.
-    // A dead or archived person's stages, ladder and notes stay as they are: no meter opens a note of theirs (a story event or the reader's hand still can).
+    // No meter opens a note of a dead or archived person (`asked.gone`: settled with no note rules); a story event or the reader's hand still can.
     const settleRecord = (record, asked, settings, defs, tick = false) => {
-        if (asked.gone) return { stages: [], ranks: [], held: '', unlocked: [] };
         const setup = setupFor(asked.name, asked.labels);
         return settle(record, {
-            defs, stages: settings.stages, rules: rulesFor(asked.name, asked.labels), name: record.name,
+            defs, stages: settings.stages, rules: asked.gone ? [] : rulesFor(asked.name, asked.labels), name: record.name,
             rungs: rungsFor(settings, setup), conflictAt: settings.conflictAt, demoteAfter: settings.demoteAfter, tick,
         });
     };
