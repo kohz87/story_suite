@@ -9,12 +9,17 @@ const MAX_CHARS = 1200;
 const bare = text => text.replace(/[.!?…]+$/, '');
 
 // A line's words for comparing two tellings of one thing: no case, punctuation or word order, and no tense or plural endings ("stopped" = "stops").
-const wordSet = text => new Set((String(text).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []).map(word => word.replace(/(?<=.{3})(ing|ed|es|s)$/, '').replace(/(?<=.{2})(.)\1$/, '$1')));
-const SAME_WORDS = 0.8;
-/** Whether `line` already says `fact`: it has at least 80% of the fact's words (the line may well say more). */
+const IRREGULAR = { goes: 'go', going: 'go', went: 'go', gone: 'go', fell: 'fall', fallen: 'fall' };
+const stem = word => (IRREGULAR[word] ?? word).replace(/(?<=.{3})(ing|ed|es|s)$/, '').replace(/(?<=.{3})e$/, '').replace(/(?<=.{2})(.)\1$/, '$1');
+const words = text => String(text).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+const SMALL = new Set(['a', 'an', 'the', 'and', 'of', 'to', 'in', 'on', 'at', 'by', 'for', 'with', 'from', 'that', 'is', 'are', 'was', 'were', 'be', 'been', 'being']);
+const NEGATIONS = ['not', 'never', 'no', 'nor', 'without'];
+/** Whether `line` already says `fact`: it has every content word of the fact (it may well say more), and every "not" of it. */
 function says(line, fact) {
-    const [has, asked] = [wordSet(line), [...wordSet(fact)]];
-    return asked.length > 0 && asked.filter(word => has.has(word)).length >= SAME_WORDS * asked.length;
+    const [said, asked] = [words(line), words(fact)];
+    const has = new Set(said.map(stem));
+    const content = asked.filter(word => !SMALL.has(word) && !NEGATIONS.includes(word));
+    return content.length > 0 && content.every(word => has.has(stem(word))) && NEGATIONS.every(word => !asked.includes(word) || said.includes(word));
 }
 
 /** `faded(name, ref, geo)` → a condition that ended, in words ("tolls raised on The March"); `geo` names the ref as the Conditions card does. */
