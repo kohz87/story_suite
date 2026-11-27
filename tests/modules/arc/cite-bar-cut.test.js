@@ -50,3 +50,13 @@ test('two names that print alike once "|" reads "/": the printed form cites neit
     }
     assert.equal(finder(['Gate | Quay', 'Gate | Quay'])('Gate / Quay'), 'Gate | Quay', 'one name listed twice is one name');
 });
+
+test('long names that print alike share no cut; a title and its own id still read', () => {
+    const stem = 'The long council of the harbour wardens meets again to settle the matter of tolls on';
+    const names = [`${stem} the ferry | north`, `${stem} the ferry / north`];
+    for (const list of [names, [...names].reverse()]) {
+        assert.equal(finder(list)(flat(names[0], 80)), null);
+        assert.equal(finder(list)(`${flat(names[0], 80)} — they argue`), null);
+    }
+    assert.notEqual(finder(['Gate | Quay', 'gate-quay'])('Gate / Quay'), null, 'the judge looks an event up by title and id');
+});
