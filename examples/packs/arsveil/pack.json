@@ -7,7 +7,7 @@
 	"author": "Story Suite examples",
 	"description": "Arsveil: an open world with its own powers, lore and about ten years of world events. Eleven people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
 	"requires": {
-		"suite": "^0.1",
+		"suite": "^0.1.7",
 		"capabilities": [
 			"scene",
 			"chronicle-lasting"

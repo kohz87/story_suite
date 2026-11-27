@@ -1,7 +1,7 @@
 {
   "name": "story-suite",
   "private": true,
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "scripts": {
     "test": "npm run test:scripts && npm run test:core && npm run test:ui && npm run test:modules && npm run test:people && npm run test:suite",

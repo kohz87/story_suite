@@ -2,7 +2,7 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
-## Unreleased
+## 0.1.7 — 27 Nov 2026
 
 - Packs: the rules pack Ersveil and Arsveil share is now called "Frontier rules" (1.2.1); nothing in it changed. Installing a world no longer lists facts that only make events likelier as "Ignored".
 - NPC State: people who share a name are told apart by their nicknames: the story names the right one, and a line that can't tell which is refused.

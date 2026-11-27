@@ -7,7 +7,7 @@
   "author": "Story Suite examples",
   "description": "Calendar, coins, guild ranks, names and trackers for the Ersveil and Arsveil worlds",
   "requires": {
-    "suite": "^0.1",
+    "suite": "^0.1.7",
     "capabilities": [
       "scene",
       "inventory",

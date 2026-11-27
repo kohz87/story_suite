@@ -2,7 +2,7 @@ This is the detailed record of every change, kept as it was written; the short l
 
 # Changelog
 
-## Unreleased (detail)
+## 0.1.4 to 0.1.7 (detail) — 27 Nov 2026
 
 - NPC State: `npc.cast({ departed: true })` answers the dead who have an opened note (their note rows only) for the dossier views; `people.write` takes `named: [ids]` when it gives a nickname to someone already stored, so that change is passed over on replay if their record is gone (as `people.stub` does).
 - NPC State namesakes: when every living person of one name has a nickname (an alias that is nobody else's), the people lists and meter lines show Name "Nickname", the dynamic text carries one line saying to write the nickname, and a line for the shared name goes to the one in the scene or is refused. A write that adds a new namesake gives the nickname (and one to the person who had the name alone). People who already share a name without nicknames are handled as before. Name "Nickname" names that person in `+ npc` (refused as already listed), other story lines, scan rows and scene lists, also once the other has died; a scan row or scene entry with the plain shared name goes to the one present, else it is passed over. The meter lines carry the line about the shared name when neither the dossier text nor the one-pass context does.
