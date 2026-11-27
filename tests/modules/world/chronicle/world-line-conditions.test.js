@@ -125,4 +125,5 @@ test('a refusal does not lead with the condition\'s slug: the sentence says it i
     const bare = line(base(), '+ world Gate Siege — shut | conditions: +Gate-Closed', options);
     assert.match(bare.result.summary, /Not used: gate closed needs a place on the line/);
     assert.equal(said('the gates', 'gate-closed', 'shut today'), '"the gates": shut today', 'other words are quoted');
+    assert.equal(said('rain', 'rain', 'Rainmoor already carries 8 conditions'), 'rain: Rainmoor already carries 8 conditions', 'named only as whole words');
 });

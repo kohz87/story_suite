@@ -44,7 +44,9 @@ const inWords = name => low(name).replace(/[-_]+/g, ' ');
 export function said(written, slug, reason) {
     if (written && inWords(written) !== inWords(slug)) return `"${written}": ${reason}`;
     const words = String(slug).replace(/[-_]+/g, ' ');
-    return inWords(reason).includes(inWords(words)) ? reason : `${words}: ${reason}`;
+    // As whole words: "rain" is not named by "Rainmoor".
+    const whole = text => ` ${inWords(text).replace(/[^\p{L}\p{N}]+/gu, ' ').trim()} `;
+    return whole(reason).includes(whole(words)) ? reason : `${words}: ${reason}`;
 }
 
 /**
