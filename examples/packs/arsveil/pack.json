@@ -27812,11 +27812,11 @@
 					"facts": [
 						{
 							"id": "long-game-open",
-							"text": "Five years after the first breaking, the roads have outlived their old maps and the old settlements have begun to make new history."
+							"text": "Five years on, the roads have outlived their old maps, and the peaces and bargains of those years have begun to make new history."
 						}
 					]
 				},
-				"summary": "Five years on from the first breaking, the world settles into its long argument and every old road carries a new claim."
+				"summary": "Five years on, the world settles into its long argument, and every old road carries a new claim."
 			},
 			{
 				"id": "late-bluewatch-town-thinning",
@@ -27858,13 +27858,13 @@
 						},
 						{
 							"id": "bluewatch-thinning-new-question",
-							"text": "The new town's Thinning is bigger than its charter, its quay or its watch can agree to pay for."
+							"text": "No one in the new town can agree who should pay for a Thinning this large."
 						}
 					]
 				},
 				"outcomes": [
 					{
-						"name": "the first Thinning is a clean success",
+						"name": "the hunt is a clean success",
 						"weight": 40,
 						"effects": {
 							"set": [
@@ -28226,11 +28226,11 @@
 					"facts": [
 						{
 							"id": "bluewatch-succession-government",
-							"text": "Bluewatch's successor has made a permanent government out of the Thinning's old fair court."
+							"text": "Bluewatch's old fair court has become a permanent government."
 						},
 						{
 							"id": "bluewatch-frontier-road-question",
-							"text": "Bluewatch now keeps the frontier road, but no neighbouring power has agreed who may close it or tax it."
+							"text": "Bluewatch's new government keeps the frontier road, but no neighbouring power has agreed who may close it or tax it."
 						}
 					]
 				},
@@ -28272,7 +28272,7 @@
 						}
 					}
 				],
-				"summary": "The rebuilt town's long succession is settled by its own fair court: {outcome}.",
+				"summary": "Bluewatch's rebuilt town settles who will govern it in the years ahead: {outcome}.",
 				"requires_any": [
 					"stage:late-bluewatch-town-thinning"
 				]
@@ -28312,7 +28312,7 @@
 					"facts": [
 						{
 							"id": "bluewatch-succession-government",
-							"text": "The settlement at Bluewatch's ruins has made a permanent government out of its own meeting court."
+							"text": "The meeting court at Bluewatch's ruins has become a permanent government."
 						},
 						{
 							"id": "bluewatch-frontier-road-question",
@@ -28358,7 +28358,7 @@
 						}
 					}
 				],
-				"summary": "The ruin settlement's long succession is settled by its own court: {outcome}.",
+				"summary": "The settlement at Bluewatch's ruins settles who will govern it in the years ahead: {outcome}.",
 				"requires_any": [
 					"stage:late-bluewatch-ruin-resettled-company",
 					"stage:late-bluewatch-ruin-resettled-den",
@@ -28411,7 +28411,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the resettled north feeds its first winter",
+						"name": "the new farms feed their first winter",
 						"weight": 40,
 						"effects": {
 							"set": [
@@ -28505,7 +28505,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the moved frontier opens a new road",
+						"name": "settlers open a new road",
 						"weight": 35,
 						"effects": {
 							"powers": {
@@ -28599,7 +28599,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the old frontier turns to pasture",
+						"name": "the land behind the line turns to pasture",
 						"weight": 40,
 						"effects": {
 							"set": [
@@ -28627,7 +28627,7 @@
 						}
 					},
 					{
-						"name": "the long garrisons open a new patrol road",
+						"name": "the frontier garrisons open a new patrol road",
 						"weight": 25,
 						"effects": {
 							"powers": {
@@ -28686,7 +28686,7 @@
 						},
 						{
 							"id": "auvoth-quarter-law-question",
-							"text": "The new assembly has made ward law, but the Sealcrown, the Pale Market and the outer lamps all claim a veto."
+							"text": "The new assembly has made ward law, but the Sealcrown, the Pale Market and the Outer Lamps all claim a veto."
 						}
 					]
 				},
@@ -28704,7 +28704,7 @@
 						}
 					},
 					{
-						"name": "the Council's creditors open the gates",
+						"name": "the Compact Council's creditors call in its debts",
 						"weight": 35,
 						"effects": {
 							"set": [
@@ -28728,7 +28728,7 @@
 						}
 					}
 				],
-				"summary": "Auvoth's crowded city holds its first test of the new quarter's law: {outcome}.",
+				"summary": "Auvoth's new quarter puts its law to the first test: {outcome}.",
 				"requires_any": [
 					"fact:auvoth-new-quarter"
 				]
@@ -28772,7 +28772,7 @@
 						},
 						{
 							"id": "auvoth-quarter-law-question",
-							"text": "The assembly has made ward law, but the Sealcrown, the Pale Market and the outer lamps all claim a veto."
+							"text": "The assembly has made ward law, but the Sealcrown, the Pale Market and the Outer Lamps all claim a veto."
 						}
 					]
 				},
@@ -28887,7 +28887,7 @@
 						}
 					},
 					{
-						"name": "the outside quarter demands a seat within",
+						"name": "the outside quarter demands a voice inside the city",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -29033,7 +29033,7 @@
 					"facts": [
 						{
 							"id": "north-first-migration-accord",
-							"text": "The first migration since the Frostbound push has crossed the new war frontier."
+							"text": "The first great migration since the Frostbound push has crossed the new war frontier."
 						},
 						{
 							"id": "north-pasture-border-question",
@@ -29043,7 +29043,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the Frostbound send a hostage court",
+						"name": "the Frostbound send hostages as a pledge of peace",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -29126,7 +29126,7 @@
 					"facts": [
 						{
 							"id": "north-first-migration-accord",
-							"text": "The North's new order has carried its first migration across the old border without a general war."
+							"text": "The first great migration along the restored routes has crossed the old border without a general war."
 						},
 						{
 							"id": "north-pasture-border-question",
@@ -29228,7 +29228,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the creditors publish a new register",
+						"name": "the creditors print their register for all to read",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -29476,7 +29476,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "a second council seats the Veil",
+						"name": "the delegates seat the Veil",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -29571,7 +29571,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "a second council seats the Veil",
+						"name": "the delegates seat the Veil",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -29745,7 +29745,7 @@
 					"facts": [
 						{
 							"id": "bells-long-settlement",
-							"text": "The second council has produced a durable settlement of shrines, bells and Veil rites, though not a single creed."
+							"text": "The long argument after the second council has reached terms on shrines, bells and Veil rites, though not a single creed."
 						},
 						{
 							"id": "veil-law-question",
@@ -29796,7 +29796,7 @@
 						}
 					}
 				],
-				"summary": "The second council's work is carried from the Concord into the realms: {outcome}.",
+				"summary": "What followed the second council is carried from the Concord into the realms: {outcome}.",
 				"requires": [
 					"fact:concord-of-flame"
 				],
@@ -29837,7 +29837,7 @@
 					"facts": [
 						{
 							"id": "bells-long-settlement",
-							"text": "The second council has produced a durable settlement of shrines, bells and Veil rites, though not a single creed."
+							"text": "The long argument after the second council has reached terms on shrines, bells and Veil rites, though not a single creed."
 						},
 						{
 							"id": "veil-law-question",
@@ -29892,7 +29892,7 @@
 						}
 					}
 				],
-				"summary": "The second council's settlement is carried into the realms: {outcome}.",
+				"summary": "What followed the second council is carried into the realms: {outcome}.",
 				"requires": [
 					"fact:two-churches"
 				],
@@ -30099,7 +30099,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the Dwarven mandate opens a deep charter",
+						"name": "the dwarven mandate opens a deep charter",
 						"weight": 30,
 						"effects": {
 							"powers": {
@@ -30128,7 +30128,7 @@
 						}
 					}
 				],
-				"summary": "Ardelia's Dwarven mandate meets its first test: {outcome}.",
+				"summary": "Ardelia's dwarven mandate meets its first test: {outcome}.",
 				"requires_any": [
 					"fact:ardelia-dwarven-emperor"
 				]
@@ -30531,7 +30531,7 @@
 					"facts": [
 						{
 							"id": "southern-settlement-first-heir",
-							"text": "The war of the two empires has met its first succession dispute: heirs and Electors argue over who may end it."
+							"text": "Ardelia's war with Ashkar has run into a succession dispute: claimants and Electors argue over who may end it."
 						},
 						{
 							"id": "southern-pass-question",
@@ -30541,7 +30541,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "both empires agree a winter truce",
+						"name": "Ardelia and Ashkar agree a winter truce",
 						"weight": 40,
 						"effects": {
 							"set": [
@@ -30582,7 +30582,7 @@
 						}
 					}
 				],
-				"summary": "The war of the two empires runs into a succession dispute: {outcome}.",
+				"summary": "Ardelia's war with Ashkar runs into a succession dispute: {outcome}.",
 				"requires": [
 					"fact:ardelia-two-empires-war"
 				],
@@ -30636,7 +30636,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the returned Emperor claims the right to choose",
+						"name": "the returned Emperor insists that his word decides the heir",
 						"weight": 40,
 						"effects": {
 							"set": [
@@ -30651,7 +30651,7 @@
 						}
 					},
 					{
-						"name": "the courts refuse the returned Emperor's choice",
+						"name": "the courts refuse to let the returned Emperor decide",
 						"weight": 35,
 						"effects": {
 							"set": [
@@ -30666,7 +30666,7 @@
 						}
 					},
 					{
-						"name": "the returned Emperor wins the courts to his choice",
+						"name": "the courts accept the returned Emperor's word on the heir",
 						"weight": 25,
 						"effects": {
 							"powers": {
@@ -30675,7 +30675,7 @@
 						}
 					}
 				],
-				"summary": "With the old Emperor alive again, Highmark faces an heir question: {outcome}.",
+				"summary": "With the old Emperor returned, Highmark faces an heir question: {outcome}.",
 				"requires_any": [
 					"fact:emperor-found-alive",
 					"fact:emperor-returned-names-heir"
@@ -31507,7 +31507,7 @@
 						}
 					}
 				],
-				"summary": "A pilot school tries to bring order to the unpoliced lanes: {outcome}.",
+				"summary": "Pilots set out to bring order to the unpoliced lanes: {outcome}.",
 				"requires_any": [
 					"fact:sea-lanes-unpoliced"
 				]
@@ -31588,7 +31588,7 @@
 						}
 					},
 					{
-						"name": "a ghost fleet is sighted again",
+						"name": "the Ghost Fleet is sighted again",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -31682,7 +31682,7 @@
 						}
 					},
 					{
-						"name": "a ghost fleet is sighted again",
+						"name": "the Ghost Fleet is sighted again",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -31776,7 +31776,7 @@
 						}
 					},
 					{
-						"name": "a ghost fleet is sighted again",
+						"name": "the Ghost Fleet is sighted again",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -31789,7 +31789,7 @@
 						}
 					}
 				],
-				"summary": "A watch over the Throat is raised beside unclaimed Marisk: {outcome}.",
+				"summary": "The coast turns back to the Throat while Marisk lies unclaimed: {outcome}.",
 				"requires_any": [
 					"fact:marisk-ruins-unclaimed"
 				]
@@ -32093,7 +32093,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the new Thane wins the council's backing",
+						"name": "the new Thane wins the charter council's backing",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -32339,7 +32339,7 @@
 					"facts": [
 						{
 							"id": "forts-first-lease",
-							"text": "The Council's forts have come under a first common lease, with river, Ashmere and captains all claiming a landlord's right."
+							"text": "The River Council's forts have come under a first common lease, with the river, Ashmere and the captains all claiming a landlord's right."
 						},
 						{
 							"id": "fort-lease-question",
@@ -32349,7 +32349,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the Council takes the fort rents",
+						"name": "the River Council takes the fort rents",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -32387,7 +32387,7 @@
 						}
 					}
 				],
-				"summary": "The Council's forts reach their first common lease: {outcome}.",
+				"summary": "The River Council's forts reach their first common lease: {outcome}.",
 				"requires_any": [
 					"fact:shornmarch-forts-unsettled"
 				]
@@ -32434,7 +32434,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the Council wins a share of the rents",
+						"name": "the River Council wins a share of the rents",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -32513,7 +32513,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the Council pays to win back the road",
+						"name": "the River Council pays to win back the road",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -32597,7 +32597,7 @@
 					"facts": [
 						{
 							"id": "fairy-wager-settlement",
-							"text": "The new compact with the Fairy Court has been put to its great wagers and written down for the flower roads."
+							"text": "The new compact with the Fairy Court has survived its great wagers and has been written down for all who use the flower roads."
 						},
 						{
 							"id": "fairy-debt-question",
@@ -32926,7 +32926,7 @@
 						},
 						{
 							"id": "tap-reopener-cult",
-							"text": "A cult has formed at the reopened tap's scar, preaching that the leyline must never be shut again."
+							"text": "A cult has formed at the scar beneath the tap, preaching that the leyline must never be shut."
 						}
 					]
 				},
@@ -33014,17 +33014,17 @@
 					"facts": [
 						{
 							"id": "third-tide-second-stage",
-							"text": "The northern tap's unchastened draw has brought the Third Tide to its second stage, where the icefield's beasts carry a tide-mark in their bones."
+							"text": "What the northern tap's long draw woke has grown into what scholars call the Third Tide, and the icefield's beasts now carry a tide-mark in their bones."
 						},
 						{
 							"id": "third-tide-front-question",
-							"text": "No one can say where the second stage will break the frontier, only that the old maps of the Wildzone are already wrong."
+							"text": "No one can say where the Tide will break the frontier, only that the old maps of the Wildzone are already wrong."
 						}
 					]
 				},
 				"outcomes": [
 					{
-						"name": "the second stage surfaces at the Glass Howl",
+						"name": "the Tide surfaces at the Glass Howl",
 						"weight": 40,
 						"effects": {
 							"set": [
@@ -33044,7 +33044,7 @@
 						}
 					},
 					{
-						"name": "a new apex brood climbs from the tap",
+						"name": "a new apex brood climbs out of the icefield",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -33056,7 +33056,7 @@
 						}
 					}
 				],
-				"summary": "The never-closed northern tap brings the Third Tide to its second stage: {outcome}.",
+				"summary": "What the northern tap woke is now the thing scholars call the Third Tide: {outcome}.",
 				"less_if": {
 					"fact:tap-closed": "×0",
 					"fact:tap-reopened": "×0"
@@ -33099,7 +33099,7 @@
 					"facts": [
 						{
 							"id": "third-tide-breach-recorded",
-							"text": "The Third Tide's breach is now recorded in the north's charts, and the old northern tap is named as its first door."
+							"text": "The north's charts now record a breach that scholars call the Third Tide, and name the old northern tap as its first door."
 						},
 						{
 							"id": "third-tide-cause-question",
@@ -33145,7 +33145,7 @@
 						}
 					}
 				],
-				"summary": "The hidden Third Tide reaches its open breach: {outcome}.",
+				"summary": "The Third Tide, as scholars call it, breaks open in the north: {outcome}.",
 				"requires_any": [
 					"stage:late-third-tide-scar-closed",
 					"stage:late-third-tide-scar-reopened"
@@ -33188,7 +33188,7 @@
 					"facts": [
 						{
 							"id": "third-tide-breach-recorded",
-							"text": "The Third Tide's breach is now recorded in the north's charts, and the old northern tap is named as its first door."
+							"text": "The north's charts now record a breach that scholars call the Third Tide, and name the old northern tap as its first door."
 						},
 						{
 							"id": "third-tide-cause-question",
@@ -33234,7 +33234,7 @@
 						}
 					}
 				],
-				"summary": "The hidden Third Tide reaches its open breach: {outcome}.",
+				"summary": "The Third Tide, as scholars call it, breaks open in the north: {outcome}.",
 				"requires": [
 					"stage:late-third-tide-second-stage"
 				]
@@ -33374,7 +33374,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the ward of the Tap is renewed",
+						"name": "the realms renew their oaths",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -33413,7 +33413,7 @@
 						}
 					}
 				],
-				"summary": "The Ward of the Tap becomes a new northern ward: {outcome}.",
+				"summary": "The Ward of the Tap takes up its work in the north: {outcome}.",
 				"requires_any": [
 					"fact:winter-ward-signed"
 				]
@@ -33449,7 +33449,7 @@
 					"facts": [
 						{
 							"id": "long-winter-new-ward",
-							"text": "The reopened tap has produced a new northern ward with its own roads, stores and watch."
+							"text": "Since the tap was reopened, a new northern ward with its own roads, stores and watch has formed around it."
 						},
 						{
 							"id": "north-ward-cost-question",
@@ -33501,7 +33501,7 @@
 						}
 					}
 				],
-				"summary": "The reopened tap brings a new northern ward: {outcome}.",
+				"summary": "A new northern ward forms around the reopened tap: {outcome}.",
 				"requires_any": [
 					"fact:tap-reopened"
 				]
@@ -33534,7 +33534,7 @@
 					"facts": [
 						{
 							"id": "long-winter-new-ward",
-							"text": "The Long Watch has made its hold on the passes into a ward over the abandoned north."
+							"text": "The Long Watch has made its hold on the passes into a ward over the roads and farms left to the winter."
 						},
 						{
 							"id": "north-ward-cost-question",
@@ -33544,7 +33544,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the abandoned north stays abandoned",
+						"name": "the deserted farms stay empty",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -33577,7 +33577,7 @@
 						}
 					}
 				],
-				"summary": "The abandoned north is left in the Long Watch's ward: {outcome}.",
+				"summary": "The northern farms left to the winter pass into the Long Watch's ward: {outcome}.",
 				"requires_any": [
 					"fact:north-abandoned"
 				]
@@ -33714,7 +33714,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "Oren keeps a vigil for the dark motes",
+						"name": "Oren keeps a vigil for the lost motes",
 						"weight": 40,
 						"effects": {
 							"powers": {
@@ -33752,7 +33752,7 @@
 						}
 					}
 				],
-				"summary": "The dark motes' absence is argued in Oren's council: {outcome}.",
+				"summary": "The missing motes are argued over in Oren's council: {outcome}.",
 				"requires_any": [
 					"fact:motes-still-dark"
 				]
@@ -33888,11 +33888,11 @@
 					"facts": [
 						{
 							"id": "elven-first-reckoning",
-							"text": "The Long Memory's ending has reached its first reckoning, with the elves counting what the Root-Tyrant's age cost them."
+							"text": "The elves have held their first reckoning since the Root-Tyrant's waking, counting what it cost them."
 						},
 						{
 							"id": "thornheart-question",
-							"text": "The Thornheart's silence, walk or bargain has left the enclaves' oldest roads without a common warden."
+							"text": "Since the Root-Tyrant's waking, the enclaves' oldest roads have had no common warden."
 						}
 					]
 				},
@@ -33934,7 +33934,7 @@
 						}
 					}
 				],
-				"summary": "The Long Memory's ending reaches the elves' first reckoning: {outcome}."
+				"summary": "The elves hold their first reckoning since the Root-Tyrant's waking: {outcome}."
 			},
 			{
 				"id": "late-chain-after-free-quarter",
@@ -34488,7 +34488,7 @@
 					"facts": [
 						{
 							"id": "two-crowns-first-succession",
-							"text": "The Two Crowns' ending has reached its first common succession, and each realm's court claims the other's vote."
+							"text": "The Concord of Empires has reached its first common succession, and each realm's court claims a say in the other's vote."
 						},
 						{
 							"id": "concord-succession-question",
@@ -34575,7 +34575,7 @@
 					"facts": [
 						{
 							"id": "two-crowns-first-succession",
-							"text": "Highmark's client crown has reached its first succession dispute with Ardelia."
+							"text": "Highmark's client crown and Ardelia have come to open dispute over who follows on its throne."
 						},
 						{
 							"id": "concord-succession-question",
@@ -34624,7 +34624,7 @@
 						}
 					}
 				],
-				"summary": "Highmark's client crown faces a succession dispute: {outcome}.",
+				"summary": "Highmark's client crown and Ardelia fall out over the succession: {outcome}.",
 				"requires_any": [
 					"fact:intr-two-crowns-hegemony"
 				]
@@ -34661,7 +34661,7 @@
 					"facts": [
 						{
 							"id": "two-crowns-first-succession",
-							"text": "The war of the Two Crowns has reached a succession that both courts claim to decide."
+							"text": "The war of the two thrones has reached a succession that both courts claim to decide."
 						},
 						{
 							"id": "concord-succession-question",
@@ -34704,7 +34704,7 @@
 						}
 					}
 				],
-				"summary": "The war of the Two Crowns runs into a new succession: {outcome}.",
+				"summary": "The war of the two thrones runs into a new succession: {outcome}.",
 				"requires_any": [
 					"fact:intr-two-thrones-at-war"
 				]
@@ -34764,7 +34764,7 @@
 						}
 					}
 				],
-				"summary": "Market season fills {place}, {region}: {outcome}."
+				"summary": "Market season fills {place}: {outcome}."
 			},
 			{
 				"id": "late-bg-pilgrim-season",
@@ -34802,7 +34802,7 @@
 						}
 					},
 					{
-						"name": "a relic dispute closes the shrine",
+						"name": "a relic dispute closes a local shrine",
 						"weight": 30,
 						"effects": {
 							"set": [
@@ -34823,7 +34823,7 @@
 						}
 					}
 				],
-				"summary": "Pilgrim season reaches {place}, {region}: {outcome}."
+				"summary": "Pilgrim season reaches {place}: {outcome}."
 			},
 			{
 				"id": "late-bg-frontier-sign",
@@ -34886,7 +34886,7 @@
 						}
 					}
 				],
-				"summary": "Fresh wild sign appears near {place}, {region}: {outcome}."
+				"summary": "The Wildzone stirs near {place}: {outcome}."
 			},
 			{
 				"id": "late-bg-debt-round",
@@ -34911,7 +34911,7 @@
 				},
 				"outcomes": [
 					{
-						"name": "the notes are honoured at the quay",
+						"name": "the notes are honoured in full",
 						"weight": 40,
 						"effects": {
 							"scores": {
@@ -34920,7 +34920,7 @@
 						}
 					},
 					{
-						"name": "a debt round calls in the smallholders",
+						"name": "creditors call in the smallholders' debts",
 						"weight": 40,
 						"effects": {
 							"set": [
@@ -34941,7 +34941,7 @@
 						}
 					}
 				],
-				"summary": "A debt round reaches {place}, {region}: {outcome}."
+				"summary": "Debts fall due at {place}: {outcome}."
 			},
 			{
 				"id": "late-bg-company-contract",
@@ -34999,7 +34999,7 @@
 						}
 					}
 				],
-				"summary": "A company contract is settled at {place}, {region}: {outcome}."
+				"summary": "Free companies come to {place}: {outcome}."
 			}
 		],
 		"templates": [
