@@ -98,3 +98,15 @@ test('arcBrief: an event of a branch that has not opened is not still to come', 
     assert.deepEqual(toCome({ 'fact:price-named': [2] }), ['Cut road', 'Plain']);
     assert.deepEqual(toCome({ 'fired:plain': [3] }), ['Either way', 'Plain', 'Regency'], 'an offset not yet passed still counts as open');
 });
+
+test('arcBrief: every recorded anchor kind that never happened keeps an event out of Still to come', () => {
+    const kinds = ['lapsed:plain', 'fired:plain', 'ended:plain', 'stage:plain', 'fact:price-named', 'died:mara', 'departed:mara', 'learned:mara/oath', 'arc-ended:siege@Highmark', 'set:unrest@Highmark', 'cleared:unrest'];
+    const events = kinds.map((gate, at) => ({ ...SPEC.events[1], id: `gated-${at}`, title: `Gated ${at}`, requires: [gate], window: undefined }));
+    const world = { ...SPEC, events };
+    const brief = anchors => arcBrief({ daily: { events: {}, anchors }, world }).toCome;
+    assert.deepEqual(brief({}), []);
+    for (const [at, gate] of kinds.entries()) {
+        const key = gate.replace(/^stage:/, 'fired:').replace(/@Highmark$/, match => (gate.startsWith('arc-ended') ? '@highmark' : match));
+        assert.ok(brief({ [key]: [2] }).includes(`Gated ${at}`), gate);
+    }
+});
