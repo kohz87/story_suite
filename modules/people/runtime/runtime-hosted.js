@@ -8,7 +8,7 @@ import { replyScanned } from '../calls/scan-context.js';
 import { tieDayAt } from '../transcript/transcript.js';
 import { normalizeRelationshipBaseline, isTerminalNpcDeath, npcMatchesLabel, storyMinuteText } from '../core/core.js';
 import { storyBlockIsV2 } from '../npc-api/host-probe.js';
-import { resolveDossierTarget } from '../npc-api/dossier-target.js';
+import { ownerTargets } from '../npc-api/dossier-target.js';
 import { castView, findCastPerson, normalizeCast } from '../dossier/cast-dossier.js';
 import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
@@ -100,7 +100,7 @@ export function createHostedPart(rt, deps) {
         let names = null;
         try { names = adapter.scenePresent?.(); } catch { names = null; }
         if (!Array.isArray(names)) return npcs;
-        const here = new Set(names.map(name => resolveDossierTarget(npcs, name)).filter(Boolean));
+        const here = new Set(names.map(ownerTargets(npcs)).filter(Boolean));
         let changed = false;
         const out = npcs.map(npc => {
             // (C-1) The scene cannot bring a confirmed-dead NPC back on stage.
@@ -198,7 +198,8 @@ export function createHostedPart(rt, deps) {
         // A meeting the host refused ("waiting: a native change is finishing", run 3) is owed and sent again with the next scan of that person; so is a
         // person this scan touched whose slice entry is still missing (a meeting lost with the page). Only people a scan returns; the rest are left as they are.
         const entries = typeof adapter.meterEntries === 'function' ? adapter.meterEntries() : null;
-        const hasEntry = npc => !Array.isArray(entries) || Boolean(adapter.meters?.(npc.name));
+        let holds = null;   // (built once, on the first person asked about)
+        const hasEntry = npc => !Array.isArray(entries) || Boolean((holds ??= adapter.meterHolders?.() ?? (held => adapter.meters?.(held.name)))(npc));
         const touched = npc => prior.get(npc.id)?.updatedAt !== npc.updatedAt;
         const owed = npc => touched(npc) && (meetOwed.has(`${getChatKey()}|${npc.id}`) || (!hasEntry(npc) && !meetTried.has(`${getChatKey()}|${npc.id}`)));
         const met = typeof adapter.meet === 'function' ? (after || []).filter(npc => npc?.id && !npc.archived && worth(npc) && (!prior.has(npc.id) || owed(npc))) : [];

@@ -56,7 +56,7 @@ export const timers = {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {},
 };
 
-export async function host({ settings = {}, delta = fakeDelta(), headReply = () => null, features = null, answers = {} } = {}) {
+export async function host({ settings = {}, delta = fakeDelta(), headReply = () => null, features = null, answers = {}, linesMode = false, publicPaths = null } = {}) {
     const chat = [{ is_user: false, name: 'Narrator', mes: 'The forge is warm.', swipe_id: 0, swipes: ['The forge is warm.'], swipe_info: [{ extra: {} }], extra: {} }];
     chat[0].swipe_info[0].extra = chat[0].extra;
     const registry = createRegistry();
@@ -86,12 +86,14 @@ export async function host({ settings = {}, delta = fakeDelta(), headReply = () 
         query: (name, args) => (Object.hasOwn(answers, name) ? structuredClone(answers[name]) : runQuery(name, args)),
         settings: id => settingsOf(id),
         ...(features ? { feature: id => features[id] } : {}),
+        ...(publicPaths ? { registerPublicPaths: def => { publicPaths.push(def); return () => {}; } } : {}),
     };
     const box = { host: { ready: Promise.resolve(sdk), sdk } };
     const warnings = [];
     const adapter = createPeopleAdapter({
         suiteApi: delta.suiteApi, delta: () => delta.api, version: 'test', host: () => box.host, headReply,
         doc: fakeDoc(), timers, logger: { warn: (...args) => warnings.push(args) }, loadEmptyCast: async () => null,
+        linesMode: () => linesMode,   // (production passes `() => true`: runtime-entry-startup.js)
     });
     adapter.start();
     assert.equal(await adapter.settled(), true, 'the adapter registers with the host');

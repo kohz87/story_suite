@@ -1,6 +1,7 @@
 // Resolves the dossier id openDossier(value) should open from an id, name or alias.
 import { plainText } from './text.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
+import { ownersOf } from '../meters/npc-meters-parts/owners.js';
 // P6: no archive flag; a confirmed-dead person is out of reach exactly as an archived (death-archived) one was.
 const gone = npc => Boolean(npc?.archived) || isTerminalNpcDeath(npc);
 function nameKey(value) {
@@ -29,4 +30,18 @@ export function resolveDossierTarget(npcs, value) {
     } catch {
         return '';
     }
+}
+
+/**
+ * For paths that show or mark a person (portrait, presence, injection): `value => id or ''` over one list. As resolveDossierTarget, but a name
+ * that is some dossier's own (a dead or archived one's too) never answers with a different person who has it as an alias.
+ */
+export function ownerTargets(npcs) {
+    const owners = ownersOf(Array.isArray(npcs) ? npcs.filter(Boolean) : []);
+    return value => {
+        const id = resolveDossierTarget(npcs, value);
+        if (!id || id === plainText(value)) return id;
+        const named = owners.named(value);
+        return named.length && !named.some(npc => npc.id === id) ? '' : id;
+    };
 }

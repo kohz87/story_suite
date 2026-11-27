@@ -6,6 +6,7 @@
 // a delete, an edit or a rewind of the reveal takes it back. `learned:lore/<entry id>` has no source yet (nothing learns lore; a hidden
 // entry whose gate holds is opened for the narrator by lore-open.js, which is not learning it).
 
+import { ownersOf } from '../../../people/meters/npc-meters-parts/owners.js';
 import { slotValue } from '../../../rpg/slot.js';
 import { ledgerOf, markLedger } from '../conditions/ledger.js';
 import { clockOf } from '../capture/text.js';
@@ -26,12 +27,14 @@ export function learnedAnchors(people, cast, known = new Set()) {
     const dossiers = isRecord(people?.npcs) ? people.npcs : {};
     const bonds = isRecord(people?.bonds?.npcs) ? people.bonds.npcs : {};
     const out = [];
+    const owners = ownersOf(dossiers);
     const facts = new Set([...known].filter(key => key.startsWith('fact:')));
     for (const id of Object.keys(dossiers).sort()) {
         const dossier = dossiers[id];
         const entry = (Array.isArray(cast) ? cast : []).find(person => person?.id === dossier?.castFrom?.id);
-        // The bonds record is keyed by the dossier's id; one NPC State made before the dossier is found by its name (as its own queries do).
-        const record = bonds[id] ?? Object.values(bonds).find(item => flat(item?.name) && flat(item?.name) === flat(dossier?.name));
+        // The bonds record is keyed by the dossier's id; one NPC State made before the dossier is found as its own queries find it (never another dossier's).
+        const key = isRecord(dossier) ? owners.entryKey(bonds, { ...dossier, id }) : null;
+        const record = key ? bonds[key] : null;
         const opened = new Set(Array.isArray(record?.unlocked) ? record.unlocked : []);
         if (!entry || !opened.size) continue;
         const notes = (Array.isArray(dossier.secrets) ? dossier.secrets : []).filter(note => opened.has(note?.id));

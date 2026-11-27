@@ -8,6 +8,7 @@ import { makeNpcId } from '../../core/core-identity.js';
 import { isNoteKind } from '../../notes/npc-notes-kinds.js';
 import { stubRecord } from './derived.js';
 import { personNamed } from './names.js';
+import { ownersOf } from '../npc-meters-parts/owners.js';
 
 const ROLE_MAX = 60;
 export const STUB_LOOK_MAX = 100;   // the approved length; a look is stored exactly as written up to it, never shorter
@@ -40,14 +41,17 @@ export function knownPerson(ctx, name) {
     const person = personNamed(ctx.read('people')?.npcs, name);
     if (person) return person;
     const bonds = ctx.read(NPC_DOMAIN)?.npcs;
-    for (const [key, record] of Object.entries(isObject(bonds) ? bonds : {})) if (labelKey(record?.name) === asked) return { key };
+    // An entry no stored dossier owns: one that is a dossier's (under an old name they no longer answer to) is not found by that name.
+    const owners = ownersOf(ctx.read('people')?.npcs);
+    for (const [key, record] of Object.entries(isObject(bonds) ? bonds : {})) if (labelKey(record?.name) === asked && !owners.ownerOf(bonds, key)) return { key };
     // Only the people and the meter entries as this reply sees them: Delta's own list is the head's, so a Re-read of an earlier reply would decide by later replies.
     return null;
 }
 
 // The line under the full name of the person it names (unchanged when it already writes that name, or when only a meter entry knows them): an alias or a
-// first name would otherwise make the meter entry look for a person by a name the dossier list may not hold yet.
-const named = (line, found) => (typeof found.record?.name === 'string' && labelKey(found.record.name) !== labelKey(line.name) ? { ...line, name: found.record.name } : line);
+// first name would otherwise make the meter entry look for a person by a name the dossier list may not hold yet. `personId`: their dossier's id, so the
+// meter entry stays theirs when the full name is a namesake's too.
+const named = (line, found) => (typeof found.record?.name === 'string' && labelKey(found.record.name) !== labelKey(line.name) ? { ...line, name: found.record.name, personId: found.key } : line);
 const labelsWrite = (record, name) => [record.name, ...(Array.isArray(record.aliases) ? record.aliases : [])].map(labelKey).includes(labelKey(name));
 
 // A tie's `with:` names someone with a record (refused otherwise, as `~ npc` of an unknown name is), written as their full name. A pack person met or present

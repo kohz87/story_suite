@@ -48,6 +48,8 @@ export function createEditorPart(session, deps) {
      * titles), the stage ladder track, the per-meter limits, the milestones and the custom meters'
      * values (the slice's). Every value is escaped.
      */
+    // The notes' rules of a dossier the caller holds are asked for by its id.
+    const heldBy = npc => (typeof npc?.id === 'string' && npc.id ? { name: npc.id, labels: [npc.id] } : undefined);
     function editorHtml(npc) {
         if (!session.hosted || !npc) return '';
         const settings = part.meterSettings();
@@ -61,7 +63,7 @@ export function createEditorPart(session, deps) {
         const opened = new Set(entry?.unlocked ?? []);
         const notes = normalizeSecrets(npc.secrets);
         const shown = notes.filter(note => editorShows(note, opened));
-        const rules = new Map(part.notes({ name: npc.name, unlocked: [...opened], meters: entry?.meters }).locked.map(note => [note.id, note.opens]));
+        const rules = new Map(part.notes({ name: npc.name, unlocked: [...opened], meters: entry?.meters }, heldBy(npc)).locked.map(note => [note.id, note.opens]));
         let html = box(EDITOR.secrets, 'Hidden notes', 'One per line: "meter threshold: [title] note" (e.g. "trust 60: [Her past] She is the duke\'s daughter."), "when the duke falls => [title] note" for a note that opens on a story event (up to 120 characters; Delta\'s scan watches for it while this NPC is present), or "trust 60 or when the duke falls => note" for whichever comes first. A meter rule opens at or above its threshold (at or below it for a negative one). The story is told every note while this NPC is present (locked ones as hidden, never to be revealed). This box holds the notes you wrote and the notes that are opened; any other note stays hidden from you until it opens, and is kept as it is when you save.', secretsToLines(shown));
         if (notes.length) {
             let hiddenCount = 0;
@@ -105,10 +107,10 @@ export function createEditorPart(session, deps) {
         const value = id => {
             try { const got = read(id); return got === null || got === undefined ? undefined : String(got); } catch { return undefined; }
         };
+        const entry = entryFor(sliceEntries(), current);   // once: whose entry this is, for the notes, milestones and meters
         const secrets = value(EDITOR.secrets);
         if (secrets !== undefined) {
             // The box held only the notes the reader may see (editorHtml); every other note is kept exactly as it was.
-            const entry = entryFor(sliceEntries(), current);
             const was = new Set(entry?.unlocked ?? []);
             const before = normalizeSecrets(current?.secrets);
             const kept = new Set(before.filter(note => !editorShows(note, was)).map(note => note.id));
@@ -151,7 +153,6 @@ export function createEditorPart(session, deps) {
             const next = { track: track === undefined ? was.track : track.trim().slice(0, 80), limits: parsed.limits };
             if (JSON.stringify(next) !== JSON.stringify(was)) out.meterSetup = next.track || Object.keys(next.limits).length ? next : null;
         }
-        const entry = entryFor(sliceEntries(), current);
         const milestones = value(EDITOR.milestones);
         if (milestones !== undefined) {
             const had = entry?.milestones ?? {};
@@ -178,7 +179,7 @@ export function createEditorPart(session, deps) {
     function secretsViewOf(npc, entry) {
         const rules = normalizeSecrets(npc?.secrets);
         if (!rules.length) return [];
-        const notes = part.notes({ name: npc.name, unlocked: entry?.unlocked ?? [], meters: entry?.meters });
+        const notes = part.notes({ name: npc.name, unlocked: entry?.unlocked ?? [], meters: entry?.meters }, heldBy(npc));
         const opened = new Map(notes.opened.map(note => [note.id, note]));
         const locked = new Map(notes.locked.map(note => [note.id, note]));
         const out = [];

@@ -114,7 +114,7 @@ export function createNpcPart(hooks = {}) {
                 || (featureOn(FEATURE_DRIFT) && settings.custom.some(def => def.drift))
                 || featureOn(FEATURE_MOOD_PULL);
         },
-        ladder: record => (isObject(record) ? ladderView(record, storedSettings(), defsFrom(storedSettings())) : null),
-        notes: record => (isObject(record) ? notesView(record, defsFrom(storedSettings())) : { locked: [], opened: [] }),
+        ladder: (record, asked) => (isObject(record) ? ladderView(record, storedSettings(), defsFrom(storedSettings()), asked) : null),
+        notes: (record, asked) => (isObject(record) ? notesView(record, defsFrom(storedSettings()), asked) : { locked: [], opened: [] }),
     };
 }

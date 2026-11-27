@@ -7,7 +7,7 @@
 // is given: no SillyTavern import.
 
 import { normalizeRelationshipMilestones, normalizeRelationshipProgress } from '../core/core-relationship-model.js';
-import { resolveDossierTarget } from '../npc-api/dossier-target.js';
+import { ownerTargets } from '../npc-api/dossier-target.js';
 import { FEATURE_SOCIAL, SOCIAL_QUERY, createNpcPart, normalizeSecrets } from '../meters/npc-meters.js';
 import { ownersOf } from '../meters/npc-meters-parts/owners.js';
 import { normalizeLimits, presetCatalog } from '../meters/npc-meters-presets.js';
@@ -56,18 +56,17 @@ export function createQueriesPart(session, deps) {
     };
     const names = list => list.map(npc => String(npc.name ?? '').trim()).filter(Boolean);
     const presentList = () => npcList().filter(npc => npc.present === true && npc.archived !== true);
-    // Whether `value` is some dossier's own name, a dead or archived one's too.
-    const isOwnName = (list, value) => list.some(npc => String(npc.name ?? '').trim().toLowerCase() === String(value ?? '').trim().toLowerCase());
     // Delta's own record for a name, alias or id (as npc.dossier finds it), or null. A dossier's own name never reaches another person who has it as an alias.
     const dossierOf = name => {
-        const list = npcList();
-        const id = resolveDossierTarget(list, name);
-        if (!id || (isOwnName(list, name) && !isOwnName(list.filter(npc => npc.id === id), name) && id !== String(name).trim())) return null;
-        const npc = runtime()?.getNpc?.(id);
+        const id = ownerTargets(npcList())(name);
+        const npc = id ? runtime()?.getNpc?.(id) : null;
         return npc && typeof npc === 'object' ? npc : null;
     };
     // The same by name, else by the first of `labels` that finds one; for a dossier's own name (namesakes), only a dossier with that same own name.
-    const holderOf = (name, labels) => dossierOf(name) ?? labels.map(dossierOf).find(isOwnName(npcList(), name) ? npc => npc && isOwnName([npc], name) : Boolean);
+    const holderOf = (name, labels) => {
+        const owners = ownersOf(npcList());
+        return dossierOf(name) ?? labels.map(dossierOf).find(owners.named(name).length ? npc => npc && owners.sameName(npc.name, name) : Boolean);
+    };
     const storedSettings = () => {
         try { return session.sdkRef?.settings?.(MODULE_ID) ?? {}; } catch { return {}; }
     };
@@ -272,7 +271,7 @@ export function createQueriesPart(session, deps) {
         /** One NPC's portrait URL by name, alias or id (as npc.dossier finds them), or null (§F11). */
         'npc.portrait': (state, args) => {
             try {
-                const id = resolveDossierTarget(npcList(), args?.name);
+                const id = ownerTargets(npcList())(args?.name);
                 if (!id) return null;
                 const api = runtime();
                 const npc = api?.getNpc?.(id);

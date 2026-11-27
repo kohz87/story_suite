@@ -5,7 +5,7 @@ import { elementOf, PANE_CLASS } from './dom.js';
 
 export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
     const {
-        doc, enabled, npcList, ownersNow, part, runtime, timeline, worldShown,
+        doc, enabled, npcList, part, runtime, timeline, worldShown,
     } = deps;
 
     // ---- the Dossiers tab (once Cast) ----
@@ -90,7 +90,7 @@ export function createCastRenderPart(session, deps, dossier, { portraitFill }) {
         if (meters && cast) {
             const defs = part.defs();
             const used = new Set();
-            const owners = ownersNow();
+            const { owners } = meters;
             for (const cell of el.querySelectorAll?.('.ppl-present-cell[data-npc-id]') ?? []) {
                 const npc = npcList().find(item => String(item.id ?? '') === String(cell.dataset?.npcId ?? ''));
                 const key = npc ? owners.entryKey(meters.byKey, npc) : null;

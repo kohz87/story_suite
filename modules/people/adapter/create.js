@@ -166,7 +166,7 @@ export function createPeopleAdapter({
     const editorPart = createEditorPart(session, deps);
     Object.assign(deps, editorPart);
     const { watchers, pageApi, offerPage } = castUiPart;
-    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, partyLevelsAnswer, awayAnswer, awayReadable, awayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, send, sliceView, worldSecretsOn } = queriesPart;
+    const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, ownersNow, partyLevelsAnswer, awayAnswer, awayReadable, awayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, send, sliceView, worldSecretsOn } = queriesPart;
     const { ownPrompt, storyClock, calendarLink, definition, scenePresentNames } = timelinePart;
     const { poll, unhost, check } = connectPart;
     const { editorHtml, readEditor, dossierMeters, eventWatch } = editorPart;
@@ -200,6 +200,13 @@ export function createPeopleAdapter({
             const entries = sliceEntries();
             const npc = dossierOf(name) ?? { name };
             return entries ? entryFor(entries, npc) : null;
+        },
+        /** While hosted: for one pass over several dossiers, `npc => whether that held dossier has an entry` (the entries and owners read once). */
+        meterHolders: () => {
+            const entries = sliceEntries();
+            if (!entries) return () => false;
+            const owners = ownersNow();
+            return npc => Boolean(entryFor(entries, npc, owners));
         },
         /** While hosted: Delta's records with numbers, part-points and earned milestones read from the slice (read time; nothing written). */
         sliceView,

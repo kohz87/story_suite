@@ -142,7 +142,7 @@ export function createDossierListPart(session, deps) {
             if (scene && !scene.includes(entry.key)) continue;
             shown.push(entry);
         }
-        return { shown, byKey, cast };
+        return { shown, byKey, cast, owners };
     }
     const barNodesOf = (doc, entry, defs) => entry.bars.map(bar => meterBarNode(doc, defs.find(def => def.id === bar.id) ?? bar, bar.value, bar.stage, bar));
     // The notes and the next-stage line of one NPC (text only). A card shows its stage on its name line, so it leaves the rank out.

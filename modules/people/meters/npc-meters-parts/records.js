@@ -34,7 +34,7 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
         const labels = owners.labels(person, [asked]);
         const key = owners.entryKey(npcs, person, [asked]) ?? id ?? makeNpcId(name, [...Object.keys(npcs), ...owners.ids()]);
         if (!key || !PEOPLE_ID.test(key)) return null;
-        return { key, name, labels, seed: isObject(dossier?.relationship) ? dossier.relationship : null };
+        return { key, name, labels, seed: isObject(dossier?.relationship) ? dossier.relationship : null, owners };
     }
 
     // `identify` for a command or change line: the owners are the dossiers of the reply's own state.
@@ -75,11 +75,11 @@ export function createNpcRecords({ resolve, setupFor, rulesFor, rungsFor }) {
         return changes;
     }
 
-    // Stages, ladder and notes of one record, with this NPC's own setup.
-    const settleRecord = (record, labels, settings, defs, tick = false) => {
-        const setup = setupFor(record.name, labels);
+    // Stages, ladder and notes of one record, with this NPC's own setup. `asked`: owners.asking() for the record's entry.
+    const settleRecord = (record, asked, settings, defs, tick = false) => {
+        const setup = setupFor(asked.name, asked.labels);
         return settle(record, {
-            defs, stages: settings.stages, rules: rulesFor(record.name, labels), name: record.name,
+            defs, stages: settings.stages, rules: rulesFor(asked.name, asked.labels), name: record.name,
             rungs: rungsFor(settings, setup), conflictAt: settings.conflictAt, demoteAfter: settings.demoteAfter, tick,
         });
     };

@@ -26,7 +26,8 @@ export function createNpcRun({ normalized, defsFrom, identifyIn, ensure, setupFo
         const record = slice.npcs[who.key];
         if (!isObject(record.stages)) record.stages = {};
         if (!Array.isArray(record.unlocked)) record.unlocked = [];
-        const setup = setupFor(record.name, who.labels);
+        const askedFor = who.owners.asking(slice.npcs, who.key, who.labels);   // (the entry's owner, never the name it still shows)
+        const setup = setupFor(askedFor.name, askedFor.labels);
         // Delta's scan of a reply whose story line already moved a meter leaves that meter to the line (one move, not two).
         const left = yieldToStory && limit && record.turn && sameReply(record.turn, reply) && Array.isArray(record.turn.story) ? record.turn.story : [];
         let mine = left.length ? changes.filter(change => !left.includes(change.meter)) : changes;
@@ -93,8 +94,8 @@ export function createNpcRun({ normalized, defsFrom, identifyIn, ensure, setupFo
             marked = added.length === 1 ? added[0] : null;
         }
         // Notes opened or shut by hand or by a story event, before the meters are looked at again.
-        const handled = notes ? openCloseNotes(record, rulesFor(record.name, who.labels), notes) : null;
-        const settled = settleRecord(record, who.labels, settings, defs);
+        const handled = notes ? openCloseNotes(record, rulesFor(askedFor.name, askedFor.labels), notes) : null;
+        const settled = settleRecord(record, askedFor, settings, defs);
         if (handled?.opened.length) settled.unlocked.unshift(...handled.opened);
         if (notes && !handled.changed && !settled.stages.length && !settled.ranks.length && !settled.unlocked.length) {
             ctx.fail('REFUSED', 'Nothing to update.');

@@ -10,7 +10,7 @@ import { cleanMessage, recentTranscript, tieDayAt } from '../transcript/transcri
 import { buildInjection, npcNamedInText, isTerminalNpcDeath } from '../core/core.js';
 import { buildLinesParts } from '../core/core-prompts-lines.js';
 import { withCastLinks } from '../dossier/cast-dossier-parts/cast-links.js';
-import { resolveDossierTarget } from '../npc-api/dossier-target.js';
+import { ownerTargets } from '../npc-api/dossier-target.js';
 import { hideJoinLines } from '../core/core-injection-parts-parts/join-line.js';
 import { injectDepthOf, getSettings, effectiveCustomFieldNames, rpgIsOn } from '../settings/runtime-settings.js';
 import { narrationCaptureEnabled, replayScope } from '../calls/runtime-scan-helpers.js';
@@ -84,7 +84,8 @@ export function createInjectionPart(rt, deps) {
     function partyDossierIds(npcs) {
         if (!(npcs || []).some(npc => npc?.castFrom?.join)) return new Set();
         const members = partyAnswer() ?? [];
-        return new Set(members.filter(member => !member?.left).map(member => resolveDossierTarget(npcs, member?.name)).filter(Boolean));
+        const target = ownerTargets(npcs);
+        return new Set(members.filter(member => !member?.left).map(member => target(member?.name)).filter(Boolean));
     }
 
     // The live dossier injection under the current settings and scene defer (sent by updateInjection;

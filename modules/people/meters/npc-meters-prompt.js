@@ -117,7 +117,8 @@ export function createNpcPrompt({
         const defs = defsFrom(settings);
         const byId = new Map(defs.map(def => [def.id, def]));
         const length = Number.isInteger(view?.chat?.length) ? view.chat.length : 0;
-        const here = presentKeys(npcs, ownersOf(state?.domains?.people?.npcs));
+        const owners = ownersOf(state?.domains?.people?.npcs);
+        const here = presentKeys(npcs, owners);
         const moved = [];
         const notes = [];
         const hidden = [];
@@ -128,6 +129,7 @@ export function createNpcPrompt({
         for (const key of Object.keys(npcs).sort()) {
             if (!here.has(key)) continue;
             const record = npcs[key];
+            const asked = owners.asking(npcs, key);
             // Where the window's reply was (its index, kept beside a record ID).
             const where = isInt(record.turn?.at) ? record.turn.at : record.turn?.reply;
             const recent = isInt(where) && where >= length - RECENT_MESSAGES;
@@ -141,17 +143,17 @@ export function createNpcPrompt({
                     const value = meterValue(record, def);
                     return `${def.id} ${bandWord(def.bands, value) || value}${stage ? ` (${stage})` : ''}`;
                 });
-                const rank = record.rank !== undefined ? rungsFor(settings, setupFor(record.name)).find(step => step.key === record.rank)?.name : null;
+                const rank = record.rank !== undefined ? rungsFor(settings, setupFor(asked.name, asked.labels)).find(step => step.key === record.rank)?.name : null;
                 moved.push(`${record.name}${rank ? ` (${rank})` : ''} ${parts.join(', ')}`);
             }
-            const rules = rulesFor(record.name, [record.name]).filter(rule => rule && typeof rule.id === 'string');
+            const rules = rulesFor(asked.name, asked.labels).filter(rule => rule && typeof rule.id === 'string');
             if (!rules.length) continue;
             const opened = new Set(Array.isArray(record.unlocked) ? record.unlocked : []);
-            const given = call(hooks.secretTexts, [], record.name, rules.map(rule => rule.id));
+            const given = call(hooks.secretTexts, [], asked.name, rules.map(rule => rule.id));
             const textOf = new Map((Array.isArray(given) ? given : []).map(item => [item?.id, clean(item?.text, SECRET_TEXT_MAX)]));
             let known = 0;
             let readyHere = 0;
-            const gateIn = rules.some(rule => rule.gate && !opened.has(rule.id)) ? call(hooks.gateInputs, {}, record.name) : {};
+            const gateIn = rules.some(rule => rule.gate && !opened.has(rule.id)) ? call(hooks.gateInputs, {}, asked.name) : {};
             for (const rule of rules) {
                 const text = textOf.get(rule.id);
                 if (!text) continue;

@@ -5,6 +5,7 @@
 // only (the title, else the summary's words, never the id: daily/event-words.js; one with neither is left out); and the active conditions in the party's realm with what they mean. The mirror is read from the step's state each time it is
 // asked (nothing is stored), so it ends when the event ends. Null while the switch is off.
 
+import { ownersOf } from '../../../people/meters/npc-meters-parts/owners.js';
 import { setup } from '../queries-parts/env.js';
 import { toolsQuery } from '../queries-parts/shared-ask.js';
 import { scenePlaceOf } from '../pick.js';
@@ -65,10 +66,11 @@ export function closedSecrets(people) {
     const npcs = people?.npcs && typeof people.npcs === 'object' ? people.npcs : {};
     const bonds = people?.bonds?.npcs && typeof people.bonds.npcs === 'object' ? people.bonds.npcs : {};
     const out = [];
+    const owners = ownersOf(npcs);   // NPC State's own rule for whose meters entry is whose
     for (const id of Array.isArray(people?.order) ? people.order : Object.keys(npcs).sort()) {
         const dossier = npcs[id];
-        const flat = text => String(text ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
-        const record = bonds[id] ?? Object.values(bonds).find(item => flat(item?.name) && flat(item?.name) === flat(dossier?.name));
+        const key = dossier ? owners.entryKey(bonds, { ...dossier, id }) : null;
+        const record = key ? bonds[key] : null;
         const opened = new Set(Array.isArray(record?.unlocked) ? record.unlocked : []);
         for (const note of Array.isArray(dossier?.secrets) ? dossier.secrets : []) {
             if (typeof note?.gate === 'string' && typeof note.text === 'string' && !opened.has(note.id) && out.length < MAX) out.push({ name: String(dossier.name ?? ''), text: note.text });
