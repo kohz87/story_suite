@@ -238,7 +238,7 @@ test('index.js: after the editor applies its notes to the slice the dossier is d
     assert.match(index, /await hostedMeters\.applyEditor\(\{ id: current\.id, name: savedName \}, v2Edits\);\n[^\n]*\n            renderDossier\(\);\n            updateInjection\(\);/);
     assert.match(index, /const hostedNotes = hostedMeters\(\);\n        const noteOptions = hostedNotes && !capture \? hostedNotePromptOptions\(state, settings, messageId\) : \{\};/);
     assert.match(index, /const eventWatch = capture \? \(Array\.isArray\(capture\.watch\) \? capture\.watch : \[\]\) : \(noteOptions\.eventWatch \|\| \[\]\);/);
-    assert.match(index, /if \(hostedNotes && settings\.layeredSecrets !== false\) attachGeneratedSecrets\(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, named\.scanResult\);/);
+    assert.match(index, /if \(hostedNotes && settings\.layeredSecrets !== false\) attachGeneratedSecrets\(nextState, newlyAdmittedIds, kept\(parsedForMerge\), kept\(resolvedParsed\), kept\(named\.scanResult\)\);/);
     assert.match(index, /function attachGeneratedSecrets\(state, ids, \.\.\.sources\) \{\n        const adapter = adapterMeters\(\);\n        if \(!adapter/);
     assert.match(index, /function forwardSecretEventsToHost\(watched, answered, head = null\) \{\n        if \(replayScope\(\)\) return;\n        const adapter = adapterMeters\(\);\n        if \(!adapter/);
     assert.match(index, /layeredSecrets: true,/, 'on by default');

@@ -10,7 +10,7 @@ import { prepareProfileDevelopmentState, appearanceUpdateForNpc, durableUpdateFo
 import { finalizeProfileDevelopment } from '../core-profile-finalize.js';
 import { storyDayFromText } from './calendar-days.js';
 import { normalizeNpcRecord } from './npc-records.js';
-import { settleScanRows } from '../core-merge-namesakes.js';
+import { followFoldedTies, settleScanRows } from '../core-merge-namesakes.js';
 
 // A scan's merge. `heldAwayIds` (the dossiers of people away, Story Director's director.away): their stable
 // profile fields and custom fields are held as if locked for this merge only (people/away/away-hold.js); nothing of
@@ -48,7 +48,11 @@ function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
     const continuityOptions = { ...options, developmentSingleTarget: profileUpdates.length === 1 };
     const result = continuity.mergeScanResult(sourceState, scanResult, continuityOptions);
     if (settled.skipped.length) result.report.skipped.push(...settled.skipped);
-    const ordinary = Array.isArray(scanResult?.npcs) ? scanResult.npcs : [];
+    // From here a row tied to a record the merge folded away is read as the kept record's.
+    const rows = followFoldedTies(scanResult, result.report.deduplicated);
+    const ordinary = Array.isArray(rows?.npcs) ? rows.npcs : [];
+    const keptUpdates = Array.isArray(rows?.profileUpdates) ? rows.profileUpdates
+        : (Array.isArray(rows?.profile_updates) ? rows.profile_updates : []);
     const diagnosticNpcRegistry = (result.state.npcs || []).map(npc => structuredClone(npc));
 
     result.state.npcs = (result.state.npcs || []).map(rawNpc => {
@@ -56,7 +60,7 @@ function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
         const rawSources = mechanics.ownNpcRecords(rawNpc, previousRaw, result.report.deduplicated);
         const ordinaryUpdate = birthdayUpdateRow(
             ordinary.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc)),
-            profileUpdates.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc)),
+            keptUpdates.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc)),
         );
         let npc = normalizeNpcBirthday(rawNpc, calendar, referenceDate);
         if (ordinaryUpdate && birthdayUpdateGrounded(npc, ordinaryUpdate, options.developmentContext, calendar, referenceDate)) {
@@ -86,14 +90,14 @@ function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
             calendar,
             referenceDate,
         );
-        const appearanceUpdate = appearanceUpdateForNpc(scanResult, npc);
+        const appearanceUpdate = appearanceUpdateForNpc(rows, npc);
         if (beforeDiagnosticNpc) {
             // Appearance is resolved by continuity before Personality/Speech finalization. Record
             // it first so adding observability does not change legacy development-row ordering.
             recordAppearanceDiagnostic(result.report, beforeDiagnosticNpc, npc, appearanceUpdate, continuityOptions, diagnosticNpcRegistry);
         }
         npc = finalizeProfileDevelopment(npc, profilePrepared.plans.get(String(npc.id || '')), continuityOptions, result.report);
-        const durableUpdate = durableUpdateForNpc(scanResult, npc);
+        const durableUpdate = durableUpdateForNpc(rows, npc);
         if (beforeDiagnosticNpc) {
             recordSecondaryProfileDiagnostics(result.report, beforeDiagnosticNpc, npc, durableUpdate, continuityOptions, diagnosticNpcRegistry);
             recordBirthdayDiagnostic(result.report, beforeDiagnosticNpc, npc, ordinaryUpdate, options, calendar, referenceDate);

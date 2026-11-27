@@ -71,6 +71,25 @@ export function settleScanRows(npcs, scanResult, scene = [], idsOnly = false) {
 }
 
 /**
+ * `scanResult` as read after the merge folded records (`folded`: report.deduplicated): a row tied to a removed id is tied to the kept one, chains
+ * followed. The same object when no tie moves; rows are copied, never changed (a journal keeps them as they were: a replay folds them again).
+ */
+export function followFoldedTies(scanResult, folded) {
+    const into = new Map((folded || []).map(item => [String(item.removedId), String(item.keptId)]));
+    let out = scanResult;
+    for (const key of ROW_LISTS) {
+        const rows = scanResult?.[key];
+        if (!into.size || !Array.isArray(rows) || !rows.some(row => into.has(row?.settledId))) continue;
+        out = { ...out, [key]: rows.map(row => {
+            let id = row?.settledId;
+            while (into.has(id)) id = into.get(id);
+            return id === row?.settledId ? row : { ...row, settledId: id };
+        }) };
+    }
+    return out;
+}
+
+/**
  * A scene's list of names, read against `npcs` → { ids: the people named by Name "Nickname", or by a shared name the presence rule settles; rest: the
  * labels to match as written }. A shared name or shown form that settles on nobody is in neither.
  */

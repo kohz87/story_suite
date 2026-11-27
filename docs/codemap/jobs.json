@@ -464,6 +464,7 @@
   "tests/people/npc-alias-lines-host.test.js": "Tests with the real adapter and lines mode on whose NPC State meters a story line moves: aliases, namesakes, renames, the dead.",
   "modules/people/meters/npc-meters-parts/namesakes.js": "NPC State's rule for namesakes who each have a nickname: how they are shown and read back, which one a scene has, and the approved words that ask which one.",
   "modules/people/core/core-merge-namesakes.js": "Ties a scan's rows and a scene's list to one namesake or to nobody, and an id row to its own person, before name matching.",
+  "tests/people/npc-namesakes-folded-ties.test.js": "Tests that a row tied to a record the merge folds away reaches the kept record only, and that the tie steps take a tied row for its owner alone.",
   "tests/people/npc-namesakes-forms.test.js": "Tests that a namesake's shown form is that person in story lines, scan rows and scene lists, and the scene rule for a shared name.",
   "tests/people/npc-dead-as-before.test.js": "Tests that an old chat's dead person still gets the same stages, ladder, drift and receipts, and that no meter opens their note.",
   "modules/people/meters/npc-meters-parts/nickname.js": "The nickname NPC State gives a new namesake, chosen inside the write that makes them.",

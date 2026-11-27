@@ -22,7 +22,7 @@ import { seedNewAdmissions, notifyStaleCleanup, notifyGenderConflicts } from './
 import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from '../runtime/runtime-narration.js';
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from '../memory/memory-fact-scan.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
-import { settleScanRows } from '../core/core-merge-namesakes.js';
+import { followFoldedTies, settleScanRows } from '../core/core-merge-namesakes.js';
 export function createScanPart(rt, deps) {
     const { attachGeneratedSecrets, awayScanOptions, beginScanOperation, castList, noteChatLineage, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scannerPromptOptions, scanOperationCurrent, scanScenePresent, setChatState, adapterMeters, takeNarrationCapture, updateInjection } = deps;
     // Events per story day while Delta works alone (the pass counts them on the dossier). The day is Story Director's clock, which
@@ -277,6 +277,7 @@ export function createScanPart(rt, deps) {
                 memoryFacts: factOpt,
             });
             merged.report.skipped.push(...named.skipped);
+            const kept = rows => followFoldedTies(rows, merged.report.deduplicated);   // the rows as the runtime reads them after the merge; the journal keeps them unfolded
             merged.state = phraseMerged(merged.state, memoryAsk.handles, named.scanResult, getContext().chat || []);
             if (earlierOnly) {
                 // Presence is the latest scene's: an earlier-only window leaves each person as last confirmed.
@@ -387,7 +388,7 @@ export function createScanPart(rt, deps) {
             if (skippedWindow && !skippedWindow.latest) catchUpChats.add(scanChatKey); else catchUpChats.delete(scanChatKey);
             if (!manual) queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed, targetMessageId, currentTranscript });
             // (v2 hidden notes) The layered notes for the dossiers this scan built.
-            if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, named.scanResult);
+            if (hostedNotes && settings.layeredSecrets !== false) attachGeneratedSecrets(nextState, newlyAdmittedIds, kept(parsedForMerge), kept(resolvedParsed), kept(named.scanResult));
             if (hostedNotes && newlyAdmittedIds.length) seedNewAdmissions(nextState, newlyAdmittedIds, { targetMessageId, currentLineage, settings, castList, adapterMeters });
             // Who the merged state says is here: the one-pass catch-up refreshes the people the reply put in the scene.
             const presentIds = merged.state.npcs.filter(npc => !npc.archived && npc.present && !npc.minor).map(npc => npc.id);
@@ -399,7 +400,7 @@ export function createScanPart(rt, deps) {
             setChatState(chatKey, nextState);
             // ONEPASSMISS-1: this notice describes a completed fallback, never a stale or failed scan.
             rt.lastCaptureFallback = fallback ? { chatKey, messageId } : null;   // the notice follows the latest committed scan only
-            forwardRelationshipChangesToHost(state.npcs, nextState.npcs, targetMessageId, operation.chatHead, resolvedParsed?.profileUpdates, resolvedParsed?.npcs, Boolean(capture));
+            forwardRelationshipChangesToHost(state.npcs, nextState.npcs, targetMessageId, operation.chatHead, kept(resolvedParsed)?.profileUpdates, kept(resolvedParsed)?.npcs, Boolean(capture));
             if (eventWatch.length) forwardSecretEventsToHost(eventWatch, secretEventsShown(resolvedParsed?.secretEvents ? resolvedParsed : named.scanResult, transcript), operation.chatHead);
             persist();
             renderDossier();

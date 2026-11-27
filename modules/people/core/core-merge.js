@@ -15,7 +15,7 @@ import { applyDurableProfileUpdates } from './core-development.js';
 import { consolidateAliasLinkedNpcDuplicates } from './core-merge-aliases.js';
 import { npcNamedInText } from './core-merge-names.js';
 import { withSettledGuess } from '../appearance/appearance-physical.js';
-import { sceneTargets, settleScanRows } from './core-merge-namesakes.js';
+import { followFoldedTies, sceneTargets, settleScanRows } from './core-merge-namesakes.js';
 
 export { npcNamedInText, countNormalizedPhrase } from './core-merge-names.js';
 
@@ -234,7 +234,7 @@ export function mergeScanResult(state, rawScanResult, options = {}) {
     consolidateAliasLinkedNpcDuplicates(next, report);
     for (const id of canonicalizeNpcKeyRelationships(next.npcs)) if (!report.updated.includes(id)) report.updated.push(id);
     const social = reconcileSocialState(next, {
-        scanResult,
+        scanResult: followFoldedTies(scanResult, report.deduplicated),
         transcript: options.developmentContext || '',
         provenance: 'scanner',
         confidence: 'explicit',
