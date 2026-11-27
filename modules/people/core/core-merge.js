@@ -15,6 +15,7 @@ import { applyDurableProfileUpdates } from './core-development.js';
 import { consolidateAliasLinkedNpcDuplicates } from './core-merge-aliases.js';
 import { npcNamedInText } from './core-merge-names.js';
 import { withSettledGuess } from '../appearance/appearance-physical.js';
+import { sceneTargets, settleScanRows } from './core-merge-namesakes.js';
 
 export { npcNamedInText, countNormalizedPhrase } from './core-merge-names.js';
 
@@ -22,7 +23,7 @@ export { npcNamedInText, countNormalizedPhrase } from './core-merge-names.js';
  * (1.2.10) Presence put right by the reply's World State (`scene`: present names, `none`, and
  * off-screen names). Listed as present: present. Listed
  * off-screen, or the scene says nobody is present: not present. Anyone else keeps what the scan
- * said, since a World State often leaves people out. Nobody dead or archived is made present.
+ * said, since a World State often leaves people out. Nobody dead or archived is made present. Namesakes are read as ./core-merge-namesakes.js says.
  * Changes `npcs` in place; returns { cleared: [ids], added: [ids] }.
  */
 export function applyScenePresence(npcs, scene) {
@@ -30,17 +31,18 @@ export function applyScenePresence(npcs, scene) {
     const cleared = [];
     const added = [];
     const names = value => (Array.isArray(value) ? value : []).map(String).filter(Boolean);
-    const present = names(scene?.present);
-    const offscreen = names(scene?.offscreen);
-    const named = (npc, labels) => {
+    const present = sceneTargets(list, names(scene?.present));
+    const offscreen = sceneTargets(list, names(scene?.offscreen));
+    const named = (npc, { ids, rest: labels }) => {
+        if (ids.has(npc.id)) return true;
         const own = [npc.name, ...(npc.aliases || [])].map(normalizeName).filter(Boolean);
         return labels.some(label => own.includes(normalizeName(label))) || labels.some(label => npcNamedInText(npc, label, list));
     };
     for (const npc of list) {
         if (!npc) continue;
         let next = npc.present;
-        if (present.length && named(npc, present)) next = true;
-        else if (scene?.none === true || (offscreen.length && named(npc, offscreen))) next = false;
+        if (named(npc, present)) next = true;
+        else if (scene?.none === true || named(npc, offscreen)) next = false;
         if (next && isTerminalNpcDeath(npc)) next = false;
         if (npc.present && !next) cleared.push(npc.id);
         if (!npc.present && next) added.push(npc.id);
@@ -50,7 +52,10 @@ export function applyScenePresence(npcs, scene) {
     return { cleared, added };
 }
 
-export function mergeScanResult(state, scanResult, options = {}) {
+export function mergeScanResult(state, rawScanResult, options = {}) {
+    // (a replay of a reply read before the journal existed keeps the old reading)
+    const settled = options.historicalRead ? { scanResult: rawScanResult, skipped: [] } : settleScanRows(state?.npcs, rawScanResult, options.scenePresent?.present);
+    const scanResult = settled.scanResult;
     const maxNpcs = Math.max(1, Math.min(100, Number(options.maxNpcs) || 40));
     const excludeNames = new Set((options.excludeNames || []).map(normalizeName).filter(Boolean));
     const turn = Number(options.turn ?? state.turn ?? 0);
@@ -92,7 +97,7 @@ export function mergeScanResult(state, scanResult, options = {}) {
         candidates: normalizedCandidates.filter(candidate => turn - Number(candidate.lastSeenTurn || 0) <= NPC_CANDIDATE_TTL_TURNS),
         socialGraph: state?.socialGraph && typeof state.socialGraph === 'object' ? structuredClone(state.socialGraph) : { version: 1, edges: [], unresolved: [] },
     };
-    const report = { created: [], updated: [], profileUpdated: [], renamed: [], deduplicated: [], candidates: [], promoted: [], expired: expiredCandidates.map(c => c.name), skipped: [], warnings: [], profileUpdateStats: { provided: 0, applied: 0, evidenceAdded: 0 } };
+    const report = { created: [], updated: [], profileUpdated: [], renamed: [], deduplicated: [], candidates: [], promoted: [], expired: expiredCandidates.map(c => c.name), skipped: [...settled.skipped], warnings: [], profileUpdateStats: { provided: 0, applied: 0, evidenceAdded: 0 } };
     lifecycleOptions.onGenderConflict = warning => { if (!report.warnings.some(w => w.id === warning.id && w.story === warning.story)) report.warnings.push(warning); };
 
     const createFromIncoming = incoming => {

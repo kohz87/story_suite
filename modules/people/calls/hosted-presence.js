@@ -8,6 +8,7 @@
 import { ownerTargets } from '../npc-api/dossier-target.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
 import { storyBlockIsV2 } from '../npc-api/host-probe.js';
+import { sceneTargets } from '../core/core-merge-namesakes.js';
 
 const locked = npc => Array.isArray(npc?.manualProfileFields) && npc.manualProfileFields.includes('location');
 
@@ -21,7 +22,8 @@ export function sceneNames(adapter) {
 export function stampScenePresence(state, names) {
     const npcs = Array.isArray(state?.npcs) ? state.npcs : [];
     if (!Array.isArray(names)) return null;
-    const here = new Set(names.map(ownerTargets(npcs)).filter(Boolean).map(String));
+    const named = sceneTargets(npcs, names);   // (namesakes: ../core/core-merge-namesakes.js)
+    const here = new Set([...named.ids, ...named.rest.map(ownerTargets(npcs)).filter(Boolean)].map(String));
     const turn = Number(state.turn || 0);
     const ids = [];
     for (const npc of npcs) {

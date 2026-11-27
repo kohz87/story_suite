@@ -10,6 +10,7 @@ import { prepareProfileDevelopmentState, appearanceUpdateForNpc, durableUpdateFo
 import { finalizeProfileDevelopment } from '../core-profile-finalize.js';
 import { storyDayFromText } from './calendar-days.js';
 import { normalizeNpcRecord } from './npc-records.js';
+import { settleScanRows } from '../core-merge-namesakes.js';
 
 // A scan's merge. `heldAwayIds` (the dossiers of people away, Story Director's director.away): their stable
 // profile fields and custom fields are held as if locked for this merge only (people/away/away-hold.js); nothing of
@@ -26,7 +27,10 @@ function mergeScanResultInPass(state, scanResult, rawOptions = {}) {
     return result;
 }
 
-function mergeScanResultHeld(state, scanResult, rawOptions = {}) {
+function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
+    // Rows about namesakes are tied to one person (or dropped) before anything here matches them by name.
+    const settled = rawOptions.historicalRead ? { scanResult: rawScanResult, skipped: [] } : settleScanRows(state?.npcs, rawScanResult, rawOptions.scenePresent?.present);
+    const scanResult = settled.scanResult;
     // Story day of the scanned message (its dated World State), unless the caller already resolved
     // it (carrying the last dated message forward). Undated chats leave it null and use turns.
     const supplied = rawOptions.storyDay;
@@ -43,6 +47,7 @@ function mergeScanResultHeld(state, scanResult, rawOptions = {}) {
         : (Array.isArray(scanResult?.profile_updates) ? scanResult.profile_updates : []);
     const continuityOptions = { ...options, developmentSingleTarget: profileUpdates.length === 1 };
     const result = continuity.mergeScanResult(sourceState, scanResult, continuityOptions);
+    if (settled.skipped.length) result.report.skipped.push(...settled.skipped);
     const ordinary = Array.isArray(scanResult?.npcs) ? scanResult.npcs : [];
     const diagnosticNpcRegistry = (result.state.npcs || []).map(npc => structuredClone(npc));
 

@@ -68,12 +68,20 @@ test('a story event opens it too (the scan\'s npc.open), never a meter-gated one
     assert.deepEqual(h.bonds().npc_ana.unlocked, [EVENT_ID]);
 });
 
-test('nobody else\'s notes are used for the dead: not an alias holder\'s, not a living namesake\'s', async () => {
+test('nobody else\'s notes are used for the dead: not an alias holder\'s', async () => {
     const h = await scene(ana({ aliases: ['Red'], secrets: [] }), bo());
     await h.die('npc_ana');
     const [result] = h.reply(QUOTE, LINE).results;
     assert.match(result.message, /not one of their hidden notes/);
     assert.deepEqual(h.bonds().npc_ana?.unlocked ?? [], []);
+});
+
+test('nor a living namesake\'s: asked by the dead one\'s id, the living Ana\'s note stays hidden', async () => {
+    const h = await scene(ana({ secrets: [] }), person('npc_ana2', 'Ana', [], { secrets: [TOLD] }));
+    await h.die('npc_ana');
+    await h.adapter.openByEvent({ id: 'npc_ana', name: 'Ana', ids: [EVENT_ID] });
+    assert.deepEqual(h.bonds().npc_ana?.unlocked ?? [], []);
+    assert.deepEqual(h.bonds().npc_ana2?.unlocked ?? [], []);
 });
 
 test('a living person\'s meter note still opens by their meter', async () => {

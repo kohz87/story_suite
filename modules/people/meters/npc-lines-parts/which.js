@@ -7,24 +7,21 @@ import { isNoteKind } from '../../notes/npc-notes-kinds.js';
 
 const PERSON_KINDS = new Set(['npc', 'milestone', 'memory', 'reveal']);
 
-/** The members of `group` the scene has: those it lists by their own label (nickname, other alias, shown form), else by their record's presence. */
-function presentOf(ctx, group) {
+/** The members of `group` the reply's scene has (../npc-meters-parts/namesakes.js `present`). */
+function presentOf(ctx, read, group) {
     let scene = [];
     try { scene = ctx.query('scene.present', {}); } catch { scene = []; }
-    const listed = new Set((Array.isArray(scene) ? scene : []).map(item => labelKey(typeof item === 'string' ? item : item?.name)).filter(Boolean));
-    const labelled = group.members.filter(member => [member.nick, `${member.record.name} "${member.nick}"`].some(label => listed.has(labelKey(label))));
-    if (labelled.length) return labelled;
-    if (listed.size && !listed.has(labelKey(group.name))) return [];
-    return group.members.filter(member => member.record.present === true);
+    return read.present(group, scene);
 }
 
 /** → the person `name` names ({ id, record, nick }) when it is a shared name or a shown form; null for any other name. Refuses an unsettled shared name. */
 function whom(ctx, read, name) {
-    const exact = read.written(name);
-    if (exact) return exact;
+    // (a form of a name only one stored person has is left to the ordinary lookup, ./names.js)
+    const exact = read.asForm(name)?.one;
+    if (exact && read.list.filter(record => labelKey(record.name) === labelKey(exact.record.name)).length > 1) return exact;
     const group = read.group(name);
     if (!group) return null;
-    const here = presentOf(ctx, group);
+    const here = presentOf(ctx, read, group);
     if (here.length !== 1) ctx.fail('REFUSED', whichRefusal(group));
     return here[0];
 }
@@ -33,13 +30,14 @@ function whom(ctx, read, name) {
 export function toNamesake(apply) {
     return (ctx, line = {}) => {
         if (!(PERSON_KINDS.has(line.kind) || isNoteKind(line.kind)) || (line.kind === 'npc' && line.op === '+')) return apply(ctx, line);
+        const label = line.kind === 'tie' ? Object.keys(line.labels ?? {}).find(key => labelKey(key) === 'with') : null;
+        const written = label ? String(line.labels[label] ?? '').trim() : '';
         const read = namesakes(ctx.read('people'));
-        if (!read.groups.length) return apply(ctx, line);
+        if (!read.groups.length && !/["“]/.test(`${line.name ?? ''}${written}`)) return apply(ctx, line);
         let next = line;
         const subject = whom(ctx, read, line.name);
         if (subject) next = { ...next, name: subject.record.name, personId: subject.id };
-        const label = line.kind === 'tie' ? Object.keys(line.labels ?? {}).find(key => labelKey(key) === 'with') : null;
-        const other = label ? whom(ctx, read, String(line.labels[label] ?? '').trim()) : null;
+        const other = label ? whom(ctx, read, written) : null;
         if (other) next = { ...next, labels: { ...next.labels, [label]: other.nick } };
         return apply(ctx, next);
     };

@@ -48,7 +48,10 @@ export function ownerTargets(npcs) {
     return value => {
         const id = resolveDossierTarget(npcs, value);
         // `Name "Nickname"`, as the people list shows a namesake.
-        if (!id && /["“]/.test(String(value ?? ''))) return (shared ??= namesakes(Array.isArray(npcs) ? npcs.filter(Boolean) : [])).written(value)?.id ?? '';
+        if (!id && /["“]/.test(String(value ?? ''))) {
+            const hit = (shared ??= namesakes(Array.isArray(npcs) ? npcs.filter(Boolean) : [])).asForm(value)?.one;
+            return hit && !gone(hit.record) ? hit.id : '';
+        }
         if (!id || id === plainText(value)) return id;
         owners ??= ownersOf(Array.isArray(npcs) ? npcs.filter(Boolean) : []);
         const named = owners.named(value);

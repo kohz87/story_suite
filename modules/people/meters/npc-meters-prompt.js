@@ -3,7 +3,7 @@
 import { FEATURE_GATE, FEATURE_PRESETS, FEATURE_MOOD_PULL, FEATURE_NOTES, RECENT_MESSAGES, SECRET_TEXT_MAX, TAIL_SECRETS_PER_NPC, isInt, clean, bandWord, readLeaf } from './npc-meters-config.js';
 import { meterValue } from './npc-meters-slice.js';
 import { ownersOf } from './npc-meters-parts/owners.js';
-import { shownEntries } from './npc-meters-prompt-parts/shown-names.js';
+import { shownEntries, unsaidWhich } from './npc-meters-prompt-parts/shown-names.js';
 import { gateCue } from './npc-meters-gate.js';
 import { readEvent } from './npc-meters-pacing.js';
 import { moodWord, normalizeMood, storedMoodWord } from './npc-mood.js';
@@ -209,7 +209,8 @@ export function createNpcPrompt({
         const cue = featureOn(FEATURE_NOTES) ? [{ text: CHANGES_CUE, keep: true }] : [];
         optional.push(...felt.rest);
         // The required not-yet-told line comes before the opened notes: the host drops unpinned required lines from the end, so older opened notes go first (review 26 Nov).
-        return { lines: [...lines, ...told.slice(0, 1), ...notes, ...cue, ...felt.kept.map(text => ({ text, keep: true }))], optional };
+        const which = unsaidWhich([...lines, ...told.slice(0, 1), ...notes, ...felt.kept, ...optional], state?.domains?.people, () => call(hooks.sentText, ''));
+        return { lines: [...which, ...lines, ...told.slice(0, 1), ...notes, ...cue, ...felt.kept.map(text => ({ text, keep: true }))], optional };
     }
 
     /**

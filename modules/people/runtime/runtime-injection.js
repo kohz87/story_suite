@@ -92,11 +92,11 @@ export function createInjectionPart(rt, deps) {
 
     // The live dossier injection under the current settings and scene defer (sent by updateInjection;
     // tokens() measures the same text).
-    // `listSent`: the one-pass context goes out too and lists the people, so the line about namesakes is its to say, not the dossier's.
-    function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4), listSent = false } = {}) {
+    // `saidBeside`: the one-pass context going out with it; a line about namesakes that it says is not said again here.
+    function liveInjectionText(state, settings, { namedNpcIds = namedByPlayerNpcIds(state), transcript = recentTranscript(4), saidBeside = '' } = {}) {
         const gearLines = castGearLines(state);
         const awayNotes = awayReturnNotes(state);
-        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), partyIds: partyDossierIds(state.npcs), sayNamesakes: !listSent, levelOn: rpgIsOn() });
+        return buildInjection(scenePresenceView(hostedMeterView(withCastLinks(state.npcs))), transcript, state.turn, settings.injectLimit, settings.behaviorCriteria, settings.injectBudgetTokens, state.socialGraph, { namedNpcIds, customFieldNames: effectiveCustomFieldNames(settings), ...(awayNotes ? { awayNotes } : {}), ...(gearLines ? { gearLines } : {}), storyDay: tieDayAt(), partyIds: partyDossierIds(state.npcs), saidBeside, levelOn: rpgIsOn() });
     }
 
     // The one-pass lines a reply carries: the rules (when armed or kept for a swipe) and the context (armed only), with the note options they
@@ -147,7 +147,7 @@ export function createInjectionPart(rt, deps) {
         if (!settings.inject && !armed && !rulesSent) return clear('"Inject present NPC state" is off.');
         const namedNpcIds = namedByPlayerNpcIds(state);
         const { noteOptions, ...parts } = captureParts(state, settings, { armed, rulesSent, namedNpcIds });
-        const prompt = settings.inject ? liveInjectionText(state, settings, { namedNpcIds, transcript, listSent: Boolean(parts.context) }) : '';
+        const prompt = settings.inject ? liveInjectionText(state, settings, { namedNpcIds, transcript, saidBeside: parts.context }) : '';
         const capture = parts.context;
         const present = (state.npcs || []).filter(npc => npc?.present);
         const depth = injectDepthOf(settings);

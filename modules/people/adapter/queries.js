@@ -157,6 +157,7 @@ export function createQueriesPart(session, deps) {
             return normalizeSecrets(npc?.secrets).filter(secret => ids.includes(secret.id) && (gatedOn || !secret.gate)).map(({ id, text }) => ({ id, text }));
         },
         gateInputs,
+        sentText: () => (suiteApi?.manage?.preview?.()?.parts ?? []).map(item => item?.text ?? '').join('\n'),
         setup: (name, labels = []) => stageSetupOf(holderOf(name, labels)),
         presets: catalog,
         feature: hostFeature,

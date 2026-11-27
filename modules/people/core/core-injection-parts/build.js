@@ -7,11 +7,11 @@ import { namesakes, sayWhich } from '../../meters/npc-meters-parts/namesakes.js'
 import { JOIN_LINE } from '../core-injection-parts-parts/join-line.js';
 import { clauseBoundedInjection, compactInjectionBehaviorRubric, injectionEssentialBlock, injectionOptionalFields, lowPlayerStanding, referenceBlock, truncateInjectionText } from '../core-injection-parts.js';
 
-export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false, partyIds = null, sayNamesakes = true } = {}) {
-    // Namesakes are shown as Name "Nickname"; `sayNamesakes`: this text also carries the line about each shared name it shows.
+export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria = DEFAULT_BEHAVIOR_CRITERIA, budgetTokens = DEFAULT_INJECTION_BUDGET_TOKENS, socialGraph = null, { includeAppearance = false, namedNpcIds = [], customFieldNames = [], sceneDeferred = false, awayNotes = null, gearLines = null, storyDay = null, levelOn = false, partyIds = null, saidBeside = '' } = {}) {
+    // Namesakes are shown as Name "Nickname"; this text says the line about each shared name it shows, unless `saidBeside` (the text sent with it) has it.
     const shared = namesakes(npcs || []);
     const shownName = npc => shared.shown(npc.id) ?? npc.name;
-    const whichFor = ids => (sayNamesakes ? shared.groups.filter(group => group.members.some(member => ids.has(member.id))).map(sayWhich) : []);
+    const whichFor = ids => shared.groups.filter(group => group.members.some(member => ids.has(member.id))).map(sayWhich).filter(line => !String(saidBeside).includes(line));
     const named = new Set(Array.isArray(namedNpcIds) ? namedNpcIds : []);
     const calledIn = npc => !npc?.present && named.has(npc?.id);
     const present = (npcs || []).filter(npc => (Boolean(npc?.present) || calledIn(npc)) && !npc?.archived);
@@ -100,9 +100,12 @@ export function buildInjection(npcs, text, turn = 0, limit = 3, behaviorCriteria
     // Mentioned and deceased references outrank optional enrichment but never the injected cast's
     // essentials; NPCs dropped from the cast for budget may still get their one line.
     const referenceText = (() => {
-        const block = referenceBlock(npcs || [], text, new Set(relevant.map(npc => npc.id)), customFieldNames, levelOn, shownName);
+        const listed = new Set();
+        const block = referenceBlock(npcs || [], text, new Set(relevant.map(npc => npc.id)), customFieldNames, levelOn, shownName, listed);
         const room = budgetChars - currentLength - 1;
-        return block && room >= 80 ? truncateInjectionText(block, room) : '';
+        // (a namesake only listed down here brings the line along, unless the header already says it)
+        const which = whichFor(listed).filter(line => !header.includes(line));
+        return block && room >= 80 ? truncateInjectionText([...which, block].join('\n'), room) : '';
     })();
     if (referenceText) currentLength += referenceText.length + 1;
 

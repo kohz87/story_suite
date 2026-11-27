@@ -25,6 +25,7 @@ export function suppressPrimaryRelationshipForFocusedDecisions(parsed, decisions
     for (const raw of clone.npcs || []) {
         const matchedId = [...decisions.keys()].find(id => {
             if (String(raw?.id || '') === String(id)) return true;
+            if (raw?.settledId) return false;   // (tied to one namesake: that id alone)
             const stateNpc = stateNpcs().find(npc => npc.id === id);
             return Boolean(stateNpc && raw?.name && npcMatchesLabel(stateNpc, raw.name));
         });

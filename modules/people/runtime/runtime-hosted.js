@@ -3,6 +3,7 @@
    relationship changes, secret events and hidden-note options Delta sends back, and the words for why no one shows as present. Built by runtime-entry.js once per module instance with the shared
    runtime state and the controller functions it calls. Bodies are moved from runtime-entry.js without change. */
 
+import { sceneTargets } from '../core/core-merge-namesakes.js';
 import { chatContext as getContext, markStands, refusedLooks, worth, relationshipChanges, replayScope, scanMoodNumbers, scopedAdapter } from '../calls/runtime-scan-helpers.js';
 import { replyScanned } from '../calls/scan-context.js';
 import { tieDayAt } from '../transcript/transcript.js';
@@ -100,7 +101,8 @@ export function createHostedPart(rt, deps) {
         let names = null;
         try { names = adapter.scenePresent?.(); } catch { names = null; }
         if (!Array.isArray(names)) return npcs;
-        const here = new Set(names.map(ownerTargets(npcs)).filter(Boolean));
+        const named = sceneTargets(npcs, names);   // (namesakes: ../core/core-merge-namesakes.js)
+        const here = new Set([...named.ids, ...named.rest.map(ownerTargets(npcs)).filter(Boolean)].map(String));
         let changed = false;
         const out = npcs.map(npc => {
             // (C-1) The scene cannot bring a confirmed-dead NPC back on stage.

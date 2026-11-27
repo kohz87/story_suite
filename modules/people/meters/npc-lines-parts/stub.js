@@ -9,6 +9,7 @@ import { isNoteKind } from '../../notes/npc-notes-kinds.js';
 import { stubRecord } from './derived.js';
 import { personNamed } from './names.js';
 import { ownersOf } from '../npc-meters-parts/owners.js';
+import { namesakes, whichRefusal } from '../npc-meters-parts/namesakes.js';
 
 const ROLE_MAX = 60;
 export const STUB_LOOK_MAX = 100;   // the approved length; a look is stored exactly as written up to it, never shorter
@@ -85,9 +86,12 @@ function refusalOf(ctx, name, hooks) {
     let players = [];
     try { players = (hooks.playerNames?.() ?? []).map(labelKey).filter(Boolean); } catch { /* no names known */ }
     if (isToken(name, 'user') || isToken(name, 'char') || players.includes(asked)) return `${name} is the player or the character you play; + npc is only for someone new.`;
-    const known = knownPerson(ctx, name);
+    // A shown form (Name "Nickname") is settled first: nobody is ever made under it.
+    const form = /["“]/.test(name) ? namesakes(ctx.read('people')).asForm(name) : null;
+    const known = form?.found.length ? { record: (form.one ?? { record: form.found[0] }).record } : knownPerson(ctx, name);
     const as = known?.record?.name && labelKey(known.record.name) !== asked ? ` as ${known.record.name}` : '';
-    return known ? `${name} is already listed${as}; + npc is only for someone new.` : '';
+    if (known) return `${name} is already listed${as}; + npc is only for someone new.`;
+    return form?.group ? whichRefusal(form.group) : '';
 }
 
 /**

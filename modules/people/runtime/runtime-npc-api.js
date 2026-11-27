@@ -19,8 +19,8 @@ export function createNpcApiPart(rt, deps) {
         const key = getChatKey();
         if (settings.enabled === false || key === 'no-chat' || chatHydrationStatus(key) !== 'ready') return { injection: '', rules: '', capture: '' };
         const state = getChatState(key);
-        const injection = settings.inject ? liveInjectionText(state, settings, { transcript: recentTranscript(4) }) : '';
         const { rules, context } = nextCaptureParts(state, settings);
+        const injection = settings.inject ? liveInjectionText(state, settings, { transcript: recentTranscript(4), saidBeside: context }) : '';
         return { injection, rules, capture: context };
     }
 

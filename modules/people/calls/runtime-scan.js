@@ -22,6 +22,7 @@ import { seedNewAdmissions, notifyStaleCleanup, notifyGenderConflicts } from './
 import { backgroundRuleOn, captureJournalEntry, recordAcceptedCapture, recordReadMark } from '../runtime/runtime-narration.js';
 import { phraseMerged, scanMemoryFacts, scanMemoryParagraph } from '../memory/memory-fact-scan.js';
 import { isTerminalNpcDeath } from '../core/terminal-lifecycle.js';
+import { settleScanRows } from '../core/core-merge-namesakes.js';
 export function createScanPart(rt, deps) {
     const { attachGeneratedSecrets, awayScanOptions, beginScanOperation, castList, noteChatLineage, drainPendingAutoScan, endScanOperation, ensureChatStateLoaded, forwardRelationshipChangesToHost, forwardSecretEventsToHost, getChatKey, getChatState, hostedMeters, hostedNotePromptOptions, hostedOnePass, hostedScanState, isHostSwipeActive, isScanBusy, keyKeepIds, hostedReadsFailed, narrationCaptureKey, narrationCaptureStats, noteScanFailure, persist, prepareCanonicalScanBase, processPendingBackfills, queuePendingAutoScan, recordScanDiagnostics, refreshNpcFromChat, renderDossier, scanCanonicalBaseCurrent, scannerPromptOptions, scanOperationCurrent, scanScenePresent, setChatState, adapterMeters, takeNarrationCapture, updateInjection } = deps;
     // Events per story day while Delta works alone (the pass counts them on the dossier). The day is Story Director's clock, which
@@ -170,7 +171,10 @@ export function createScanPart(rt, deps) {
             // (1.2.11) A scan of one reply tags its evidence with that reply, so a habit seen again in a
             // later reply counts as a second sighting (a manual or full-window scan reads many replies).
             const singleReply = !manual && !fullWindowScan && Number.isInteger(messageId);
-            const resolvedParsed = resolveInterimIdentityPromotions(singleReply ? tagScanEvidence(parsed, skippedWindow?.readThrough ?? messageId) : parsed, state.npcs, state.candidates);
+            // (namesakes: settled here, while the records still carry who was present; the merge's base below clears it. The journal keeps the settled
+            // rows, so a replay, which cannot ask an earlier reply's scene, reads them as live did)
+            const named = replayScope() && !journaled ? { scanResult: parsed, skipped: [] } : settleScanRows(state.npcs, parsed, scanScenePresent(messageId) ?? []);
+            const resolvedParsed = resolveInterimIdentityPromotions(singleReply ? tagScanEvidence(named.scanResult, skippedWindow?.readThrough ?? messageId) : named.scanResult, state.npcs, state.candidates);
             if (capture || (fallback && hostedOnePass())) capCaptureAdmissions(resolvedParsed, state.npcs);
             profileUpdateCount = Array.isArray(resolvedParsed.profileUpdates) ? resolvedParsed.profileUpdates.length : (Array.isArray(resolvedParsed.profile_updates) ? resolvedParsed.profile_updates.length : 0);
             // Relationship-edge extraction is a separate channel from ordinary NPC delta admission.
@@ -270,6 +274,7 @@ export function createScanPart(rt, deps) {
                 historicalRead: Boolean(replayScope() && !journaled), // (ONEPASSCAPR2-1) only a reply read before the journal existed keeps the old reading
                 memoryFacts: factOpt,
             });
+            merged.report.skipped.push(...named.skipped);
             merged.state = phraseMerged(merged.state, memoryAsk.handles, parsed, getContext().chat || []);
             if (earlierOnly) {
                 // Presence is the latest scene's: an earlier-only window leaves each person as last confirmed.
@@ -374,8 +379,8 @@ export function createScanPart(rt, deps) {
                 readAhead: settled.readAhead,
                 scanCount: Number(state.scanCount || 0) + 1,
             };
-            if (capture && !replayScope()) recordAcceptedCapture(nextState, ctx.chat || [], targetMessageId, capture);
-            else if (!replayScope() && !manual) { const mark = recordReadMark(nextState, ctx.chat || [], targetMessageId); if (fallback && hostedOnePass() && mark) mark.fallbackParsed = structuredClone(parsed); }
+            if (capture && !replayScope()) recordAcceptedCapture(nextState, ctx.chat || [], targetMessageId, { ...capture, parsed: named.scanResult });
+            else if (!replayScope() && !manual) { const mark = recordReadMark(nextState, ctx.chat || [], targetMessageId); if (fallback && hostedOnePass() && mark) mark.fallbackParsed = structuredClone(named.scanResult); }
             const catchUpChats = replayScope()?.catchUp ?? rt.catchUpChats;
             if (skippedWindow && !skippedWindow.latest) catchUpChats.add(scanChatKey); else catchUpChats.delete(scanChatKey);
             if (!manual) queueScanFollowUps(nextState, { newlyAdmittedIds, resolvedParsed, targetMessageId, currentTranscript });
