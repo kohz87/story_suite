@@ -18,7 +18,13 @@ test('a fact that says something else, belongs to another happening or another d
     const news = { day: 3, text: 'The Regent has not been seen since the bells of Aurelion stopped.', by: 'bells' };
     assert.equal(card([fired, news]), `World: ${FIRED} ${news.text}`);
     for (const other of [{ day: 3, text: SAID_AGAIN, by: 'omen' }, { day: 4, text: SAID_AGAIN, by: 'bells' }]) assert.equal(card([fired, other]), `World: ${FIRED} ${SAID_AGAIN}`);
-    // a short fact inside a long line says less, not the same
-    const part = { day: 3, text: 'Shrine flames burned blue.', by: 'bells' };
-    assert.equal(card([fired, part]), `World: ${FIRED} ${part.text}`);
+    // under four fifths of its words said already: it has news of its own
+    const partly = { day: 3, text: 'Shrine flames burned blue across Highmark Capital.', by: 'bells' };
+    assert.equal(card([fired, partly]), `World: ${FIRED} ${partly.text}`);
+});
+
+test('a fact the fired line says and then goes on from is left off, irregular past tenses and all', () => {
+    const line = { day: 3, text: 'The healing fire of Solenne, the Flame Saintess, goes cold on the night the bells fall silent, and word is that she hides her hands from the court.', by: 'cold', fired: true };
+    const fact = { day: 3, text: 'The healing fire of Solenne, the Flame Saintess, went cold on the night the bells fell silent.', by: 'cold' };
+    assert.equal(card([fact, line]), `World: ${line.text}`);
 });
