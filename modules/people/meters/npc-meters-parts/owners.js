@@ -1,6 +1,7 @@
 // The one rule for which meters entry is a person's: every stored dossier's id and name (alive, dead or archived) belongs to that dossier alone.
 import { findNpcKey } from '../npc-meters-slice.js';
 import { isObject, npcKey } from '../npc-meters-config.js';
+import { isTerminalNpcDeath } from '../../core/terminal-lifecycle.js';
 
 const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
 
@@ -17,7 +18,7 @@ const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
  *   sameName(a, b)  the one comparison of two names (their slugs, as entry keys are matched)
  *   ownerOf(npcs, key)  the stored dossier whose entry `key` is: the one with that id, else the one entryKey assigns it to, or null
  *   asking(npcs, key, labels?)  → { name, labels }: what to ask the dossier hooks (setup, notes) with for that entry: its owner's id; with no
- *     owner, the entry's name, unless a stored dossier carries that name or alias (then nothing: it is not theirs)
+ *     owner, the entry's name, unless a stored dossier carries that name or alias (then nothing: it is not theirs); `gone`: the owner is dead or archived
  */
 export function ownersOf(people) {
     const byId = Array.isArray(people)
@@ -70,7 +71,7 @@ export function ownersOf(people) {
     };
     const asking = (npcs, key, given = null) => {
         const owner = ownerOf(npcs, key);
-        if (owner) return { name: owner.id, labels: [owner.id] };
+        if (owner) return { name: owner.id, labels: [owner.id], ...(isTerminalNpcDeath(owner) || owner.archived ? { gone: true } : {}) };
         const name = npcs?.[key]?.name;
         return named(name).length || aliased(name).length ? { name: '', labels: [] } : { name, labels: given ?? [name] };
     };

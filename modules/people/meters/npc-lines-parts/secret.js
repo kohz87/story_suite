@@ -22,7 +22,7 @@ const labelsOf = line => Object.fromEntries(Object.entries(line?.labels ?? {}).m
 export function secretLine(ctx, line, { identifyIn, rulesFor, run, call = () => ({}), hooks = {}, defs = () => [], castFirst = null }) {
     const name = clean(line?.name, 40);
     const { opened = '', quote = '' } = labelsOf(line);
-    const found = knownOrCast(ctx, line?.name, castFirst);
+    const found = knownOrCast(ctx, line?.name, castFirst, line?.personId);
     if (!found) ctx.fail('REFUSED', `${name} has no record yet; write + npc ${name} | role | look first.`);
     const id = clean(opened, 80);
     if (!id) ctx.fail('REFUSED', `~ reveal ${name}: opened: is empty.`);
@@ -30,7 +30,7 @@ export function secretLine(ctx, line, { identifyIn, rulesFor, run, call = () => 
     if (!secretEventsShown({ secretEvents: [id], secretEventEvidence: { [id]: quote } }, text).length) ctx.fail('REFUSED', `~ reveal ${name}: no quote found in this reply; the note stays closed.`);
     const slice = ctx.draft(NPC_DOMAIN);
     // (F50: a first name or alias finds the person; their entry is then asked for by their id, which a namesake cannot take)
-    const full = typeof found.record?.name !== 'string' ? line.name : labelKey(found.record.name) === labelKey(line.name) || !ctx.read('people')?.npcs?.[found.key] ? found.record.name : found.key;
+    const full = line.personId ? found.key : typeof found.record?.name !== 'string' ? line.name : labelKey(found.record.name) === labelKey(line.name) || !ctx.read('people')?.npcs?.[found.key] ? found.record.name : found.key;
     const who = identifyIn(ctx, slice.npcs ?? {}, full);
     const record = who ? slice.npcs?.[who.key] : null;
     const asked = who ? who.owners.asking({ [who.key]: { name: who.name }, ...slice.npcs }, who.key, who.labels) : { name: found.record?.name ?? line.name, labels: [] };

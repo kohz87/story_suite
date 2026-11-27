@@ -118,7 +118,9 @@ export function createCastFirst({ baseline, bond }) {
  * the pack person met or present here whose dossier `castFirst` makes now, as a `~ npc` line would (a short form that also fits such a pack person is
  * nobody, as there). → { key, record? } or null (the line is then refused as before).
  */
-export function knownOrCast(ctx, name, castFirst) {
+export function knownOrCast(ctx, name, castFirst, personId = null) {
+    const held = personId ? ctx.read('people')?.npcs?.[personId] : null;   // (the dossier the line was settled on: ./which.js)
+    if (held) return { key: personId, record: held };
     let found = knownPerson(ctx, name);
     const exact = found?.record && [found.record.name, ...(Array.isArray(found.record.aliases) ? found.record.aliases : [])].map(labelKey).includes(labelKey(name));
     if (found?.record && !exact && typeof castFirst?.fits === 'function' && castFirst.fits(ctx, name)) found = null;

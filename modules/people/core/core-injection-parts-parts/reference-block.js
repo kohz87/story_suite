@@ -30,7 +30,7 @@ function towardPlayer(npc) {
 }
 
 // `levelOn` (the RPG is on): a person's built-in Level is one of their facts.
-export function referenceBlock(npcs = [], text = '', castIds = new Set(), customFieldNames = [], levelOn = false) {
+export function referenceBlock(npcs = [], text = '', castIds = new Set(), customFieldNames = [], levelOn = false, shownName = npc => npc.name, shownIds = null) {
     const roster = Array.isArray(npcs) ? npcs : [];
     const haystack = normalizeName(text);
     if (!haystack) return '';
@@ -44,7 +44,8 @@ export function referenceBlock(npcs = [], text = '', castIds = new Set(), custom
         const toward = lineSummary(npc);
         const facts = [normalizeGender(npc.gender), cleanText(npc.role, 70), npc.homeBase && `home base: ${cleanText(npc.homeBase, 60)}`,
             custom, levelOn && Number.isInteger(npc.level) && `level: ${npc.level}`, !toward && towardPlayer(npc)].filter(Boolean);
-        const line = `- ${npc.name} (${['mentioned, not present', ...facts].join('; ')})`;
+        shownIds?.add(npc.id);
+        const line = `- ${shownName(npc)} (${['mentioned, not present', ...facts].join('; ')})`;
         if (!toward) return truncateInjectionText(line, REFERENCE_LINE_CHARS);
         // The story's own sentence stands after the other facts' cut, whole.
         return `${truncateInjectionText(line, REFERENCE_LINE_CHARS).replace(/\)$/, '')}; toward the player: ${toward})`;
@@ -53,7 +54,7 @@ export function referenceBlock(npcs = [], text = '', castIds = new Set(), custom
         const bond = bondOf(npc);
         const facts = [normalizeGender(npc.gender), cleanText(npc.role, 70), bond && `bond: ${bond}`].filter(Boolean);
         const death = cleanText(npc.lifeStateReason, 140);
-        return truncateInjectionText(`- ${npc.name} (deceased${facts.length ? `; ${facts.join('; ')}` : ''})${death ? `: ${death}` : ''}`, REFERENCE_LINE_CHARS);
+        return truncateInjectionText(`- ${shownName(npc)} (deceased${facts.length ? `; ${facts.join('; ')}` : ''})${death ? `: ${death}` : ''}`, REFERENCE_LINE_CHARS);
     });
     return [mentioned.length && MENTIONED_HEADER, ...mentioned, deceased.length && DECEASED_HEADER, ...deceased].filter(Boolean).join('\n');
 }

@@ -15,7 +15,8 @@ export const isDiedLine = line => line?.kind === 'npc' && line?.op === '~' && /^
 /** Runs one death line → the receipt. A person with no record, or already dead, is refused and changes nothing. */
 export function diedLine(ctx, line) {
     const name = clean(line?.name, 40);
-    const found = knownPerson(ctx, line?.name);
+    const held = line?.personId ? ctx.read('people')?.npcs?.[line.personId] : null;
+    const found = held ? { key: line.personId, record: held } : knownPerson(ctx, line?.name);
     if (!found?.record) ctx.fail('REFUSED', `${name} has no record yet; write + npc ${name} | role | look first.`);
     const how = clean(line?.labels?.how, HOW_MAX);
     const sid = typeof ctx.carrier?.sid === 'string' ? ctx.carrier.sid : null;

@@ -16,6 +16,7 @@ import { seedCastBond } from './cast-bond.js';
 import { withMemories, memoryLine } from '../npc-lines-parts/memory.js';
 import { secretLine } from '../npc-lines-parts/secret.js';
 import { isDiedLine, diedLine } from '../npc-lines-parts/death.js';
+import { toNamesake } from '../npc-lines-parts/which.js';
 
 
 /**
@@ -94,11 +95,11 @@ export function createNpcPart(hooks = {}) {
         afterCapture: arrive.afterCapture,
         queries,
         kinds: {
-            [NPC_KIND]: { grammar: '', heads: ['~ npc', '+ npc'], apply: dispatch, after: ['time', 'present', 'place'] },
-            [MILESTONE_KIND]: { grammar: '+ milestone Name — the turning point that just happened between you (once, when a bond changes for good; e.g. + milestone Person A — a promise was kept)', apply: captureLine, feature: FEATURE_STAGES, after: ['time'] },
-            ...noteKinds(captureLine),
-            memory: { grammar: '', heads: ['~ memory'], apply: memoryApply, after: ['time', 'present', 'place', 'npc', 'milestone', 'lie', 'know', 'taste', 'tie'] },
-            reveal: { grammar: '', heads: ['~ reveal'], apply: secretApply, after: ['time', 'present', 'place', 'npc'] },
+            [NPC_KIND]: { grammar: '', heads: ['~ npc', '+ npc'], apply: toNamesake(dispatch), after: ['time', 'present', 'place'] },
+            [MILESTONE_KIND]: { grammar: '+ milestone Name — the turning point that just happened between you (once, when a bond changes for good; e.g. + milestone Person A — a promise was kept)', apply: toNamesake(captureLine), feature: FEATURE_STAGES, after: ['time'] },
+            ...noteKinds(toNamesake(captureLine)),
+            memory: { grammar: '', heads: ['~ memory'], apply: toNamesake(memoryApply), after: ['time', 'present', 'place', 'npc', 'milestone', 'lie', 'know', 'taste', 'tie'] },
+            reveal: { grammar: '', heads: ['~ reveal'], apply: toNamesake(secretApply), after: ['time', 'present', 'place', 'npc'] },
         },
         context: { static: staticText, tail, budget: CONTEXT_BUDGET },
         redact,

@@ -3,6 +3,7 @@
 import { FEATURE_GATE, FEATURE_PRESETS, FEATURE_MOOD_PULL, FEATURE_NOTES, RECENT_MESSAGES, SECRET_TEXT_MAX, TAIL_SECRETS_PER_NPC, isInt, clean, bandWord, readLeaf } from './npc-meters-config.js';
 import { meterValue } from './npc-meters-slice.js';
 import { ownersOf } from './npc-meters-parts/owners.js';
+import { shownEntries } from './npc-meters-prompt-parts/shown-names.js';
 import { gateCue } from './npc-meters-gate.js';
 import { readEvent } from './npc-meters-pacing.js';
 import { moodWord, normalizeMood, storedMoodWord } from './npc-mood.js';
@@ -119,6 +120,7 @@ export function createNpcPrompt({
         const length = Number.isInteger(view?.chat?.length) ? view.chat.length : 0;
         const owners = ownersOf(state?.domains?.people?.npcs);
         const here = presentKeys(npcs, owners);
+        const shown = shownEntries(npcs, owners, state?.domains?.people);   // (namesakes read as Name "Nickname")
         const moved = [];
         const notes = [];
         const hidden = [];
@@ -128,7 +130,7 @@ export function createNpcPrompt({
         let order = 0;
         for (const key of Object.keys(npcs).sort()) {
             if (!here.has(key)) continue;
-            const record = npcs[key];
+            const record = shown[key];
             const asked = owners.asking(npcs, key);
             // Where the window's reply was (its index, kept beside a record ID).
             const where = isInt(record.turn?.at) ? record.turn.at : record.turn?.reply;
@@ -190,7 +192,7 @@ export function createNpcPrompt({
         ];
         // Notes (npc-notes-kinds.js): at most two lines a person and four in all, after the meters and opened notes (optional).
         if (featureOn(FEATURE_NOTES)) {
-            const noted = notesTail(npcs, { present: Object.keys(npcs).sort().filter(key => here.has(key)) });
+            const noted = notesTail(shown, { present: Object.keys(npcs).sort().filter(key => here.has(key)) });
             // A secret note line (a lie told) with no locked meter note before it carries the (hidden) wording itself.
             const first = hidden.length ? -1 : noted.findIndex(line => / \(hidden\): /.test(line));
             if (first >= 0) noted[first] = `${HIDDEN_ONCE}\n${noted[first]}`;
@@ -203,7 +205,7 @@ export function createNpcPrompt({
         // As optional lines of this last-sorted section the host's tail budget cut Pull and Mood from every prompt of run 3. Kept lines share the
         // host's one cap after Story Director's and Story Block's own, which come earlier in tail order and keep theirs; over the cap a line is
         // an ordinary one, so these lines never displace another module's kept or pinned line.
-        const felt = featureOn(FEATURE_MOOD_PULL) ? moodPullLines(npcs, here) : { kept: [], rest: [] };
+        const felt = featureOn(FEATURE_MOOD_PULL) ? moodPullLines(shown, here) : { kept: [], rest: [] };
         const cue = featureOn(FEATURE_NOTES) ? [{ text: CHANGES_CUE, keep: true }] : [];
         optional.push(...felt.rest);
         // The required not-yet-told line comes before the opened notes: the host drops unpinned required lines from the end, so older opened notes go first (review 26 Nov).

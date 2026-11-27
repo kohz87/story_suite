@@ -34,6 +34,12 @@ export function readStub(line) {
 
 const isToken = (name, key) => new RegExp(`^\\{\\{\\s*${key}\\s*\\}\\}$`, 'i').test(String(name ?? '').trim());
 
+/** The person a line is about: the dossier it was settled on (`personId`: ./which.js), else the one its name is (knownPerson). */
+function personOf(ctx, line) {
+    const held = line.personId ? ctx.read('people')?.npcs?.[line.personId] : null;
+    return held ? { key: line.personId, record: held } : knownPerson(ctx, line.name);
+}
+
 /** The person a name is, among the people (by name or alias, else the one a first name, surname or role fits: ./names.js) and the meter entries: { key, record? } or null. */
 export function knownPerson(ctx, name) {
     const asked = labelKey(name);
@@ -115,11 +121,13 @@ export function withStubs(handler, { hooks, linesMode, baseline, note, castFirst
             const id = makeNpcId(stub.name, taken);
             if (!PEOPLE_ID.test(id)) ctx.fail('INVALID', `${stub.name} cannot be given an id.`);
             ctx.call('people.stub', { id, record: stubRecord(stub, id, baseline(), stamp) });
-            const out = handler(ctx, { ...on, labels: {}, name: stub.name, stubKey: id });
+            // (a namesake's new entry is theirs by id: the shared name could be the other one's)
+            const shares = ownersOf(ctx.read('people')?.npcs).named(stub.name).length > 1;
+            const out = handler(ctx, { ...on, labels: {}, name: stub.name, stubKey: id, ...(shares ? { personId: id } : {}) });
             if (stub.problems.length) note(ctx.draft(NPC_DOMAIN), ctx.rev, stub.problems);
             return stub.problems.length ? { ...out, data: { ...out.data, problems: [...(out.data?.problems ?? []), ...stub.problems] } } : out;
         }
-        let found = knownPerson(ctx, line.name);
+        let found = personOf(ctx, line);
         // F50 with SFF4 #1: a first name, surname or role that found one listed person but also fits a pack person who has no dossier yet fits two: nobody.
         if (found?.record && !labelsWrite(found.record, line.name) && typeof castFirst?.fits === 'function' && castFirst.fits(ctx, line.name)) found = null;
         if (!found?.record) {

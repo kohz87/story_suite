@@ -148,6 +148,7 @@ export function createPeopleAdapter({
         carry: peopleCarry,
         keep: (built, slice) => (linesMode() ? keepStampContainers(built, slice) : built),   // lines mode only: with the switch off the view is written as it is
         mark: (index, since) => queriesPart.runtime()?.setScanMarker?.(index, since),
+        setRecord: record => queriesPart.runtime()?.setPeopleRecord?.(record) === true,
     });
     deps.peopleSync = peopleSync;
     // A death the host confirmed: stored as a people write for the head's reply (see src/adapter/native-death.js).

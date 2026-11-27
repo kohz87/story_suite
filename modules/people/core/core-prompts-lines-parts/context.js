@@ -5,6 +5,7 @@
    no candidates, no live or stable context (the dossier injection already describes each present person). */
 import { hiddenNoteEventLinesParagraph } from '../core-prompts-capture-parts/hidden-notes.js';
 import { countsTowardCap } from '../roster-count.js';
+import { namesakes, sayWhich } from '../../meters/npc-meters-parts/namesakes.js';
 
 export const PEOPLE_HEADER = 'People you know about (match by these names):';
 // (owner-approved 22 Nov: the narrator wrote mood lines for people in the background but skipped their memory: and goal:, so their dossiers waited for a
@@ -24,12 +25,16 @@ export function listedPeople({ existingNpcs = [], turn = 0, dormantAfter, namedN
 
 /** `present`: the names of the people in the scene now and those the player's message calls (never the dead); with none, the reminder is sent without names. */
 export function buildLinesContext({ eventWatch = null, existingNpcs = [], turn = 0, dormantAfter, namedNpcIds = [], present = [] } = {}) {
-    const events = hiddenNoteEventLinesParagraph(eventWatch);
-    const people = listedPeople({ existingNpcs, turn, dormantAfter, namedNpcIds }).map(npc => ({
+    const listed = listedPeople({ existingNpcs, turn, dormantAfter, namedNpcIds });
+    // Namesakes are listed as Name "Nickname", with one line for each shared name that is listed.
+    const shared = namesakes(existingNpcs);
+    const which = shared.groups.filter(group => group.members.some(member => listed.some(npc => npc.id === member.id))).map(group => `\n${sayWhich(group)}`).join('');
+    const events = hiddenNoteEventLinesParagraph(eventWatch?.map(item => (shared.shown(item.id) ? { ...item, name: shared.shown(item.id) } : item)));
+    const people = listed.map(npc => ({
         id: npc.id,
-        name: npc.name,
+        name: shared.shown(npc.id) ?? npc.name,
         aliases: (npc.aliases || []).slice(0, 8),
     }));
     const here = [...new Set((Array.isArray(present) ? present : []).map(name => String(name ?? '').trim()).filter(Boolean))].slice(0, PRESENT_MAX);
-    return `${PEOPLE_HEADER}\n${JSON.stringify(people)}${events}${presentReminder(here)}`;
+    return `${PEOPLE_HEADER}\n${JSON.stringify(people)}${which}${events}${presentReminder(here)}`;
 }

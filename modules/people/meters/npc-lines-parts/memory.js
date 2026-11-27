@@ -60,7 +60,7 @@ function saveMemory(ctx, { key, text, date = '', tag = false, label = false }) {
  */
 export function memoryLine(ctx, line, deps) {
     const raw = typeof line?.raw === 'string' ? line.raw.split('|').slice(1).join('|') : String(line?.text ?? '');
-    const found = knownOrCast(ctx, line?.name, deps.castFirst);
+    const found = knownOrCast(ctx, line?.name, deps.castFirst, line?.personId);
     if (!found) ctx.fail('REFUSED', `${clean(line?.name, 40)} has no record yet; write + npc ${clean(line?.name, 40)} | role | look first.`);
     if (found.record?.lifeState === 'deceased') ctx.fail('REFUSED', `${clean(found.record.name, 40)} has died; lines about them change nothing now.`);   // (F44)
     const at = isInt(ctx.carrier?.index) ? ctx.carrier.index : null;
@@ -94,7 +94,10 @@ export function withMemories(handler, { linesMode, date, note = null }) {
         const out = handler(ctx, line);
         if (!linesMode(ctx)) return out;
         const words = wordsOf(line);
-        const found = words.length ? knownPerson(ctx, line.name) : null;
+        // The person the line went to: the one it was settled on (./which.js), a `+ npc` line's own new record, else the one its name is.
+        const id = line.personId ?? (line.op === '+' && line.kind === 'npc' ? out.data?.key : null);
+        const held = id ? ctx.read('people')?.npcs?.[id] : null;
+        const found = !words.length ? null : held ? { key: id, record: held } : knownPerson(ctx, line.name);
         if (!found) return out;
         const day = date(isInt(ctx.carrier?.index) ? ctx.carrier.index : null);
         const problems = [];

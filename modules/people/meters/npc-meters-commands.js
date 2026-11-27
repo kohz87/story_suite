@@ -384,7 +384,7 @@ export function createNpcCommands({
                 const owner = owners.ownerOf(slice.npcs, key);
                 // What away, mood and threads may call them: never an alias that is another dossier's name.
                 const names = owners.labels({ id: owner?.id, name: owner?.name ?? record.name, aliases: resolve(asked.name)?.aliases }, [record.name]);
-                const held = away.held(names);
+                const held = away.held(names) || asked.gone === true;   // (the dead's meters stay as they are)
                 if (day !== null) {
                     const days = isInt(record.day) ? day - record.day : 0;
                     if (record.day !== day) record.day = day;

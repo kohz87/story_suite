@@ -2,6 +2,8 @@
 // Only a module's own command may send it. It makes one record under a new id and appends the id to `order`; a person who is already there is refused
 // (nothing is replaced), and the record must be plain JSON the slice's own validator accepts. It is the only way a story line makes a person.
 
+import { newNicknames } from '../meters/npc-meters-parts/nickname.js';
+
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const clone = value => JSON.parse(JSON.stringify(value));
 
@@ -24,6 +26,10 @@ export function peopleStub(domain, { initial, validate }) {
                 if (problems.length) return ctx.fail('INVALID', `The new person is not sound: ${problems.join(' ')}`);
                 draft.npcs[id] = clone(record);
                 draft.order.push(id);
+                // A new namesake's nickname (and the other's, if they had the name alone) is part of this very write.
+                let here = '';
+                try { here = ctx.query('scene.place', {})?.name ?? ''; } catch { here = ''; }
+                for (const item of newNicknames(draft, [id], (one, isNew) => one.location || (isNew ? here : ''))) draft.npcs[item.id].aliases = item.aliases;
                 return { summary: `${record.name} added.`, data: { id, stub: true }, narrate: false };
             },
         },

@@ -7,7 +7,7 @@
 // is given: no SillyTavern import.
 
 import { normalizeRelationshipMilestones, normalizeRelationshipProgress } from '../core/core-relationship-model.js';
-import { ownerTargets } from '../npc-api/dossier-target.js';
+import { goneTarget, ownerTargets } from '../npc-api/dossier-target.js';
 import { FEATURE_SOCIAL, SOCIAL_QUERY, createNpcPart, normalizeSecrets } from '../meters/npc-meters.js';
 import { ownersOf } from '../meters/npc-meters-parts/owners.js';
 import { normalizeLimits, presetCatalog } from '../meters/npc-meters-presets.js';
@@ -69,6 +69,8 @@ export function createQueriesPart(session, deps) {
         const owners = ownersOf(npcList());
         return labels.map(dossierOf).find(owners.named(name).length ? npc => npc && owners.sameName(npc.name, name) : Boolean);
     };
+    // The dossier a note hook is asked about: as holderOf, else the dead or archived one whose id was asked (their own notes, nobody else's).
+    const noteHolder = (name, labels = []) => holderOf(name, labels) ?? (goneTarget(npcList(), name) ? runtime()?.getNpc?.(name) : null);
     const storedSettings = () => {
         try { return session.sdkRef?.settings?.(MODULE_ID) ?? {}; } catch { return {}; }
     };
@@ -108,7 +110,7 @@ export function createQueriesPart(session, deps) {
 
     // What a pack secret's gate is read against besides the person's record: their pack stages, the anchors the world has recorded, the scene's place.
     const gateInputs = name => {
-        const npc = dossierOf(name);
+        const npc = noteHolder(name);
         let anchors = [];
         let place = '';
         try { const list = session.sdkRef?.query?.('chronicle.world.anchors', {}); anchors = Array.isArray(list) ? list : []; } catch { anchors = []; }
@@ -145,12 +147,12 @@ export function createQueriesPart(session, deps) {
         // handlers and screens; the texts go to the tail and to an unlocked note's screen line alone.
         // A pack's gated secrets (`gate`, no meter or event) are only read with the world-events switch on; with it off they are not there.
         secretRules: (name, labels = []) => {
-            const npc = holderOf(name, labels);
+            const npc = noteHolder(name, labels);
             const gatedOn = worldSecretsOn();
             return normalizeSecrets(npc?.secrets).filter(note => gatedOn || !note.gate).map(({ id, meter, at, when, title, gate, packId }) => ({ id, ...(meter ? { meter, at } : {}), ...(when ? { when } : {}), ...(gate ? { gate, packId } : {}), ...(title ? { title } : {}) }));
         },
         secretTexts: (name, ids = []) => {
-            const npc = dossierOf(name);
+            const npc = noteHolder(name);
             const gatedOn = worldSecretsOn();
             return normalizeSecrets(npc?.secrets).filter(secret => ids.includes(secret.id) && (gatedOn || !secret.gate)).map(({ id, text }) => ({ id, text }));
         },
