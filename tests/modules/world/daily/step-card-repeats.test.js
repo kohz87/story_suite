@@ -30,9 +30,11 @@ test('a fact the fired line says and then goes on from is left off, irregular pa
 });
 
 test('a fact with one word more, or a "never" the fired line lacks, stays', () => {
-    const opened = { day: 3, text: 'The Binders\' Market in the Undervault opened for the season, with stalls under every arch.', by: 'market', fired: true };
-    const openly = { day: 3, text: 'The Binders\' Market in the Undervault opened openly for the season.', by: 'market' };
-    assert.equal(card([opened, openly]), `World: ${opened.text} ${openly.text}`);
+    // Arsveil's Binders' Market, as the pack words it; and the review's bells
+    for (const [event, news] of [
+        ['With bound goods failing, a Binders\' Market opens for fresh spirits and caught fairies.', 'A market for fresh spirits and caught fairies opened openly.'],
+        ['The shrine bells rang in the lower city at midnight.', 'The shrine bells never rang in the lower city at midnight.'],
+    ]) assert.equal(card([{ day: 3, text: event, by: 'one', fired: true }, { day: 3, text: news, by: 'one' }]), `World: ${event} ${news}`);
     const line = { day: 3, text: 'The wardens of the river gate will open it for the grain barges at dawn.', by: 'gate', fired: true };
     for (const word of ['never', 'not']) {
         const denied = { day: 3, text: `The wardens of the river gate will ${word} open it for the grain barges at dawn.`, by: 'gate' };
