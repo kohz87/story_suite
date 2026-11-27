@@ -19,7 +19,12 @@ function noteFor(item, rest, events) {
     const named = EVENT.exec(rest)?.[1]?.trim();
     if (!named) return reasonNote(item.kind, rest || 'the Director refused it');
     // The name may be quoted as the brief cut it, or with the rest of its line after it.
-    const found = finder(events.flatMap(each => [each?.title, each?.id]).filter(name => typeof name === 'string'))(named);
+    // An event's title and its id are one item.
+    const owners = new Map();
+    events.forEach((each, at) => {
+        for (const name of [each?.title, each?.id]) if (typeof name === 'string') owners.set(name, (owners.get(name) ?? new Set()).add(at));
+    });
+    const found = finder([...owners.keys()], [], name => [...owners.get(name)].join())(named);
     const event = found === null ? null : events.find(each => each?.title === found || each?.id === found);
     return event ? refusalNote(item.kind, event.title) : reasonNote(item.kind, `it decides how "${named}" ends`);
 }

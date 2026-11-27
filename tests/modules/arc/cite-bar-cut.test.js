@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 import { readEventLine } from '../../../modules/arc/plan/read-parts/event-line.js';
 import { finder } from '../../../modules/arc/plan/read-parts/cite-match.js';
 import { worldBriefText } from '../../../modules/arc/plan/prompt-parts/world-brief.js';
+import { applyJudge } from '../../../modules/arc/judge/apply.js';
+import { refusalNote } from '../../../modules/arc/plan/world-guard.js';
 import { judgeContext } from '../../../modules/arc/judge/context.js';
 import { rollPrompt } from '../../../modules/arc/judge/roll-prompt.js';
 import { parseChanges } from '../../../modules/world/changes-parts/parse.js';
@@ -59,4 +61,46 @@ test('long names that print alike share no cut; a title and its own id still rea
         assert.equal(finder(list)(`${flat(names[0], 80)} — they argue`), null);
     }
     assert.notEqual(finder(['Gate | Quay', 'gate-quay'])('Gate / Quay'), null, 'the judge looks an event up by title and id');
+});
+
+const refusalOfCite = (named, events) => {
+    const read = { items: [{ kind: 'beat', key: 'Closure' }], findings: [] };
+    return applyJudge(read, { items: { 1: { verdict: 'refuse', rest: `EVENT "${named}"` } } }, events).refused;
+};
+
+test('names that print alike once marks (* _ `) are folded cite neither', () => {
+    for (const marked of ['Gate / **Quay**', 'Gate / *Quay*', 'Gate / _Quay_', 'Gate / `Quay`']) {
+        for (const names of [['Gate | Quay', marked], [marked, 'Gate | Quay']]) {
+            assert.equal(finder(names)('Gate / Quay'), null, marked);
+            assert.equal(finder(names)('Gate / Quay — The gate is shut.'), null, marked);
+            const out = readEventLine({ key: 'Closure', desc: 'Ships wait', given: { where: 'Town', because: 'Gate / Quay' }, world: { place: () => 'Town', causes: names } });
+            assert.match(out.refused, /cites no cause/);
+        }
+    }
+});
+
+test('a long name whose cut is another event\'s whole name: that form cites neither', () => {
+    for (const stem of ['The long council of the harbour wardens meets again to settle the matter of', 'The long council of the harbour wardens, bailiffs and clerks meets to settle']) {
+        const long = `${stem} tolls on the ferry`;
+        const short = flat(long, 80);
+        assert.notEqual(short, long);
+        for (const names of [[long, short], [short, long]]) {
+            const find = finder(names);
+            assert.equal(find(short), null);
+            assert.equal(find(`${short} — they argue`), null);
+            assert.equal(find(long), long);
+            const out = readEventLine({ key: 'Closure', desc: 'Ships wait', given: { where: 'Town', because: short }, world: { place: () => 'Town', causes: names } });
+            assert.match(out.refused ?? '', /cites no cause/);
+            const events = names.map((title, at) => ({ id: `e${at}`, title, outcomes: [] }));
+            const notes = refusalOfCite(short, events);
+            for (const each of events) assert.notDeepEqual(notes, [refusalNote('beat', each.title)], 'the judge names neither event');
+        }
+    }
+});
+
+test('an event\'s own title and id never clash; the judge still names the event', () => {
+    const gate = { id: 'gate', title: 'Gate', outcomes: [] };
+    for (const named of ['Gate', 'gate']) assert.deepEqual(refusalOfCite(named, [gate]), [refusalNote('beat', 'Gate')]);
+    const other = { id: 'GATE', title: 'Quay', outcomes: [] };
+    assert.notDeepEqual(refusalOfCite('Gate', [gate, other]), [refusalNote('beat', 'Gate')], 'another event\'s id that prints the same still clashes');
 });
