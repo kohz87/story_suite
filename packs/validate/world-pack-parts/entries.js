@@ -53,7 +53,8 @@ function checkAnchorRecord(anchor, text, ctx, field) {
     } else if (kind === 'arc-ended') { if (!arcEndedKnown(id, text, ctx, field)) return null;
     } else if (kind === 'learned') {
         if (!learnedKnown(id, text, ctx, field)) return null;
-    } else if (kind === 'fact') ctx.collect.factRefs.add(id);
+    // A fact only a likelier_if / less_if weighs (set by the story or by hand) is no gap: only an anchor or gate that waits on it is checked for a writer.
+    } else if (kind === 'fact') { if (!/^(likelier_if|less_if)\./.test(field)) ctx.collect.factRefs.add(id); }
     else if (kind === 'season' && !ctx.index.knowsSeason(id)) ctx.collect.warnings.push([field, `"${text}": "${id}" is not a season the built-in calendar or this pack's weather knows.`]);
     else if (kind === 'set' || kind === 'cleared') {
         if (!ctx.index.condition(id)) return ctx.say(field, `"${text}": "${id}" is not a condition this pack declares.`, 'UNKNOWN_REF'), null;

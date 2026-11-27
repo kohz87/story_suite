@@ -2,10 +2,10 @@
   "id": "ersveil-game",
   "format": 4,
   "kind": "game",
-  "version": "1.2.0",
-  "name": "Ersveil rules",
+  "version": "1.2.1",
+  "name": "Frontier rules",
   "author": "Story Suite examples",
-  "description": "Calendar, coins, guild ranks, names and trackers for Ersveil",
+  "description": "Calendar, coins, guild ranks, names and trackers for the Ersveil and Arsveil worlds",
   "requires": {
     "suite": "^0.1",
     "capabilities": [

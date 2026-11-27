@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Packs: the rules pack Ersveil and Arsveil share is now called "Frontier rules" (1.2.1); nothing in it changed. Installing a world no longer lists facts that only make events likelier as "Ignored".
 - NPC State: people who share a name are told apart by their nicknames: the story names the right one, and a line that can't tell which is refused.
 - NPC State: a dead person's own secrets can still be opened by a story line that reveals one.
 - NPC State: someone whose nickname is another person's name no longer shares that person's feelings, stages or opened secrets, alive or dead.

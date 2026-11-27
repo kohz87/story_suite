@@ -251,7 +251,7 @@ for the reader (Settings › Packs and trackers, Data modules in this chat, whic
 the key is never filled in, so a definition without it keeps its hash. Until it is pinned nothing of it is in the prompt or the state.
 
 **The holding.** A chat-scope module with the slug `holding` and the fields `founded` (bool), `seat` and `region` (text) is the player's
-holding (Ersveil rules). Code reads it through the `dataModules.holding` query (its fields once founded, else null), tells it in one line of its
+holding (Frontier rules). Code reads it through the `dataModules.holding` query (its fields once founded, else null), tells it in one line of its
 own in the tail (`modules/data-modules/holding/tail.js`), asks for the month's lines after a reply that began a new calendar month, and, with
 World events on, has the anchors `fact:pc-holding-founded` and `fact:pc-seat-claimed`. Whether each counts is asked of the holding as it
 stands (`modules/world/chronicle/world-daily/holding-facts.js`): the first needs a founded holding, the second also a seat, so a deleted

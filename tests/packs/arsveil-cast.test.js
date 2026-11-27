@@ -20,7 +20,7 @@ test('the eleven are all kept, with no cast Problem', () => {
     const result = validatePack(text);
     assert.equal(result.ok, true, JSON.stringify(result.errors));
     assert.deepEqual(result.pack.content.cast.map(person => person.id), IDS);
-    assert.deepEqual(result.warnings.filter(warning => warning.path.startsWith('content.cast')), []);
+    assert.deepEqual((result.warnings ?? []).filter(warning => warning.path.startsWith('content.cast')), []);
 });
 
 test('NPC State cuts none of their texts or secrets', () => {

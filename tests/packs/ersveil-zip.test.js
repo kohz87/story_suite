@@ -53,7 +53,7 @@ test('importing the shipped zip into a fresh store installs the world and its ga
     const made = createPacksPart({ settings: fakeSettings(), portraitFiles });
     const result = await importPicked(made.packs, [zipFile()]);
     assert.deepEqual(result.errors, []);
-    assert.equal(result.text, 'Installed Ersveil (open world). Installed Ersveil rules (its game pack). 31 portraits saved.');
+    assert.equal(result.text, 'Installed Ersveil (open world). Installed Frontier rules (its game pack). 31 portraits saved.');
     assert.equal(portraitFiles.files.size, 31);
     const list = made.packs.list();
     assert.deepEqual(list.map(entry => [entry.id, entry.kind, entry.enabled]), [['ersveil', 'world', true], ['ersveil-game', 'game', true]]);

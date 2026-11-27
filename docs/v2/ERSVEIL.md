@@ -3,7 +3,7 @@
 Ersveil is a world of two format 4 packs:
 
 * the **world pack** `ersveil` 4.0.0 ([`examples/packs/ersveil/pack.json`](../../examples/packs/ersveil/pack.json)): the lore, 320 places, 352 routes, 103 world events, 31 people (12 of them companions with portraits) and the start;
-* the **game pack** `ersveil-game` 1.2.0, "Ersveil rules" ([`examples/packs/ersveil-game/pack.json`](../../examples/packs/ersveil-game/pack.json)): the calendar, the coins, the weather, the Guild rank, the RPG skill set and four data modules (three, and Your Holding, which is off until you turn it on).
+* the **game pack** `ersveil-game` 1.2.1, "Frontier rules" ([`examples/packs/ersveil-game/pack.json`](../../examples/packs/ersveil-game/pack.json)): the calendar, the coins, the weather, the Guild rank, the RPG skill set and four data modules (three, and Your Holding, which is off until you turn it on).
 
 `examples/packs/ersveil.zip` holds both (`pack.json`, `game.json`, the twelve portraits and `CONVERSION-NOTES.md`). The packs are edited directly and the zip is built by `node scripts/core/build-example-zip.mjs`. A story begins at Bluewatch Village, in the Guild Office, with 40 copper ("4 silver").
 
@@ -22,7 +22,7 @@ Install Story Block and Story Director (SillyTavern → Extensions → Install e
 ## 2. Set up a chat
 
 1. **Install the pair.** In Settings › Packs, press **Import a pack file**. Pick `ersveil.zip` (it holds both packs and the twelve portraits). Or import `pack.json` first, then `game.json`. A file picked alone brings no portraits.
-2. **Pick World and Game.** Under **World and game**, set World to "Ersveil (open world)" and Game to "Ersveil rules". The world suggests that game, so a card may offer **Use it**.
+2. **Pick World and Game.** Under **World and game**, set World to "Ersveil (open world)" and Game to "Frontier rules". The world suggests that game, so a card may offer **Use it**.
 3. **Create the lorebook.** With a chat with your narrator card open (below), press **Create the lorebook from this pack** on the Ersveil row, keep **Use with this character** ticked and confirm. This makes the SillyTavern book "Ersveil (open world) (Story Suite)" from the pack's lore and attaches it to that character: linked as its lorebook, or added to its lorebooks when the card has its own. Every chat with the card reads it; the chat lorebook is left alone. See [PACKS.md](PACKS.md), "Lore and the lorebook".
 4. **Start a new chat.** A chat takes the world and game it begins with and keeps that choice.
 

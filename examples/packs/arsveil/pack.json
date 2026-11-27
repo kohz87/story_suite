@@ -17,7 +17,7 @@
 		"game": {
 			"id": "ersveil-game",
 			"version": "^1.0",
-			"name": "Ersveil rules"
+			"name": "Frontier rules"
 		}
 	},
 	"placeIds": true,

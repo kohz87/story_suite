@@ -30,7 +30,7 @@ A running chat keeps the old modules and keeps working. To take the new version 
 
 ## How do I start my own company, fief or trading house?
 
-With the Ersveil rules, turn on **Your Holding** first: it is off until you do. Open [Settings → Packs and trackers](settings:packs), find Data modules in this chat and switch on Your Holding; it then stays on for that chat. Then say it in the story, for example "we raise a palisade on the hill and call it Ravenhold". A paid month gives +2 loyalty (up to 100) and an unpaid one costs 15. If the story writes a second month line in the same story month, the upkeep is charged again.
+With the Frontier rules (Ersveil and Arsveil), turn on **Your Holding** first: it is off until you do. Open [Settings → Packs and trackers](settings:packs), find Data modules in this chat and switch on Your Holding; it then stays on for that chat. Then say it in the story, for example "we raise a palisade on the hill and call it Ravenhold". A paid month gives +2 loyalty (up to 100) and an unpaid one costs 15. If the story writes a second month line in the same story month, the upkeep is charged again.
 
 Your holding also has officer posts (steward, marshal, spymaster, healer or chaplain, quartermaster and envoy), each a small bonus. Once it has a seat, have someone stay there and say it in the story, for example "Mara stays at Ravenhold as steward". They must not be travelling with you. A holder who travels with you again, or dies, leaves the post.
 
