@@ -86,7 +86,7 @@ export const STORY_STRINGS = Object.freeze({
         benchOne: '{name} · Lv {level}',
         benchNot: 'Not now',
         benchDone: '{left} left the party (benched) · {name} joined.',
-        benchAsked: 'Asked: {name} could join, but the party is full ({max} active). The reader picks who to bench on the reply\'s card.',
+        benchAsked: 'Asked: {name} could join, but the party is full ({max} active; pick who to bench on the reply\'s card).',
         benchNote: '{left} left the party (benched) to make room for {name}.',
         benchRoom: 'the party has room now; use Add to party',
         benchWhom: 'choose a member who is in the party now, and who is not you',
