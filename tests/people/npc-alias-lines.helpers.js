@@ -8,11 +8,14 @@ export const note = (who, extra) => ({ id: ID, title: `${who} title`, when: `${w
 export const person = (id, name, aliases = [], extra = {}) => ({ id, name, aliases, present: true, relationship: { trust: 10, affection: 0, desire: 0, tension: 0 }, ...extra });
 export const DEATH = { archived: true, present: false, lifeState: 'deceased', lifeStateCertainty: 'explicit' };
 
-export async function cast(...records) {
+export const cast = (...records) => castWith(null, ...records);
+
+// The same with feature switches ({ [feature id]: true }) and the host's answers to queries.
+export async function castWith(options, ...records) {
     const delta = fakeDelta();
     delta.records = Object.fromEntries(records.map(record => [record.id, record]));
     const publicPaths = [];
-    const h = await host({ delta, linesMode: true, publicPaths });
+    const h = await host({ delta, linesMode: true, publicPaths, ...options });
     h.publicPaths = publicPaths;
     h.bonds = () => h.store.head().domains.people.bonds?.npcs ?? {};
     const send = text => h.reply('Later.', text).results[0];

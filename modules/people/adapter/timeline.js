@@ -350,13 +350,20 @@ export function createTimelinePart(session, deps) {
             } catch { return null; }
         };
         const byKey = Object.fromEntries(rows.map(row => [row.key, row]));
-        // Each row with its owner and the name it goes out under (the owner's, when the row's old name is now another dossier's).
+        // Each row with its owner and the name it goes out under: the owner's, when the row's old name is now another dossier's or no longer one of theirs.
         const paired = rows.map(row => {
             const owner = owners.ownerOf(byKey, row.key);
-            const moved = owner && !owners.sameName(owner.name, row.name) && owners.named(row.name).length > 0;
+            const moved = owner && !owners.sameName(owner.name, row.name)
+                && (owners.named(row.name).length > 0 || !owners.aliased(row.name).some(npc => npc.id === owner.id));
             return { row, owner, name: moved ? owner.name : row.name };
         });
         const owned = new Set(paired.filter(item => item.owner && item.owner.archived !== true).map(item => fold(item.name)));
+        // An entry that is nobody's (left over after a merge) is present when the one dossier that has its name as an alias is.
+        const aliasHere = name => {
+            if (owners.named(name).length) return false;
+            const holders = owners.aliased(name).filter(npc => npc.archived !== true);
+            return holders.length === 1 && holders[0].present === true;
+        };
         const people = [];
         const taken = new Set();
         const shownIds = new Set();
@@ -366,7 +373,7 @@ export function createTimelinePart(session, deps) {
             const meters = {};
             for (const def of shown) if (Number.isFinite(row.meters?.[def.id])) meters[def.id] = row.meters[def.id];
             people.push({
-                name, meters, hiddenMeters, present: owner ? owner.present === true : here.has(fold(name)),
+                name, meters, hiddenMeters, present: owner ? owner.present === true : here.has(fold(name)) || aliasHere(name),
                 ...(typeof fields?.mood === 'string' ? { mood: fields.mood } : {}),
             });
             taken.add(fold(name));

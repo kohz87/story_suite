@@ -205,8 +205,8 @@ export function createEditorSave(rt, deps, helpers) {
             return false;
         }
         if (hostedMeters && (meterEdits || v2Edits)) {
-            if (meterEdits) await hostedMeters.setMeters({ name: current.name, meters: meterEdits });
-            if (v2Edits) await hostedMeters.applyEditor(savedName, v2Edits);
+            if (meterEdits) await hostedMeters.setMeters({ id: current.id, name: current.name, meters: meterEdits });
+            if (v2Edits) await hostedMeters.applyEditor({ id: current.id, name: savedName }, v2Edits);
             // The notes opened or shut by hand change the dossier's Secrets section: draw it from the slice as it now stands.
             renderDossier();
             updateInjection();

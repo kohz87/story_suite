@@ -55,7 +55,7 @@ test('the dossier editor: hosted, it edits the slice and the hidden notes; alone
     assert.deepEqual({ meter: hosted.secrets[0].meter, at: hosted.secrets[0].at, text: hosted.secrets[0].text }, { meter: 'trust', at: 40, text: 'She hides a map of the old mine.' });
     assert.match(hosted.secrets[0].id, /^sec_[0-9a-z]{8}$/);
     assert.deepEqual(hosted.sent.map(item => item.type), ['npc.set', 'npc.refresh']);
-    assert.equal(hosted.sent[0].payload.name, 'Yunyun');
+    assert.equal(hosted.sent[0].payload.name, 'npc_yunyun');
     assert.deepEqual(hosted.sent[0].payload.meters, { trust: 45 });
     assert.equal(hosted.injectionHasNote, false, 'a locked note is never in Delta\'s injection');
 
@@ -118,8 +118,8 @@ test('the dossier editor (hosted): limits to the dossier, milestones and custom 
     assert.equal(hosted.shown.people_edit_meter_limits, '');
     assert.deepEqual(hosted.meterSetup, { track: '', limits: { affection: { ceiling: 40 } } }, 'the readable limit is kept on the dossier');
     assert.deepEqual(hosted.sent.map(item => item.type), ['npc.set', 'npc.milestone', 'npc.refresh']);
-    assert.deepEqual(hosted.sent[0].payload, { name: 'Yunyun', meters: { loyalty: 33 } });
-    assert.deepEqual(hosted.sent[1].payload, { name: 'Yunyun', add: ['kept the oath'], remove: ['old-debt'] });
+    assert.deepEqual(hosted.sent[0].payload, { name: 'npc_yunyun', meters: { loyalty: 33 } });
+    assert.deepEqual(hosted.sent[1].payload, { name: 'npc_yunyun', add: ['kept the oath'], remove: ['old-debt'] });
     assert.equal(hosted.hasMeterViews, true);
 
     const alone = scenarioOutput(runHostScenario('meters-editor-ladder-alone', async () => {}, `async () => { const editorLadderScenario = ${editorLadderScenario.toString()}; await editorLadderScenario(); }`));
@@ -228,14 +228,14 @@ test('hosted: the scan watches present people\'s event notes, and a story event 
     assert.equal(result.watched, true, 'the scan lists the event with a key');
     assert.equal(result.leaksText, false, 'the note\'s text never goes to the scanner');
     assert.equal(result.opened.length, 1, 'one npc.open, for the key the exchange showed (an unknown key is ignored)');
-    assert.deepEqual(result.opened[0].payload, { name: 'Yunyun', open: [result.noteId], by: 'story' });
+    assert.deepEqual(result.opened[0].payload, { name: 'npc_yunyun', open: [result.noteId], by: 'story' });
     assert.deepEqual(result.opened[0].options, { background: true }, 'sent as Delta\'s own action, and as a background change (Story Block\'s late save window)');
     assert.equal(result.watchedAgain, false, 'an opened note is not watched again');
 });
 
 test('index.js: after the editor applies its notes to the slice the dossier is drawn again, and the scan carries the hosted notes\' options only while hosted', () => {
     const index = runtimeSource();
-    assert.match(index, /await hostedMeters\.applyEditor\(savedName, v2Edits\);\n[^\n]*\n            renderDossier\(\);\n            updateInjection\(\);/);
+    assert.match(index, /await hostedMeters\.applyEditor\(\{ id: current\.id, name: savedName \}, v2Edits\);\n[^\n]*\n            renderDossier\(\);\n            updateInjection\(\);/);
     assert.match(index, /const hostedNotes = hostedMeters\(\);\n        const noteOptions = hostedNotes && !capture \? hostedNotePromptOptions\(state, settings, messageId\) : \{\};/);
     assert.match(index, /const eventWatch = capture \? \(Array\.isArray\(capture\.watch\) \? capture\.watch : \[\]\) : \(noteOptions\.eventWatch \|\| \[\]\);/);
     assert.match(index, /if \(hostedNotes && settings\.layeredSecrets !== false\) attachGeneratedSecrets\(nextState, newlyAdmittedIds, parsedForMerge, resolvedParsed, parsed\);/);

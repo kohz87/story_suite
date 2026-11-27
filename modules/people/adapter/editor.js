@@ -327,7 +327,7 @@ export function createEditorPart(session, deps) {
             const done = new Set([...(slice?.unlocked ?? []), ...(slice?.held ?? [])]);
             const gated = normalizeSecrets(npc.secrets).filter(note => note.gate && !done.has(note.id));
             if (!gated.length) continue;
-            const inputs = gateInputs(npc.name);
+            const inputs = gateInputs(npc.id);
             const first = gated.find(note => gateOpen(note, slice ?? {}, byId, inputs));
             if (first) out.set(npc.id, first);
         }

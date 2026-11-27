@@ -56,10 +56,10 @@ export const timers = {
     setTimeout: () => 0, clearTimeout() {}, setInterval: () => ({ unref() {} }), clearInterval() {},
 };
 
-export async function host({ settings = {}, delta = fakeDelta(), headReply = () => null, features = null, answers = {}, linesMode = false, publicPaths = null } = {}) {
+export async function host({ settings = {}, delta = fakeDelta(), headReply = () => null, features = null, answers = {}, linesMode = false, publicPaths = null, commandFeatures = false } = {}) {
     const chat = [{ is_user: false, name: 'Narrator', mes: 'The forge is warm.', swipe_id: 0, swipes: ['The forge is warm.'], swipe_info: [{ extra: {} }], extra: {} }];
     chat[0].swipe_info[0].extra = chat[0].extra;
-    const registry = createRegistry();
+    const registry = createRegistry(commandFeatures ? { featureValue: id => features?.[id] } : {});   // (commandFeatures: commands see the switches too)
     // The host's people domain (Story Block's core part): NPC State keeps its meters in its `bonds`.
     registry.register({ id: 'story-block', name: 'Story Block', ...createPeoplePart() });
     const store = createStore({ chat: () => chat, save: async () => {}, seed: name => registry.deferredInitial(name), holders: name => registry.holders(name) });

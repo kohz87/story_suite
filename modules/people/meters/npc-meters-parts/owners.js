@@ -11,6 +11,7 @@ const PEOPLE_ID = /^npc_[\p{L}\p{N}_-]{1,100}$/u;
  *   ids()         every stored id
  *   record(id)    that dossier ({ ...record, id }) or null
  *   named(label)  the dossiers whose own name this is (any case)
+ *   aliased(label)  the dossiers that have this name as an alias
  *   entryKey(npcs, person, asked?) → the key of `person`'s ({ id?, name, aliases? }) entry in `npcs`, or null; `person.labels` is not read.
  *     Their own id first; else an entry under a key that is nobody else's id, found by their name, then `asked` and their aliases (labels(person, asked)).
  *   sameName(a, b)  the one comparison of two names (their slugs, as entry keys are matched)
@@ -73,5 +74,5 @@ export function ownersOf(people) {
         const name = npcs?.[key]?.name;
         return named(name).length || aliased(name).length ? { name: '', labels: [] } : { name, labels: given ?? [name] };
     };
-    return { has, ids: () => Object.keys(byId).filter(has), record, named, labels, entryKey, sameName, ownerOf, asking };
+    return { has, ids: () => Object.keys(byId).filter(has), record, named, aliased, labels, entryKey, sameName, ownerOf, asking };
 }

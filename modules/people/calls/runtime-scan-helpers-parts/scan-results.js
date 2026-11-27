@@ -21,7 +21,7 @@ export function relationshipChanges(prior, after, baseline, messageId, onePassRo
         const fresh = last && JSON.stringify(last) !== JSON.stringify(prior.get(npc.id)?.lastRelationshipChange);
         const why = onePassRows ? onePassEvidence(onePassRows, npc) : null;
         const reason = fresh ? String(last.reason ?? '').trim() : '';
-        if (Object.keys(meters).length || why) changes.push({ name: npc.name, meters, start: from, reply: messageId, ...(fresh && typeof last.impact === 'string' ? { impact: last.impact } : {}), ...(reason ? { reason } : {}), ...(why ? { why } : {}) });
+        if (Object.keys(meters).length || why) changes.push({ id: npc.id, name: npc.name, meters, start: from, reply: messageId, ...(fresh && typeof last.impact === 'string' ? { impact: last.impact } : {}), ...(reason ? { reason } : {}), ...(why ? { why } : {}) });
     }
     return changes;
 }

@@ -167,6 +167,17 @@ export function createPeopleAdapter({
     Object.assign(deps, editorPart);
     const { watchers, pageApi, offerPage } = castUiPart;
     const { storyDateText, storyDayNumber, dossierOf, part, sliceEntries, entryFor, ownersNow, partyLevelsAnswer, awayAnswer, awayReadable, awayMemory, castAnswer, castPeople, castMade, packNames, placeName, packPortraitUrl, castGearLine, directorCalendar, send, sliceView, worldSecretsOn } = queriesPart;
+    // What a command about a held dossier goes out under: its id (namesakes, a dead one beside a living one), when the stored or live dossiers have it;
+    // else the name (for an id neither has, the host would make a person out of the id's text).
+    const targetOf = (id, name) => (id && (ownersNow().has(id) || dossierOf(id)?.id === id) ? id : name);
+    // Whose entry a send is about: that dossier (a dead or archived one by its stored record), else the one the name or stored id finds.
+    const holderFor = (id, name, owners) => (id ? dossierOf(id) ?? owners.record(id) : null) ?? dossierOf(name) ?? owners.record(name) ?? { name };
+    const entryOf = (id, name) => {
+        const entries = sliceEntries();
+        if (!entries) return null;
+        const owners = ownersNow();
+        return entryFor(entries, holderFor(id, name, owners), owners);
+    };
     const { ownPrompt, storyClock, calendarLink, definition, scenePresentNames } = timelinePart;
     const { poll, unhost, check } = connectPart;
     const { editorHtml, readEditor, dossierMeters, eventWatch } = editorPart;
@@ -178,29 +189,25 @@ export function createPeopleAdapter({
         /** The cast API Story Director's World screen uses (the handle's castApi). */
         pageApi,
         /** While hosted: Delta's scanner changes for one NPC → `npc.adjust` (a promise of the result, or null); `why`: a one-pass block's evidence per meter. */
-        adjust: ({ name, meters, start, reply, impact, reason, why, guard } = {}) => send('npc.adjust', { name, meters, ...(start ? { start } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}), ...(typeof impact === 'string' ? { impact } : {}), ...(typeof reason === 'string' && reason.trim() ? { reason } : {}), ...(why && typeof why === 'object' ? { why } : {}) }, { own: true, background: true, guard }),
+        adjust: ({ id, name, meters, start, reply, impact, reason, why, guard } = {}) => send('npc.adjust', { name: targetOf(id, name), meters, ...(start ? { start } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}), ...(typeof impact === 'string' ? { impact } : {}), ...(typeof reason === 'string' && reason.trim() ? { reason } : {}), ...(why && typeof why === 'object' ? { why } : {}) }, { own: true, background: true, guard }),
         /** While hosted: Delta's scan admitted a person → `npc.meet` (an entry with the dossier's meters, a resting mood and drives, like a cast meeting). */
-        meet: ({ name, personality, about, reply, guard } = {}) => send('npc.meet', { name, ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}), ...(personality ? { personality: String(personality).slice(0, 600) } : {}), ...(about ? { about: String(about).slice(0, 600) } : {}) }, { own: true, background: true, guard }),
+        meet: ({ id, name, personality, about, reply, guard } = {}) => send('npc.meet', { name: targetOf(id, name), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}), ...(personality ? { personality: String(personality).slice(0, 600) } : {}), ...(about ? { about: String(about).slice(0, 600) } : {}) }, { own: true, background: true, guard }),
         /** While hosted: Delta's scan wrote a new mood word for a person → `npc.mood` (its numbers: the three the scan gave, else the fixed word list; with the reason the scan recorded). */
-        mood: ({ name, word, vad, reason, reply, again, personality, about, guard } = {}) => send('npc.mood', { name, word: String(word ?? '').slice(0, 220), ...(vad ? { vad } : {}), ...(personality ? { personality: String(personality).slice(0, 600) } : {}), ...(about ? { about: String(about).slice(0, 600) } : {}), ...(again === true ? { again: true } : {}), ...(reason ? { reason: String(reason).slice(0, 200) } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true, guard }),
+        mood: ({ id, name, word, vad, reason, reply, again, personality, about, guard } = {}) => send('npc.mood', { name: targetOf(id, name), word: String(word ?? '').slice(0, 220), ...(vad ? { vad } : {}), ...(personality ? { personality: String(personality).slice(0, 600) } : {}), ...(about ? { about: String(about).slice(0, 600) } : {}), ...(again === true ? { again: true } : {}), ...(reason ? { reason: String(reason).slice(0, 200) } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true, guard }),
         /** While hosted: what a scan newly recorded for one person (plain strings) → `npc.drives` (drive growth, rule 1). Only with the notes feature on and for a person who already has meters; else null. */
-        drives: ({ name, texts: given, before, after, reply, guard } = {}) => ((texts) => !texts.length || part.featureOn(FEATURE_NOTES) !== true || !(() => { const entries = sliceEntries(); return Boolean(entries && entryFor(entries, dossierOf(name) ?? { name })); })() ? null
-            : send('npc.drives', { name, texts: texts.slice(0, 12).map(text => String(text).slice(0, 200)), rule: 1, ...(after?.role ? { ignore: String(after.role).slice(0, 120) } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true, guard }))(Array.isArray(given) ? given : driveEvidence(before, after)),
+        drives: ({ id, name, texts: given, before, after, reply, guard } = {}) => ((texts) => !texts.length || part.featureOn(FEATURE_NOTES) !== true || !entryOf(id, name) ? null
+            : send('npc.drives', { name: targetOf(id, name), texts: texts.slice(0, 12).map(text => String(text).slice(0, 200)), rule: 1, ...(after?.role ? { ignore: String(after.role).slice(0, 120) } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true, guard }))(Array.isArray(given) ? given : driveEvidence(before, after)),
         /** While hosted: Delta's scan tells the slice a person's look was first set (`lock`) or contradicted (`drift: { before, incoming }`, worded by npc-notes-look.js; or `text`, `cue`) → `npc.flag`. Only with the notes feature on and for a person who already has meters (a flag never makes an entry); else null. */
-        flag: ({ name, text: said, cue: told, lock, reply, drift, guard } = {}) => ((text, cue) => (!text && lock !== true ? null : part.featureOn(FEATURE_NOTES) === true && (() => { const entries = sliceEntries(); return Boolean(entries && entryFor(entries, dossierOf(name) ?? { name })); })() ? send('npc.flag', { name, ...(text ? { text } : {}), ...(cue ? { cue } : {}), ...(lock === true ? { lock: true } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true, guard }) : null))(said || (drift ? lookDrift(drift.before, { ...drift, name }) : ''), told || (drift ? lookFlagWording(name, drift.before) : '')),
+        flag: ({ id, name, text: said, cue: told, lock, reply, drift, guard } = {}) => ((text, cue) => (!text && lock !== true ? null : part.featureOn(FEATURE_NOTES) === true && entryOf(id, name) ? send('npc.flag', { name: targetOf(id, name), ...(text ? { text } : {}), ...(cue ? { cue } : {}), ...(lock === true ? { lock: true } : {}), ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true, guard }) : null))(said || (drift ? lookDrift(drift.before, { ...drift, name }) : ''), told || (drift ? lookFlagWording(name, drift.before) : '')),
         /** While hosted: the tastes a Refresh read (`tastes`: [{ sign, item, from }]) → `npc.taste`, recorded on `reply`. Only for a person who already has meters and with the notes feature on; else null. (A Refresh no longer sends tastes: it only reads them.) */
-        tastes: ({ name, tastes, reply } = {}) => (part.featureOn(FEATURE_NOTES) === true && Array.isArray(tastes) && tastes.length && (() => { const entries = sliceEntries(); return Boolean(entries && entryFor(entries, dossierOf(name) ?? { name })); })()
-            ? send('npc.taste', { name, tastes, ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true }) : null),
+        tastes: ({ id, name, tastes, reply } = {}) => (part.featureOn(FEATURE_NOTES) === true && Array.isArray(tastes) && tastes.length && entryOf(id, name)
+            ? send('npc.taste', { name: targetOf(id, name), tastes, ...(Number.isInteger(reply) && reply >= 0 ? { reply } : {}) }, { own: true, background: true }) : null),
         /** While hosted: the reader's own values from the dossier editor → `npc.set` (the host's latest reply; headReply). */
-        setMeters: ({ name, meters } = {}) => send('npc.set', { name, meters }),
+        setMeters: ({ id, name, meters } = {}) => send('npc.set', { name: targetOf(id, name), meters }),
         /** While hosted: stages and notes again for one NPC (after its notes were edited) → `npc.refresh`. */
         refresh: name => send('npc.refresh', { name }),
         /** While hosted: one NPC's slice entry (npc.meters), or null. */
-        meters: name => {
-            const entries = sliceEntries();
-            const npc = dossierOf(name) ?? { name };
-            return entries ? entryFor(entries, npc) : null;
-        },
+        meters: name => entryOf(null, name),
         /** While hosted: for one pass over several dossiers, `npc => whether that held dossier has an entry` (the entries and owners read once). */
         meterHolders: () => {
             const entries = sliceEntries();
@@ -286,8 +293,9 @@ export function createPeopleAdapter({
          * While hosted, after the dossier was saved: the editor's milestones and custom meter values
          * go to the slice (npc.milestone, npc.set), then stages and notes are settled again (npc.refresh).
          */
-        applyEditor: async (name, edits = {}) => {
+        applyEditor: async (who, edits = {}) => {   // `who`: a name or id, or { id, name } of the saved dossier
             if (!session.hosted) return null;
+            const name = typeof who === 'string' ? who : targetOf(who?.id, who?.name);
             if (edits.meters && Object.keys(edits.meters).length) await send('npc.set', { name, meters: edits.meters });
             if (edits.milestones) await send('npc.milestone', { name, add: edits.milestones.add ?? [], remove: edits.milestones.remove ?? [] });
             if (edits.noteStates) await send('npc.open', { name, open: edits.noteStates.open ?? [], close: edits.noteStates.close ?? [] });
@@ -302,7 +310,7 @@ export function createPeopleAdapter({
         /** The place names Story Director's Atlas knows (its `atlas.places` query), [] when it is not there or cannot answer: capitalised words that are places name no one (NSD16). */
         places: () => { try { const got = session.hosted ? session.sdkRef.query('atlas.places', {}) : null; return (Array.isArray(got) ? got : []).flatMap(place => [place?.name, ...(Array.isArray(place?.aliases) ? place.aliases : [])]).filter(name => typeof name === 'string' && name); } catch { return []; } },
         /** While hosted: a story event the scan saw opens these notes of one NPC → `npc.open` (Delta's own send). */
-        openByEvent: ({ name, ids } = {}) => send('npc.open', { name, open: ids, by: 'story' }, { own: true, background: true }),
+        openByEvent: ({ id, name, ids } = {}) => send('npc.open', { name: targetOf(id, name), open: ids, by: 'story' }, { own: true, background: true }),
         /** The notes a scan wrote for someone new, cleaned to 2 to 5 layers (src/npc-meters.js normalizeGeneratedSecrets). */
         generatedSecrets: list => normalizeGeneratedSecrets(list),
         /** While hosted: Delta's per-reply step now (the host's 'turn' event sends it on its own). */

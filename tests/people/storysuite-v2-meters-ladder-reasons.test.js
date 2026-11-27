@@ -76,8 +76,8 @@ test('hosted forward: a one-pass scan sends its evidence with npc.adjust (also w
     const records = Object.values(ownerRecords());
     const onePass = await forwardParts.forward(records, records, 4, OWNER_ROWS, true);
     assert.deepEqual(onePass, [
-        { name: 'Sieke', meters: {}, start: { trust: 0, affection: 0, desire: 0, tension: 0 }, reply: 4, why: { trust: SIEKE_TRUST, tension: SIEKE_TENSION } },
-        { name: 'Sister Temiwa', meters: {}, start: { trust: 0, affection: 0, desire: 0, tension: 0 }, reply: 4, why: { trust: TEMIWA_TRUST } },
+        { id: 'npc_sieke', name: 'Sieke', meters: {}, start: { trust: 0, affection: 0, desire: 0, tension: 0 }, reply: 4, why: { trust: SIEKE_TRUST, tension: SIEKE_TENSION } },
+        { id: 'npc_sister-temiwa', name: 'Sister Temiwa', meters: {}, start: { trust: 0, affection: 0, desire: 0, tension: 0 }, reply: 4, why: { trust: TEMIWA_TRUST } },
     ]);
     assert.deepEqual(await forwardParts.forward(records, records, 4, OWNER_ROWS, false), [], 'a scanner scan: nothing new is sent');
     const moved = records.map(npc => (npc.id === 'npc_sieke' ? { ...npc, relationship: { ...npc.relationship, trust: 1 } } : npc));
