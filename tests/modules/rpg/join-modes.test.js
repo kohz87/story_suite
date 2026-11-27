@@ -181,3 +181,13 @@ test('Ask: Add to party makes the companion as Automatically does; the card goes
     assert.deepEqual(host.sdk.query('rpg.joins', {}), [], 'and the offer');
     await rebuilt(host, 'after the swipe');
 });
+
+// The reader sees the offer's receipt line (the reply's card, the Journal day), so it speaks to them, not about "the reader".
+test('Ask: the offer\'s line names the card\'s buttons', { skip }, async t => {
+    const host = await world({ mode: 'ask' });
+    t.after(() => host.close());
+    await host.send('Mara asks.', reply(MARA));
+    const said = lastReceipts(host).map(receipt => receipt.summary).join(' ');
+    assert.match(said, /Asked: Mara could join the party \(Add to party, Edit first or No on the reply's card\)\./);
+    assert.doesNotMatch(said, /The reader/);
+});

@@ -14,7 +14,7 @@ import { tempoOf } from '../world-daily/tempo.js';
 import { partyRegionOf, seatRegionOf } from '../world-daily/party-region.js';
 import { unheldFacts } from '../world-daily/holding-facts.js';
 import { buildGeo } from '../../daily/geo.js';
-import { eventWords } from '../../daily/event-words.js';
+import { eventWords, townBind } from '../../daily/event-words.js';
 import { refLabel } from '../../daily/region-label.js';
 import { ask as askQuery } from '../queries-parts/shared-ask.js';
 
@@ -54,7 +54,7 @@ export function rollCandidates(view, { all = false, settings = null } = {}) {
         if (!open || !(all || fires)) return null;
         // In words, never ids: the judge may quote them in a reason the reader sees.
         const words = eventWords(geo, def, row.bind);
-        const place = String(row.bind?.place ?? (Array.isArray(def.where?.refs) ? def.where.refs.slice(0, 2).map(ref => refLabel(geo, ref)).join(', ') : ''));
+        const place = String(townBind(geo, row.bind)?.place ?? (Array.isArray(def.where?.refs) ? def.where.refs.slice(0, 2).map(ref => refLabel(geo, ref)).join(', ') : ''));
         return { id: def.id, title: words.label, summary: words.text, place, certainty: def.certainty, fires };
     }).filter(Boolean).slice(0, MAX);
     return items.length ? { day, items } : null;

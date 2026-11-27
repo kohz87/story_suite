@@ -5,17 +5,16 @@
 
 import { EVENT_LINE_RULE, WORLD_EVENT_RULE } from './world-rule.js';
 import { DESC_POINTS, KEY_POINTS, PART_POINTS, flat } from '../shared.js';
-import { lineKey } from '../../../world/changes.js';
 
 const SECRETS_RULE = 'Secrets not yet learned (never surface or hint at them in a beat, clock or agenda; they come out only when the story earns it):';
 
 /**
- * A world event's line: "name — now". A name that is only the start of `now` (an event with no title is named by its summary) is not said
- * twice; the line is then `now`.
+ * A world event's line: "name — now". The name is said on its own even when `now` starts with it (an event with no title is named by its
+ * summary): it is what an EVENT line and the judge cite.
  */
 export function eventLine(name, now, cut = (text, points) => flat(text, points)) {
     if (!now) return cut(name, DESC_POINTS);
-    return lineKey(now).startsWith(lineKey(name)) ? cut(now, DESC_POINTS) : `${cut(name, KEY_POINTS)} — ${cut(now, DESC_POINTS)}`;
+    return `${cut(name, KEY_POINTS)} — ${cut(now, DESC_POINTS)}`;
 }
 
 /** The block's text (the react-not-resolve rule first), or '' when there is no brief (the switch is off). */

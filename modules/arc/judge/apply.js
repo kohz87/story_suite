@@ -6,10 +6,11 @@
 import { lineKey } from '../../world/changes.js';
 import { readPlan } from '../plan/read.js';
 import { refuseResolving, refusalNote } from '../plan/world-guard.js';
-import { KEY_POINTS, flat } from '../plan/shared.js';
+import { flat } from '../plan/shared.js';
+import { finder } from '../plan/read-parts/cite-match.js';
 
 const JUDGED = new Set(['beat', 'clock', 'agenda']);
-const EVENT = /^event\s*[:\-–—]?\s*["“'‘](.+?)["”'’]\s*\.?$/i;
+const EVENT = /^event\s*[:\-–—]?\s*["“'‘](.+?)["”'’]\s*(?:\([^()]*\))?\s*\.?$/i;
 
 /** The note for a refusal outside the adopted event wording (recorded in NSD-WORDING.md). */
 export const reasonNote = (kind, reason) => `Refused: this ${kind} was left out: ${flat(reason, 160).replace(/[.!?]+$/, '')}.`;
@@ -17,9 +18,9 @@ export const reasonNote = (kind, reason) => `Refused: this ${kind} was left out:
 function noteFor(item, rest, events) {
     const named = EVENT.exec(rest)?.[1]?.trim();
     if (!named) return reasonNote(item.kind, rest || 'the Director refused it');
-    // A long name may be quoted as the brief cut it.
-    const same = name => Boolean(lineKey(String(name ?? ''))) && [lineKey(String(name)), lineKey(flat(name, KEY_POINTS))].includes(lineKey(named));
-    const event = events.find(each => same(each?.title) || same(each?.id));
+    // The name may be quoted as the brief cut it, or with the rest of its line after it.
+    const found = finder(events.flatMap(each => [each?.title, each?.id]).filter(name => typeof name === 'string'))(named);
+    const event = found === null ? null : events.find(each => each?.title === found || each?.id === found);
     return event ? refusalNote(item.kind, event.title) : reasonNote(item.kind, `it decides how "${named}" ends`);
 }
 

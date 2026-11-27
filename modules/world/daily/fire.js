@@ -7,7 +7,7 @@ import { releaseHolds } from './holds.js';
 import { releaseDisplaced } from './cast.js';
 import { weightValue } from './weight.js';
 import { fillSummary, titleOf, unfiredSummary } from './event-title.js';
-import { eventWords } from './event-words.js';
+import { eventWords, townBind } from './event-words.js';
 import { neverOpened } from './never-opened.js';
 
 const DAY = 1440;
@@ -40,7 +40,7 @@ export function fireEvent(ws, def, day, bind, realms) {
     recordAnchor(ws.anchors, `fired:${def.id}`, day);
     // With no authored summary the base is '' (never the id): the outcome's words alone, or no line.
     const base = eventWords(ws.geo, def, bind, outcome?.name).text;
-    const more = outcome?.summary ? fillSummary(outcome.summary, bind, outcome.name) : '';
+    const more = outcome?.summary ? fillSummary(outcome.summary, townBind(ws.geo, bind), outcome.name) : '';
     const summary = [base, more].filter(Boolean).join(' ');
     const source = { kind: 'event', id: def.id, title: def.title, held: true, summary, evenInParty: def.evenInParty === true, survived: [] };
     const { on_end: _end, ...main } = def.effects ?? {};

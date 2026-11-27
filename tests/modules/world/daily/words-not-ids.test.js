@@ -8,6 +8,8 @@ import { eventWords } from '../../../../modules/world/daily/event-words.js';
 import { writeHappenings } from '../../../../modules/world/chronicle/world-daily/news-entries.js';
 import { buildGeo } from '../../../../modules/world/daily/geo.js';
 import { dailySummary } from '../../../../modules/world/chronicle/world-daily/summary.js';
+import { settleCues } from '../../../../modules/world/daily/cues.js';
+import { fireEvent } from '../../../../modules/world/daily/fire.js';
 import { drawWith, runner, world } from './helpers.js';
 
 const ev = (id, extra = {}) => ({ id, kind: 'one-off', certainty: 'set-in-motion', where: ['Oakhollow'], window: { after: 'start', within: '1 day' }, ends_when: 'instant', ...extra });
@@ -89,4 +91,44 @@ test('news: a firing with no words is no entry; an end with no words resolves th
     writeHappenings({}, chronicle, [fired('The guild wins.')], where);
     writeHappenings({}, chronicle, [{ day: 2, text: '', by: 'x', ended: true }], where);
     assert.deepEqual(Object.values(chronicle.events).map(event => [event.state, event.summary]), [['resolved', 'The guild wins.']]);
+});
+
+test('a death the narrator wrote: a cue with no words for the cause adds no bracket; a stored "dies here: <id>" cue strips as before', () => {
+    const journal = text => settleCues({ day: 3, anchors: {}, cast: { mara: { dying: { by: 'x', text, day: 3, rev: 0, replies: 0 } } } }, { rev: 1, dead: new Set(['mara']), names: new Map([['mara', 'Mara']]) }).journal[0].text;
+    assert.equal(journal('Mara dies here.'), 'Mara died.');
+    assert.equal(journal('Mara dies here: some-id'), 'Mara died (some-id).');
+});
+
+test('a recurring event named without its binding takes no place from its where, which is only its pool', () => {
+    const geo = buildGeo(world());
+    const def = { id: 'wager', title: 'wager', kind: 'recurring', summary: 'A wager is laid with {place}.', where: { refs: ['Oakhollow'] } };
+    assert.deepEqual(eventWords(geo, def), { text: '', label: '' });
+    assert.equal(eventWords(geo, def, { place: 'Oakhollow' }).label, 'A wager is laid with Oakhollow');
+});
+
+test('an event that fires and ends on one day is on the card once; an end on a later day, or one that says more, stays', () => {
+    const run = runner(world({ events: [ev('thinning', { summary: 'The Thinning opens.' }), ev('fair', { summary: 'The fair is on.', ends_when: { for: '2 days' } })] })).to(4);
+    const card = cardsOf(run);
+    assert.equal(card.split('The Thinning opens.').length - 1, 1, card);
+    assert.doesNotMatch(card, /Ended: The Thinning/);
+    assert.match(card, /Ended: The fair is on\./);
+    assert.ok(run.journal().some(entry => entry.ended && entry.by === 'thinning' && entry.text === 'Ended: The Thinning opens.'), 'the journal keeps the end: news is resolved by it');
+    const report = { log: [], warnings: [], journal: [{ day: 1, by: 'a', fired: true, text: 'A starts.' }, { day: 1, by: 'a', ended: true, text: 'Ended: A starts. (Mara survived)' }] };
+    assert.match(dailySummary(report), /Mara survived/);
+});
+
+test('{place} names the town of a sub-place, in the firing, the end and the outcome; what is stored keeps the bound name', () => {
+    const sub = 'Oakhollow / Civic Ward';
+    const geo = buildGeo(world());
+    assert.equal(eventWords(geo, { id: 'x', summary: 'Fire at {place}.' }, { place: sub, regionName: 'Valegard' }).text, 'Fire at Valegard.', 'a town the pack lacks: the region');
+    geo.byName.set(sub.toLowerCase(), { name: sub, parent: 'Oakhollow' });
+    const ws = { geo, events: { market: {} }, table: {}, anchor: () => {}, anchors: {}, journal: [], log: [], warnings: [], cast: {}, draw: () => 0 };
+    const def = { id: 'market', title: 'market', kind: 'recurring', summary: 'Market season fills {place}.', ends: { instant: true }, where: { refs: [] }, outcomes: [{ name: 'busy', weight: 1, summary: 'Stalls crowd {place}.' }], effects: {} };
+    const bind = { place: sub, regionName: 'Valegard' };
+    fireEvent(ws, def, 1, bind, []);
+    assert.deepEqual(ws.journal.map(entry => entry.text), ['Market season fills Oakhollow. Stalls crowd Oakhollow.', 'Ended: Market season fills Oakhollow.']);
+    assert.equal(ws.journal[0].place, sub);
+    assert.equal(ws.events.market.bind.place, sub);
+    assert.deepEqual(Object.keys(ws.events.market.places), [sub]);
+    assert.equal(bind.place, sub);
 });

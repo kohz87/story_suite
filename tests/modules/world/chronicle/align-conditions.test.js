@@ -97,7 +97,7 @@ test('test 7 (store side): a clear at a ref on day T is not undone by a set ther
     const options = { features: [WORLD_EVENTS], packs: PACKS, carrier: { sid: 'sid_a' }, call: (type, payload, ctx) => part.commands[type](ctx, payload) };
     const lined = line(later(s, DAY + 700), '+ world Riot — again | place: Highmark | conditions: +unrest', options);
     assert.equal(lined.ok, true);
-    assert.match(lined.result.summary, /Not used: "unrest": unrest was cleared on Highmark today/);
+    assert.match(lined.result.summary, /Not used: unrest was cleared on Highmark today/);
     // The daily step reads the same tomb: an event that sets unrest at Highmark on day 1 does not set it there.
     const world = { ...PACKS, events: [{ id: 'riot', kind: 'one-off', certainty: 'set-in-motion', reach: 'local', where: ['Highmark'], window: { after: 'start', within: '1 day' }, effects: { set: ['unrest@Highmark: 5 days'] }, ends_when: 'instant', summary: 'A riot.' }] };
     const blocked = runDays({ world, today: 1, seed: 'a', marks: ledgerOf(s.domains.chronicle.ledger) });
@@ -118,7 +118,7 @@ test('world line refs by scope: a realm condition takes the place\'s realm, a ro
     const war = line(start(), '+ world War — drums | place: Oakhollow | conditions: +at-war', options);
     assert.deepEqual(keys(war.state), ['at-war@Highmark Empire']);
     const road = line(start(), '+ world Slide — mud | place: Ledgerford | conditions: +roads-closed', options);
-    assert.match(road.result.summary, /"roads-closed" is a route condition: write it as roads-closed@<route>/);
+    assert.match(road.result.summary, /roads closed is a route condition: write it as roads-closed@<route>/);
     const named = line(start(), '+ world Slide — mud | place: Ledgerford | conditions: +roads-closed@ledgerford-bastion', options);
     assert.deepEqual(keys(named.state), ['roads-closed@ledgerford-bastion']);
     const wild = line(start(), '+ world Raid — smoke | place: Shackles City | conditions: +at-war', options);

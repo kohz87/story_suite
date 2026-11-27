@@ -13,7 +13,10 @@ export const fadedWords = (name, ref, geo = null) => `${String(name).replace(/[-
 
 /** `dailySummary(report, geo?)` → '' when nothing happened, else "World: …". */
 export function dailySummary(report, geo = null) {
-    const items = report.journal.filter(entry => !entry.rumour && entry.text).map(entry => entry.text);
+    const shownToday = report.journal.filter(entry => !entry.rumour && entry.text);
+    // An event that fired and ended on one day is said once: its end line, when it only repeats the fired line, is left off.
+    const repeats = end => end.ended && shownToday.some(entry => entry.fired && entry.by === end.by && entry.day === end.day && entry.text.startsWith(end.text.replace(/^Ended: /, '')));
+    const items = shownToday.filter(entry => !repeats(entry)).map(entry => entry.text);
     for (const entry of report.log) {
         // An event is named by its words, never its id: one with none is left out, and so is a lapse whose branch never opened.
         if (entry.kind === 'lapsed' && entry.text && !entry.unopened) items.push(`Lapsed: ${bare(entry.text)}.`);
