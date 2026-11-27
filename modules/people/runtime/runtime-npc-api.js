@@ -82,7 +82,7 @@ export function createNpcApiPart(rt, deps) {
             head.textContent = `${part.label} · about ${part.tokens} tokens`;
             const body = document.createElement('pre');
             body.className = 'delta-whats-sent-text';
-            body.textContent = hideSecretWatch(hideJoinLines(part.text));
+            body.textContent = hideJoinLines(hideSecretWatch(part.text));
             root.append(head, body);
         }
     }
