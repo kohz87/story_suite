@@ -10,7 +10,8 @@ const LASTING = new Set(['fact', 'stage', 'fired', 'ended']);
 function neverHeld(ws, text, day) {
     if (isThreshold(text) || partyTerm(text) || isConditionEntry(text)) return false;
     const anchor = anchorString(text);
-    return Boolean(anchor) && LASTING.has(anchor.kind) && !anchorHolds(ws, anchor, day);
+    // The anchor without its offset: a branch that opened, its "+ 90 days" not yet passed, did open.
+    return Boolean(anchor) && LASTING.has(anchor.kind) && !anchorHolds(ws, { ...anchor, offset: 0 }, day);
 }
 
 /**

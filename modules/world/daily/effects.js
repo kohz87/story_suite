@@ -11,17 +11,24 @@ import { boundRef } from './requires.js';
 import { applyCast } from './cast.js';
 import { evacuate } from './evacuate.js';
 import { recordAnchor } from './anchors.js';
+import { labelOf } from './event-title.js';
 
 const DAY = 1440;
 const clamp = value => Math.max(-100, Math.min(100, value));
 const list = value => (Array.isArray(value) ? value : []);
 
+// A line about a pack's effect quotes its condition or standing as written: it goes to Problems, not on the step's card.
+function unread(ws, text) {
+    ws.warnings.push(text);
+    ws.card[text] = '';
+}
+
 function condition(ws, text, bind, label) {
     const parsed = conditionString(text);
     const ref = parsed && boundRef(parsed, bind);
-    if (!parsed || !ref) { ws.warnings.push(`${label}: "${text}" could not be read or bound.`); return null; }
+    if (!parsed || !ref) { unread(ws, `${label}: "${text}" could not be read or bound.`); return null; }
     const declared = ws.declared.get(parsed.name);
-    if (!declared) { ws.warnings.push(`${label}: "${parsed.name}" is not one of this world's conditions.`); return null; }
+    if (!declared) { unread(ws, `${label}: "${parsed.name}" is not one of this world's conditions.`); return null; }
     return { ...parsed, ref, declared };
 }
 
@@ -40,7 +47,7 @@ function lifetime(ws, parsed, held) {
 
 function standing(ws, kind, name, delta, label) {
     const key = ws.standingKey(kind, name);
-    if (!(key in ws.standings)) { ws.warnings.push(`${label}: the ${kind} "${name}" is not in this world.`); return; }
+    if (!(key in ws.standings)) { unread(ws, `${label}: the ${kind} "${name}" is not in this world.`); return; }
     if (!Number.isFinite(delta)) return;
     ws.standings[key] = clamp(ws.standings[key] + delta);
 }
@@ -53,7 +60,9 @@ function standing(ws, kind, name, delta, label) {
 export function applyEffects(ws, block, source, day, bind = {}, evac = null) {
     if (!block || typeof block !== 'object') return;
     const minute = day * DAY;
-    const label = `${source.kind === 'template' ? 'The template' : 'The event'} "${source.id}"`;
+    const said = labelOf({ id: source.id, title: source.title, summary: source.summary }, bind);
+    const kind = source.kind === 'template' ? 'happening' : 'event';
+    const label = said ? `The ${kind} "${said}"` : source.kind === 'template' ? 'A happening' : 'An event';
     const own = [];
     for (const text of list(block.clear)) {
         const parsed = condition(ws, text, bind, label);
@@ -63,7 +72,7 @@ export function applyEffects(ws, block, source, day, bind = {}, evac = null) {
         const parsed = condition(ws, text, bind, label);
         if (!parsed) continue;
         const days = lifetime(ws, parsed, source.held === true);
-        if (days === 'bad') { ws.warnings.push(`${label}: "${text}" has a duration that cannot be read.`); continue; }
+        if (days === 'bad') { unread(ws, `${label}: "${text}" has a duration that cannot be read.`); continue; }
         const set = setCondition(ws, { name: parsed.name, ref: parsed.ref, days, holder: source.id, by: source.kind === 'template' ? 'code' : `event:${source.id}`, why: source.title ?? source.id }, minute);
         if (set && parsed.declared.placeStatus === true) (evac ?? own).push({ ref: parsed.ref, name: parsed.name, source, day });
     }

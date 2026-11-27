@@ -1,9 +1,12 @@
 // Builds the Conditions here card: the world's conditions in force at the party's place, with since when, why and what they do to prices.
 import { h } from '../../kit/dom.js';
 
+// A pack's condition name has no display form of its own: its dashes and underscores read as spaces.
+const words = name => String(name ?? '').replace(/[-_]+/g, ' ');
+
 function row(c) {
   return h('div', { class: 'ev', dataset: { condition: c.key || c.name } },
-    h('div', { class: 'eh' }, h('b', null, c.name), c.ref ? h('span', { class: 'st' }, c.ref) : null),
+    h('div', { class: 'eh' }, h('b', null, words(c.name)), c.ref ? h('span', { class: 'st' }, c.ref) : null),
     c.means ? h('p', null, c.means) : null,
     h('div', { class: 'meta2' },
       c.since ? h('span', null, `since ${c.since}`) : null,

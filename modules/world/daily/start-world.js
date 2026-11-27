@@ -9,15 +9,17 @@ import { recordAnchor } from './anchors.js';
 
 const DAY = 1440;
 const list = value => (Array.isArray(value) ? value : []);
+// A note about the pack's own start entry quotes it: Problems only.
+const unread = (ws, text) => { ws.warnings.push(text); ws.card[text] = ''; };
 
 /** Apply `start` = `{ set: ["<condition>@<ref>[: <duration>]"], facts: ["<fact id>"] }` on `day`. */
 export function applyStartWorld(ws, start, day) {
     for (const text of list(start?.set)) {
         const parsed = conditionString(text);
         const declared = parsed ? ws.declared.get(parsed.name) : null;
-        if (!parsed || !declared || parsed.placeholder) { ws.warnings.push(`start.world: "${text}" could not be read as one of this world's conditions.`); continue; }
+        if (!parsed || !declared || parsed.placeholder) { unread(ws, `start.world: "${text}" could not be read as one of this world's conditions.`); continue; }
         const days = scaledDays(parsed.duration ?? declared.fades ?? 'until cleared', ws.tempo, { open: true });
-        if (days === undefined) { ws.warnings.push(`start.world: "${text}" has a duration that cannot be read.`); continue; }
+        if (days === undefined) { unread(ws, `start.world: "${text}" has a duration that cannot be read.`); continue; }
         setCondition(ws, { name: parsed.name, ref: parsed.ref, days, holder: null, by: 'code', why: 'the story begins so' }, day * DAY);
     }
     for (const id of list(start?.facts)) {

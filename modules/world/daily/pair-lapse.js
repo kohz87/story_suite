@@ -25,6 +25,12 @@ function problemOf(ws, def) {
     return '';
 }
 
+// A note about the pack and the calendar quotes the pack's ids: Problems only.
+function unfit(ws, text) {
+    ws.warnings.push(text);
+    ws.card[text] = '';
+}
+
 /**
  * On a chat's first step: Lapse every event that does not fit the calendar and return the templates that do. `day` is the first day stepped.
  * A later step finds the lapsed events already finished and leaves them (the warning is not repeated); `first` says the chat has no stored state yet, when a left-out template is said too.
@@ -35,11 +41,11 @@ export function lapseUnpaired(ws, defs, day, first) {
         if (!why || ws.events[def.id]) continue;
         ws.events[def.id] = { state: 'dormant' };
         closeEvent(ws, def, day, 'lapsed', 'its date or season is not on this calendar');
-        ws.warnings.push(`The event "${def.id}" never fires with this calendar: ${why}.`);
+        unfit(ws, `The event "${def.id}" never fires with this calendar: ${why}.`);
     }
     return defs.templates.filter(def => {
         const why = problemOf(ws, def);
-        if (why && first) ws.warnings.push(`The template "${def.id}" is not run with this calendar: ${why}.`);
+        if (why && first) unfit(ws, `The template "${def.id}" is not run with this calendar: ${why}.`);
         return !why;
     });
 }

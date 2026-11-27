@@ -14,6 +14,7 @@ import { capBlock, takeSlots } from './caps.js';
 import { protectedHere } from './protected-here.js';
 import { perHolds, rollOpen, settleOpen } from './open-day.js';
 import { textPlace } from './shown-place.js';
+import { fillSummary } from './event-title.js';
 
 export const DENSITY = Object.freeze({ perRegion: 2, days: 7 });
 const DEFAULT_CHANCE = Object.freeze({ percent: 70, per: 'season' });
@@ -66,7 +67,8 @@ export function templatesDay(ws, templates, day) {
         applyEffects(ws, { clear: def.clears, set: def.sets }, { kind: 'template', id: def.id, title: def.id, held: false }, day, bind);
         if (!major) ws.minors.push({ region, day });
         ws.cooldowns[def.cooldown?.perPlace ? `${def.id}@${place.name}` : def.id] = day;
-        const text = String(def.summary).replace(/\{place\}/g, textPlace(ws.geo, place.name, place.regionName || region)).replace(/\{region\}/g, place.regionName || region).replace(/\{realm\}/g, place.realm);
+        // With no authored summary the line is '' (never the id) and is shown nowhere.
+        const text = def.summary === def.id ? '' : fillSummary(def.summary, { place: textPlace(ws.geo, place.name, place.regionName || region), regionName: place.regionName || region, realm: place.realm });
         ws.journal.push({ day, text, by: `template:${def.id}`, place: place.name, reach: def.reach });
         ws.log.push({ kind: 'minor', key: def.id, day, place: place.name });
     }

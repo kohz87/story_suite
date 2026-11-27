@@ -20,6 +20,8 @@ import { ask } from '../queries-parts/shared-ask.js';
 import { ledgerOf, markLedger } from '../conditions/ledger.js';
 import { writeHappenings } from './news-entries.js';
 import { buildGeo } from '../../daily/geo.js';
+import { readDefs } from '../../daily/defs.js';
+import { eventWords } from '../../daily/event-words.js';
 import { calendarFrom, dateText } from '../queries-parts/clock.js';
 import { mirrorCast, tickInputs } from './cast-tie.js';
 import { partyRegionOf, seatRegionOf } from './party-region.js';
@@ -59,10 +61,16 @@ function writeConditions(ctx, chronicle, next) {
  * step does not fire, as `{ ids, text }`. Later replies keep what they recorded, so a later firing that needed one keeps its record;
  * the reader is told. The ids stay in the receipt's `data.lost`, so a second Re-read still warns.
  */
-function lostOf(payload, fired) {
+function lostOf(ctx, payload, fired) {
     const ids = (Array.isArray(payload?.before?.fired) ? payload.before.fired : []).filter(id => typeof id === 'string' && !fired.includes(id));
     if (!ids.length) return { ids, text: '' };
-    return { ids, text: `World: after this edit ${ids.slice(0, 6).join(', ')} no longer fired on this reply's days; the later replies keep what they recorded (a later event that needed it is not undone).` };
+    // The reader gets each one's name in words (never its id); one with none is left out.
+    const world = readWorld((name, args) => ctx.query(name, args));
+    const { events } = readDefs(world);
+    const geo = buildGeo(world);
+    const names = [...new Set(ids.map(id => { const def = events.find(each => each.id === id); return def ? eventWords(geo, def).label : ''; }).filter(Boolean))];
+    const what = names.slice(0, 6).map(name => `"${name}"`).join(', ') || 'a world event';
+    return { ids, text: `World: after this edit ${what} no longer fired on this reply's days; the later replies keep what they recorded (a later event that needed it is not undone).` };
 }
 
 // The cast store's draft (Story Director's own domain), or null when the cast part is not there.
@@ -80,7 +88,7 @@ function daily(ctx, payload = {}) {
     const today = Math.floor(now / DAY);
     // A shrunk Re-read or a rewind can leave the last stepped day ahead of the clock: nothing is stepped again or undone.
     const kept = () => {
-        const lost = lostOf(payload, []);
+        const lost = lostOf(ctx, payload, []);
         return { summary: lost.text, narrate: false, data: { days: 0, ...(lost.ids.length ? { lost: lost.ids } : {}) }, ...(lost.text ? { problem: lost.text } : {}) };
     };
     // A settle (open templates): the slots waiting for an answer that is stored now are applied, with no new day.
@@ -111,9 +119,9 @@ function daily(ctx, payload = {}) {
     const { report } = out;
     const fired = report.journal.filter(entry => entry.fired).map(entry => entry.by);
     // The warnings go to Problems, on this reply (the one sink, spec §9 Warnings), as well as on its card.
-    const lost = lostOf(payload, fired);
+    const lost = lostOf(ctx, payload, fired);
     const problem = [report.warnings.length ? `World: ${report.warnings.slice(0, 6).join(' ')}` : '', lost.text].filter(Boolean).join(' ') || undefined;
-    return { summary: [dailySummary(report), lost.text].filter(Boolean).join(' '), narrate: false, data: { from: report.from, to: report.to, days: report.days, fired, warnings: report.warnings.slice(0, 20), ...(lost.ids.length ? { lost: lost.ids } : {}) }, ...(problem ? { problem } : {}) };
+    return { summary: [dailySummary(report, buildGeo(world)), lost.text].filter(Boolean).join(' '), narrate: false, data: { from: report.from, to: report.to, days: report.days, fired, warnings: report.warnings.slice(0, 20), ...(lost.ids.length ? { lost: lost.ids } : {}) }, ...(problem ? { problem } : {}) };
 }
 
 /** The command, tagged with the feature (Story Block refuses it while the switch is off) and internal (never from a click or the sdk). */

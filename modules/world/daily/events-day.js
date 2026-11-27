@@ -9,6 +9,7 @@ import { capBlock, eventRealms, takeSlots } from './caps.js';
 import { dailyChance, rollChance } from './chance.js';
 import { closeEvent, endEvent, fireEvent } from './fire.js';
 import { scaleDays } from './durations.js';
+import { eventWords } from './event-words.js';
 import { oncePerStretch, seededDay, stretchOf } from './season-chance.js';
 import { bindOf, placesFor, weightedPick } from './placement.js';
 import { modifierProduct, requiresHold } from './requires.js';
@@ -85,7 +86,10 @@ function oneEvent(ws, def, day) {
     if (preEmpted(ws, def, day)) return closeEvent(ws, def, day, 'replaced', 'pre-empted');
     const win = windowed(ws, def, row, day);
     if (win.lapse) {
-        if (def.certainty === 'set-in-motion') ws.warnings.push(`The set-in-motion event "${def.id}" lapsed: its requirements did not hold on its last day.`);
+        if (def.certainty === 'set-in-motion') {
+            const said = eventWords(ws.geo, def).label;
+            ws.warnings.push(`${said ? `The event "${said}"` : 'An event'} lapsed: its requirements did not hold on its last day.`);
+        }
         return closeEvent(ws, def, day, 'lapsed', 'its window closed');
     }
     if (!win.open || !requiresHold(ws, def, day)) { row.state = 'dormant'; return; }

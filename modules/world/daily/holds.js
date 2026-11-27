@@ -27,7 +27,8 @@ function entryOf(base, { timer, open, holds }) {
     return timer === null ? null : { ...plain, fadesAt: timer };
 }
 
-function note(ws, text) { ws.warnings.push(text); return false; }
+// A refused set or clear names the condition and ref as the pack wrote them: Problems only.
+function note(ws, text) { ws.warnings.push(text); ws.card[text] = ''; return false; }
 
 /**
  * Set `name` at `ref`: `days` (a timer in whole days, at least 1), `null` (until cleared) or `'hold'` (held by `holder` while it is Active).
