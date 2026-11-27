@@ -13,6 +13,8 @@ const MODES = [{}, { keepNamesakeRows: true }, { historicalRead: true }];
 const form = (name, appearance) => ({ appearanceForms: [{ name, appearance }], currentForm: name, currentFormState: 'select' });
 const ARMOR = form('armored', 'A tall man in black plate armor.');
 const BORN = { birthDate: { month: '05', day: 5, year: 1980 }, birthDateState: 'establish' };
+const WOLF = form('wolf', 'Grey fur.');
+const RENAME = { id: 'npc_g1', name: 'Mira Vell', aliases: ['Mira'] };
 const GUARD_ROW = { id: 'npc_g1', name: 'Guard', ...ARMOR, ...BORN };
 
 // stored people, the scan's lists (`key`: the list under test) and the kept record that must get the row
@@ -23,7 +25,9 @@ const CASES = {
     },
     'an older record of the same name, by a rename': {
         npcs: () => [record('npc_g1', 'Mira', { createdAt: 2 }), record('npc_g2', 'Mira', { createdAt: 1 })],
-        scan: () => ({ npcs: [{ id: 'npc_g1', name: 'Mira Vell', aliases: ['Mira'], ...form('wolf', 'Grey fur.'), ...BORN }] }), kept: 'npc_g2', shown: 'wolf',
+        // (the rename that makes the fold stays in `npcs`; the data is on it, or in a profile update of its own)
+        scan: key => (key === 'npcs' ? { npcs: [{ ...RENAME, ...WOLF, ...BORN }] }
+            : { npcs: [{ ...RENAME, sameIndividual: true }], profileUpdates: [{ id: 'npc_g1', name: 'Mira', ...WOLF, ...BORN }] }), kept: 'npc_g2', shown: 'wolf',
     },
     'a fold the same scan makes': {
         npcs: () => [record('npc_x', 'Tomas', { createdAt: 1 }), record('npc_g1', 'Guard', { createdAt: 2 }), record('npc_g2', 'Guard', { createdAt: 3 })],
@@ -34,7 +38,7 @@ const CASES = {
 
 for (const [what, { npcs, scan, kept, shown }] of Object.entries(CASES)) {
     test(`a tied row reaches the kept record: ${what}`, () => {
-        for (const key of what.includes('rename') ? ['npcs'] : ['npcs', 'profileUpdates']) for (const options of MODES) {
+        for (const key of ['npcs', 'profileUpdates']) for (const options of MODES) {
             const input = structuredClone(scan(key));
             const result = mergeScanResult({ npcs: npcs(), turn: 5 }, input, { turn: 5, sourceMessageId: 9, ...options });
             const label = `${key} ${JSON.stringify(options)}`;
@@ -49,6 +53,18 @@ for (const [what, { npcs, scan, kept, shown }] of Object.entries(CASES)) {
         }
     });
 }
+
+test('a tied appearance refine reaches the kept record in the words it came in', () => {
+    const text = 'a tall guard with a SCARRED chin and grey eyes';
+    const refine = { appearance: text, appearanceState: 'refine' };
+    const { npcs, kept } = CASES['an older record of the same name, by a rename'];
+    for (const scan of [{ npcs: [{ ...RENAME, ...refine }] }, { npcs: [RENAME], profileUpdates: [{ id: 'npc_g1', name: 'Mira', ...refine }] }]) {
+        for (const options of MODES) {
+            const result = mergeScanResult({ npcs: npcs(), turn: 5 }, structuredClone(scan), { turn: 5, sourceMessageId: 9, ...options });
+            assert.equal(result.state.npcs.find(npc => npc.id === kept).appearance, text);
+        }
+    }
+});
 
 test('after the fold the runtime reads the row as the kept record\'s, chains followed, and the journaled rows stay as they were', () => {
     const npcs = [record('npc_x', 'Tomas'), record('npc_g1', 'Guard', { aliases: ['Tomas'] }), record('npc_g2', 'Guard')];
