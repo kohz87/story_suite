@@ -1002,5 +1002,6 @@
   "modules/data-modules/holding/post-tail.js": "Writes what the prompt tail says about the holding's posts and the room it takes.",
   "tests/packs/ersveil-holding-posts.test.js": "Tests the holding's officer posts: refusals, bonuses, the retainer cap, rejoining and replay.",
   "tests/modules/data-modules/holding-person.test.js": "Tests who a name means for the holding's posts: the post check's wider party match and two unjoined records of one name.",
-  "tests/suite/holding-posts.test.js": "Tests the holding's posts on the real suite against the cast's stays record."
+  "tests/suite/holding-posts.test.js": "Tests the holding's posts on the real suite against the cast's stays record.",
+  "modules/world/daily/event-title.js": "World events, the daily step: an event's title as the Journal shows it, or none when the event has no authored title (never its id)."
 }

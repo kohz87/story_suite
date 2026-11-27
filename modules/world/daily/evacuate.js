@@ -11,6 +11,7 @@ import { groupOf } from './geo-scope.js';
 import { masked } from './placement.js';
 import { placeOf } from './cast-where.js';
 import { displace } from './cast.js';
+import { titleOf } from './event-title.js';
 
 /** Evacuate the group of `ref` (a place) for the placeStatus `condition` set by `source` on `day`. */
 export function evacuate(ws, ref, condition, source, day) {
@@ -32,7 +33,8 @@ export function evacuate(ws, ref, condition, source, day) {
         if (source.kind === 'event' && (ws.cast[person.id]?.displaced?.by === source.id || ws.cast[person.id]?.deferred?.by === source.id)) continue;
         if (ws.withYou.has(person.id)) {
             ws.cast[person.id] = { ...(ws.cast[person.id] ?? {}), deferred: { to: to.name, by: source.id, until, title: source.title ?? source.id } };
-            ws.journal.push({ day, text: `${person.name} stays with You — ${source.title ?? source.id}`, by: source.id, withYou: true });
+            const why = titleOf(source.title, source.id);
+            ws.journal.push({ day, text: why ? `${person.name} stays with You — ${why}` : `${person.name} stays with You`, by: source.id, withYou: true });
             continue;
         }
         displace(ws, person, to.name, { until, title: condition, line: `${person.name} fled ${from} for ${to.name} (${condition}).` }, day, source.id);

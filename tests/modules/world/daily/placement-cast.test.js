@@ -85,10 +85,10 @@ test('opted in, a person who starts at a place id is traced by the place\'s name
     ];
     const run = runner(world({ places, placeIdPacks: ['sample'], cast: starters, events: [ev('call', { effects: { cast: [{ who: 'courier', location: 'Town', from: 'river-post' }, { who: 'guard', died: true }] } })] })).to(1);
     const lines = run.journal().filter(entry => /Courier left|Guard died/.test(entry.text));
-    assert.deepEqual(lines.filter(entry => !entry.rumour).map(entry => entry.text), ['Courier left River Post for Town (call).', 'Guard died (call).']);
+    assert.deepEqual(lines.filter(entry => !entry.rumour).map(entry => entry.text), ['Courier left River Post for Town.', 'Guard died.']);
     assert.deepEqual(lines.filter(entry => entry.rumour).map(entry => [entry.place, entry.text]), [
-        ['River Post', 'Rumour in River Post: Courier left River Post for Town (call).'],
-        ['River Post', 'Rumour in River Post: Guard died (call).'],
+        ['River Post', 'Rumour in River Post: Courier left River Post for Town.'],
+        ['River Post', 'Rumour in River Post: Guard died.'],
     ]);
 });
 

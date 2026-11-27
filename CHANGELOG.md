@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- World: Journal lines for people an event moves or kills no longer end with the event's code name in brackets ("left Kingfisher Post for Bluewatch Village.").
 - Ersveil rules 1.2.0: your own holding (off until you turn it on in Settings, Packs and trackers). Found a company, fief or trading house in the story and grow it; paid months raise loyalty.
 - Your holding has officer posts: in the story, give a companion who stays at the seat a post (steward, marshal, spymaster, healer, quartermaster or envoy) for a small bonus.
 - Arsveil keeps going after its first five years: five more years of world events follow how things ended, with new troubles, settlements and seasonal happenings.

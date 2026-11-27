@@ -11,6 +11,7 @@ import { recordAnchor } from './anchors.js';
 import { resolveRef } from './geo.js';
 import { refActive, withMapName } from './anchor-ref.js';
 import { baseOf, inGroup, placeAt, placeOf } from './cast-where.js';
+import { titleOf } from './event-title.js';
 
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : '');
 
@@ -38,8 +39,9 @@ export function displace(ws, person, to, move, day, by) {
     delete row.deferred;
     ws.cast[person.id] = row;
     placeAt(ws, person.id, to);
-    ws.moves.push({ id: person.id, to, by, until: move.until, routine: move.routine || `staying at ${to} because ${move.title}`, day });
-    if (to !== from) trace(ws, person.id, 'departed', move.line ?? `${person.name} left ${from ?? 'home'} for ${to} (${move.title}).`, from, day, by);
+    const why = titleOf(move.title, by);
+    ws.moves.push({ id: person.id, to, by, until: move.until, routine: move.routine || (why ? `staying at ${to} because ${why}` : `staying at ${to}`), day });
+    if (to !== from) trace(ws, person.id, 'departed', move.line ?? `${person.name} left ${from ?? 'home'} for ${to}${why ? ` (${why})` : ''}.`, from, day, by);
 }
 
 // Whether a move may touch them by `from` (ruling 35/38): a place id → they are in its group now; "anywhere" → always; none → only
@@ -95,7 +97,8 @@ function die(ws, person, entry, source, day) {
     const where = shownAt(ws, person.id);
     ws.cast[person.id] = { ...row, died: day };
     ws.deaths.push({ id: person.id, by: source.id, day });
-    trace(ws, person.id, 'died', `${person.name} died (${source.title}).`, where, day, source.id);
+    const why = titleOf(source.title, source.id);
+    trace(ws, person.id, 'died', `${person.name} died${why ? ` (${why})` : ''}.`, where, day, source.id);
 }
 
 /** Apply an authored event's `effects.cast` entries (source = { kind, id, title, summary?, evenInParty? }). */
@@ -115,7 +118,8 @@ export function applyCast(ws, entries, source, day) {
             if (ws.withYou.has(person.id)) {
                 // With You: not moved; the move waits until they part from You (cast-defer.js), `from` checked again then.
                 ws.cast[person.id] = { ...(ws.cast[person.id] ?? {}), deferred: { to, by: source.id, until: move.until, title: source.title, ...(move.routine ? { routine: move.routine } : {}), ...(from ? { from } : {}) } };
-                ws.journal.push({ day, text: `${person.name} stays with You — ${source.title}`, by: source.id, withYou: true });
+                const why = titleOf(source.title, source.id);
+                ws.journal.push({ day, text: why ? `${person.name} stays with You — ${why}` : `${person.name} stays with You`, by: source.id, withYou: true });
                 continue;
             }
             displace(ws, person, to, move, day, source.id);
