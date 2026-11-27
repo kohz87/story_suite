@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { escapeHtml } from '../../modules/people/util/html.js';
 import { escapeHtml as toolsEscape } from '../../modules/people/tools/tools-core.js';
-import { matchingNpcRecords, scanRowMatchesNpc } from '../../modules/people/core/core.js';
+import { ownNpcRecords, scanRowMatchesNpc } from '../../modules/people/core/core.js';
 import { runEditorHostScenario } from './editor-host.mjs';
 import { runtimeSource } from './helpers/runtime-source.js';
 import { oldUrl } from './helpers/old-path.js';
@@ -33,7 +33,9 @@ test('one sameNpc / matchingPrevious: core-mechanics owns them', () => {
     assert.equal(scanRowMatchesNpc({ name: 'the archivist' }, npc), true);
     assert.equal(scanRowMatchesNpc({ aliases: ['Myla Venn'] }, npc), true);
     assert.equal(scanRowMatchesNpc({ name: 'Renn' }, npc), false);
-    assert.deepEqual(matchingNpcRecords(npc, [{ id: 'x', name: 'Renn' }, { id: 'y', name: 'The Archivist' }, null]).map(item => item.id), ['y']);
+    const before = [{ id: 'x', name: 'Renn' }, { id: 'y', name: 'The Archivist' }, null, { id: 'npc_m', name: 'Myla Venn' }];
+    assert.deepEqual(ownNpcRecords(npc, before).map(item => item.id), ['npc_m'], 'a shared label alone is another person');
+    assert.deepEqual(ownNpcRecords(npc, before, [{ keptId: 'y', removedId: 'x' }, { keptId: 'npc_m', removedId: 'y' }]).map(item => item.id), ['x', 'y', 'npc_m'], 'folded records are this one');
 });
 
 test('dead code is gone', () => {

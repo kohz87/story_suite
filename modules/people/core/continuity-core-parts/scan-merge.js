@@ -28,7 +28,7 @@ export function mergeScanResult(state, rawScanResult, options = {}) {
         : (Array.isArray(scanResult?.profile_updates) ? scanResult.profile_updates : []);
 
     result.state.npcs = (result.state.npcs || []).map(rawNpc => {
-        const sources = mechanics.matchingNpcRecords(rawNpc, previous);
+        const sources = mechanics.ownNpcRecords(rawNpc, previous, result.report.deduplicated);
         let ordinaryUpdate = ordinary.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc));
         let profileUpdate = profiles.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc));
         const rawForms = ordinaryUpdate && (ordinaryUpdate.appearanceForms ?? ordinaryUpdate.appearance_forms);

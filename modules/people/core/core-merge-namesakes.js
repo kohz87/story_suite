@@ -1,9 +1,25 @@
 // Namesakes in what a scan returns and in a scene's list (the rule of story lines, ../meters/npc-meters-parts/namesakes.js): Name "Nickname" is that person,
 // and a shared name every holder has a nickname for goes to the one the scene has, else to nobody. Any other row and label is left as it is.
-import { cleanText } from './core-text.js';
+import { cleanText, normalizeName } from './core-text.js';
+import { npcMatchesLabel } from './core-record.js';
 import { namesakes } from '../meters/npc-meters-parts/namesakes.js';
 
 const ROW_LISTS = ['npcs', 'profileUpdates', 'profile_updates'];
+
+// A row with a stored person's id is that person's alone: it is tied when another record also answers to one of its labels. It is left untied when a
+// record with a different name could be that same person (either one's name among the other's aliases or the row's labels): the merge may fold the two,
+// and the row must then reach whichever record is kept.
+function tieHeld(npcs, row) {
+    const id = row && typeof row === 'object' ? cleanText(row.id, 100) : '';
+    const held = id && !row.settledId ? npcs.find(npc => npc?.id === id) : null;
+    if (!held) return row;
+    const labels = [row.name, ...(Array.isArray(row.aliases) ? row.aliases : [])].filter(Boolean);
+    const others = npcs.filter(npc => npc && npc !== held && labels.some(label => npcMatchesLabel(npc, label)));
+    const own = normalizeName(held.name);
+    const mayBeSame = other => normalizeName(other.name) !== own && ([held.name, ...(held.aliases || []), ...labels].some(label => normalizeName(label) === normalizeName(other.name))
+        || [held.name, row.name].some(label => label && (other.aliases || []).some(alias => normalizeName(alias) === normalizeName(label))));
+    return others.length && !others.some(mayBeSame) ? { ...row, settledId: id } : row;
+}
 
 // One row → itself, a copy tied to one person (`settledId`: matched by that id alone, ./core-mechanics/npc-matching.js), or null (nobody: dropped).
 function settleRow(read, row, scene) {
@@ -28,11 +44,13 @@ function settleRow(read, row, scene) {
 }
 
 /**
- * → { scanResult (the same object when no row concerns namesakes), skipped: [names of the dropped rows] }. `npcs`: the records as they were before the
- * scan, with their presence; `scene`: the names the reply's scene lists, when known.
+ * → { scanResult (the same object when no row is tied or dropped), skipped: [names of the dropped rows] }. `npcs`: the records as they were before the
+ * scan, with their presence; `scene`: the names the reply's scene lists, when known. `idsOnly` (a replay that keeps the old reading of shared names):
+ * only rows carrying a stored person's id are tied.
  */
-export function settleScanRows(npcs, scanResult, scene = []) {
-    const read = namesakes(Array.isArray(npcs) ? npcs : []);
+export function settleScanRows(npcs, scanResult, scene = [], idsOnly = false) {
+    const records = Array.isArray(npcs) ? npcs : [];
+    const read = idsOnly ? null : namesakes(records);
     const skipped = new Set();
     let out = scanResult;
     for (const key of ROW_LISTS) {
@@ -41,7 +59,8 @@ export function settleScanRows(npcs, scanResult, scene = []) {
         const next = [];
         let changed = false;
         for (const row of rows) {
-            const settled = settleRow(read, row, scene);
+            const named = idsOnly ? row : settleRow(read, row, scene);
+            const settled = named && tieHeld(records, named);
             changed ||= settled !== row;
             if (settled === null && row !== null) skipped.add(cleanText(row?.name, 120));
             else next.push(settled);

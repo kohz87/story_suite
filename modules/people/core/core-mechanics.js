@@ -12,5 +12,5 @@ export { KEY_RELATIONSHIP_LIMIT, normalizeKeyRelationshipEdges, extractExplicitK
 export { NPC_ADMISSION_MODES, IMPORTANT_MEMORY_LIMIT, PORTRAIT_SEED_MAX, normalizePortraitSeed, normalizeNpcAdmissionMode, setNpcArchived, NPC_CANDIDATE_TTL_TURNS, NPC_CANDIDATE_LIMIT, npcMatchesLabel, normalizeScanNpc, normalizeNpcCandidate, CUSTOM_FIELD_LIMIT, normalizeCustomFieldNames, normalizeCustomFields, customFieldValues, normalizeNpcRecord, createNpcRecord, applyStaleNpcLifecycle, castAppearanceKept, CAST_APPEARANCE_WIDE } from './core-record.js';
 export { developmentEpisodeDiagnostic, developmentEpisodeEvidence, developmentScaleReady, resolveInterimIdentityPromotions } from './core-development.js';
 export { applyScenePresence, mergeScanResult, npcNamedInText } from './core-merge.js';
-export { scanRowMatchesNpc, matchingNpcRecords } from './core-mechanics/npc-matching.js';
+export { scanRowMatchesNpc, ownNpcRecords } from './core-mechanics/npc-matching.js';
 export { applyNpcStateCommand } from './core-mechanics/npc-command.js';

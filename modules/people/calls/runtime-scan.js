@@ -174,7 +174,7 @@ export function createScanPart(rt, deps) {
             // (namesakes: settled here, while the records still carry who was present; the merge's base below clears it. The journal keeps the settled
             // rows, so a replay, which never asks the scene, reads them as live did. A replay of an entry without the `namesakes` mark keeps its rows as they are.)
             const keepNamesakeRows = Boolean(replayScope() && !journaled?.namesakes);
-            const named = keepNamesakeRows ? { scanResult: parsed, skipped: [] } : settleScanRows(state.npcs, parsed, replayScope() ? [] : scanScenePresent(messageId) ?? []);
+            const named = settleScanRows(state.npcs, parsed, replayScope() ? [] : scanScenePresent(messageId) ?? [], keepNamesakeRows);
             const resolvedParsed = resolveInterimIdentityPromotions(singleReply ? tagScanEvidence(named.scanResult, skippedWindow?.readThrough ?? messageId) : named.scanResult, state.npcs, state.candidates);
             if (capture || (fallback && hostedOnePass())) capCaptureAdmissions(resolvedParsed, state.npcs);
             profileUpdateCount = Array.isArray(resolvedParsed.profileUpdates) ? resolvedParsed.profileUpdates.length : (Array.isArray(resolvedParsed.profile_updates) ? resolvedParsed.profile_updates.length : 0);

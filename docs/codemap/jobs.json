@@ -463,7 +463,7 @@
   "tests/people/npc-alias-followups.test.js": "Tests the NPC State ownership rule on the world's opened notes, public paths, the per-reply step, name comparison, portraits and presence.",
   "tests/people/npc-alias-lines-host.test.js": "Tests with the real adapter and lines mode on whose NPC State meters a story line moves: aliases, namesakes, renames, the dead.",
   "modules/people/meters/npc-meters-parts/namesakes.js": "NPC State's rule for namesakes who each have a nickname: how they are shown and read back, which one a scene has, and the approved words that ask which one.",
-  "modules/people/core/core-merge-namesakes.js": "Ties a scan's rows and a scene's list to one namesake, or to nobody, before anything matches them by name.",
+  "modules/people/core/core-merge-namesakes.js": "Ties a scan's rows and a scene's list to one namesake or to nobody, and an id row to its own person, before name matching.",
   "tests/people/npc-namesakes-forms.test.js": "Tests that a namesake's shown form is that person in story lines, scan rows and scene lists, and the scene rule for a shared name.",
   "tests/people/npc-dead-as-before.test.js": "Tests that an old chat's dead person still gets the same stages, ladder, drift and receipts, and that no meter opens their note.",
   "modules/people/meters/npc-meters-parts/nickname.js": "The nickname NPC State gives a new namesake, chosen inside the write that makes them.",
@@ -1038,5 +1038,6 @@
   "tests/people/npc-alias-other-person-host.test.js": "Tests on the real adapter that no path maps a person to another person's NPC State meters entry, with the other alive, archived or dead.",
   "modules/people/meters/npc-meters-parts/owners.js": "The one rule for which NPC State meters entry is a person's: a stored dossier's id and name belong to that dossier alone.",
   "tests/people/npc-alias-other-person.test.js": "Tests that an alias that is another person's name never lands on that person's NPC State meters entry.",
+  "tests/people/npc-namesakes-own-record.test.js": "Tests that no scan or command carries one person's death, looks, birth date or row to another who shares a name or alias.",
   "tests/people/npc-namesakes-mood-numbers.test.js": "Tests that a scan row tied to one namesake gives its mood numbers to that person only."
 }

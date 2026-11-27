@@ -23,7 +23,7 @@ export function applyKeyRelationshipEdges(next, scanResult, excludeNames, report
         const entry = relationshipEdgeEntry(counterpart, relation, dynamic);
         if (!entry) return;
         // (ONEPASSCAPR2-4) A terse ungrounded edge on the same scan cannot erase an accepted detailed row.
-        const ownRow = (scanResult.npcs || []).find(row => (row.id && row.id === owner.id) || normalizeName(row.name) === normalizeName(owner.name));
+        const ownRow = (scanResult.npcs || []).find(row => (row.settledId ? row.settledId === owner.id : (row.id && row.id === owner.id) || normalizeName(row.name) === normalizeName(owner.name)));
         const ties = typeof ownRow?.keyRelationships === 'string' ? ownRow.keyRelationships.split(/\r?\n/) : ownRow?.keyRelationships;
         if (!options.historicalRead && !reason && !dynamic && Array.isArray(ties) && ties.some(tie => keyRelationshipSubjectsEquivalent(tie, entry))) return;
         const before = JSON.stringify(owner.keyRelationships || []);

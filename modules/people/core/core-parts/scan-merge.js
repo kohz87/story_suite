@@ -29,7 +29,7 @@ function mergeScanResultInPass(state, scanResult, rawOptions = {}) {
 
 function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
     // Rows about namesakes are tied to one person (or dropped) before anything here matches them by name.
-    const settled = rawOptions.historicalRead || rawOptions.keepNamesakeRows ? { scanResult: rawScanResult, skipped: [] } : settleScanRows(state?.npcs, rawScanResult, rawOptions.scenePresent?.present);
+    const settled = settleScanRows(state?.npcs, rawScanResult, rawOptions.scenePresent?.present, Boolean(rawOptions.historicalRead || rawOptions.keepNamesakeRows));
     const scanResult = settled.scanResult;
     // Story day of the scanned message (its dated World State), unless the caller already resolved
     // it (carrying the last dated message forward). Undated chats leave it null and use turns.
@@ -52,8 +52,8 @@ function mergeScanResultHeld(state, rawScanResult, rawOptions = {}) {
     const diagnosticNpcRegistry = (result.state.npcs || []).map(npc => structuredClone(npc));
 
     result.state.npcs = (result.state.npcs || []).map(rawNpc => {
-        const sources = mechanics.matchingNpcRecords(rawNpc, previous);
-        const rawSources = mechanics.matchingNpcRecords(rawNpc, previousRaw);
+        const sources = mechanics.ownNpcRecords(rawNpc, previous, result.report.deduplicated);
+        const rawSources = mechanics.ownNpcRecords(rawNpc, previousRaw, result.report.deduplicated);
         const ordinaryUpdate = birthdayUpdateRow(
             ordinary.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc)),
             profileUpdates.find(raw => mechanics.scanRowMatchesNpc(raw, rawNpc)),
