@@ -20,7 +20,7 @@ const list = value => (Array.isArray(value) ? value : []);
 // A line about a pack's effect quotes its condition or standing as written: it goes to Problems, not on the step's card.
 function unread(ws, text) {
     ws.warnings.push(text);
-    ws.card[text] = '';
+    (ws.card ??= {})[text] = '';
 }
 
 function condition(ws, text, bind, label) {

@@ -28,7 +28,7 @@ function problemOf(ws, def) {
 // A note about the pack and the calendar quotes the pack's ids: Problems only.
 function unfit(ws, text) {
     ws.warnings.push(text);
-    ws.card[text] = '';
+    (ws.card ??= {})[text] = '';
 }
 
 /**

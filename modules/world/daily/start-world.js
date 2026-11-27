@@ -10,7 +10,7 @@ import { recordAnchor } from './anchors.js';
 const DAY = 1440;
 const list = value => (Array.isArray(value) ? value : []);
 // A note about the pack's own start entry quotes it: Problems only.
-const unread = (ws, text) => { ws.warnings.push(text); ws.card[text] = ''; };
+const unread = (ws, text) => { ws.warnings.push(text); (ws.card ??= {})[text] = ''; };
 
 /** Apply `start` = `{ set: ["<condition>@<ref>[: <duration>]"], facts: ["<fact id>"] }` on `day`. */
 export function applyStartWorld(ws, start, day) {

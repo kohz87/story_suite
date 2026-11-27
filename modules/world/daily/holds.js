@@ -7,6 +7,7 @@
 import { resolveRef } from './geo.js';
 import { ancestors } from './geo-scope.js';
 import { entryActive } from './holds-read.js';
+import { refLabel } from './region-label.js';
 
 const DAY = 1440;
 const MAX_CONDITIONS = 64;
@@ -27,8 +28,14 @@ function entryOf(base, { timer, open, holds }) {
     return timer === null ? null : { ...plain, fadesAt: timer };
 }
 
-// A refused set or clear names the condition and ref as the pack wrote them: Problems only.
-function note(ws, text) { ws.warnings.push(text); ws.card[text] = ''; return false; }
+// A refusal for a ref the world does not have is about the pack: it quotes the pack's ids and goes to Problems only.
+function note(ws, text) { ws.warnings.push(text); (ws.card ??= {})[text] = ''; return false; }
+
+/** A cap that play can reach, said in words on the card and in Problems. */
+function full(ws, name, ref, why) {
+    ws.warnings.push(`${name.replace(/[-_]+/g, ' ')} on ${refLabel(ws.geo, ref)} was not set: ${why}.`);
+    return false;
+}
 
 /**
  * Set `name` at `ref`: `days` (a timer in whole days, at least 1), `null` (until cleared) or `'hold'` (held by `holder` while it is Active).
@@ -42,8 +49,8 @@ export function setCondition(ws, { name, ref, days, holder = null, by, why = '' 
     const old = ws.table[key];
     if (!old) {
         const all = Object.values(ws.table);
-        if (all.length >= MAX_CONDITIONS) return note(ws, `${key} was not set: the world already carries ${MAX_CONDITIONS} conditions.`);
-        if (all.filter(entry => entry.ref === found.name).length >= MAX_PER_REF) return note(ws, `${key} was not set: ${found.name} already carries ${MAX_PER_REF} conditions.`);
+        if (all.length >= MAX_CONDITIONS) return full(ws, name, found.name, `the world already carries ${MAX_CONDITIONS} conditions`);
+        if (all.filter(entry => entry.ref === found.name).length >= MAX_PER_REF) return full(ws, name, found.name, `${refLabel(ws.geo, found.name)} already carries ${MAX_PER_REF} conditions`);
     }
     const live = entryActive(old, minute);
     const parts = live ? partsOf(old) : { timer: null, open: false, holds: [] };

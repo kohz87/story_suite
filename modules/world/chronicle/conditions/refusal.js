@@ -5,6 +5,7 @@
 import { slotValue } from '../../../rpg/slot.js';
 import { groupOf, resolveAs } from '../../daily/geo-scope.js';
 import { readWorld } from '../world-daily/read-world.js';
+import { refLabel } from '../../daily/region-label.js';
 import { ledgerOf } from './ledger.js';
 import { MAX_CONDITIONS, MAX_PER_REF } from './limits.js';
 
@@ -41,16 +42,19 @@ function protectedResident(query, chronicle, geo, places) {
 export function setRefusal({ query, chronicle, geo, declared, ref, now, by }) {
     if (now === null) return 'the story has no date yet; a condition waits for one';
     const key = `${declared.name}@${ref}`;
+    // The sentence is shown to the reader: the condition in words, a region by its name.
+    const name = declared.name.replace(/[-_]+/g, ' ');
+    const there = refLabel(geo, ref);
     const { tomb } = ledgerOf(chronicle.ledger);
-    if (tomb && tomb.day === Math.floor(now / DAY) && tomb.keys.includes(key)) return `${declared.name} was cleared on ${ref} today; a clear is not undone the same day`;
+    if (tomb && tomb.day === Math.floor(now / DAY) && tomb.keys.includes(key)) return `${name} was cleared on ${there} today; a clear is not undone the same day`;
     const table = chronicle.conditions ?? {};
     if (!Object.hasOwn(table, key)) {
         if (Object.keys(table).length >= MAX_CONDITIONS) return `the world already carries ${MAX_CONDITIONS} conditions; one must end first`;
-        if (Object.values(table).filter(entry => entry?.ref === ref).length >= MAX_PER_REF) return `${ref} already carries ${MAX_PER_REF} conditions`;
+        if (Object.values(table).filter(entry => entry?.ref === ref).length >= MAX_PER_REF) return `${there} already carries ${MAX_PER_REF} conditions`;
     }
     if (declared.placeStatus === true && !String(by).startsWith('event:')) {
         const who = protectedResident(query, chronicle, geo, groupOf(geo, ref).length ? groupOf(geo, ref) : [ref]);
-        if (who) return `${who} lives at ${ref} and is protected; only an authored event may set ${declared.name} there`;
+        if (who) return `${who} lives at ${there} and is protected; only an authored event may set ${name} there`;
     }
     return '';
 }

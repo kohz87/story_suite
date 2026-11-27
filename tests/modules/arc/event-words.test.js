@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { readPlan, refuseResolving, worldBriefText } from '../../../modules/arc/plan.js';
+import { planText, readPlan, refuseResolving, worldBriefText } from '../../../modules/arc/plan.js';
 import { eventWorld } from '../../../modules/arc/plan/event-world.js';
 import { applyJudge } from '../../../modules/arc/judge/apply.js';
 import { rollPrompt } from '../../../modules/arc/judge/roll-prompt.js';
@@ -37,6 +37,8 @@ test('an EVENT line cites a long name with commas whole, cut to a name\'s length
         const read = readPlan(`<plan>\nARC: A — b\nEVENT: Riot — the market burns | where: Highmark | because: ${because}\n</plan>`, { world });
         assert.equal(read.items.length, 1, because);
         assert.match(read.items[0].desc, /^the market burns \(because: [^)]*\)$/);
+        // Accept reads the plan's text again without the world.
+        assert.deepEqual(readPlan(planText(read)).items, read.items, because);
         assert.match(read.items[0].desc, because.startsWith('grain') ? /grain dear; Factors/ : /\(because: Factors call/);
     }
     assert.ok(key.startsWith(SAID.slice(0, 40)));

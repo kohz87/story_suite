@@ -43,7 +43,7 @@ function fixed(ws, def, slot, day, outcome, why) {
     const end = `; ${def.fallback ? 'its fallback was applied' : 'it did nothing'}.`;
     const text = `A happening at ${slot.place}: ${why}${end}`;
     ws.warnings.push(text);
-    ws.card[text] = `A happening at ${slot.place}: ${why.replace(/ \(.*\)$/s, '')}${end}`;
+    (ws.card ??= {})[text] = `A happening at ${slot.place}: ${why.replace(/ \(.*\)$/s, '')}${end}`;
 }
 
 /** Resolve a slot with its stored `result` ({ outcome, answer? }) or none (the fallback), on `day`. */

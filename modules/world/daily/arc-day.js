@@ -41,7 +41,7 @@ function fire(ws, arc, step, day) {
         const said = `A happening at ${arc.place}: step "${step.name}" no longer holds`;
         const text = `${said} (${checked.errors[0]}); it was skipped.`;
         ws.warnings.push(text);
-        ws.card[text] = `${said}; it was skipped.`;
+        (ws.card ??= {})[text] = `${said}; it was skipped.`;
     } else {
         applyEffects(ws, checked.block, { kind: 'template', id: arc.template, title: checked.name, held: false, open: true }, day, bind);
         ws.journal.push({ day, text: checked.summary, title: checked.name, by: `template:${arc.template}`, place: arc.place, reach: def.reach });
