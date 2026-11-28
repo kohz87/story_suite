@@ -73,6 +73,9 @@ export const RULE_LINES = Object.freeze({
     // A later `+ xp` in a reply that names another standing group counts that group's foes down and pays nothing (Text RPG module-parts/kinds/xp.js).
     // A reply with no mark refuses every `+ xp` after the first.
     xpCountsDown: line => line?.kind === 'xp',
+    // An `+ xp` with no `group:` counts down the groups the reply's `? try ... against:` lines named first, then older groups, then those it declared (Text RPG module-parts/aimed.js); only a marked reply
+    // records them (a try's `aimed`, a new group's `born`). A reply with no mark counts lowest threat first. Any foes, try or xp line counts, so an old reply with one never gains it on Continue or Re-read.
+    xpAimedFirst: line => ['foes', 'try', 'xp'].includes(line?.kind),
     // `~ reveal Name | opened: <id>` may open a person's next pack secret not yet told though its gate is closed, and `<id>` may be the pack's own id
     // (NPC State meters/npc-lines-parts/secret.js). A reply with no mark opens a gated secret only while its gate is open, by its sec_ id.
     revealNext: line => line?.kind === 'reveal',

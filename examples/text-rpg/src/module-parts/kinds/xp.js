@@ -1,4 +1,4 @@
-// `+ xp Party — what was overcome [| foes: N] [| group: Name]`: experience. Each foe that fell pays its kind's XP times its group's threat, up to the foes still standing in the foes record, and a battle pays no more than its cap; with no roll in the reply nothing is paid but the foes are still counted down. With nothing standing and no battle current (none yet, or the last one closed more than 60 story minutes ago; with no clock, before the reply just after its close): 10 XP when a roll succeeded this reply, else none; while the battle still stands or has just closed, nothing (its XP was paid as the foes fell). The cap is the strongest group's, scaled by the XP rate like the XP. One xp line pays a reply; a later one whose `group:` names a standing group no earlier xp line of the reply hit still counts its foes down, paying nothing (rule mark `xpCountsDown`; a reply with no mark refuses it). An old line's `size:` and `threat:` are ignored. Level and stat points follow from xp (standing.js).
+// `+ xp Party — what was overcome [| foes: N] [| group: Name]`: experience. Each foe that fell pays its kind's XP times its group's threat, up to the foes still standing in the foes record (with no `group:`: first the groups the reply's own `? try ... against:` lines named, then those standing before the reply, then those it declared, lowest threat first in each; aimed.js, under rule mark `xpAimedFirst`; a reply with no mark keeps the plain lowest-threat order), and a battle pays no more than its cap; with no roll in the reply nothing is paid but the foes are still counted down. With nothing standing and no battle current (none yet, or the last one closed more than 60 story minutes ago; with no clock, before the reply just after its close): 10 XP when a roll succeeded this reply, else none; while the battle still stands or has just closed, nothing (its XP was paid as the foes fell). The cap is the strongest group's, scaled by the XP rate like the XP. One xp line pays a reply; a later one whose `group:` names a standing group no earlier xp line of the reply hit still counts its foes down, paying nothing (rule mark `xpCountsDown`; a reply with no mark refuses it). An old line's `size:` and `threat:` are ignored. Level and stat points follow from xp (standing.js).
 import { players } from '../members.js';
 import { labelOf } from '../line-read.js';
 import { requireActive } from '../active.js';
@@ -7,6 +7,7 @@ import { LEVEL, scaleXp, xpOfLevel } from '../../rules/levels.js';
 import { readRules, xpCeiling } from '../rules-now.js';
 import { groupId, standing } from '../foes-record.js';
 import { touch } from '../foes-stale.js';
+import { aimedFirst, countingOrder } from '../aimed.js';
 import { payParts } from '../foes-pay.js';
 import { joinable } from '../foes-fights.js';
 import { DOMAIN } from '../../domain/shape.js';
@@ -17,7 +18,7 @@ const ONE_LINE = 'Only one xp line counts in a reply.';
 // How many were overcome: a whole number 1..50; a missing or bad count is one.
 const foesOf = text => (/^\d{1,2}$/.test(text) && Number(text) >= 1 && Number(text) <= 50 ? Number(text) : 1);
 
-// What fell, as [{ group, count }]: with a foes record the foes still standing (all groups, lowest threat first, or the named group) count down and no more than stand are counted; with none standing, nothing.
+// What fell, as [{ group, count }]: with a foes record the foes still standing (all groups, in counting order, or the named group) count down and no more than stand are counted; with none standing, nothing.
 function paidFoes(ctx, slice, line, asked) {
     const groups = standing(slice, slice.dice?.[ctx.reply?.sid]?.clock);
     const label = labelOf(line, 'group');
@@ -32,7 +33,8 @@ function paidFoes(ctx, slice, line, asked) {
     }
     let left = asked;
     const paid = [];
-    for (const [id, group] of [...groups].sort((a, b) => a[1].threat - b[1].threat)) {
+    const ordered = aimedFirst(ctx) ? countingOrder(slice, ctx.reply?.sid, groups) : [...groups].sort((a, b) => a[1].threat - b[1].threat);
+    for (const [id, group] of ordered) {
         const count = Math.min(left, group.left);
         if (count <= 0) continue;
         group.left -= count;

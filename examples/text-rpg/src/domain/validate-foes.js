@@ -22,6 +22,7 @@ export function checkFoes(foes, problems) {
         if (!isInt(group.left, 0, 200)) problems.push(`${where}.left must be a whole number from 0 to 200.`);
         if (group.at !== undefined && group.at !== null && !isInt(group.at, 0, 1e9)) problems.push(`${where}.at must be a whole number or none.`);
         if (group.sid !== undefined && group.sid !== null && (typeof group.sid !== 'string' || group.sid.length > 80)) problems.push(`${where}.sid must be a reply id or none.`);
+        if (group.born !== undefined && (typeof group.born !== 'string' || group.born.length > 80)) problems.push(`${where}.born must be a reply id.`);
         if (group.fell !== undefined && !isInt(group.fell, 0, 200)) problems.push(`${where}.fell must be a whole number from 0 to 200.`);
         if (group.fled !== undefined && typeof group.fled !== 'boolean') problems.push(`${where}.fled must be true or false.`);
         if (typeof group.fight !== 'string' || !group.fight || group.fight.length > 80) problems.push(`${where}.fight must name a fight.`);

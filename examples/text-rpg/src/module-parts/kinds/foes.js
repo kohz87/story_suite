@@ -8,6 +8,7 @@ import { labelOf } from '../line-read.js';
 import { groupId, recordOfFoes, standing } from '../foes-record.js';
 import { touch } from '../foes-stale.js';
 import { joinable, trimFoes } from '../foes-fights.js';
+import { aimedFirst } from '../aimed.js';
 
 const PER_REPLY = 6;
 const MOST = 99;
@@ -72,7 +73,8 @@ export function applyFoes(ctx, line) {
     const joins = joinable(slice, sid, now) ?? sid;
     if (!record.fights[joins]) record.fights[joins] = { rolled: {}, taught: [] };
     const shown = free.n === 1 ? name : clip(`${name} ${free.n}`, LIMITS.name);
-    record.groups[free.gid] = { name: shown, kind, threat, count, left: count, fight: joins };
+    // (`born`: the reply that declared the group, which reinforcements keep; its `+ xp` counts such groups last: aimed.js)
+    record.groups[free.gid] = { name: shown, kind, threat, count, left: count, fight: joins, ...(aimedFirst(ctx) ? { born: sid } : {}) };
     touch(ctx, slice, record.groups[free.gid]);
     trimFoes(record);
     return { summary: `Foes set: ${foeLine(shown, kind, threat, count)}.`, narrate: false, data: { group: free.gid, name: shown, count, kind, threat, reinforcements: false, left: count } };

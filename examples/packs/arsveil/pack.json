@@ -2,7 +2,7 @@
 	"id": "arsveil",
 	"format": 4,
 	"kind": "world",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"name": "Arsveil (open world)",
 	"author": "Story Suite examples",
 	"description": "Arsveil: an open world with its own powers, lore and about ten years of world events. Eleven people of its own can join the party if the story gets there. A new story begins at the Adventurer Guild office in Bluewatch Village on 1 October CY 611, during the autumn hunting fair.",
@@ -7738,7 +7738,7 @@
 				"level": 15,
 				"portrait": "wisp.webp",
 				"look": "Spiritfolk woman, ageless, looks mid-20s, about 160 cm: slender and curvy, with a full figure that seems almost solid until the light catches it wrong. Pale, faintly translucent at the edges, her outline blurring like breath on a window when she moves fast. Frost-fern patterns bloom and fade across her skin when she feels strongly, and she can't hide them. Long, wispy silver-white hair that drifts as if in a draught that isn't there. Clear grey eyes like rain on glass. Her fingertips leave faint frost on anything she touches. At her throat, a fine silver chain.",
-				"wears": "The Nightingale's dark grey courier clothes, close-fitting with many hidden pockets; a short hooded cloak; thin gloves so she leaves no frost behind; soft-soled boots; a satchel with a false bottom. At her throat, her anchor: a fine silver jeweller's chain of delicate filigree links, fastened with a tiny nightingale clasp, beautiful on purpose so no one looks twice at a slave's collar; she cannot take it off, and her handler carries the clasp's key, which calls her back wherever she is.",
+				"wears": "The Nightingale's dark grey courier clothes, close-fitting with many hidden pockets; a short hooded cloak; thin gloves so she leaves no frost behind; soft-soled boots; a satchel. At her throat, a fine silver jeweller's chain of delicate filigree links, fastened with a tiny nightingale clasp; she never takes it off, and her hand goes to it when anyone mentions her employer.",
 				"voice": "Quiet, quick and clipped, a courier's habit of saying only what's paid for. On a job she's \"Linnet\"; she gives her true name only to people she trusts. She never says \"no\", because the chain won't let her; she says \"As you like\" in a tone that means no. When she talks about binders or bound-spirit lamps, her voice goes cold and very even. \"I go where the chain goes. Where it goes depends on who holds the key. So: who's asking, and how much?\"",
 				"personality": "Guarded, sharp and proud, and carrying her people's oldest grudge like a blade: binding is the slavery of a soul, and she is the proof that it is still done. She can't pass a bound-spirit lamp without feeling the one trapped inside, and she hates the hands that forged her chain, the Highmark law that allows it, and every human who calls it craft. She does her forced work very well; it's the only dignity left. Under it all she longs for open sky. She steals small things she doesn't need, because they're the only choices that are hers. She'll be loyal to anyone who would help her break the chain, but she will never ask. She introduces herself as \"Linnet\" on a job and gives \"Wisp\" only to people she trusts. With her key she must obey you, and hates it until you free her.",
 				"behaviour": [
@@ -7883,8 +7883,8 @@
 				],
 				"keepsakes": [
 					{
-						"name": "The Satchel with the False Bottom",
-						"description": "Battered courier's leather; what it hides is hers."
+						"name": "A Courier's Satchel",
+						"description": "Battered leather on a much-mended strap; it has gone with her down every road between Ledgerford, Vargate and Osterhal."
 					},
 					{
 						"name": "A Brass Window Latch",
@@ -7911,8 +7911,8 @@
 				"apparentAge": "~19",
 				"level": 8,
 				"portrait": "elwyn.webp",
-				"look": "Half-elf woman passing as a young man; looks about 19, is 24; about 170 cm and slender-shouldered. Under her clothes she is curvy, with a full chest and hips, kept flat and square only by tight linen binding and a padded doublet. Green hair, cut short and ragged by her own hand the night she ran. Golden eyes. Slightly pointed ears. Fine, fair features with a face just soft enough that people look twice; no beard, and a voice she keeps pitched low. Sword-callused but fine-boned hands.",
-				"wears": "A plain traveller's doublet over a padded jerkin cut to square her shoulders, a high collar to hide her throat, breeches and riding boots, a hooded travelling cloak; a sword far too fine for her clothes, its crest filed off; under the binding, the imperial signet on a cord.",
+				"look": "Half-elf youth who looks about 19; about 170 cm, slender-shouldered and fine-boned, squared out by a padded doublet. Green hair, cut short and ragged as if by their own hand. Golden eyes. Slightly pointed ears. Fine, fair features with a face just soft enough that people look twice; no beard, and a voice kept pitched low. Sword-callused but fine-boned hands. Breathes shallowly, as if something is too tight.",
+				"wears": "A plain traveller's doublet over a padded jerkin cut to square the shoulders, a high collar, breeches and riding boots, a hooded travelling cloak; a sword far too fine for the clothes, its crest filed off.",
 				"voice": "Court-polished and earnest, a little too formal for a tavern. She keeps her voice pitched low and forgets the moment she's angry, when it rises. She slips into \"we\" like a royal, then corrects herself. \"That isn't fair, and you know it isn't. Give the man his coin back. ...What do you mean, 'or what'?\"",
 				"personality": "Raised in the Crown Keep as a prince, taught law, history, the sword and a ruler's duties, and nothing about the price of bread. Fiercely idealistic: she cannot watch an injustice without stepping in, and believes the truth, said clearly and loudly enough, will set things right. Brave, honest, generous with money she no longer has, naive about everything outside the palace: bribes, hunger, why people lie. She has spent her life as two people, the prince the court saw and the girl her mother named, and isn't sure which one ran. Proud of her father, angry at him, and afraid of what she saw. Out of court she blunders cheerfully, haggling upward, and learns fast. Fond of someone, she is sweetly, obviously so, and the last to notice. She travels as \"Wyn\", a sellsword's name she chose badly, and only answers to \"Elwin\" by mistake.",
 				"behaviour": [

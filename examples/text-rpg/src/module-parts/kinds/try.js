@@ -7,6 +7,7 @@ import { rollPractice } from '../../rules/practice.js';
 import { verdict } from '../../rules/roll.js';
 import { stageOf } from '../../words/pools.js';
 import { recordOf } from '../dice-source.js';
+import { aimedFirst } from '../aimed.js';
 import { foeFor } from '../foe-pick.js';
 import { standing } from '../foes-record.js';
 import { noteRolled } from '../foes-fights.js';
@@ -98,6 +99,8 @@ export function applyTry(ctx, line) {
     if (found.skill) ({ gained: practice, rankUp } = addPractice(slice, ctx.reply?.sid, member, found.skill, 'try', rollPractice(result.band, learnAt, heard)));
     if (found.skill) noteRolled(slice, member, found.skill);
     record.used = (record.used ?? 0) + 1;
+    // (the groups this reply's tries named, which its `+ xp` counts down first: aimed.js)
+    if (against && aimedFirst(ctx) && !record.aimed?.includes(against)) record.aimed = [...(record.aimed ?? []), against];
     record.hardest = Math.max(record.hardest ?? 0, index);
     if (ruled !== null) record.threat = Math.max(record.threat ?? 0, ruled);
     if (result.band === 'great' || result.band === 'success' || result.band === 'cost') record.won = true;

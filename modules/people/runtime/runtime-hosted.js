@@ -10,6 +10,7 @@ import { tieDayAt } from '../transcript/transcript.js';
 import { normalizeRelationshipBaseline, isTerminalNpcDeath, npcMatchesLabel, storyMinuteText } from '../core/core.js';
 import { storyBlockIsV2 } from '../npc-api/host-probe.js';
 import { ownerTargets } from '../npc-api/dossier-target.js';
+import { resolveNpcId } from '../social/social.js';
 import { castView, findCastPerson, normalizeCast } from '../dossier/cast-dossier.js';
 import { getSettings, setRpgProbe } from '../settings/runtime-settings.js';
 import { createTargetNotes } from './runtime-hosted-parts/target-notes.js';
@@ -297,6 +298,12 @@ export function createHostedPart(rt, deps) {
     // (v2 hidden notes) The layered notes a scan wrote for the dossiers it just built (`ids`), read from the rows the model
     // returned: 2 to 5 per person, cleaned, set once and never rewritten by a later scan. A dossier that already has notes
     // (the pack's, the reader's) keeps them. Returns how many dossiers got notes.
+    function rowIsFor(item, npc, npcs) {
+        if (item.settledId) return item.settledId === npc.id;
+        const owner = item.id ? resolveNpcId(npcs, String(item.id)) : null;
+        return owner ? owner === npc : npcMatchesLabel(npc, String(item.name || ''));
+    }
+
     function attachGeneratedSecrets(state, ids, ...sources) {
         const adapter = adapterMeters();
         if (!adapter || !Array.isArray(state?.npcs)) return 0;
@@ -305,8 +312,8 @@ export function createHostedPart(rt, deps) {
         for (const id of ids || []) {
             const npc = state.npcs.find(item => item?.id === id && !item.archived);
             if (!npc || (Array.isArray(npc.secrets) && npc.secrets.length)) continue;
-            const row = rows.find(item => Array.isArray(item?.secrets) && item.secrets.length
-                && (item.settledId ? item.settledId === npc.id : String(item.id || '') === npc.id || npcMatchesLabel(npc, String(item.name || ''))));
+            // A row whose id is a stored dossier's is that dossier's alone: its notes never go to someone else who answers to its name (a new Reed beside Orrin Reed).
+            const row = rows.find(item => Array.isArray(item?.secrets) && item.secrets.length && rowIsFor(item, npc, state.npcs));
             let made = [];
             try { made = row ? adapter.generatedSecrets(row.secrets) : []; } catch { made = []; }
             if (!made.length) continue;
