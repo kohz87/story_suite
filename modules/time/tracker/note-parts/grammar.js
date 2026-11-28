@@ -13,7 +13,7 @@ export const GRAMMAR = Object.freeze({
     secret: '',
     hook: '+ hook|quest Name — a hook is an open thread or lead (a job only offered stays in the story; once {{user}} accepts it, + quest with the hook\'s name alone: code keeps its summary and labels, add only new ones); a quest is a job {{user}} accepted, not an errand. When a job or lead is finished, paid, failed, given up or no longer matters, close it in the same reply: - quest Name — outcome (or - hook Name) | goal | giver | reward | step | due | difficulty | type. Write a hook when someone mentions a job, rumour or trouble {{user}} could follow, e.g. + hook Missing boatman — Person A says he vanished near Place X | giver: Person A | goal: ask at the docks; once {{user}} agrees: + quest Missing boatman | reward: 20 copper',
     quest: '',
-    time: '~ time 9:30 am (the clock now, today; never a date, never earlier than the story time) or ! time +2h / ! time next morning / ! time tomorrow 4:50 am (time passes; the only way into a later day; give the hour whenever the reply says or implies one, as a bare next morning is 9 am), never both for one stretch',
+    time: '~ time 9:30 am (the clock now, today; never a date, never earlier than the story time) or ! time +2h / ! time tomorrow 4:50 am (time passes; the only way into a later day; give the hour the reply implies, as next morning alone is 9 am), never both for one stretch',
 });
 
 // The grammar Story Director alone writes (no fight runner): a beat is a turn of the story only.
