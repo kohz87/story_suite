@@ -137,3 +137,17 @@ test('the People here line gives each person the start of their personality and 
         assert.doesNotMatch(line.slice(line.indexOf(AFTER)), /secret/i, 'never a secret');
     } finally { host.destroy?.(); }
 });
+
+test('someone at the scene\'s very place is told with their whole look and what they wear; everyone else the whole look without the clothes (owner, 28 Nov: Kel came in as a broad dwarf with dark hair)', async () => {
+    const { faceOf } = await import('../../../../modules/cast/cast/note-parts/face.js');
+    const arsveil = JSON.parse(readFileSync(new URL('../../../../examples/packs/arsveil/pack.json', import.meta.url), 'utf8'));
+    const raw = arsveil.content.cast.find(item => item.id === 'kel');
+    const entry = { name: raw.name, raw };
+    const full = faceOf(entry, { full: true });
+    assert.ok(full.includes('Long, straight silver hair worn forward like a veil'), 'the whole look');
+    assert.match(full, /wears: A Tower servant's grey robe cut down into a work dress/);
+    const short = faceOf(entry);
+    assert.match(short, /silver hair/);
+    assert.match(short, /ink-stained, burn-marked fingers/, 'everyone on the line gets the whole look');
+    assert.doesNotMatch(short, /wears:/, 'clothes only for someone at the very place');
+});

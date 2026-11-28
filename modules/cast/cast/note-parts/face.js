@@ -6,18 +6,24 @@
 import { cutWords } from '../domain.js';
 
 const ROLE_MAX = 60;
-const LOOK_MAX = 90;
+// (the whole look, as the meeting cue tells it: owner, 28 Nov; someone at the scene's very place gets what they wear too)
+const LOOK_MAX = 800;
+const WEARS_FULL = 500;
 const MANNER_MAX = 70;
 const VOICE_MAX = 90;
 
-/** `Name, role (species. look), manner: first sentence of the personality, speaks: voice` for a cast entry (a "; " inside a part reads as a comma). */
-export function faceOf(entry) {
+/**
+ * `Name, role (species. look), manner: first sentence of the personality, speaks: voice` for a cast entry (a "; " inside a part reads as a comma).
+ * The whole look (up to LOOK_MAX); `full` adds what they wear, for someone at the scene's very place.
+ */
+export function faceOf(entry, { full = false } = {}) {
     const role = cutWords(String(entry.raw?.role ?? '').replace(/;/g, ','), ROLE_MAX);
     const species = String(entry.raw?.species ?? '').trim().replace(/;/g, ',');
     // (the race leads the look when the look doesn't name it, so the narrator never guesses it)
     const look = cutWords(`${species && !String(entry.raw?.look ?? '').toLowerCase().includes(species.toLowerCase()) ? `${species}. ` : ''}${String(entry.raw?.look ?? '')}`.replace(/;/g, ','), LOOK_MAX);
+    const wears = full ? cutWords(String(entry.raw?.wears ?? '').replace(/;/g, ',').replace(/[.]$/, ''), WEARS_FULL) : '';
     // (the first sentence of the personality, and the voice, so the first lines they speak are theirs)
     const manner = cutWords(String(entry.raw?.personality ?? '').split(/(?<=[.!?])\s/)[0].replace(/;/g, ',').replace(/[.]$/, ''), MANNER_MAX);
     const voice = cutWords(String(entry.raw?.voice ?? '').replace(/;/g, ',').replace(/[.]$/, ''), VOICE_MAX);
-    return `${entry.name}${role ? `, ${role}` : ''}${look ? ` (${look.replace(/[.]$/, '')})` : ''}${manner ? `, manner: ${manner}` : ''}${voice ? `, speaks: ${voice}` : ''}`;
+    return `${entry.name}${role ? `, ${role}` : ''}${look ? ` (${look.replace(/[.]$/, '')})` : ''}${wears ? `, wears: ${wears}` : ''}${manner ? `, manner: ${manner}` : ''}${voice ? `, speaks: ${voice}` : ''}`;
 }

@@ -5,6 +5,7 @@ What changed in each release, in short. The full record of every change is in [t
 ## Unreleased
 
 - Cast: when you first meet someone, the narrator now gets their whole look and what they wear, not a short cut of the look.
+- Cast: the world's people nearby are told with their whole look, so a narrator bringing one in doesn't invent it; someone at the very spot gets their clothes too.
 - World pulse: a schedule shift that happens out of sight is no longer told to the narrator, so replies stop cutting away to show it.
 - Text RPG: the New character window now says what could not be added and offers Done, instead of leaving a greyed-out Create.
 - Pre-roll checks stand aside while the Text RPG rolls its own dice: no wasted model call and no 2.5 s timeout notice on every message.

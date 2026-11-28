@@ -16,6 +16,8 @@ import { isSettlementKind } from '../../../scene/settlement-kind.js';
 
 /** At most this many people on the line (each one's face is cut to size in face.js). */
 export const HERE_MAX = 4;
+/** Of them, at most this many at the scene's very place are told what they wear too (face.js `full`); everyone gets their whole look. */
+export const HERE_FULL = 2;
 const KINDS = new Set(['figure', 'companion']);
 
 // One instruction, worded for any persona name (no verb agrees with {{user}}); the list follows it.
@@ -74,6 +76,7 @@ export function hereLine(slice, frame, { persona = '' } = {}) {
         .sort((a, b) => a.rank - b.rank || order.get(a.key) - order.get(b.key))
         .slice(0, HERE_MAX);
     if (!people.length) return '';
-    const said = people.map(({ entry }) => faceOf(entry));
+    let full = 0;
+    const said = people.map(({ entry, rank }) => faceOf(entry, { full: rank === 0 && full++ < HERE_FULL }));
     return `${HEAD} ${said.join('; ')}.`;
 }
