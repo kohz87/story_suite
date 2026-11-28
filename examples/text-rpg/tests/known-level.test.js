@@ -116,3 +116,14 @@ test('host: the joined level stays when the pack is switched off, through a rebu
     assert.equal(named(host, 'Nasai').companion.level, 3);
     sound(host);
 });
+
+test('an own name never borrows another person\'s level through an alias: own names (dossier, then pack) first, aliases only when nobody is called so (review 28 Nov)', () => {
+    // Dossier "Ash" with no level, dossier Vorn (alias Ash, level 9), pack "Ash" at 3: the pack's own Ash, not Vorn.
+    assert.equal(joined('Ash', { people: [person('npc_a', 'Ash'), person('npc_v', 'Vorn', 9, ['Ash'])], cast: [person('ash', 'Ash', 3)] }).level, 3);
+    // Only Vorn's alias in the dossiers and the pack's own Ash at 3: the pack's own name wins over a dossier alias.
+    assert.equal(joined('Ash', { people: [person('npc_v', 'Vorn', 9, ['Ash'])], cast: [person('ash', 'Ash', 3)] }).level, 3);
+    // Two dossiers called Ash who differ, and a pack entry X with the alias Ash: nobody's level (the narrator's), never X's.
+    assert.equal(joined('Ash', { people: [person('npc_a', 'Ash', 2), person('npc_b', 'Ash', 7)], cast: [person('x', 'X', 30, ['Ash'])] }).level, 12);
+    // Nobody called Ash: an alias answers (the dossier's first).
+    assert.equal(joined('Ash', { people: [person('npc_v', 'Vorn', 9, ['Ash'])], cast: [person('x', 'X', 30, ['Ash'])] }).level, 9);
+});

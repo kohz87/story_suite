@@ -17,19 +17,28 @@ function called(rows, key) {
     ];
 }
 
-// A name beats an alias. Two people under the same one with different levels say nothing.
-function agreed(rows, key, levelFrom) {
-    for (const tier of called(rows, key)) {
-        const levels = [...new Set(tier.map(levelFrom).filter(level => level !== null))];
-        if (levels.length) return levels.length === 1 ? levels[0] : null;
-    }
-    return null;
+// One tier's answer: { found } when nobody in it is called so; else the one level they agree on (null: no level, or namesakes who differ).
+function tierLevel(rows, levelFrom) {
+    if (!rows.length) return { found: false, level: null };
+    const levels = [...new Set(rows.map(levelFrom).filter(level => level !== null))];
+    return { found: true, level: levels.length === 1 ? levels[0] : null };
 }
 
-/** The known level of the person `name`, or null: the narrator's level is then used. */
+/**
+ * The known level of the person `name`, or null: the narrator's level is then used. Own names first (the dossier's, then the pack's), and only
+ * when nobody is called so, an alias (the dossier's, then the pack's): a name that is someone's own never borrows another person's level through
+ * an alias. The first tier that has anyone answers, a level or nothing (a dossier with no level still lets the pack's entry of the same name answer).
+ */
 export function knownLevel(ctx, name) {
     const key = keyOf(name);
     if (!key || ctx.carrier?.rules?.includes('companionKnownLevel') !== true) return null;
-    return agreed(ask(ctx, 'people.list', {}), key, row => levelIn(ask(ctx, 'people.dossier', { id: row.id })))
-        ?? agreed(ask(ctx, 'packs.content', { kind: 'cast' }), key, levelIn);
+    const people = ask(ctx, 'people.list', {}), cast = ask(ctx, 'packs.content', { kind: 'cast' });
+    const fromDossier = row => levelIn(ask(ctx, 'people.dossier', { id: row.id }));
+    const [ownPeople, aliasPeople] = called(people, key), [ownCast, aliasCast] = called(cast, key);
+    for (const pair of [[[ownPeople, fromDossier], [ownCast, levelIn]], [[aliasPeople, fromDossier], [aliasCast, levelIn]]]) {
+        const answers = pair.map(([rows, from]) => tierLevel(rows, from));
+        if (!answers.some(answer => answer.found)) continue;
+        return answers.find(answer => answer.level !== null)?.level ?? null;
+    }
+    return null;
 }
