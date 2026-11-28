@@ -31,6 +31,9 @@ button.rnr{cursor:pointer}
 .prg .star{position:absolute;top:-3px;width:22px;height:22px;border-radius:50%;background:var(--su-panel2);display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--su-line2)}
 .prg .star{right:-4px;color:#f0b84a;font:900 13px var(--su-font)}
 [data-scheme="light"] .prg .star{color:#8a5600}
+/* (the "in your party" badge: a disc at the top left, as the star sits top right; owner 28 Nov: it drew as a bare white figure over the portrait) */
+.prg .pty{position:absolute;top:-3px;left:-4px;width:22px;height:22px;border-radius:50%;background:var(--su-panel2);display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--su-line2);color:var(--su-accent)}
+.prg .pty>svg{position:static;width:13px;height:13px}
 .ring-track{stroke:var(--su-line2)}
 .ring-arc.f0{stroke:var(--su-info)}.ring-arc.f1{stroke:#ff7aa8}.ring-arc.f2{stroke:#c08aff}.ring-arc.f3{stroke:var(--su-warn)}
 /* The mock draws the ring arcs in its fixed dark-theme colours in both schemes. */
