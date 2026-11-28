@@ -970,6 +970,8 @@
   "examples/text-rpg/tests/practice.test.js": "Tests practice for every use: `~ spend` +5, the threat scale, once a reply, a roll winning over a spend.",
   "examples/text-rpg/tests/rolls.test.js": "Tests the reasons a roll was raised, the dice note's floor reasons, and the cards under a reply read from its own receipts.",
   "examples/text-rpg/src/module-parts/aimed.js": "The order an `+ xp` with no group counts foes down: aimed at by the reply's tries, then older groups, then ones it declared; and whether the reply is under that rule.",
+  "examples/text-rpg/src/module-parts/hit-wear.js": "Wears one worn piece when a try's hit wounds: picks the piece the hit names, else body armour or shield, once a reply, under rule mark `hitWear`.",
+  "examples/text-rpg/tests/hit-wear.test.js": "Tests the wear of a wounding hit: the piece chosen, scuff or tear, the narrator's own wear line winning in either order, companions, unmarked old replies and replay.",
   "examples/text-rpg/tests/xp-aimed.test.js": "Tests the counting order of `+ xp` through the host: the aimed foe, older before new, same-reply kills, `group:` lines, and replies stored before the rule.",
   "examples/text-rpg/tests/xp-foes.test.js": "Tests the `foes: N` label of `+ xp`: each foe counts, bad counts are one, the guard, rate and cap apply after, the card says the count, rebuild equals live.",
   "examples/text-rpg/src/rules/edge.js": "Reads a `| edge: +1 (reason)` label: how far the narrator moves a roll's difficulty (at most 2 either way), and that an edge with no reason is ignored.",

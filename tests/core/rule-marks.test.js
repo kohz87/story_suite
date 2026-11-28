@@ -51,7 +51,10 @@ test('the rule table: a key line with a death word is diedAny; other lines and k
     assert.deepEqual(ruleMarksFor([line('+ party Mara')]), ['partyFields', 'partyFour', 'partyRoom']);
     assert.deepEqual(ruleMarksFor([line('- party Mara')]), ['partyLeft'], 'a leaving line changes no room, and carries only partyLeft');
     assert.deepEqual(RULE_LINES.partyRoom({ kind: 'dm', op: '+', raw: '+ party Mara' }), true, 'conservative: the raw words count, however it parsed');
-    assert.deepEqual(Object.keys(RULE_LINES), ['checks', 'diceInOrder', 'clockFace', 'placeFromMap', 'partyRoom', 'partyFour', 'diedAny', 'factionTags', 'xpKept', 'oneCoin', 'partyFields', 'partyLeft', 'caretWords', 'foesFresh', 'foesClear', 'clockMonth', 'youRank', 'youLook', 'skillPractice', 'assistPlace', 'assistFaction', 'assistFactionFresh', 'assistPresent', 'gearOrder', 'gearFinesse', 'itemIds', 'consumableRecovery', 'placeInside', 'carryRoster', 'restCurrent', 'xpCountsDown', 'xpAimedFirst', 'revealNext', 'npcToward', 'mountRiders', 'supplyKind', 'packPlaceIds']);
+    assert.deepEqual(Object.keys(RULE_LINES), ['checks', 'diceInOrder', 'clockFace', 'placeFromMap', 'partyRoom', 'partyFour', 'diedAny', 'factionTags', 'xpKept', 'oneCoin', 'partyFields', 'partyLeft', 'caretWords', 'foesFresh', 'foesClear', 'clockMonth', 'youRank', 'youLook', 'skillPractice', 'assistPlace', 'assistFaction', 'assistFactionFresh', 'assistPresent', 'gearOrder', 'gearFinesse', 'itemIds', 'consumableRecovery', 'placeInside', 'carryRoster', 'restCurrent', 'xpCountsDown', 'xpAimedFirst', 'hitWear', 'revealNext', 'npcToward', 'mountRiders', 'supplyKind', 'packPlaceIds']);
+    assert.ok(ruleMarksFor([line('? try Astra | Lore | hard')]).includes('hitWear'), 'any try line');
+    assert.ok(!ruleMarksFor([line('~ item Coat | wear: tear')]).includes('hitWear'));
+    assert.ok(!ruleMarksFor([line('+ xp Party — rats')]).includes('hitWear'));
     assert.deepEqual(ruleMarksFor([line('~ reveal Oren | opened: rite | quote: "said it all"')]), ['revealNext']);
     assert.deepEqual(ruleMarksFor([line('~ npc Mira | Toward: A friend.')]), ['npcToward']);
     assert.deepEqual(ruleMarksFor([line('~ npc Mira | goal: rest')]), [], 'a npc line with no toward label');

@@ -20,6 +20,7 @@ function rollRow(roll, named) {
     if (roll.edge) parts.push(`edge ${roll.edge.steps > 0 ? '+' : '−'}${Math.abs(roll.edge.steps)} (${roll.edge.why})`);
     if (roll.unlearned) parts.push('not on the sheet');
     if (PAID[roll.paid]) parts.push(roll.paid === 'wound' && roll.hit ? `${PAID.wound} (${roll.hit})` : PAID[roll.paid]);
+    if (roll.wore) parts.push(roll.wore);
     if (roll.practice > 0) parts.push(`practice +${roll.practice}${roll.rankUp ? ` (${roll.target} reaches ${roll.rankUp})` : ''}`);
     return { text: `${named ? `${roll.who}: ` : ''}${parts.join(' · ')}`, tag: '' };
 }

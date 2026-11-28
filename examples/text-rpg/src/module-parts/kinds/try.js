@@ -1,4 +1,4 @@
-// `? try Who | skill or stat | difficulty [| against: Name] [| edge: +1 (reason)] [| hit: what struck them]`: a failure or a success at a cost wounds only with `hit:` (the story shows the roller struck; the band sets how many stages); the code reads the verdict from the reply's recorded die, the bonus and the difficulty (with foes standing the group's threat starts it, else the narrator's word; the edge moves it, conditions hold a floor, the tone shifts it). An old line's `threat:` is ignored.
+// `? try Who | skill or stat | difficulty [| against: Name] [| edge: +1 (reason)] [| hit: what struck them]`: a failure or a success at a cost wounds only with `hit:` (the story shows the roller struck; the band sets how many stages); the code reads the verdict from the reply's recorded die, the bonus and the difficulty (with foes standing the group's threat starts it, else the narrator's word; the edge moves it, conditions hold a floor, the tone shifts it). A wounding hit also wears one worn piece (hit-wear.js). An old line's `threat:` is ignored.
 import { DIFFICULTIES, difficultyIndex, isDifficultyWord } from '../../rules/difficulty.js';
 import { readEdge } from '../../rules/edge.js';
 import { floorIndex, raiseToFloor } from '../../rules/floor.js';
@@ -19,6 +19,7 @@ import { floorWhy } from '../floor-why.js';
 import { liveConditions } from '../conditions.js';
 import { skillActive } from '../effective.js';
 import { gearOf } from '../gear.js';
+import { hitWear } from '../hit-wear.js';
 import { poolWith } from '../gear-sizes.js';
 import { partsOf, labelOf } from '../line-read.js';
 import { toneStep } from '../settings.js';
@@ -107,9 +108,11 @@ export function applyTry(ctx, line) {
     const ignored = ruled !== null && isDifficultyWord(word) && difficultyIndex(word) !== ruled ? '; difficulty word ignored: foes stand' : '';
     const missing = missed ? `; no foes called ${labelOf(line, 'against').slice(0, 40)} stand, the strongest used` : '';
     const note = ignored + missing + (edge ? (edge.ignored ? '; edge ignored: no reason given' : `; edge ${edge.steps > 0 ? '+' : '−'}${Math.abs(edge.steps)} (${edge.why})`) : '');
-    const tail = `${DIFFICULTIES[index].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${result.quality ? ` (${result.quality})` : ''}${note}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}${costPaid ? '; cost already paid' : ''}.`;
+    // (a hit that wounds also wears one piece the roller has on, the reader's or a companion's: hit-wear.js)
+    const wore = hitWear(ctx, member, hit, stages);
+    const tail = `${DIFFICULTIES[index].word}${raised ? ` (raised: ${reasons.join(', ')})` : ''}: ${BAND_WORD[result.band]}${result.quality ? ` (${result.quality})` : ''}${note}${rankUp ? `; ${found.skill.name} reaches ${rankUp}` : ''}${costPaid ? '; cost already paid' : ''}${wore ? `; ${wore}` : ''}.`;
     return {
         summary: `${member.name} tries ${found.skill?.name ?? what}, ${tail}`, narrate: true,
-        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, ...(result.quality ? { quality: result.quality } : {}), raised, ...(raised ? { why: reasons } : {}), ...(edge ? { edge: edge.steps, ...(edge.ignored ? { edgeIgnored: true } : { edgeWhy: edge.why }) } : {}), ...(found.unlearned ? { unlearned: true } : {}), paid, ...(stages > 0 ? { hit } : {}), practice, rankUp, ...(costPaid ? { costPaid } : {}), ...(against ? { touched: [against] } : {}) },
+        data: { member: member.id, target: what, die, bonus: found.bonus, total: result.total, difficulty: index, band: result.band, ...(result.quality ? { quality: result.quality } : {}), raised, ...(raised ? { why: reasons } : {}), ...(edge ? { edge: edge.steps, ...(edge.ignored ? { edgeIgnored: true } : { edgeWhy: edge.why }) } : {}), ...(found.unlearned ? { unlearned: true } : {}), paid, ...(stages > 0 ? { hit } : {}), ...(wore ? { wore } : {}), practice, rankUp, ...(costPaid ? { costPaid } : {}), ...(against ? { touched: [against] } : {}) },
     };
 }

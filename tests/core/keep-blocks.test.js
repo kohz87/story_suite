@@ -8,6 +8,7 @@
 // hashes the new `supplyKind` rule mark moves (with the mark left out, the old hashes still matched).
 // ARS-ENGINE-FIX patched only the state hashes by script, the same way, for the new rule mark `packPlaceIds`.
 // Patched the same way for the new rule mark `xpAimedFirst`.
+// And for the new rule mark `hitWear`.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

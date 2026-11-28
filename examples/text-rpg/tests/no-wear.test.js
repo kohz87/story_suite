@@ -1,4 +1,4 @@
-// Gear no longer wears from a roll: a bad failure with a hit asks the inventory for nothing, and the receipt and the card carry no wear.
+// A reply with no `hitWear` rule mark wears nothing from a roll: a bad failure with a hit asks the inventory for nothing, and the receipt and the card carry no wear.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';

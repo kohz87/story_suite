@@ -10,7 +10,7 @@ const of = (list, type, index) => (Array.isArray(list) ? list : []).filter(entry
 
 /**
  * `{ rolls, spends, xp, lessons, foes, matchup }` for the reply at message `index`; `entries` are `store.receipts()` as a query's tools give them, `nameOf(memberId)` the name to say.
- * A roll: { who, target, die, bonus, total, difficulty, band, quality, raised, why, edge?, edgeWhy?, unlearned, paid, hit, practice, rankUp }. A spend: { who, skill, practice, rankUp, sessions?, asked?, days? } only where it taught
+ * A roll: { who, target, die, bonus, total, difficulty, band, quality, raised, why, edge?, edgeWhy?, unlearned, paid, hit, practice, rankUp, wore? }. A spend: { who, skill, practice, rankUp, sessions?, asked?, days? } only where it taught
  * something and the reply did not roll that skill (a roll for the skill in the reply wins, but not over training sessions of 2 or more). xp: [{ summary, amount, levels }]. lessons: [{ who, skill, practice, rankUp }]. foes: [{ name, count, line (the group as the card shows it), reinforcements, ended }]. matchup: { band, why } or null.
  */
 export function rollsOf(entries, index, nameOf = id => id) {
@@ -18,6 +18,7 @@ export function rollsOf(entries, index, nameOf = id => id) {
         who: nameOf(data.member), target: String(data.target ?? ''), die: data.die, bonus: data.bonus ?? 0, total: data.total, difficulty: data.difficulty ?? 1, band: data.band, quality: typeof data.quality === 'string' ? data.quality : '', raised: data.raised === true, unlearned: data.unlearned === true,
         edge: Number.isInteger(data.edge) && !data.edgeIgnored && data.edge !== 0 ? { steps: data.edge, why: String(data.edgeWhy ?? '') } : null,
         why: Array.isArray(data.why) ? data.why.map(String) : [], paid: data.paid ?? 'none', hit: typeof data.hit === 'string' ? data.hit : '', practice: Number.isInteger(data.practice) ? data.practice : 0, rankUp: data.rankUp ?? null,
+        ...(typeof data.wore === 'string' && data.wore ? { wore: data.wore } : {}),
     }));
     const rolled = new Set(rolls.map(roll => `${roll.who}\u0000${practiceKey(roll.target)}`));
     const spends = [...of(entries, 'capture.spend', index), ...of(entries, 'capture.train', index)]

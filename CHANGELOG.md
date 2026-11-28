@@ -4,6 +4,8 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Party: the gear sheet's Change button no longer sits right against the stats it changes.
+- Text RPG: with Gear on, a hit that wounds now also scuffs or tears worn gear: the piece the blow names, else your body armour, else your shield (companions: their own).
 - Arsveil 0.1.1: two companions' visible looks no longer give away what their secrets hold.
 - NPC State: hidden notes written for someone already on file no longer go to a newcomer who shares their nickname.
 - Cast: when you first meet someone, the narrator now gets their whole look and what they wear, not a short cut of the look.
