@@ -2,6 +2,13 @@
 
 What changed in each release, in short. The full record of every change is in [the detailed changelog](docs/history/CHANGELOG-detail.md); the three old extensions' history is in [docs/history/](docs/history/).
 
+## Unreleased
+
+- Cast: when you first meet someone, the narrator now gets their whole look and what they wear, not a short cut of the look.
+- World pulse: a schedule shift that happens out of sight is no longer told to the narrator, so replies stop cutting away to show it.
+- Text RPG: the New character window now says what could not be added and offers Done, instead of leaving a greyed-out Create.
+- Pre-roll checks stand aside while the Text RPG rolls its own dice: no wasted model call and no 2.5 s timeout notice on every message.
+
 ## 0.1.7 — 27 Nov 2026
 
 - Packs: the rules pack Ersveil and Arsveil share is now called "Frontier rules" (1.2.1); nothing in it changed. Installing a world no longer lists facts that only make events likelier as "Ignored".

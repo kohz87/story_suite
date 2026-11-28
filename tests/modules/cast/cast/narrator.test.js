@@ -143,7 +143,8 @@ test('the cue keeps why now and how to bring them in whole for every real-length
             assert.match(cue, /^[^.;]+ comes into the scene in this reply(; their name is [^.]+)?\. It is their first meeting with \{\{user\}\}/);
         }
     }
-    assert.ok(longest > room * 0.8, 'the real entries do fill the cue');
+    // (the room grew from 220 to 560 tokens for whole looks and the clothes: the real entries now take more than the old cue's whole room)
+    assert.ok(longest > 220 * 4, `the real entries use the larger room: ${longest} of ${room}`);
 });
 
 test('on the host: Siebert comes by his goal with the story\'s reason, Tansy by place; the narrator\'s line holds each reason and the closing sentence', async t => {
@@ -177,4 +178,13 @@ test('on the host: Siebert comes by his goal with the story\'s reason, Tansy by 
     } finally {
         host.close();
     }
+});
+
+test('the cue tells a long look whole (up to 800) and what they wear, with a stranger\'s name masked in the clothes too', () => {
+    const look = `${'Tall and weathered, grey at the temples, a scar across one cheek, '.repeat(10)}hands stained with tar`.slice(0, 700);
+    const person = { name: 'Tansy Millrace', aliases: ['the ferrywoman'], where: 'Docks', met: { why: 'place', reason: '' } };
+    const cue = cueOf(person, { raw: { look, wears: 'Millrace livery, a tarred coat with Tansy stitched on the collar', voice: 'dry' }, place: 'Docks' });
+    assert.ok(cue.includes(`Look: ${look.trim()}`), 'the whole look');
+    assert.match(cue, /Wears: the ferrywoman livery, a tarred coat with the ferrywoman stitched on the collar\./);
+    assert.ok(Array.from(cue).length <= TAIL_BUDGET * 4 - 8 - '[Cast] '.length);
 });

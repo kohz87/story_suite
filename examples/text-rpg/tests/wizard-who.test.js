@@ -125,7 +125,7 @@ test('a bad file says why in plain words and leaves the draft alone: not JSON, n
     assert.equal(page.q('[data-wiz="import-done"]'), null);
 });
 
-test('Create with a saved character sends its stats, level and skills with imported: true, then adds its things and money; a thing that cannot be added is said and the sheet stays', async () => {
+test('Create with a saved character sends its stats, level and skills with imported: true, then adds its things and money; a thing that cannot be added is said and the sheet stays with Done', async () => {
     const calls = [];
     const answer = async (type, payload) => {
         calls.push([type, payload]);
@@ -150,7 +150,16 @@ test('Create with a saved character sends its stats, level and skills with impor
     assert.deepEqual(calls[3][1], { owner: 'party', amount: 150, starting: true });
     assert.equal(page.q('.wz-status').textContent, 'Ren is made, but not added: Rope (The bag is full.).');
     assert.equal(page.closed(), 0, 'the sheet stays so the reader can read it');
-    assert.equal(page.q('[data-wiz="create"]').disabled === true || page.q('[data-wiz="create"]').hasAttribute('disabled'), true, 'and the character is not made twice');
+    assert.equal(page.q('.wz-status').getAttribute('role'), 'status');
+    assert.deepEqual([page.q('[data-wiz="create"]'), page.q('.wz-foot')], [null, null], 'no Create is left, so the character is not made twice');
+    assert.doesNotMatch(page.body.textContent, /null/);
+    assert.equal(page.q('[data-wiz="done"]').textContent, 'Done');
+    assert.equal(page.q('[data-wiz="done"]').hasAttribute('disabled'), false);
+    page.press('.wz-steps [data-value="who"]');
+    assert.notEqual(page.q('[data-wiz="done"]'), null, 'the steps are done with');
+    page.press('[data-wiz="done"]');
+    assert.equal(page.closed(), 1);
+    assert.equal(calls.filter(call => call[0] === 'textRpg.create').length, 1);
 });
 
 test('a saved character through the real host: the level, the file\'s stats and skills with their ranks as practice, no points left to spend', async t => {

@@ -21,6 +21,7 @@ import { sdk } from './shared-sdk.js';
  *   state() → the story's state lines before a reply (Place, Present, Wallet, Carried …), for the repair (default: none)
  *   where() → { here, places, time }                    (default: none; the scene's place, the map's places, the story's date and time: where.js)
  *   skip: { peek() } — whether the next reply goes out with no dice (the lean RPG's start notes; default: never)
+ *   rpgReplaced() → whether the RPG is off and a feature that replaces it is on (the pre-roll steps aside; default: never)
  *   moduleId = 'story-block', timeoutMs = 20000, timer, warn(text)
  */
 export function createAssistPart({
@@ -35,6 +36,7 @@ export function createAssistPart({
     state = () => [],
     persona = () => '',
     skip = undefined,
+    rpgReplaced = undefined,
     moduleId = HOST_MODULE_ID,
     timeoutMs = TIMEOUT_MS,
     timer,
@@ -53,7 +55,7 @@ export function createAssistPart({
     };
     const log = createRunLog();
     const shared = { callModel, log, warn, timeoutMs, timer, chatId };
-    const classifier = createClassifier({ ...shared, settings: read, chat, hasKind, ...(skip ? { skip } : {}) });
+    const classifier = createClassifier({ ...shared, settings: read, chat, hasKind, ...(skip ? { skip } : {}), ...(rpgReplaced ? { rpgReplaced } : {}) });
     const extractor = createExtractor({ ...shared, settings: () => read(null), grammar, capture, where });
     const repairer = createRepairer({ ...shared, settings: () => read(null), grammar, capture, where, state, persona });
 

@@ -18,10 +18,10 @@ export const ROLLED_LINE = 'If [Happened] already shows a check for the reader\'
 /**
  * The classifier. `deps`: { callModel(prompt, { maxTokens, profile }) → text, settings(view) → the
  * module's settings, chat() → SillyTavern's chat array, chatId() → the open chat's id,
- * hasKind(kind) → whether a module keeps that change-line kind, skip.peek() → whether the reader chose "Send without the RPG for now" (no dice for the next reply), log (createRunLog), warn(text),
+ * hasKind(kind) → whether a module keeps that change-line kind, rpgReplaced() → whether the RPG is off and a feature that replaces it is on, skip.peek() → whether the reader chose "Send without the RPG for now" (no dice for the next reply), log (createRunLog), warn(text),
  * timeoutMs, timer }. Returns { beforeGenerate(view, info?) }.
  */
-export function createClassifier({ callModel, settings, chat, chatId, hasKind, log, warn, timeoutMs = TIMEOUT_MS, timer, skip: noDice = { peek: () => false } }) {
+export function createClassifier({ callModel, settings, chat, chatId, hasKind, log, warn, timeoutMs = TIMEOUT_MS, timer, skip: noDice = { peek: () => false }, rpgReplaced = () => false }) {
     // Messages already asked about in this session (whatever the answer), by chat and key, so a
     // swipe, a regenerate or a failed call never asks again.
     const asked = new Map();
@@ -32,6 +32,8 @@ export function createClassifier({ callModel, settings, chat, chatId, hasKind, l
         return item;
     }
 
+    const replaced = () => { try { return rpgReplaced() === true; } catch { return false; } };
+
     /**
      * beforeGenerate(view, info?): { lines, commands: [{ type: 'assist.precheck', payload }] } when the
      * reader's new message is an uncertain attempt, else null. `info.type` (when the host passes it) is
@@ -41,6 +43,8 @@ export function createClassifier({ callModel, settings, chat, chatId, hasKind, l
     async function beforeGenerate(view, info = {}) {
         const values = settings(view);
         if (values?.[SETTING.classifier] !== true) return null;
+        // A plug-in that replaces the RPG brings its own dice, with or without a Character block: no call.
+        if (replaced()) return null;
         // The RPG rolls only on its fight board: with it on and a Character block in the chat, this pre-roll steps aside (two sets of dice would disagree).
         if (view?.feature?.(LEAN_RPG_FEATURE) === true && readSheet(view.state).characters.length) return null;
         const type = normalizeType(info?.type);

@@ -44,7 +44,9 @@ export function pulseCommand(ctx, payload = {}) {
     director.pulse = toSlot({ results: [...before, { at, clock, ...entry, ...(payload?.age === 1 && foes ? { foes } : {}) }].slice(-RESULTS_MAX) });
     // The line rides the reply's own receipt as its [Happened] cue (a prelude: previewed for the prompt, stored with the generated reply), so
     // a swipe, a regenerate or a delete of the reply takes the roll and its effects back; a CALM or skipped roll tells nothing.
-    const line = skipped || entry.kind === 'CALM' ? '' : worldLine(entry.brief ?? entry.text, entry.brief ? BRIEF_CHARS : TAIL_CHARS);
+    // A schedule shift happens out of sight: from `unseen: 1` (every new reply) its line is not told, so the narrator does not cut away to show it; the shift itself still applies.
+    const unseen = payload?.unseen === 1 && entry.kind === 'TASK_SHIFT';
+    const line = skipped || unseen || entry.kind === 'CALM' ? '' : worldLine(entry.brief ?? entry.text, entry.brief ? BRIEF_CHARS : TAIL_CHARS);
     // `data.shown`: what the receipt lists (Inspector) when the summary is the narrator's instruction: the kind and intensity of what the narrator invents, never the brief itself.
     // A chance meeting also carries the cast's cue for the person met: the prelude is previewed on the head state, which has no meeting yet.
     return { summary: cue && line ? `${line}\n${cue}` : line, narrate: Boolean(line), data: { keep: true, kind: entry.kind, ...(entry.brief && line ? { shown: worldLine(entry.text) } : {}), ...(entry.d20 ? { d20: entry.d20 } : {}), ...(skipped ? { skipped } : {}) } };

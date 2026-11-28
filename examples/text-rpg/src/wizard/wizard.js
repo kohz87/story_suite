@@ -21,7 +21,7 @@ export function mountWizard(el, api = {}) {
   const ask = (name, fallback) => { try { return api.query?.(name) ?? fallback; } catch { return fallback; } };
   const portrait = ask('persona.portrait', null);
   const persona = String(ask('persona.name', '')).trim().slice(0, RULES.nameMax);
-  const own = { draft: newDraft(persona), step: STEPS[0], busy: false, message: '', created: false, alive: true, portrait };
+  const own = { draft: newDraft(persona), step: STEPS[0], busy: false, message: '', created: false, finished: '', alive: true, portrait };
   // (the sheet's overlay wears the wizard's classes, so the suite's wizard styles apply to it as to the RPG's own)
   const sheet = el.closest?.('.sh-ov') ?? null;
   sheet?.classList?.add('wz');
@@ -42,7 +42,7 @@ export function mountWizard(el, api = {}) {
     };
     const steps = segmented({ items: STEPS.map(id => ({ value: id, label: W.steps[id] })), value: own.step, role: 'tablist', label: W.title, className: 'wz-steps', onChange: id => go(id) });
     steps.querySelectorAll('button').forEach((tab, index) => { if (index < at) tab.classList.add('done'); });
-    const foot = h('div', { class: 'ps-row wz-foot' },
+    const foot = own.finished ? null : h('div', { class: 'ps-row wz-foot' },
       at > 0 ? button({ label: W.back, dataset: { wiz: 'back' }, onClick: () => go(STEPS[at - 1]) }) : null,
       at < STEPS.length - 1 ? button({ label: W.next, tone: 'primary', dataset: { wiz: 'next' }, onClick: () => go(STEPS[at + 1]) }) : null);
     const body = h('div', { class: `wz-body wz-${own.step}`, dataset: { step: own.step } }, DRAW[own.step](ctx));
@@ -57,14 +57,15 @@ export function mountWizard(el, api = {}) {
     const marks = markFocus(el, el.ownerDocument?.activeElement ?? null);
     const was = el.querySelector?.('.wz-body');
     const scrolled = was?.dataset?.step === own.step ? was.scrollTop ?? 0 : 0;
-    el.replaceChildren(steps, summary, body, foot);
+    // (no footer once Create has finished: a null here would be drawn as the text "null")
+    el.replaceChildren(...[steps, summary, body, foot].filter(Boolean));
     if (scrolled) body.scrollTop = scrolled;
     restoreFocus(el, marks);
     if (sheet?.dataset) sheet.dataset.step = own.step;
   }
 
   function go(step) {
-    if (!own.alive || own.busy || !STEPS.includes(step) || step === own.step) return;
+    if (!own.alive || own.busy || own.finished || !STEPS.includes(step) || step === own.step) return;
     own.step = step;
     draw();
   }

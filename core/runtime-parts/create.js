@@ -172,6 +172,7 @@ export function createRuntime({
                 persona: () => { try { return String((live() ?? ctx)?.name1 ?? ''); } catch { return String(ctx?.name1 ?? ''); } },
                 state: () => stateLinesOf(registry, () => makeView({ store, registry, settings, chat: ctx.chat })),
                 skip: skipOf(() => chatMetadata()),
+                rpgReplaced: () => !registry.featureOn(CORE_FEATURE.leanRpg) && registry.featureOrReplacementOn(CORE_FEATURE.leanRpg),
                 chat: () => ctx.chat,
                 chatId: () => ctx.getCurrentChatId?.() ?? ctx.chatId ?? '',
                 hasKind: kind => {

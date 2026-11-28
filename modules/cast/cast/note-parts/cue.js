@@ -36,7 +36,7 @@ export function strangerLabel(person) {
 const sentence = text => (/[.!?…]$/.test(text) ? text : `${text}.`);
 
 // The descriptive fields in the order they are kept, each with the most it may take.
-const FIELDS = [['Who', 'about', 240], ['Look', 'look', 200], ['Voice', 'voice', 140], ['Manner', 'personality', 140]];
+const FIELDS = [['Who', 'about', 240], ['Look', 'look', 800], ['Wears', 'wears', 500], ['Voice', 'voice', 140], ['Manner', 'personality', 140]];
 const CLOSING = 'Bring them in naturally; do not treat them as known to {{user}} yet.';
 const WHY_MAX = 260;
 

@@ -15,7 +15,7 @@ export const W = Object.freeze({
   yourSkills: 'Your skills', colSkill: 'Skill', colAbout: 'What it does (the AI reads this)', colStat: 'Stat', colType: 'Type', colCost: 'Costs', colCostN: 'Cost',
   skillType: '{name} type', skillName: 'Skill name', skillAbout: 'What {name} does', skillStat: '{name} rolls with', skillCost: '{name} costs', skillCostN: '{name} cost', remove: 'Remove {name}', add: '+ Add a skill', newSkill: 'New skill',
   slotsLeft: '{n} slots left.', slotLeft: '1 slot left.', slotsFull: 'All slots are used.',
-  reviewHead: 'Check everything, then create', reviewWho: '{name} · {kind}', costs: 'costs', create: 'Create', creating: 'Creating…', back: 'Back', next: 'Next', fixFirst: 'Fix the problem above, then Create.', problems: 'Fix this first:',
+  reviewHead: 'Check everything, then create', reviewWho: '{name} · {kind}', costs: 'costs', create: 'Create', creating: 'Creating…', back: 'Back', next: 'Next', fixFirst: 'Fix the problem above, then Create.', finish: 'Done', problems: 'Fix this first:',
   needName: 'Give the character a name.', needPoints: 'Place all {n} points ({left} left).', tooMany: 'Take back {n} points: you have placed more than you have.', tooManySkills: 'Take out {n} skills: Lv {level} holds {max}.', needSkillName: 'Every skill needs a name.', generic: 'The character could not be made.',
   stamina: 'Stamina', mana: 'Mana', begins: '{name} begins the story.', reviewLevel: 'Lv {level}',
   importText: 'Start from a saved character: its stats, unspent points, level, skills, inventory and money.', importButton: 'Import file…', importLabel: 'Saved character file',

@@ -111,8 +111,8 @@ test('pulse: skipped (and the reason recorded) in a fight, in a quiet scene, wit
 test('pulse: the hook asks for one step per reply written; a swipe is one below the chat length; a Continue, off and mode off ask for none', () => {
     const state = clocked();
     const view = (extra = {}) => ({ state, settings: {}, chat: { length: 5, lastUser: '' }, ...extra });
-    assert.deepEqual(pulseHook(view()), { commands: [{ type: PULSE, payload: { at: 5, age: 1, reach: 3, pulse: 2, persona: '' } }] });
-    assert.deepEqual(pulseHook(view({ chat: { length: 6 } }), { type: 'swipe' }), { commands: [{ type: PULSE, payload: { at: 5, age: 1, reach: 3, pulse: 2, persona: '' } }] });
+    assert.deepEqual(pulseHook(view()), { commands: [{ type: PULSE, payload: { at: 5, age: 1, reach: 3, pulse: 2, unseen: 1, persona: '' } }] });
+    assert.deepEqual(pulseHook(view({ chat: { length: 6 } }), { type: 'swipe' }), { commands: [{ type: PULSE, payload: { at: 5, age: 1, reach: 3, pulse: 2, unseen: 1, persona: '' } }] });
     assert.ok(pulseHook(view(), { type: 'regenerate' }));
     assert.equal(pulseHook(view(), { type: 'continue', commit: false }), undefined);
     assert.equal(pulseHook(view({ feature: id => id !== 'story-director.pulse' })), undefined);
@@ -395,4 +395,22 @@ test('LF4-7: an invented pulse\'s receipt carries what to show (kind and intensi
         assert.match(receipt.summary, /invent ONE small plausible thing/);
         assert.match(receipt.data.shown, /^World this reply: [a-z ]+ \((around|noticed|intrusive)\): the narrator invents it$/);
     }
+});
+
+test('pulse: from `unseen: 1` (new replies) a schedule shift out of sight tells the narrator nothing; the shift and the stored result are the same; older steps keep their line', () => {
+    const state = withScene(story([{ lines: [WORLD[0].lines, '+ agenda Courier — rides in | now: far north | then: reaches the gate | on: March 3, 2026, 06:00 pm'].join('\n') }], makeState()), { present: ['Elula', 'Bram', 'Orsa'] });
+    const queries = { 'chronicle.events': () => [], 'atlas.here': () => ({ name: 'Harrow', placeKind: 'town' }) };
+    let shifts = 0;
+    for (let seed = 1; seed <= 150; seed += 1) {
+        const old = runCommand(state, seededPulse(seed), { at: 5 }, { queries, call: () => ({}) });
+        const [entry] = resultsOf(old.state.domains.director);
+        if (entry.kind !== 'TASK_SHIFT') continue;
+        shifts += 1;
+        assert.match(old.result.summary, /^World this reply: Something out of sight is running /);
+        const now = runCommand(state, seededPulse(seed), { at: 5, unseen: 1 }, { queries, call: () => ({}) });
+        assert.equal(now.result.summary, '');
+        assert.equal(now.result.narrate, false);
+        assert.deepEqual(now.state.domains.director, old.state.domains.director, 'the same shift and the same stored result');
+    }
+    assert.ok(shifts > 0, 'some seed rolls a schedule shift');
 });

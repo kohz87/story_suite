@@ -1,5 +1,6 @@
 // Adapted from ui/wizard/review.js (keep in step when that file changes). The wizard's Review step for Text RPG: everything at a glance, what stops Create, and Create itself, which sends
-// `textRpg.create` through the widget's api (a made character closes the sheet; a refusal is shown as the command said it).
+// `textRpg.create` through the widget's api (a made character closes the sheet, or shows what was left out and Done;
+// a refusal is shown as the command said it).
 import { h } from '../kit/dom.js';
 import { button } from '../kit/controls.js';
 import { payloadOf, problemsOf } from './draft.js';
@@ -22,24 +23,29 @@ async function create(ctx, make, status) {
   const payload = payloadOf(run.draft);
   let result = null;
   try { result = await ctx.command('textRpg.create', payload); } catch { result = null; }
-  run.busy = false;
   if (result?.ok) {
     run.created = true;
     // A saved character's things and money go in after it (best effort): what could not be added is said, and the sheet stays until it is read.
     const failed = run.imported ? await addThings(run.imported.file, ctx.command, ctx.query) : [];
+    run.busy = false;
     if (!failed.length || !run.alive) { ctx.close(); return; }
-    run.message = fill(W.madeButNot, { name: payload.name, list: failed.join('; ') });
-    make.textContent = W.create;
-    status.textContent = run.message;
+    run.finished = fill(W.madeButNot, { name: payload.name, list: failed.join('; ') });
+    ctx.redraw();
     return;
   }
+  run.busy = false;
   run.message = result?.message ?? W.generic;
   if (run.alive) { make.disabled = false; make.textContent = W.create; status.textContent = run.message; }
 }
 
-/** Draws the Review step for the wizard session `ctx` ({ run, command, close }). */
+/** Draws the Review step (or, after a Create that left something out, what was left out and Done) for the wizard session `ctx` ({ run, command, redraw, close }). */
 export function drawReview(ctx) {
   const { run } = ctx;
+  if (run.finished) {
+    return h('div', { class: 'wz-review' },
+      h('p', { class: 'ps-p wz-status', role: 'status' }, run.finished),
+      h('div', { class: 'ps-row' }, button({ label: W.finish, tone: 'primary', dataset: { wiz: 'done' }, onClick: () => ctx.close() })));
+  }
   const draft = run.draft;
   const problems = problemsOf(draft);
   const skills = draft.skills.length ? draft.skills.map(skill => h('li', null, `${skill.name || '—'} · ${skill.stat.toUpperCase()} · ${typeWord(skill.type)}${costWord(skill)}`)) : [h('li', null, W.noSkills)];

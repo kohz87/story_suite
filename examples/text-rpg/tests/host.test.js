@@ -175,3 +175,17 @@ test('the manifest depends on Story Block and the code imports nothing outside t
         assert.doesNotMatch(source, /Math\.random|generateRaw|generateQuiet/, `${file.pathname} uses no Math.random and no model calls`);
     }
 });
+
+test('on the real host, Assist\'s pre-roll asks no model while Text RPG replaces the RPG (it brings its own dice); with Text RPG off it asks as before', async t => {
+    for (const on of [true, false]) {
+        let host = null, calls = 0;
+        const sdk = { feature: id => host.sdk.feature(id), settings: id => host.sdk.settings(id), command: (...args) => host.sdk.command(...args), query: (...args) => host.sdk.query(...args) };
+        // (a module that keeps `check` lines, as Story Director does: without one the pre-roll never asks)
+        const checks = { id: 'zz-checks', name: 'Checks', capture: { kinds: { check: { grammar: '? check skill | dc: normal' } }, apply: () => ({ summary: 'check' }) } };
+        host = await createHost({ modules: [checks, textRpgModule(sdk)], callModel: async () => { calls += 1; return 'none'; }, settings: { features: { 'text-rpg.on': on, 'story-block.rpg': false, 'story-block.preroll': true } } });
+        t.after(() => host.close());
+        await host.send('I slip past the gate guard.', 'You slip by.');
+        assert.equal(calls, on ? 0 : 1, `Text RPG ${on ? 'on' : 'off'}`);
+        if (on) assert.notEqual(drawn(host), null, 'its own dice step');
+    }
+});

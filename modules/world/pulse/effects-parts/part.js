@@ -15,8 +15,8 @@ export function pulseHook(view, info = {}) {
     const type = String(info?.type ?? 'normal').toLowerCase();
     const length = view?.chat?.length;
     if (info?.commit === false || !['normal', 'swipe', 'regenerate'].includes(type) || !isInt(length)) return undefined;
-    // The chat holds the reply being swiped, so the reply's place is one below its length.
-    return { commands: [{ type: PULSE, payload: { at: Math.max(0, length - (type === 'swipe' ? 1 : 0)), age: 1, reach: 3, pulse: 2, persona: personaName() } }] };
+    // The chat holds the reply being swiped, so the reply's place is one below its length. `unseen: 1` (new replies): a schedule shift out of sight tells the narrator nothing.
+    return { commands: [{ type: PULSE, payload: { at: Math.max(0, length - (type === 'swipe' ? 1 : 0)), age: 1, reach: 3, pulse: 2, unseen: 1, persona: personaName() } }] };
 }
 
 // A prelude (Story Block registry.isPrelude): the host previews it for the prompt and stores it on the generated reply with the same seed.

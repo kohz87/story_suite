@@ -11,7 +11,7 @@ import { NEVER, fakeModel, flush, manualTimer, on, reply, user, view } from './h
 const ACTION = 'I slip past the gate guard while he looks at the cart.';
 const CHECK = '? check stealth — slipping past the gate guard | dc: hard';
 
-function setup({ answers = [CHECK], settings = on({ classifier: true }), chat = [reply('The gate.'), user(ACTION)], kinds = ['check'], timer, timeoutMs, skip } = {}) {
+function setup({ answers = [CHECK], settings = on({ classifier: true }), chat = [reply('The gate.'), user(ACTION)], kinds = ['check'], timer, timeoutMs, skip, rpgReplaced } = {}) {
     const callModel = fakeModel(...answers);
     const warnings = [];
     const state = { chat, settings, chatId: 'chat-1' };
@@ -23,6 +23,7 @@ function setup({ answers = [CHECK], settings = on({ classifier: true }), chat = 
         hasKind: kind => kinds.includes(kind),
         warn: text => warnings.push(text),
         ...(skip ? { skip } : {}),
+        ...(rpgReplaced ? { rpgReplaced } : {}),
         ...(timer ? { timer } : {}),
         ...(timeoutMs ? { timeoutMs } : {}),
     });
@@ -71,6 +72,16 @@ test('difficulties and check lines are normalized and checked', () => {
     assert.equal(checkLine({ op: '+', kind: 'check', name: 'stealth', labels: { dc: 'hard' } }), null);
     assert.equal(checkLine(null), null);
     assert.equal(checkLine({ op: '?', kind: 'check', name: 'stealth', text: 'x'.repeat(400), labels: { dc: 'hard' } }).text.length, 160);
+});
+
+test('the RPG replaced by an active replacement (it brings its own dice): no model call; not replaced: asked as before', async () => {
+    let replaced = true;
+    const { before, callModel } = setup({ rpgReplaced: () => replaced });
+    assert.equal(await before(), null);
+    assert.equal(callModel.calls.length, 0);
+    replaced = false;
+    assert.notEqual(await before(), null);
+    assert.equal(callModel.calls.length, 1);
 });
 
 test('off (the default): nothing, and no model call', async () => {
