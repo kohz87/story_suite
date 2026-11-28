@@ -49,6 +49,9 @@ test('skips: tomorrow, next day, next morning, tomorrow evening land on the next
     assert.equal(read('!', 'next morning').minutes, at('March 4, 2026, 09:00 am'));
     assert.equal(read('!', 'tomorrow evening').minutes, at('March 4, 2026, 07:00 pm'));
     assert.equal(read('!', 'tomorrow at 8 am').minutes, at('March 4, 2026, 08:00 am'));
+    // (the grammar's own example: a wake before dawn gives its hour; a bare next morning is 9 am)
+    assert.equal(read('!', 'tomorrow 4:50 am').minutes, at('March 4, 2026, 04:50 am'));
+    assert.equal(read('!', 'next morning').minutes, at('March 4, 2026, 09:00 am'));
     // Early morning: still the next calendar day, never the same one.
     assert.equal(read('!', 'next morning', at('March 3, 2026, 03:00 am')).minutes, at('March 4, 2026, 09:00 am'));
     assert.equal(skipTarget('March 5', NOW, gregorian), null);

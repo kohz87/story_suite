@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Time: the narrator is told to give the hour when a reply skips to the next day ("before five" now lands before five, not at 9 am).
 - Party: the gear sheet's Change button no longer sits right against the stats it changes.
 - Text RPG: with Gear on, a hit that wounds now also scuffs or tears worn gear: the piece the blow names, else your body armour, else your shield (companions: their own).
 - Arsveil 0.1.1: two companions' visible looks no longer give away what their secrets hold.
