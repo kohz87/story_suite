@@ -6,6 +6,7 @@ import { nextLearned } from '../learned.js';
 import { memberNamed, skillIndex, skillSlots } from '../members.js';
 import { partsOf, labelOf, statKey } from '../line-read.js';
 import { levelOf } from '../standing.js';
+import { knownLevel } from '../known-level.js';
 import { target } from './target.js';
 
 const TYPES = ['attack', 'defence', 'movement', 'magic', 'social', 'craft', 'utility'];
@@ -44,7 +45,8 @@ export function applyCompanion(ctx, line) {
         slice.members[member.id] = member;
     }
     // (a companion levels from the xp they earn with the party, on top of the level they joined at: a later join line keeps that level and only changes the strengths)
-    const level = member.companion ? member.companion.level : asked;
+    // (a first join takes the level the world already gives them, over the narrator's)
+    const level = member.companion ? member.companion.level : Math.min(LIMITS.levelMax, knownLevel(ctx, member.name) ?? asked);
     // (someone who was not a companion before, such as a fallen character of the reader's, starts with no xp held: it counts what they earn from now)
     if (!member.companion && member.xp !== 0) {
         if (typeof ctx.absolute === 'function') ctx.absolute(DOMAIN, `/members/${member.id}/xp`);

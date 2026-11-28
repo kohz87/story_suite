@@ -79,6 +79,9 @@ export const RULE_LINES = Object.freeze({
     // A Text RPG `? try` whose `hit:` wounds also wears one piece the roller has on (Text RPG module-parts/hit-wear.js). A reply with no mark wears nothing by code.
     // Any try line counts, so an old reply with one never gains it on Continue or Re-read.
     hitWear: line => line?.kind === 'try',
+    // A Text RPG `+ companion` line takes the level an NPC State dossier, else a world pack's cast entry, gives the person, over the narrator's `level:` (Text RPG
+    // module-parts/known-level.js). A reply with no mark joins at the narrator's level. Any companion line counts, so an old reply with one never gains it on Continue or Re-read.
+    companionKnownLevel: line => line?.kind === 'companion',
     // `~ reveal Name | opened: <id>` may open a person's next pack secret not yet told though its gate is closed, and `<id>` may be the pack's own id
     // (NPC State meters/npc-lines-parts/secret.js). A reply with no mark opens a gated secret only while its gate is open, by its sec_ id.
     revealNext: line => line?.kind === 'reveal',

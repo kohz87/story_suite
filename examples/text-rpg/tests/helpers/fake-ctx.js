@@ -33,10 +33,10 @@ export function sliceOf(members = [astra()], live = { list: [10, 10, 10], floor:
 /** A ctx over `slice`: the handlers draft the slice itself, so a test reads the result from it. */
 export function fakeCtx(slice, options = {}) {
     const claimed = new Set();
-    const { on = true, rpg = false, query = () => null, time = null, settings = {}, cause = 'ui', caller = null, random = 0.5, sid = SID, receipts = [], standingReceipts = null, call = undefined } = options;
+    const { on = true, rpg = false, query = () => null, time = null, settings = {}, cause = 'ui', caller = null, random = 0.5, sid = SID, rules = [], receipts = [], standingReceipts = null, call = undefined } = options;
     let made = 0;
     return {
-        cause, caller, reply: { index: 2, sid }, standingReceipts, receipts: () => receipts,
+        cause, caller, reply: { index: 2, sid }, carrier: { rules }, standingReceipts, receipts: () => receipts,
         draft: () => slice, read: () => slice, ...(call ? { call } : {}),
         fail(code, message) { throw new Refused(code, message); },
         feature: id => (id === 'text-rpg.on' ? on : id === 'story-block.rpg' ? rpg : false),

@@ -9,6 +9,7 @@
 // ARS-ENGINE-FIX patched only the state hashes by script, the same way, for the new rule mark `packPlaceIds`.
 // Patched the same way for the new rule mark `xpAimedFirst`.
 // And for the new rule mark `hitWear`.
+// And for the new rule mark `companionKnownLevel`.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

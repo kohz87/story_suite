@@ -4,6 +4,7 @@ What changed in each release, in short. The full record of every change is in [t
 
 ## Unreleased
 
+- Text RPG: a companion now joins at the level NPC State or the world pack already gives them, not whatever number the narrator writes.
 - Time: the narrator is told to give the hour when a reply skips to the next day, so an early wake no longer jumps to 9 am.
 - Party: the gear sheet's Change button no longer sits right against the stats it changes.
 - Text RPG: with Gear on, a hit that wounds now also scuffs or tears worn gear: the piece the blow names, else your body armour, else your shield (companions: their own).
